@@ -1,0 +1,17 @@
+name: silero-vad-onnx-bench
+description: Silero VAD (ONNX), windows per second and real-time factor over a 60 s clip on a real GPU.
+kind: benchmark
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: snakers4/silero-vad silero_vad.onnx
+  revision: "snakers4/silero-vad v6.2.3 = commit 5cd7945676eb32225748052e2e6a0580e4686a08; silero_vad.onnx sha256 1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3 (identical in the PyPI wheel silero-vad 6.2.3)"
+  licence: MIT   # LICENSE at that commit and in the wheel (silero_vad-6.2.3.dist-info/licenses/LICENSE)
+  source_url: https://github.com/snakers4/silero-vad
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Sequential, stateful 512-sample windows (batch 1), so this measures per-call
+  latency of a tiny model, not GPU throughput. Median of PW_ORT_REPEATS (5) passes. gpu target only;
+  exits 77 when onnxruntime has no GPU execution provider.

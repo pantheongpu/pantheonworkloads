@@ -1,0 +1,22 @@
+name: spacy-en-core-web-sm
+description: spaCy's pretrained en_core_web_sm 3.8.0 tags, parses and finds entities in four fixed sentences.
+kind: functional
+runtime: spacy
+runtime_version: "spacy 3.8.16 (PyPI), thinc 8.3.13"
+targets: [cpu, gpu]
+compare: exact
+timeout_s: 900
+model:
+  id: explosion/spacy-models en_core_web_sm
+  revision: "release en_core_web_sm-3.8.0; wheel sha256 1932429db727d4bff3deed6b34cfc05df17794f4a52eeb26cf8928f7c1a0fb85 (model.sha256)"
+  licence: MIT   # en_core_web_sm-3.8.0.dist-info/LICENSE inside that wheel (Copyright 2021 ExplosionAI GmbH) and meta.json "license"
+  source_url: https://github.com/explosion/spacy-models/releases/tag/en_core_web_sm-3.8.0
+notes: >
+  The wheel is fetched at run time from the GitHub release (sha256-pinned, tools/ort_assets.py) and
+  pip-installed into a venv (tools/spacy-env.sh); nothing is committed. Its LICENSES_SOURCES file lists the
+  training data: OntoNotes 5 ("commercial (licensed by Explosion)"), WordNet 3.0 (its own licence, text in that
+  file) and a ClearNLP conversion guideline (citation only). Explosion distributes the trained model under MIT;
+  anyone redistributing or building on it should read those notices. The four sentences are written for this
+  repo. Output: tokens, coarse POS, dependency label and head index, and entities, all compared exactly
+  (no floats). The gpu path (spacy.prefer_gpu with cupy-cuda12x) was NOT run where this was written; it is a
+  SKIP without a usable CUDA GPU, never a CPU fallback. No sim: targets.

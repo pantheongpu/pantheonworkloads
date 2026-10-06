@@ -1,0 +1,16 @@
+name: spacy-en-core-web-sm-bench
+description: spaCy en_core_web_sm 3.8.0, words per second over 1000 short documents, on a real GPU.
+kind: benchmark
+runtime: spacy
+runtime_version: "spacy 3.8.16 (PyPI), thinc 8.3.13, cupy-cuda12x"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: explosion/spacy-models en_core_web_sm
+  revision: "release en_core_web_sm-3.8.0; wheel sha256 1932429db727d4bff3deed6b34cfc05df17794f4a52eeb26cf8928f7c1a0fb85 (model.sha256)"
+  licence: MIT   # en_core_web_sm-3.8.0.dist-info/LICENSE inside that wheel; see spacy-en-core-web-sm for the training-data notices
+  source_url: https://github.com/explosion/spacy-models/releases/tag/en_core_web_sm-3.8.0
+notes: >
+  1000 short documents (the four fixed sentences, 250 times) through nlp.pipe with batch_size 64, median of
+  PW_SPACY_REPEATS (5) passes. spaCy's tokenizer and rule components run on the CPU, so this is a pipeline
+  number, not a GPU-kernel number. NVIDIA GPUs only (cupy). Not run where this was written (no GPU).

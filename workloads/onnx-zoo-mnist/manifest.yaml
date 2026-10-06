@@ -1,0 +1,20 @@
+name: onnx-zoo-mnist
+description: ONNX model zoo MNIST-12 classifies the zoo's own test digit with onnxruntime.
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {top_logits: {abs: 0.01, rel: 0.001}}}
+timeout_s: 900
+model:
+  id: onnx/models validated/vision/classification/mnist/model/mnist-12.onnx
+  revision: "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; mnist-12.onnx sha256 5c688690f8bacf667d4c2074af5ad0646ca328d7ab03eccf944a65b320171bdd (= its git-LFS oid)"
+  licence: MIT   # mnist/README.md "License" section at that commit (repo LICENSE is Apache-2.0)
+  source_url: https://github.com/onnx/models/tree/main/validated/vision/classification/mnist
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Input and expected output: test_data_set_0 in the zoo's mnist-12.tar.gz; the
+  run also fails if the logits differ from the zoo's own by more than 1e-3. Output: top-3 class ids
+  (exact) and their logits (abs 0.01 + rel 1e-3). The digit image's own licence (MNIST test set) is
+  not stated by the zoo, so it is fetched, not committed. No sim: targets.
