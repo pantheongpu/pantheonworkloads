@@ -1,0 +1,34 @@
+name: lib-rnn-conv
+description: LSTM/GRU (bidirectional, packed, projection), convolution variants (transposed, depthwise, dilated, 3D, channels_last, fp16/bf16, backward), pooling, resampling, normalisation and activation families; model-free.
+kind: functional
+runtime: pytorch
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: tolerance
+tolerance:
+  abs: 1.0e-4
+  rel: 1.0e-3
+  fields:
+    lstm_fp16: {abs: 2.0e-04, rel: 5.0e-03}
+    gru_bf16: {abs: 2.0e-03, rel: 5.0e-02}
+    conv2d_fp16: {abs: 2.0e-03, rel: 5.0e-03}
+    conv2d_bf16_channels_last: {abs: 2.0e-02, rel: 5.0e-02}
+    conv_transpose2d_fp16: {abs: 1.0e-03, rel: 5.0e-03}
+    layer_norm_bf16: {abs: 1.0e-02, rel: 5.0e-02}
+    group_norm_fp16: {abs: 1.0e-03, rel: 5.0e-03}
+    act_gelu_fp16_bf16: {abs: 2.0e-03, rel: 5.0e-03}
+    act_softmax_bf16: {abs: 5.0e-04, rel: 5.0e-02}
+timeout_s: 1800
+model: null     # downloads no model
+notes: >
+  GPU libraries exercised: cuDNN / MIOpen (RNN, convolution, batch norm), PyTorch's native norm/activation kernels. Inputs come from CPU generators with fixed seeds (docs/lib-coverage.md);
+  TF32 is off except in the ops that turn it on for themselves. Output: per op a checksum, [mean|y|, rms, y at three
+  fixed positions] for floats or a count/sum/weighted-sum/head string for integers. An op the backend has no kernel
+  for is reported as the string "unsupported" (never skipped), so against a reference with numbers it fails on exactly
+  that key. Every run also fails if any op is further from its own float64 CPU result than the op's bound
+  (max |error| as a fraction of the result's rms; integer results must be equal). RNN weights are seeded per module (torch.manual_seed before construction), converted to the op's dtype, and the float64 reference runs the same weights rounded to that dtype. Backward ops compare the gradients.
+  Tolerances: default abs 1e-4 / rel 1e-3 for fp32 ops; fp16 and bf16 ops carry their own (fields above): rel 4 eps of the
+  dtype, abs 4x the largest checksum deviation measured on the CPU between the dtype run and the float64 run, a 1-thread run
+  and a repeat (at least one eps of the checksum's rms). The fp32 ops use under 1% of the default tolerance on the CPU.
+  Derivation: `libkernels.py lib-rnn-conv --calibrate` (docs/lib-coverage.md). The reference was recorded on the cpu target
+  (CPU PyTorch from conda-forge); ops that the CPU cannot run are recorded as "unsupported", so a first GPU run is
+  expected to differ on those keys until a reference is recorded on a GPU. Not run on any GPU or simulator.

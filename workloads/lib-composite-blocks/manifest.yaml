@@ -1,0 +1,30 @@
+name: lib-composite-blocks
+description: Random-init ViT encoder block, UNet ResBlock+attention diffusion denoise step and DLRM-style recommender forward (plus backward) on seeded inputs; no pretrained weights.
+kind: functional
+runtime: pytorch
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: tolerance
+tolerance:
+  abs: 1.0e-4
+  rel: 1.0e-3
+  fields:
+    vit_block_forward_fp16: {abs: 1.0e-03, rel: 5.0e-03}
+    vit_block_forward_bf16: {abs: 1.0e-02, rel: 5.0e-02}
+    unet_denoise_step_fp16: {abs: 1.0e-03, rel: 5.0e-03}
+    unet_denoise_step_channels_last_bf16: {abs: 5.0e-03, rel: 5.0e-02}
+    dlrm_forward_fp16: {abs: 5.0e-04, rel: 5.0e-03}
+timeout_s: 1800
+model: null     # downloads no model
+notes: >
+  GPU libraries exercised: the kernel mix of vision transformers, diffusion UNets and recommenders. Inputs come from CPU generators with fixed seeds (docs/lib-coverage.md);
+  TF32 is off except in the ops that turn it on for themselves. Output: per op a checksum, [mean|y|, rms, y at three
+  fixed positions] for floats or a count/sum/weighted-sum/head string for integers. An op the backend has no kernel
+  for is reported as the string "unsupported" (never skipped), so against a reference with numbers it fails on exactly
+  that key. Every run also fails if any op is further from its own float64 CPU result than the op's bound
+  (max |error| as a fraction of the result's rms; integer results must be equal). Modules are built with torch.manual_seed on the CPU and converted to the op's dtype; the reference runs the same weights, rounded, in float64. The UNet step is one DDPM reverse step (eps prediction, x_{t-1} = mean + sigma z with a seeded z).
+  Tolerances: default abs 1e-4 / rel 1e-3 for fp32 ops; fp16 and bf16 ops carry their own (fields above): rel 4 eps of the
+  dtype, abs 4x the largest checksum deviation measured on the CPU between the dtype run and the float64 run, a 1-thread run
+  and a repeat (at least one eps of the checksum's rms). The fp32 ops use under 1% of the default tolerance on the CPU.
+  Derivation: `libkernels.py lib-composite-blocks --calibrate` (docs/lib-coverage.md). The reference was recorded on the cpu target
+  (CPU PyTorch from conda-forge); ops that the CPU cannot run are recorded as "unsupported", so a first GPU run is
+  expected to differ on those keys until a reference is recorded on a GPU. Not run on any GPU or simulator.

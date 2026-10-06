@@ -1,0 +1,14 @@
+name: lib-kernels-bench
+description: Throughput of the library paths exercised by the lib-* functional workloads (FFT, solvers, sparse, embeddings, sort, RNN, convolution variants, normalisation, SDPA backends, int8/fp8/TF32/autocast matmul, ViT/UNet/DLRM blocks); real GPUs only.
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 3600
+model: null     # downloads no model
+notes: >
+  Metrics (only on a real GPU): *_tflops (matmul-like), *_gflops (FFT, solver and sparse flop counts), *_gb_s (bytes moved
+  by memory-bound ops: embeddings, scatter, norms, activations), *_mkeys_s (sort, top-k, unique), *_ops_s / *_s
+  (one op or one sample per second). The flop counts are in the group files' bench() (workloads/_lib/grp_*.py). A metric
+  whose op is unsupported or does not fit in memory is left out, not faked, so records of different cards may have
+  different key sets. PW_LIB_SIZE=tiny shrinks every size (a smoke test of the code path on any host; the numbers mean
+  nothing). Never reported on cpu or sim: targets. Nothing was recorded here: no GPU was available.
