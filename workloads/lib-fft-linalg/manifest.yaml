@@ -1,0 +1,26 @@
+name: lib-fft-linalg
+description: torch.fft (1D/2D/3D, real and complex, power-of-two, odd, prime and half-precision sizes) and torch.linalg (Cholesky, QR, SVD, eigh, LU, solve, lstsq, matrix_exp) on seeded inputs; model-free.
+kind: functional
+runtime: pytorch
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: tolerance
+tolerance:
+  abs: 1.0e-4
+  rel: 1.0e-3
+  fields:
+    {}
+timeout_s: 1800
+model: null     # downloads no model
+notes: >
+  GPU libraries exercised: cuFFT / rocFFT, cuSOLVER / rocSOLVER, cuBLAS / rocBLAS. Inputs come from CPU generators with fixed seeds (docs/lib-coverage.md);
+  TF32 is off except in the ops that turn it on for themselves. Output: per op a checksum, [mean|y|, rms, y at three
+  fixed positions] for floats or a count/sum/weighted-sum/head string for integers. An op the backend has no kernel
+  for is reported as the string "unsupported" (never skipped), so against a reference with numbers it fails on exactly
+  that key. Every run also fails if any op is further from its own float64 CPU result than the op's bound
+  (max |error| as a fraction of the result's rms; integer results must be equal). Linear-algebra results with a sign or gauge freedom (QR, SVD, eigh) are reduced to invariants before checksumming: |R|, singular values, eigenvalues and reconstructions Q R, U S Vh, V diag(w) V^T. Matrices are made well conditioned so fp32 error is a small multiple of 1e-7.
+  Tolerances: default abs 1e-4 / rel 1e-3 for fp32 ops; fp16 and bf16 ops carry their own (fields above): rel 4 eps of the
+  dtype, abs 4x the largest checksum deviation measured on the CPU between the dtype run and the float64 run, a 1-thread run
+  and a repeat (at least one eps of the checksum's rms). The fp32 ops use under 1% of the default tolerance on the CPU.
+  Derivation: `libkernels.py lib-fft-linalg --calibrate` (docs/lib-coverage.md). The reference was recorded on the cpu target
+  (CPU PyTorch from conda-forge); ops that the CPU cannot run are recorded as "unsupported", so a first GPU run is
+  expected to differ on those keys until a reference is recorded on a GPU. Not run on any GPU or simulator.
