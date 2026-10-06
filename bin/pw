@@ -65,16 +65,20 @@ def close(a, b, absolute, relative, fields=None):
 UNSUPPORTED = "unsupported"
 
 
-def split_unsupported(manifest, output, reference):
+def split_unsupported(manifest, output, reference, target=None):
     """The lib-* workloads report an op the backend has no kernel for as the string "unsupported".
     A reference recorded on a backend that lacks an op (e.g. the CPU has no mem-efficient SDPA or half FFT) has
     no number to check a backend that has one against, so that key is *unchecked* (dropped from both sides,
     counted). The reverse (a number in the reference, "unsupported" on the target) stays a mismatch unless the
-    manifest lists the key under `unsupported_ok`. Only top-level keys of a dict output are considered.
+    manifest lists the key under `unsupported_ok` (a list of keys, or a mapping from target patterns such as
+    `sim:nvidia/t4` to lists, for ops only some GPUs lack). Only top-level keys of a dict output are considered.
     Returns (output, reference, unchecked key list)."""
     if not (isinstance(output, dict) and isinstance(reference, dict)):
         return output, reference, []
-    allowed = set(manifest.get("unsupported_ok") or [])
+    ok = manifest.get("unsupported_ok") or []
+    if isinstance(ok, dict):
+        ok = [k for pattern, keys in ok.items() if target and fnmatch.fnmatchcase(target, pattern) for k in keys]
+    allowed = set(ok)
     unchecked = []
     output, reference = dict(output), dict(reference)
     for k in sorted(reference.keys() & output.keys()):
@@ -147,7 +151,7 @@ def execute(name, target, scratch):
         if not ref_file.exists():
             return "SKIP", seconds, "no reference recorded (bin/pw record)", rec
         reference = json.loads(ref_file.read_text())["output"]
-        output, reference, unchecked = split_unsupported(manifest, output, reference)
+        output, reference, unchecked = split_unsupported(manifest, output, reference, target)
         if not compare(manifest, output, reference):
             return "FAIL", seconds, f"output differs from reference: got {output!r}, want {reference!r}"[:200], rec
         if unchecked:

@@ -45,10 +45,20 @@ tolerance:
 timeout_s: 1800
 model: null     # downloads no model
 # Ops that a real GPU also has no kernel for although the CPU computes them: the CPU reference holds numbers, a GPU
-# reports "unsupported" (bin/pw: a reference number against "unsupported" is a FAIL unless listed here).
+# reports "unsupported" (bin/pw: a reference number against "unsupported" is a FAIL unless listed here; the mapping
+# is target pattern -> keys, see docs/manifest.md).
 #  - sdpa_flash_fp32_causal: FlashAttention kernels exist for fp16 and bf16 only ("No available kernel" for fp32 on a GPU).
 #  - dynamic_quantized_linear: torch.ao dynamic int8 Linear is a CPU (fbgemm / onednn) path.
-unsupported_ok: [sdpa_flash_fp32_causal, dynamic_quantized_linear]
+#  - fp8_scaled_mm_e4m3: torch._scaled_mm needs fp8 tensor cores (sm_89 and newer): Ampere (a100, rtx30xx) and Turing (t4) lack them.
+#  - the flash ops on a t4: FlashAttention needs sm_80 or newer (Turing runs the memory-efficient and math backends).
+unsupported_ok:
+  "*": [sdpa_flash_fp32_causal, dynamic_quantized_linear]
+  "sim:nvidia/a100": [fp8_scaled_mm_e4m3]
+  "sim:nvidia/rtx3060": [fp8_scaled_mm_e4m3]
+  "sim:nvidia/rtx3080ti": [fp8_scaled_mm_e4m3]
+  "sim:nvidia/t4": [fp8_scaled_mm_e4m3, sdpa_flash_fp16_plain, sdpa_flash_fp16_causal, sdpa_flash_fp16_gqa_causal,
+                    sdpa_flash_fp16_cross_lengths, sdpa_flash_fp16_head_dim_40, sdpa_flash_fp16_decode_gqa_kv_cache,
+                    sdpa_flash_bf16_causal, sdpa_flash_bf16_gqa_causal, sdpa_backward_flash_fp16]
 notes: >
   GPU libraries exercised: flash-attention, mem-efficient (cutlass) and cuDNN attention kernels, cuBLASLt int8/fp8, tensor-core TF32/fp16/bf16 paths. Inputs come from CPU generators with fixed seeds (docs/lib-coverage.md);
   TF32 is off except in the ops that turn it on for themselves. Output: per op a checksum, [mean|y|, rms, y at three

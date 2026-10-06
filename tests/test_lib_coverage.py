@@ -221,6 +221,14 @@ class UncheckedOps(unittest.TestCase):
         o, r, unchecked = pw.split_unsupported(listed, lacking, ref)
         self.assertTrue(pw.compare(listed, o, r))
         self.assertEqual(unchecked, ["b"])
+        # a mapping lists the keys per target: a GPU generation that lacks the op, not every GPU
+        per = dict(manifest, unsupported_ok={"sim:nvidia/t4": ["a"], "sim:nvidia/a100": ["d"]})
+        o, r, _ = pw.split_unsupported(per, lacking, ref, "sim:nvidia/t4")
+        self.assertTrue(pw.compare(per, o, r))
+        o, r, _ = pw.split_unsupported(per, lacking, ref, "sim:nvidia/h100")
+        self.assertFalse(pw.compare(per, o, r))
+        o, r, _ = pw.split_unsupported(per, lacking, ref)
+        self.assertFalse(pw.compare(per, o, r))
 
 
 class CondaHelper(unittest.TestCase):
