@@ -1,0 +1,24 @@
+name: gpt-train-fp32
+description: 20 AdamW training steps of a tiny character-level GPT in fp32; the 20 losses are compared.
+kind: functional
+runtime: pytorch
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: tolerance
+tolerance: {abs: 1.0e-3, rel: 0.0}
+timeout_s: 3600
+model:
+  id: gpt-train-tiny (defined in workloads/_shared/gpt_train.py; no pretrained weights)
+  revision: workloads/_shared/gpt_train.py at this repository's commit
+  licence: Apache-2.0       # this repository's own code (LICENSE); design follows nanoGPT (MIT), see docs/models.md
+  source_url: https://github.com/karpathy/nanoGPT
+notes: >
+  2 layers, 2 heads, 32 wide, 32 tokens of context, batch 8, 1,212 characters of checked-in text
+  (workloads/_shared/data/tinytext.txt), seed 1337, AdamW (lr 3e-3, weight decay 0.1 on matrices),
+  gradient clipping at 1.0, no dropout. The model is initialised and the batches are drawn on the
+  CPU, so every target starts from the same weights and data; TF32 is off.
+  Tolerance: on the CPU backend the 20 losses differ by 1.7e-6 between 1 and 4 threads and by
+  1.2e-6 from a float64 run (reduction order only). A GPU's matmul and attention kernels
+  reorder sums differently, so the bound is set 600x above that, abs 1e-3, while the loss
+  falls by 0.61 over the run (steps differ by 0.006 to 0.16): a wrong backward kernel or optimizer shows.
+  Reference recorded on cpu (torch 2.13.0 from conda-forge), not on a GPU. Not run on any GPU or
+  simulator yet.
