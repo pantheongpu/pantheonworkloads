@@ -76,6 +76,29 @@ class Execute(unittest.TestCase):
         self.assertEqual(run_selftest("tpu")[0], "SKIP")
 
 
+class PytorchWorkloads(unittest.TestCase):
+    """The pytorch-* workloads must SKIP (exit 77), not fail, where there is no PyTorch to use."""
+    NAMES = ["pytorch-microsuite", "gpt2-small-pytorch", "bert-base-uncased-pytorch", "resnet18-randinit-pytorch"]
+
+    def test_skip_without_torch(self):
+        for name in self.NAMES:
+            with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(
+                    os.environ, {"PW_NO_INSTALL": "1", "PW_VENV_ROOT": tmp, "PW_TORCH_PYTHON": ""}):
+                result, _, detail, _ = pw.execute(name, "cpu", pathlib.Path(tmp) / "out")
+            self.assertEqual(result, "SKIP", (name, detail))
+            self.assertIn("PyTorch", detail)
+
+    def test_skip_when_sim_build_missing(self):
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(
+                os.environ, {"PW_NO_INSTALL": "1", "PW_VENV_ROOT": tmp}):
+            os.environ.pop("PANTHEONSIM_DIR", None)
+            result, _, _, _ = pw.execute("pytorch-microsuite", "sim:nvidia/h100", pathlib.Path(tmp) / "out")
+        self.assertEqual(result, "SKIP")
+
+    def test_unsupported_target_is_skip(self):
+        self.assertEqual(pw.execute("pytorch-microsuite", "tpu", pathlib.Path(tempfile.mkdtemp()))[0], "SKIP")
+
+
 class Compare(unittest.TestCase):
     def test_exact(self):
         self.assertTrue(pw.compare({"compare": "exact"}, "a", "a"))
@@ -91,6 +114,19 @@ class Compare(unittest.TestCase):
         m = {"compare": "tolerance", "tolerance": {"abs": 0.0, "rel": 0.1}}
         self.assertTrue(pw.compare(m, 105.0, 100.0))
         self.assertFalse(pw.compare(m, 120.0, 100.0))
+
+    def test_dicts_compare_key_by_key_with_per_field_tolerance(self):
+        m = {"compare": "tolerance", "tolerance": {"abs": 1e-3, "rel": 0.0, "fields": {"loose": {"abs": 0.5}}}}
+        ref = {"ids": "1 2 3", "tight": [1.0, 2.0], "loose": [10.0]}
+        self.assertTrue(pw.compare(m, {"ids": "1 2 3", "tight": [1.0005, 2.0], "loose": [10.4]}, ref))
+        self.assertFalse(pw.compare(m, {"ids": "1 2 3", "tight": [1.01, 2.0], "loose": [10.0]}, ref))
+        self.assertFalse(pw.compare(m, {"ids": "1 2 4", "tight": [1.0, 2.0], "loose": [10.0]}, ref), "strings are exact")
+        self.assertFalse(pw.compare(m, {"ids": "1 2 3", "tight": [1.0, 2.0]}, ref), "a missing key differs")
+        self.assertFalse(pw.compare(m, {"ids": "1 2 3", "tight": [1.0, 2.0], "loose": [10.0], "x": 1}, ref))
+
+    def test_bool_is_not_a_number(self):
+        m = {"compare": "tolerance", "tolerance": {"abs": 5.0, "rel": 0.0}}
+        self.assertFalse(pw.compare(m, True, 3))
 
 
 class Cli(unittest.TestCase):
@@ -251,6 +287,11 @@ model: {id: m, revision: abc, licence: Apache-2.0, source_url: "https://example.
         ):
             errors, _ = self.check(text, reference=True)
             self.assertTrue(any(fragment in e for e in errors), (fragment, errors))
+
+    def test_model_null_means_no_model_but_absent_model_is_an_error(self):
+        errors, _ = self.check(self.GOOD.replace('model: {id: m, revision: abc, licence: Apache-2.0, source_url: "https://example.org"}', "model: null"),
+                               reference=True)
+        self.assertEqual(errors, [])
 
     def test_missing_run_sh(self):
         errors, _ = self.check(self.GOOD, run_sh=False, reference=True)

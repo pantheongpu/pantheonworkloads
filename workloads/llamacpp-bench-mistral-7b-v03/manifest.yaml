@@ -1,0 +1,20 @@
+name: llamacpp-bench-mistral-7b-v03
+description: llama-bench prompt-processing and token-generation tokens/s for Mistral-7B-v0.3 GGUF (quantisation of your choice).
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7200
+model:
+  id: mistralai/Mistral-7B-v0.3 (GGUF conversion supplied by the user)
+  revision: null            # UNPINNED, see notes
+  licence: "UNVERIFIED (Mistral-7B-v0.3 is believed to be Apache-2.0, but its card was not reachable and the GGUF conversion carries its own card)"
+  source_url: https://huggingface.co/mistralai/Mistral-7B-v0.3
+notes: >
+  Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp<N>_tokens_per_s (prompt
+  processing) and tg<M>_tokens_per_s (generation), default pp512 and tg128, from llama-bench -o json
+  (mean of PW_BENCH_REPS=3 inside llama-bench; bin/pw's --repeat adds outer repeats). llama.cpp is MIT
+  (LICENSE read at the pinned commit). Models, quantisation and offload: docs/llamacpp.md.
+  NOT YET RUN on any GPU: bench/ has no record for it. AMD devices are not auto-detected: pass --device.
+  No default download: set PW_MODEL_FILE or PW_MODEL_URL (and PW_MODEL_SHA256). Whoever records a number must read the licence on the
+  card of the exact conversion used, put it here, and pin revision and model.sha256 (the sha256 of the .gguf).

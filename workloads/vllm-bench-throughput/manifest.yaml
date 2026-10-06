@@ -1,0 +1,24 @@
+name: vllm-bench-throughput
+description: vLLM's own offline throughput benchmark (vllm bench throughput) on a 135M-parameter model, in requests/s and tokens/s.
+kind: benchmark
+runtime: vllm
+targets: [gpu]
+timeout_s: 3600
+model:
+  id: HuggingFaceTB/SmolLM2-135M
+  revision: null            # UNPINNED: fill in the model repo's commit hash (huggingface.co was not reachable from the authoring host)
+  licence: "UNVERIFIED: expected Apache-2.0 (as the smollm2-135m-ollama manifest says); the model card was not reachable when this was written. Confirm before relying on it."
+  source_url: https://huggingface.co/HuggingFaceTB/SmolLM2-135M
+notes: >
+  Runs `python -m vllm.entrypoints.cli.main bench throughput` (the same as `vllm bench throughput`)
+  from vLLM v0.30.0 (Apache-2.0; checked in the tag's LICENSE and pyproject.toml). At that tag
+  benchmarks/benchmark_throughput.py is only a stub that points to the CLI, and the tool is
+  vllm/benchmarks/throughput.py. Settings: random dataset, 256 prompts of exactly 128 input and
+  128 output tokens (ignore_eos is set by the tool), 16 untimed warm-up prompts, fp16, seed 0,
+  vLLM's default scheduler and memory settings (CUDA graphs on). Use --random-input-len/--random-output-len:
+  at this tag the legacy --input-len/--output-len are ignored for the random dataset.
+  Metrics: requests_per_s and total_tokens_per_s (prompt + output tokens) are the tool's JSON
+  fields; output_tokens_per_s is parsed from its "Throughput:" line. A 135M model on a big GPU is
+  limited by scheduling and launch overhead, not by the GPU's arithmetic: compare cards with that in mind.
+  Record the vLLM version with the number (bench records keep `vllm --version`).
+  NOT YET RUN anywhere: written against the v0.30.0 source, not exercised on a GPU.
