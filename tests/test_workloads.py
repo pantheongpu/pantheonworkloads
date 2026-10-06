@@ -13,6 +13,7 @@ import importlib.util
 import os
 import pathlib
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -49,7 +50,8 @@ FAKE = {
 
 def run(name, target, **env):
     with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(os.environ, env):
-        os.environ.pop("PANTHEONSIM_DIR", None) if "PANTHEONSIM_DIR" not in env else None
+        for v in ("PANTHEONSIM_DIR", "VGPU_BUILD_DIR"):
+            os.environ.pop(v, None) if v not in env else None
         return pw.execute(name, target, pathlib.Path(tmp))
 
 
@@ -114,6 +116,31 @@ class VllmGlue(unittest.TestCase):
 HAVE_TORCH = importlib.util.find_spec("torch") is not None or bool(os.environ.get("PW_PYTHON"))
 
 
+class SimEnv(unittest.TestCase):
+    SCRIPT = ROOT / "tools" / "sim-env.sh"
+
+    def test_script_parses(self):
+        self.assertEqual(subprocess.run(["bash", "-n", str(self.SCRIPT)]).returncode, 0)
+
+    def test_check_reports_what_is_missing_and_builds_nothing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            env = dict(os.environ, SIM_BUILD=f"{tmp}/build", SIM_TORCH_VENV=f"{tmp}/venv", SIM_CUDA_HOME=f"{tmp}/cuda")
+            p = subprocess.run(["bash", str(self.SCRIPT), "--check"], env=env, capture_output=True, text=True)
+            self.assertEqual(p.returncode, 1)
+            for what in ("PyTorch for CUDA 13", "CUDA ABI headers", "pantheonsim build"):
+                self.assertIn(what, p.stderr)
+            self.assertEqual(os.listdir(tmp), [])
+
+    def test_pytorch_workloads_honour_vgpu_build_dir_and_exit_cleanly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            os.makedirs(f"{tmp}/shim")
+            pathlib.Path(f"{tmp}/shim/libcudart.so.13").touch()
+            result, _, detail, _ = run("pytorch-microsuite", "sim:nvidia/h100", VGPU_BUILD_DIR=tmp, PW_TORCH_PYTHON=sys.executable)
+            self.assertEqual(result, "SKIP")
+            self.assertIn(f"{tmp}/vgpu is not built", detail)
+            self.assertNotIn("unbound variable", detail)
+
+
 class GptTrain(unittest.TestCase):
     def test_no_python_is_skip(self):
         for name in ("gpt-train-fp32", "gpt-train-bf16", "gpt-train-bench"):
@@ -125,6 +152,13 @@ class GptTrain(unittest.TestCase):
             result, _, detail, _ = run("gpt-train-fp32", target)
             self.assertEqual(result, "SKIP", target)
             self.assertIn("PANTHEONSIM_DIR", detail)
+
+    def test_vgpu_build_dir_names_the_build_directly_and_wins(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for extra in ({}, {"PANTHEONSIM_DIR": "/nonexistent/checkout"}):
+                result, _, detail, _ = run("gpt-train-fp32", "sim:nvidia/h100", VGPU_BUILD_DIR=tmp, **extra)
+                self.assertEqual(result, "SKIP")
+                self.assertIn(f"no CUDA 13 runtime shim in {tmp}/shim", detail)
 
     def test_benchmark_is_not_a_simulator_workload(self):
         self.assertEqual(run("gpt-train-bench", "sim:nvidia/h100")[0], "SKIP")

@@ -21,9 +21,10 @@ notes: >
   is about 100x headroom without hiding a wrong kernel. fp16 and bf16 matmuls round the product
   to 11 and 8 significant bits (one ulp is 5e-4 and 4e-3 of the value) and backends can land one
   or two ulp apart on the sampled elements: values here are ~16, hence abs 2e-2/rel 1e-2 and
-  abs 5e-2/rel 3e-2. These bounds are reasoned, not measured: no reference has been recorded yet
-  (PyTorch could not be installed where this was written), so check them against the first real
-  cpu vs gpu recording and tighten. Independently of any reference, every run fails if an op is
+  abs 5e-2/rel 3e-2. These bounds are reasoned: the reference was recorded on cpu (torch 2.14.1+cu130
+  on the CPU). On the simulated GPUs (host-computed math) every output is within 3e-7 relative of it
+  and the index lists are identical, so the bounds are untested against a physical GPU: check them
+  against the first real cpu vs gpu recording before tightening. Independently of any reference, every run fails if an op is
   further from its own float64 CPU result than 1e-4 (fp32), 1e-2 (fp16) or 1e-1 (bf16) of the
   result's rms (max |error|), which catches a backend that is wrong the same way every time.
   Benchmark (target gpu only, skipped with PW_NO_BENCH=1): matmul TFLOPS for fp32/tf32/fp16/bf16

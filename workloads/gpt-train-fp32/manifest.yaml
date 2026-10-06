@@ -20,5 +20,6 @@ notes: >
   1.2e-6 from a float64 run (reduction order only). A GPU's matmul and attention kernels
   reorder sums differently, so the bound is set 600x above that, abs 1e-3, while the loss
   falls by 0.61 over the run (steps differ by 0.006 to 0.16): a wrong backward kernel or optimizer shows.
-  Reference recorded on cpu (torch 2.13.0 from conda-forge), not on a GPU. Not run on any GPU or
-  simulator yet.
+  Reference recorded on cpu (torch 2.13.0 from conda-forge), not on a GPU. Run on the
+  simulated T4, A100, RTX 3060, H100, B200 and RTX 5090 (torch 2.14.1+cu130): all 20 losses within
+  1.0e-6 of the reference (docs/sim-validation.md). Not run on a physical GPU.
