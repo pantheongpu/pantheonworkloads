@@ -165,3 +165,12 @@ time by `tools/whisper-assets.sh` and checked against pinned checksums.
 
 MLPerf benchmark models and datasets are **not** used by any workload; see `docs/mlperf.md` for what
 was found about their terms (several are member-only or gated, several unverified).
+
+## Other model groups, documented in their own files
+
+- `docs/arch-coverage.md`: random-weight open architectures (no model licence applies; `transformers` is Apache-2.0).
+- `docs/lib-coverage.md`: model-free GPU-library kernel checks.
+- `docs/llamacpp-synth.md`: synthetic GGUFs (`gguf` package MIT, llama.cpp MIT).
+- `docs/pretrained-reachable.md`: pretrained models with licences read from source (the only models in this repo
+  whose licences were verified, besides code-only dependencies).
+- `docs/mlperf.md`: MLPerf Inference feasibility and terms.
