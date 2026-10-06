@@ -23,5 +23,7 @@ notes: >
   differently again, so the bound is abs 2e-2 (3x the fp32 gap), against a loss that falls by 0.6
   over the run. Exits 77 where the target has no bf16 (a GPU for which torch reports
   is_bf16_supported(including_emulation=False) False, for example NVIDIA Turing).
-  Reference recorded on cpu (torch 2.13.0 from conda-forge), not on a GPU. Not run on any GPU or
-  simulator yet.
+  Reference recorded on cpu (torch 2.13.0 from conda-forge), not on a GPU. Run on the
+  simulated A100, L4, H100, B200 and RTX 5090 (torch 2.14.1+cu130): the 20 losses are within 1.5e-3 to
+  2.7e-3 of the reference, 7x to 13x inside the tolerance (docs/sim-validation.md). Not run on a
+  physical GPU.
