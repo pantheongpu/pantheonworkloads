@@ -48,8 +48,9 @@ def check(path):
                     errors.append(f"target {t!r}: cpu, gpu, or sim:<nvidia|amd>/<profile or *>")
 
     model = m.get("model")
-    if m.get("runtime") not in (None, "none") and model is None:
-        errors.append("a workload with a runtime other than 'none' needs a 'model' (or set runtime: none)")
+    # `model: null` written out says "this workload downloads no model" (a pure-compute suite on a runtime).
+    if m.get("runtime") not in (None, "none") and model is None and "model" not in m:
+        errors.append("a workload with a runtime other than 'none' needs a 'model' (or set runtime: none, or model: null for a model-free suite)")
     if model is not None:
         if not isinstance(model, dict):
             errors.append("model must be a mapping")

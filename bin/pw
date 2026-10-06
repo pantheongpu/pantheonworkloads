@@ -41,7 +41,20 @@ def target_ok(target, patterns):
     return any(fnmatch.fnmatchcase(target, p) for p in patterns)
 
 
-def close(a, b, absolute, relative):
+def close(a, b, absolute, relative, fields=None):
+    """Numbers within abs + rel*|b|; lists element-wise; dicts key by key (same keys), where
+    `fields` may give a key its own {abs, rel}; anything else (strings, bools) must be equal."""
+    if isinstance(a, dict) and isinstance(b, dict):
+        if a.keys() != b.keys():
+            return False
+        fields = fields or {}
+        for k in b:
+            f = fields.get(k) or {}
+            if not close(a[k], b[k], f.get("abs", absolute), f.get("rel", relative)):
+                return False
+        return True
+    if isinstance(a, bool) or isinstance(b, bool):
+        return a == b
     if isinstance(a, (int, float)) and isinstance(b, (int, float)):
         return abs(a - b) <= absolute + relative * abs(b)
     if isinstance(a, list) and isinstance(b, list):
@@ -54,7 +67,7 @@ def compare(manifest, output, reference):
     if how == "exact":
         return output == reference
     tol = manifest.get("tolerance") or {}
-    return close(output, reference, tol.get("abs", 0.0), tol.get("rel", 0.0))
+    return close(output, reference, tol.get("abs", 0.0), tol.get("rel", 0.0), tol.get("fields"))
 
 
 def last_json(text):

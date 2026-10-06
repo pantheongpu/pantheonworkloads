@@ -1,0 +1,4 @@
+# From PyPI, on top of the torch install. Exact pins to be refreshed on the first real install:
+# 5.x is the transformers line current on PyPI when written (5.19.0); numpy < 3 for torch 2.10.
+transformers==5.19.0
+numpy>=2,<3

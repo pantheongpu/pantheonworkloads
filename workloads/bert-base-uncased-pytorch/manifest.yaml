@@ -1,0 +1,22 @@
+name: bert-base-uncased-pytorch
+description: BERT-base (uncased) encoder forward pass in transformers, masked-word prediction for "The capital of France is [MASK].", float32.
+kind: functional
+runtime: pytorch
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: tolerance
+tolerance:
+  abs: 2.0e-3
+  rel: 1.0e-3
+timeout_s: 3600
+model:
+  id: google-bert/bert-base-uncased
+  revision: null            # UNPINNED: not downloaded where this was written. Pin the commit hash from the first download (PW_HF_REVISION overrides until then).
+  licence: "UNVERIFIED: huggingface.co was unreachable when this was written, so the model card was not read. Read it, then replace this with the SPDX id."
+  source_url: https://huggingface.co/google-bert/bert-base-uncased
+notes: >
+  Uses SDPA attention (so the fused attention path is exercised, unlike the GPT-2 workload).
+  Compared exactly: the top-5 predicted token ids and strings at the mask (the run fails if
+  neighbouring scores among the top 6 are within 1e-3). Compared with tolerance: the top-1
+  logit (~10) and three numbers of the last hidden state; fp32 backends agree to ~1e-4, so
+  abs 2e-3 / rel 1e-3 is ~10x headroom. Not run: no reference.json, bounds reasoned not measured.
+  Benchmark (target gpu): forward_sequences_per_s_b32_s128.

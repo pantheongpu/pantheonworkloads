@@ -1,0 +1,31 @@
+name: pytorch-microsuite
+description: Pure-PyTorch matmul, conv, attention, softmax, norm, reduction and sort checks on seeded inputs; no model download. Also a throughput benchmark on real GPUs.
+kind: functional
+runtime: pytorch
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: tolerance
+tolerance:
+  abs: 1.0e-4
+  rel: 1.0e-3
+  fields:
+    matmul_fp16: {abs: 2.0e-2, rel: 1.0e-2}
+    matmul_bf16: {abs: 5.0e-2, rel: 3.0e-2}
+timeout_s: 1800
+model: null     # downloads no model
+notes: >
+  No model, so no `model` key and nothing to pin besides the torch version (workloads/_pytorch/requirements-torch.txt).
+  Inputs come from CPU generators with fixed seeds; TF32 is off, so fp32 ops are real fp32.
+  Output: per op [mean|y|, rms, y at three fixed positions], plus exact index lists (topk, argsort,
+  argmax of the seeded input, which are identical on every backend). Tolerances: fp32 ops differ
+  between backends by summation order, about 1e-6 relative for these sizes, so rel 1e-3 / abs 1e-4
+  is about 100x headroom without hiding a wrong kernel. fp16 and bf16 matmuls round the product
+  to 11 and 8 significant bits (one ulp is 5e-4 and 4e-3 of the value) and backends can land one
+  or two ulp apart on the sampled elements: values here are ~16, hence abs 2e-2/rel 1e-2 and
+  abs 5e-2/rel 3e-2. These bounds are reasoned, not measured: no reference has been recorded yet
+  (PyTorch could not be installed where this was written), so check them against the first real
+  cpu vs gpu recording and tighten. Independently of any reference, every run fails if an op is
+  further from its own float64 CPU result than 1e-4 (fp32), 1e-2 (fp16) or 1e-1 (bf16) of the
+  result's rms (max |error|), which catches a backend that is wrong the same way every time.
+  Benchmark (target gpu only, skipped with PW_NO_BENCH=1): matmul TFLOPS for fp32/tf32/fp16/bf16
+  at 4096^3 (PW_BENCH_N), fp16 conv2d and causal fp16 SDPA TFLOPS, device copy GB/s. Never
+  reported on sim: targets or cpu. Sim targets use pantheonsim's launch method (see docs/models.md).
