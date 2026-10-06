@@ -62,6 +62,15 @@ Early scaffold. What exists and what does not:
 - Benchmark recording (`--bench`, `bench-table`): exists and is tested with the selftest, but **no real GPU has
   run it yet**, so `bench/` is empty. See `docs/benchmarks.md`.
 - Trace capture: designed only (`docs/trace-schema.md` is a draft).
+- **Coverage workloads that need no model download** (seeded random weights; they test kernels, graphs and
+  architecture code paths, **not** the quality of any named pretrained model): `arch-*` (18 open LLM / vision /
+  speech architectures, `docs/arch-coverage.md`), `lib-*` (251 GPU-library ops: FFT, linear algebra, sparse, RNN,
+  convolution, attention, precision; `docs/lib-coverage.md`), `llamacpp-synth-*` (synthetic GGUFs across six
+  architectures and many quantization types; `docs/llamacpp-synth.md`). References were recorded **on the CPU
+  only**; tolerances are unverified on any GPU or simulated GPU.
+- **Pretrained models whose licence and weights were read from source and pinned by sha256**: Silero VAD (MIT),
+  PP-OCRv3 via RapidOCR (Apache-2.0), ONNX zoo MNIST and MobileNetV2, spaCy `en_core_web_sm` (MIT). CPU references
+  recorded; see `docs/pretrained-reachable.md`.
 - `whisper-cpp-tiny-en` (functional) and `whisper-cpp-bench-tiny-en` (GPU benchmark): written; the CPU build of
   whisper.cpp v1.9.5 was built and run here, but the tiny.en model could not be downloaded (Hugging Face blocked),
   so **no transcript has been produced and no reference or benchmark is recorded**. See their manifests and `docs/models.md`.
