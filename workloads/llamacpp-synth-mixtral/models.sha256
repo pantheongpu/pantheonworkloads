@@ -1,0 +1,5 @@
+# sha256 of each generated model file: <arch>-<size>-<quant> <hash> (tools/llamacpp/synth_workloads.py tune)
+mixtral-tiny-F16 3344e2491817914dd452b6d78392f42aaa48ab2c08391093a0ca88e3a1312676
+mixtral-tiny-Q8_0 0b7c70421ff33aa8f6b07aa5b1da2568915cbe0e63863fac8bef3a05f3b397ec
+mixtral-tiny-Q4_0 194f2507d6e11c4479dd0294db283ec9e727a98ddd3de0bd8cc289d79e9abc87
+mixtral-tiny-Q4_K_M ec356c2fe1c55145e202656bfc992cc6d5457e4a19596bdf91d52692ea0580a3
