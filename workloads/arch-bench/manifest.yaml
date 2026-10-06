@@ -1,0 +1,23 @@
+name: arch-bench
+description: "Prefill and decode tokens/s of a random-weight Llama/Mistral/Qwen2/Gemma/Phi-3/Mixtral-style model at a larger size, on real GPUs."
+kind: benchmark
+runtime: pytorch
+targets: [cpu, gpu]
+timeout_s: 3600
+model:
+  id: "random-weight architecture benchmark built from transformers config classes (no pretrained weights)"
+  revision: "transformers modelling code (version recorded in each run's detail); random weights"
+  licence: Apache-2.0       # transformers (code) and this repository; no model weights are used, so no model licence applies
+  source_url: https://github.com/huggingface/transformers
+notes: >
+  THIS MEASURES THE ARCHITECTURE'S KERNELS AT A GIVEN SHAPE, NOT ANY PRETRAINED MODEL: weights are random
+  (transformers' default init), so only speed means anything. Choose the architecture and size with
+  PW_ARCH_BENCH_ARCH (llama, mistral, qwen2, gemma, phi3, mixtral) and PW_ARCH_BENCH_SIZE (small: 4 layers x 512
+  wide, batch 8, prompt 256, 64 new tokens; medium: 16 x 2048, batch 8, prompt 512, 128 new; large: 32 x 4096,
+  batch 4, prompt 1024, 128 new, about 6.5 B parameters in 16-bit, so it needs a ~16 GB card).
+  Metrics: <arch>_<size>_prefill_tokens_per_s and <arch>_<size>_decode_tokens_per_s (greedy decode with the KV
+  cache, batch included), median of PW_ARCH_BENCH_REPS (3) after one warm-up, device sync around each phase;
+  bf16 where torch reports it supported, else fp16. The run fails if the logits are not finite. The metric
+  names carry arch and size, so one `bin/pw run arch-bench --target gpu --bench` per combination
+  (`PW_ARCH_BENCH_ARCH=mixtral PW_ARCH_BENCH_SIZE=medium ...`) builds up records. Not a simulator target. The cpu
+  target exists to test the workload (batch 1, prompt <= 32, 8 new tokens; numbers meaningless). Not run on any GPU.
