@@ -14,7 +14,7 @@
 #     -curand, -cusolver, -cusparse, -nvrtc, -cupti ...) plus nvidia-nvml-dev, -cuda-crt, -npp, -nvjpeg
 #     (+ -cuda-cccl for libcu++) for the headers PyTorch does not pull in. They are linked into $SIM_CUDA_HOME/include; the wheels' lib
 #     directory is $SIM_CUDA_HOME/lib, from which CMake reads each library's soname major (cublas .13, cufft .12).
-#  2. PyTorch's CUDA 13 build is PyPI's default Linux wheel (torch 2.14.1 = +cu130, 0.53 GB; with nvidia-* deps
+#  2. PyTorch's CUDA 13 build is PyPI's default Linux wheel (torch 2.14.1 = +cu130, 0.53 GB, + torchvision; with nvidia-* deps
 #     2.8 GB downloaded, 5.3 GB installed). It goes into a venv at $SIM_TORCH_VENV (~/.local/share/torch-cu13),
 #     which is where workloads/_shared/torch_env.sh looks. Skipped when less than 4 GB would stay free.
 #  3. pantheonsim is built Release into $SIM_BUILD with cmake (`-j$SIM_JOBS`, default 3): the `vgpu` CLI and
@@ -66,7 +66,7 @@ if ! torch_ok; then
   else
     log "installing torch (CUDA 13 build from PyPI) into $SIM_TORCH_VENV"
     python3 -m venv "$SIM_TORCH_VENV"
-    "$SIM_TORCH_VENV/bin/pip" install --no-cache-dir -q torch numpy >&2
+    "$SIM_TORCH_VENV/bin/pip" install --no-cache-dir -q torch torchvision numpy >&2
   fi
 fi
 
@@ -117,6 +117,10 @@ fi
 
 # ---- 4. exports ---------------------------------------------------------------------------------------------
 # torch_env.sh reads $VGPU_BUILD_DIR first; other pantheonsim tooling wants $PANTHEONSIM_DIR/build.
+if (( CHECK )); then
+  (( ${#missing[@]} )) && { for m in "${missing[@]}"; do log "MISSING: $m"; done; exit 1; }
+  log "everything is in place"; exit 0
+fi
 farm="$SIM_BUILD-dir"
 if [[ "$(readlink -f "$SIM_SRC/build" 2>/dev/null)" != "$(readlink -f "$SIM_BUILD")" ]]; then
   mkdir -p "$farm"; ln -sfn "$SIM_BUILD" "$farm/build"
