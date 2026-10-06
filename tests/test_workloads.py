@@ -49,7 +49,8 @@ FAKE = {
 
 def run(name, target, **env):
     with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(os.environ, env):
-        os.environ.pop("PANTHEONSIM_DIR", None) if "PANTHEONSIM_DIR" not in env else None
+        for v in ("PANTHEONSIM_DIR", "VGPU_BUILD_DIR"):
+            os.environ.pop(v, None) if v not in env else None
         return pw.execute(name, target, pathlib.Path(tmp))
 
 
@@ -125,6 +126,13 @@ class GptTrain(unittest.TestCase):
             result, _, detail, _ = run("gpt-train-fp32", target)
             self.assertEqual(result, "SKIP", target)
             self.assertIn("PANTHEONSIM_DIR", detail)
+
+    def test_vgpu_build_dir_names_the_build_directly_and_wins(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for extra in ({}, {"PANTHEONSIM_DIR": "/nonexistent/checkout"}):
+                result, _, detail, _ = run("gpt-train-fp32", "sim:nvidia/h100", VGPU_BUILD_DIR=tmp, **extra)
+                self.assertEqual(result, "SKIP")
+                self.assertIn(f"no CUDA 13 runtime shim in {tmp}/shim", detail)
 
     def test_benchmark_is_not_a_simulator_workload(self):
         self.assertEqual(run("gpt-train-bench", "sim:nvidia/h100")[0], "SKIP")
