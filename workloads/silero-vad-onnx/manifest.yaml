@@ -1,0 +1,23 @@
+name: silero-vad-onnx
+description: Silero VAD (ONNX) finds the speech segments in a 60 s 16 kHz clip with onnxruntime.
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {mean_prob: {abs: 0.002, rel: 0.0}}}
+timeout_s: 900
+model:
+  id: snakers4/silero-vad silero_vad.onnx
+  revision: "snakers4/silero-vad v6.2.3 = commit 5cd7945676eb32225748052e2e6a0580e4686a08; silero_vad.onnx sha256 1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3 (identical in the PyPI wheel silero-vad 6.2.3)"
+  licence: MIT   # LICENSE at that commit and in the wheel (silero_vad-6.2.3.dist-info/licenses/LICENSE)
+  source_url: https://github.com/snakers4/silero-vad
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Input: tests/data/test.wav of the silero-vad repo at the pinned commit (60 s,
+  16 kHz mono); that repo is MIT, but the recording's own provenance is not stated there, so it is
+  fetched, not committed. Output: speech segments as sample offsets (exact) and the mean speech
+  probability (abs 0.002, for GPU rounding). A gpu run that flips a window across the 0.5 threshold
+  would change a segment edge: that is a real difference to investigate, not to tolerate. Segment
+  post-processing is a re-write of silero_vad get_speech_timestamps_from_probs v6.2.3 with default
+  parameters. No sim: targets: there is no evidence in pantheonsim of onnxruntime running on it.

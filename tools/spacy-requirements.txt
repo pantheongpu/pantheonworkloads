@@ -1,0 +1,5 @@
+# Python packages of the spacy-* workloads (tools/spacy-env.sh). The model wheel is installed separately,
+# from the sha256-pinned GitHub release asset (tools/ort_assets.py), never from an unpinned index.
+spacy==3.8.16
+thinc==8.3.13
+numpy==2.5.3

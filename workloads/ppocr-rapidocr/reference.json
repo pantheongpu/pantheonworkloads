@@ -1,0 +1,9 @@
+{
+  "output": {
+    "text": "MovieShots Dataset|To facilitate the shot type analysis in videos, we collect MovieShots, a large-scale|shot type annotation set that contains 46K shots from 7858 movies. The details|of this dataset are specified as follows.",
+    "n_lines": 4,
+    "mean_score": 0.911
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-06"
+}
