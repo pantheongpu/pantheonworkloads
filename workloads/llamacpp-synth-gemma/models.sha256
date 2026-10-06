@@ -1,0 +1,5 @@
+# sha256 of each generated model file: <arch>-<size>-<quant> <hash> (tools/llamacpp/synth_workloads.py tune)
+gemma-tiny-F16 ac303b5ebeefb68525358e4cd7c245634e7e9f8728891d7b1c262db5c94375c0
+gemma-tiny-Q8_0 9691f6523b8f0fbf9081e7f1642c92fcca264cf2d271774fd92c99c019b5e765
+gemma-tiny-Q4_0 82a88f2bb1a912e6f63225123c68f75a8906ce5c1b97f91da7881dc30c6fb41f
+gemma-tiny-Q4_K_M 772dd2daf8ddf577a6af8b8b25faf61148b6bda5bbcc2de16cc3807a407250bd

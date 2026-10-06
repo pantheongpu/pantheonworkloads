@@ -11,6 +11,10 @@
 # Environment:
 #   LLAMACPP_REPO     git URL (default https://github.com/ggml-org/llama.cpp, MIT)
 #   LLAMACPP_COMMIT   commit to build (default: the pin in tools/llamacpp/pin.env)
+#   LLAMACPP_EXTRA_TARGETS  more cmake targets to build and install beside the two (space separated,
+#                     e.g. "llama-quantize llama-perplexity llama-debug"; the synthetic-GGUF workloads use these)
+#   LLAMACPP_BUILD_PROBE  1: also compile probe/pw-probe.cpp (token ids + logit statistics; used by the
+#                     llamacpp-synth-* workloads) against the build and install it as bin/pw-probe
 #   PW_BUILD_JOBS     parallel jobs (default 2)
 #   PW_CUDA_ARCHS     CMAKE_CUDA_ARCHITECTURES for cuda (default: cmake's choice)
 #   PW_HIP_ARCHS      AMDGPU_TARGETS for hip (default: gfx942, an MI300-class part;
@@ -49,10 +53,17 @@ got=$(git -C "$src" rev-parse HEAD)
 echo "building llama.cpp $got ($backend) into $prefix" >&2
 cmake -S "$src" -B "$work/build" "${flags[@]}" -DCMAKE_INSTALL_PREFIX="$prefix" >"$work/cmake.log" 2>&1 \
   || { tail -20 "$work/cmake.log" >&2; skip "cmake configure for $backend failed"; }
-cmake --build "$work/build" -j"${PW_BUILD_JOBS:-2}" --target llama-completion llama-bench >"$work/build.log" 2>&1 \
+cmake --build "$work/build" -j"${PW_BUILD_JOBS:-2}" --target llama-completion llama-bench ${LLAMACPP_EXTRA_TARGETS:-} >"$work/build.log" 2>&1 \
   || { tail -20 "$work/build.log" >&2; echo "build of $backend failed" >&2; exit 1; }
 # Install only the two tools and the shared libraries they load.
 mkdir -p "$prefix/bin" "$prefix/lib"
 cp "$work/build/bin/llama-completion" "$work/build/bin/llama-bench" "$prefix/bin/"
+for t in ${LLAMACPP_EXTRA_TARGETS:-}; do cp "$work/build/bin/$t" "$prefix/bin/"; done
 find "$work/build" -name '*.so*' \( -type f -o -type l \) -exec cp -P {} "$prefix/lib/" \;
+if [[ "${LLAMACPP_BUILD_PROBE:-0}" == 1 ]]; then
+  # plain c++ against the public C API: no change to llama.cpp's own CMake files
+  c++ -std=c++17 -O2 "$here/probe/pw-probe.cpp" -I"$src/include" -I"$src/ggml/include" -L"$work/build/bin" \
+      -lllama -lggml -lggml-base -Wl,-rpath,'$ORIGIN/../lib' -o "$prefix/bin/pw-probe" \
+    || { echo "compiling pw-probe failed" >&2; exit 1; }
+fi
 echo "$got" > "$prefix/COMMIT"

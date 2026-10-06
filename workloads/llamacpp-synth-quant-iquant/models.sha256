@@ -1,0 +1,5 @@
+# sha256 of each generated model file: <arch>-<size>-<quant> <hash> (tools/llamacpp/synth_workloads.py tune)
+llama-tiny-IQ3_S 4fc955345d9da7b58f11d55964451f8b218f900709da6a1caf8c4634e693bf80
+llama-tiny-IQ3_M 7bc417fef7ab676cbe6c8ad35a4400e2168efab1ea90721a4cdc669a686d38a0
+llama-tiny-IQ4_NL 15c4ded5eb8c3a71bfe11a5f72d4c4c4050532d079462b684307ef65210d376b
+llama-tiny-IQ4_XS f0d338504e3889c9b699e30baef164b6e7d2d60f0718596fe2b9033e2052bfd5
