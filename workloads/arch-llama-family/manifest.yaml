@@ -1,0 +1,36 @@
+name: arch-llama-family
+description: "Nine decoder-only architectures (Llama GQA/MQA, Mistral sliding window, Qwen2, Gemma, Phi-3, GPT-NeoX, Falcon x2) with seeded random weights: prefill + 6 greedy KV-cache decode steps."
+kind: functional
+runtime: pytorch
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: tolerance
+tolerance: {abs: 1.0e-3, rel: 1.0e-3}
+timeout_s: 3600
+model:
+  id: "random-weight architecture tests built from transformers config classes (no pretrained weights)"
+  revision: "transformers 5.18.0 modelling code; weights drawn from a seeded generator in workloads/_shared/arch_cases.py"
+  licence: Apache-2.0       # transformers (code, Apache-2.0 per its LICENSE and PyPI/conda-forge metadata) and this repository; no model weights are used, so no model licence applies
+  source_url: https://github.com/huggingface/transformers
+notes: >
+  THESE TEST THE ARCHITECTURES' CODE PATHS AND KERNELS, NOT THE QUALITY OF ANY PRETRAINED MODEL.
+  The names (Llama, Mistral, Mixtral, Qwen2, Gemma, Phi-3, GPT-NeoX, Falcon, Mamba, ViT, CLIP, Whisper, T5)
+  only say which modelling code and config class is exercised; no checkpoint is downloaded or implied.
+  Code paths: Llama (GQA 4:1, MQA with head_dim 128), Mistral (sliding window 5 < prompt 11), Qwen2 (qkv bias, GQA 3:1, head_dim 64), Gemma (head_dim 64 != hidden/heads, (1+w) RMSNorm, GeGLU, MQA), Phi-3 (fused qkv and gate_up projections), GPT-NeoX (parallel attention+MLP, partial RoPE) and Falcon-40B/7B style (parallel attention, GQA / multi-query).
+  Dims are tiny (0.3 to 3.4 M parameters, vocab 512, batch 2, odd lengths) so a CPU-executed simulator
+  finishes (~15 s on 2 CPU threads). Weights are redrawn from a seeded CPU generator (matrices N(0, 1/fan_in), norm
+  scales 1 + 0.1 N), so every target starts from identical weights; TF32 is off. Output per
+  architecture: `ids`, an exact string (argmax at every prefill position, the greedy tokens, top-5 ids of the
+  last position, and for MoE the experts every token is routed to), and `stats`, a list of floats (logit mean,
+  rms, last-position top-1 and spread, top-1 logit at each decode step...), compared within abs 1e-3 + rel 1e-3.
+  Each run also fails by itself if: an exact id could be a near tie (gap below 1e-3 between consecutive
+  top ranks; the per-case seed salt is chosen on the float64 CPU twin so every gap is above 3e-3),
+  cached decoding differs from recomputing the whole sequence without a cache (by more than 1e-3
+  of the logit scale), or the target's ids differ from, or its logits are further than 2e-3 (relative) from, the same
+  model in float64 on the CPU. Tolerance evidence (CPU, torch 2.13.0): statistics differ by at most 4e-6 between
+  1 and 4 threads and between sdpa/grouped_mm and eager attention/experts, and at most 1e-5 from the float64 run,
+  so 1e-3 is about 100x above reordering noise on CPU; a GPU's fp32 kernels (TF32 off) may differ more, and
+  if so the evidence should be recorded here. A wrong kernel moves the logits by 1e-1 or more.
+  Reference recorded on the cpu target only (CPU-only PyTorch 2.13.0 + transformers 5.18.0 from conda-forge,
+  tools/torch-cpu-env.sh); not run on any GPU or simulator. attn defaults to sdpa (PW_ARCH_ATTN=eager to
+  override); MoE experts default to transformers' grouped_mm (PW_ARCH_EXPERTS=eager for the loop, e.g.
+  if a simulated GPU lacks grouped_mm).
