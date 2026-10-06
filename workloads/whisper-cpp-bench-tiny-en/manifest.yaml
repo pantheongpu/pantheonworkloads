@@ -1,0 +1,18 @@
+name: whisper-cpp-bench-tiny-en
+description: whisper.cpp's whisper-bench (encoder and decoder timing) with tiny.en on a real GPU.
+kind: benchmark
+runtime: whisper.cpp
+targets: [gpu]
+timeout_s: 1800
+model:
+  id: ggerganov/whisper.cpp ggml-tiny.en.bin   # OpenAI Whisper tiny.en converted to ggml by whisper.cpp
+  revision: "sha1:c78c86eb1a8faa21b369bcd33207cc90d64ae9df"   # whisper.cpp models/README.md @ v1.9.5
+  licence: MIT          # openai/whisper README: "Whisper's code and model weights are released under the MIT License"
+  source_url: https://huggingface.co/ggerganov/whisper.cpp
+notes: >
+  Runs `whisper-bench` from whisper.cpp v1.9.5 (commit d1be6fde11ac6e0407606b4e42fe72d34add8037) built
+  for cuda or hip by tools/build-whisper-cpp.sh. whisper-bench times the encoder on synthetic (empty)
+  mel input and a few decoder steps, so the numbers say how fast the GPU runs this model's graphs,
+  not how well it transcribes. Metrics are milliseconds per run (lower is better): encode_ms_per_run,
+  decode_ms_per_run. Real GPU only; CPU runs are refused. NOT YET RUN on any GPU: no benchmark has been
+  recorded, and the GPU-backend check in run.sh (a log grep) is untested against a real CUDA/HIP log.
