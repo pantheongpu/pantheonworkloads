@@ -1,0 +1,8 @@
+name: selftest
+description: Runner self-check; needs no GPU, no model and no network.
+kind: functional
+runtime: none
+targets: [cpu, gpu, "sim:*/*"]
+compare: exact
+timeout_s: 60
+notes: Exists so the runner, the results format and CI are tested without a model. Not a GPU test.

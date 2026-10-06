@@ -1,0 +1,20 @@
+name: smollm2-135m-ollama
+description: A 135M-parameter language model served by Ollama, greedy-decoding a fixed prompt.
+kind: functional
+runtime: ollama
+targets: [cpu, gpu, "sim:nvidia/*"]
+compare: exact
+timeout_s: 1800
+model:
+  id: smollm2:135m          # Ollama registry name
+  revision: null            # UNPINNED: fill in the digest `ollama show --modelfile smollm2:135m` prints after the first pull
+  licence: Apache-2.0       # from the SmolLM2 model card; confirm when pinning the revision
+  source_url: https://ollama.com/library/smollm2
+notes: >
+  Same prompt and 3-token greedy decode as pantheonsim's own ollama test (tests/e2e/run_ollama.sh),
+  which shows the simulated NVIDIA GPUs reproducing the CPU backend's text. Longer decodes are
+  more likely to diverge on floating-point differences between backends, so extend the output
+  only together with a tolerance policy. Simulated AMD targets are not wired up yet: pantheonsim
+  runs Ollama's ROCm backend in amd/tests/e2e/run_ollama_amd.sh, which this script does not mirror.
+  NOT YET RUN: no reference.json is recorded, so every run is reported as SKIP until one is
+  (bin/pw record smollm2-135m-ollama --target cpu).

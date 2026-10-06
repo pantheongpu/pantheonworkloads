@@ -1,0 +1,29 @@
+name: CI
+
+# Checks that need no GPU, no model and no network: every manifest is valid and
+# the runner's tests pass. Real and simulated GPU runs are separate, later jobs.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PyYAML
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq python3-yaml
+      - name: Validate manifests
+        run: bin/pw validate
+      - name: Unit tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Selftest workload on the CPU target
+        run: bin/pw run selftest --target cpu --out "$RUNNER_TEMP/results"
