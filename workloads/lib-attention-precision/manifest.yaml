@@ -44,6 +44,11 @@ tolerance:
     autocast_bf16_backward_keeps_fp32_grads: {abs: 1.0e-04, rel: 5.0e-02}
 timeout_s: 1800
 model: null     # downloads no model
+# Ops that a real GPU also has no kernel for although the CPU computes them: the CPU reference holds numbers, a GPU
+# reports "unsupported" (bin/pw: a reference number against "unsupported" is a FAIL unless listed here).
+#  - sdpa_flash_fp32_causal: FlashAttention kernels exist for fp16 and bf16 only ("No available kernel" for fp32 on a GPU).
+#  - dynamic_quantized_linear: torch.ao dynamic int8 Linear is a CPU (fbgemm / onednn) path.
+unsupported_ok: [sdpa_flash_fp32_causal, dynamic_quantized_linear]
 notes: >
   GPU libraries exercised: flash-attention, mem-efficient (cutlass) and cuDNN attention kernels, cuBLASLt int8/fp8, tensor-core TF32/fp16/bf16 paths. Inputs come from CPU generators with fixed seeds (docs/lib-coverage.md);
   TF32 is off except in the ops that turn it on for themselves. Output: per op a checksum, [mean|y|, rms, y at three
