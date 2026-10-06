@@ -56,6 +56,8 @@ Early scaffold. What exists and what does not:
 
 - Runner, manifest validation, results format, a no-GPU `selftest`: exist and are tested (`tests/`).
 - `smollm2-135m-ollama`: written, **not yet run** and no reference recorded. See its manifest.
+- `pytorch-microsuite`, `gpt2-small-pytorch`, `bert-base-uncased-pytorch`, `resnet18-randinit-pytorch`: written,
+  **not yet run** (no PyTorch or Hugging Face access where they were written), no references. See `docs/models.md`.
 - Benchmark recording (`--bench`, `bench-table`): exists and is tested with the selftest, but **no real GPU has
   run it yet**, so `bench/` is empty. See `docs/benchmarks.md`.
 - Trace capture: designed only (`docs/trace-schema.md` is a draft).

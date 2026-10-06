@@ -1,0 +1,6 @@
+# torch/torchvision pins shared by the pytorch-* workloads. Installed from the flavour's
+# PyTorch index (cpu, cu130, rocm: see env.sh), with PyPI as the fallback for dependencies.
+# torchvision 0.25.0 is the release paired with torch 2.10.0. A local version such as 2.10.0+cpu
+# satisfies "==2.10.0". NOT verified against download.pytorch.org (unreachable when written).
+torch==2.10.0
+torchvision==0.25.0
