@@ -59,3 +59,8 @@ Early scaffold. What exists and what does not:
 - Benchmark recording (`--bench`, `bench-table`): exists and is tested with the selftest, but **no real GPU has
   run it yet**, so `bench/` is empty. See `docs/benchmarks.md`.
 - Trace capture: designed only (`docs/trace-schema.md` is a draft).
+- `whisper-cpp-tiny-en` (functional) and `whisper-cpp-bench-tiny-en` (GPU benchmark): written; the CPU build of
+  whisper.cpp v1.9.5 was built and run here, but the tiny.en model could not be downloaded (Hugging Face blocked),
+  so **no transcript has been produced and no reference or benchmark is recorded**. See their manifests and `docs/models.md`.
+- `loadgen-plumbing-check`: runs MLCommons LoadGen against a toy CPU SUT; reference recorded on the cpu target.
+  **Not an MLPerf result.** Feasibility notes on MLPerf Inference: `docs/mlperf.md`.
