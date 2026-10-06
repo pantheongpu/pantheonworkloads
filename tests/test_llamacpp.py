@@ -7,6 +7,7 @@ import importlib.util
 import json
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -153,6 +154,142 @@ class Scripts(unittest.TestCase):
             # benchmarks refuse simulated targets
             p = self.run_workload(WORKLOADS[1], "sim:nvidia/h100", PANTHEONSIM_DIR=tmp, **env)
             self.assertEqual(p.returncode, 77)
+
+
+FAKE_HIPCC = """#!/bin/sh
+echo "HIP version: %(ver)s"
+echo "%(vendor)s clang version %(clang)s.0.6"
+echo "Target: x86_64-pc-linux-gnu"
+echo "InstalledDir: %(inst)s"
+"""
+
+
+def fake_rocm(root, ver, clang, layout):
+    """A ROCm tree that prints what `hipcc --version` prints. layout: 'ubuntu' or 'amd'."""
+    root = pathlib.Path(root)
+    if layout == "ubuntu":
+        llvm = root / "usr" / "lib" / f"llvm-{clang}" / "bin"
+        hipcc = root / "usr" / "bin" / "hipcc"
+        cmake = root / "usr" / "lib" / "x86_64-linux-gnu" / "cmake" / "hip-lang"
+        inst = root / "usr" / "bin"
+        top = root / "usr"
+    else:
+        top = root / f"rocm-{ver}"
+        llvm = top / "lib" / "llvm" / "bin"
+        hipcc = top / "bin" / "hipcc"
+        cmake = top / "lib" / "cmake" / "hip-lang"
+        inst = llvm
+    for d in (llvm, hipcc.parent, cmake, inst):
+        d.mkdir(parents=True, exist_ok=True)
+    for n in ("clang", "clang++"):
+        (llvm / n).write_text("#!/bin/sh\necho 'clang version %s.0.6'\n" % clang)
+        (llvm / n).chmod(0o755)
+    if layout == "ubuntu":
+        # Debian: /usr/bin/clang++ is another LLVM than hipcc's, and clang++-N names the right one
+        other = root / "usr" / "lib" / "llvm-99" / "bin"
+        other.mkdir(parents=True)
+        for n in ("clang", "clang++"):
+            (other / n).write_text("#!/bin/sh\necho 'clang version 99.0.0'\n")
+            (other / n).chmod(0o755)
+        (inst / "clang++").symlink_to(other / "clang++")
+        (inst / f"clang++-{clang}").symlink_to(llvm / "clang++")
+    (cmake / "hip-lang-config.cmake").write_text("")
+    hipcc.write_text(FAKE_HIPCC % {"ver": ver + ".31921-0", "clang": clang, "inst": inst,
+                                   "vendor": "Ubuntu" if layout == "ubuntu" else "AMD"})
+    hipcc.chmod(0o755)
+    return top, hipcc
+
+
+def hip_detect(hipcc):
+    p = subprocess.run(["bash", "-c", '. "$1"; hip_detect; echo "$? $HIP_ROCM $HIP_CLANGXX $HIP_CMAKE_LIB $HIP_MAJOR.$HIP_MINOR '
+                        '$HIP_COMPAT $HIP_WHY"', "x", str(LC / "hip-config.sh")],
+                       env={"PATH": "/usr/bin:/bin", "HIPCC": str(hipcc)}, capture_output=True, text=True)
+    return p.stdout.split()
+
+
+class HipBuild(unittest.TestCase):
+    """The hip backend of tools/llamacpp/build.sh, found by hip-config.sh, and what it needs from ROCm 5.x."""
+
+    def test_shell_syntax(self):
+        for f in ("build.sh", "hip-config.sh", "hip-apt-prefix.sh", "common.sh"):
+            p = subprocess.run(["bash", "-n", str(LC / f)], capture_output=True, text=True)
+            self.assertEqual(p.returncode, 0, f"{f}: {p.stderr}")
+
+    def test_ubuntu_rocm57_layout_needs_the_compat_patch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            top, hipcc = fake_rocm(tmp, "5.7", "17", "ubuntu")
+            status, rocm, cxx, cmakelib, ver, compat = hip_detect(hipcc)[:6]
+            self.assertEqual((status, ver, compat), ("0", "5.7", "1"))
+            self.assertEqual(rocm, str(top))
+            self.assertEqual(cxx, str(top / "lib" / "llvm-17" / "bin" / "clang++"))   # not Debian's default LLVM
+            self.assertEqual(cmakelib, str(top / "lib" / "x86_64-linux-gnu"))
+
+    def test_amd_layout_and_rocm_61_or_later_need_no_patch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for ver, compat in (("6.0", "1"), ("6.1", "0"), ("6.4", "0"), ("7.0", "0")):
+                top, hipcc = fake_rocm(pathlib.Path(tmp) / ver, ver, "19", "amd")
+                out = hip_detect(hipcc)
+                self.assertEqual((out[0], out[4], out[5]), ("0", ver, compat), out)
+                self.assertEqual(out[2], str(top / "lib" / "llvm" / "bin" / "clang++"))
+
+    def test_no_hipcc_is_a_skip(self):
+        with tempfile.TemporaryDirectory() as tmp:     # a PATH with nothing on it: hipcc is not found
+            p = subprocess.run(["/bin/bash", "-c", '. "$1"; hip_detect; echo "$?: $HIP_WHY"', "x", str(LC / "hip-config.sh")],
+                               env={"PATH": tmp}, capture_output=True, text=True)
+            self.assertEqual(p.stdout.strip(), "1: hipcc (ROCm) is not installed")
+            fake = pathlib.Path(tmp) / "bin"
+            fake.mkdir()
+            for t in ("git", "cmake", "c++", "dirname", "mktemp", "rm", "bash"):   # build.sh needs these before it looks for hipcc
+                exe = shutil.which(t)
+                if exe:
+                    (fake / t).symlink_to(exe)
+            p = subprocess.run(["/bin/bash", str(LC / "build.sh"), "hip", tmp + "/prefix"], capture_output=True, text=True,
+                               env={"PATH": str(fake), "HOME": tmp})
+            self.assertEqual(p.returncode, 77, (p.stdout, p.stderr))
+            self.assertIn("SKIP: hipcc", p.stdout)
+
+    def test_compat_patch_covers_the_four_known_breaks(self):
+        patch = (LC / "patches" / "hip-rocm5.patch").read_text()
+        p = subprocess.run(["git", "apply", "--stat", "-"], input=patch, capture_output=True, text=True)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        for name in ("ggml-cuda/mma.cuh", "ggml-cuda/vendors/hip.h", "ggml-hip/CMakeLists.txt"):
+            self.assertIn(name, p.stdout)
+        for what in ("pw_hipStreamWaitEvent", "pw_hipblasStrsmBatched", "pw_hipGetLastError", "x[ne] = {};"):
+            self.assertIn(what, patch)
+
+    def test_sim_amd_target_names_the_shim_after_the_hip_soname_the_build_asks_for(self):
+        """A build made with ROCm 5 asks for libamdhip64.so.5, and the simulator's library is preloaded under that name."""
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = pathlib.Path(tmp)
+            (tmp / "dep").mkdir()
+            (tmp / "dep" / "a.c").write_text("int a(void){return 1;}\n")
+            subprocess.run(["gcc", "-shared", "-fPIC", "-Wl,-soname,libamdhip64.so.5", "-o", str(tmp / "dep" / "libamdhip64.so.5"),
+                            str(tmp / "dep" / "a.c")], check=True)
+            lib, bindir = tmp / "prefix" / "lib", tmp / "prefix" / "bin"
+            lib.mkdir(parents=True); bindir.mkdir()
+            (tmp / "b.c").write_text("int b(void){return 2;}\n")
+            subprocess.run(["gcc", "-shared", "-fPIC", "-o", str(lib / "libggml-hip.so"), str(tmp / "b.c"),
+                            "-L" + str(tmp / "dep"), "-Wl,--no-as-needed", "-l:libamdhip64.so.5"], check=True)
+            shim = tmp / "sim" / "build" / "shim"
+            shim.mkdir(parents=True)
+            for n in ("libamdhip64.so.7", "libhsa-runtime64.so.1"):
+                (shim / n).write_text("x")
+            (bindir / "llama-completion").write_text("#!/bin/sh\nprintf '%s' \"$LD_PRELOAD\"\n")
+            (bindir / "llama-bench").write_text("#!/bin/sh\n")
+            for f in bindir.iterdir():
+                f.chmod(0o755)
+            model = tmp / "m.gguf"
+            model.write_bytes(b"x")
+            out = tmp / "out"; out.mkdir()
+            p = subprocess.run(["bash", str(ROOT / "workloads" / WORKLOADS[0] / "run.sh")], cwd=ROOT, capture_output=True, text=True,
+                               env={"PATH": os.environ["PATH"], "HOME": str(tmp), "PW_TARGET": "sim:amd/mi250x",
+                                    "PW_SIM_PROFILE": "amd/mi250x", "PW_OUT": str(out), "PANTHEONSIM_DIR": str(tmp / "sim"),
+                                    "PW_WORKLOAD_DIR": str(ROOT / "workloads" / WORKLOADS[0]), "PW_CACHE": str(tmp / "cache"),
+                                    "PW_LLAMACPP_BIN_DIR": str(bindir), "PW_MODEL_FILE": str(model)})
+            self.assertEqual(p.returncode, 0, (p.stdout, p.stderr))
+            preload = json.loads(p.stdout.splitlines()[-1])["output"]
+            self.assertEqual(preload, f"{out}/shim/libamdhip64.so.5:{out}/shim/libhsa-runtime64.so.1")
+            self.assertTrue((out / "shim" / "libamdhip64.so.5").exists())
 
 
 if __name__ == "__main__":
