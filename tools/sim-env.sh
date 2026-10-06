@@ -35,6 +35,7 @@
 #   SIM_BUILD=$SIM_ROOT/sim-main-build   build directory
 #   SIM_TORCH_VENV=$HOME/.local/share/torch-cu13
 #   SIM_CUDA_HOME=$HOME/.local/share/sim-cuda-home
+#   SIM_TRANSFORMERS=5.18.0 (pinned: the arch-* references were recorded with it)
 #   SIM_JOBS=3    SIM_MIN_FREE_GB=4    SIM_SKIP_TORCH=1 (do not install torch)
 set -euo pipefail
 
@@ -68,6 +69,13 @@ if ! torch_ok; then
     python3 -m venv "$SIM_TORCH_VENV"
     "$SIM_TORCH_VENV/bin/pip" install --no-cache-dir -q torch torchvision numpy >&2
   fi
+fi
+# transformers: the arch-* workloads build their models from its config classes. Pinned to the version the
+# references were recorded with (tools/torch-cpu-env.sh uses the same pin; pure Python, ~13 MB wheel + ~25 MB deps).
+SIM_TRANSFORMERS=${SIM_TRANSFORMERS:-5.18.0}
+if torch_ok && ! "$SIM_TORCH_VENV/bin/python" -c "import transformers,sys; sys.exit(0 if transformers.__version__=='$SIM_TRANSFORMERS' else 1)" 2>/dev/null; then
+  if (( CHECK )); then missing+=("transformers==$SIM_TRANSFORMERS in $SIM_TORCH_VENV")
+  else log "installing transformers==$SIM_TRANSFORMERS"; "$SIM_TORCH_VENV/bin/pip" install --no-cache-dir -q "transformers==$SIM_TRANSFORMERS" >&2; fi
 fi
 
 # ---- 1. CUDA ABI headers ------------------------------------------------------------------------------------

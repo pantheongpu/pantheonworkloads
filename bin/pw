@@ -62,6 +62,32 @@ def close(a, b, absolute, relative, fields=None):
     return a == b
 
 
+UNSUPPORTED = "unsupported"
+
+
+def split_unsupported(manifest, output, reference):
+    """The lib-* workloads report an op the backend has no kernel for as the string "unsupported".
+    A reference recorded on a backend that lacks an op (e.g. the CPU has no mem-efficient SDPA or half FFT) has
+    no number to check a backend that has one against, so that key is *unchecked* (dropped from both sides,
+    counted). The reverse (a number in the reference, "unsupported" on the target) stays a mismatch unless the
+    manifest lists the key under `unsupported_ok`. Only top-level keys of a dict output are considered.
+    Returns (output, reference, unchecked key list)."""
+    if not (isinstance(output, dict) and isinstance(reference, dict)):
+        return output, reference, []
+    allowed = set(manifest.get("unsupported_ok") or [])
+    unchecked = []
+    output, reference = dict(output), dict(reference)
+    for k in sorted(reference.keys() & output.keys()):
+        if reference[k] == UNSUPPORTED and output[k] != UNSUPPORTED:
+            unchecked.append(k)
+        elif output[k] == UNSUPPORTED and reference[k] != UNSUPPORTED and k in allowed:
+            pass
+        else:
+            continue
+        del output[k], reference[k]
+    return output, reference, unchecked
+
+
 def compare(manifest, output, reference):
     how = manifest.get("compare", "exact")
     if how == "exact":
@@ -121,8 +147,12 @@ def execute(name, target, scratch):
         if not ref_file.exists():
             return "SKIP", seconds, "no reference recorded (bin/pw record)", rec
         reference = json.loads(ref_file.read_text())["output"]
+        output, reference, unchecked = split_unsupported(manifest, output, reference)
         if not compare(manifest, output, reference):
             return "FAIL", seconds, f"output differs from reference: got {output!r}, want {reference!r}"[:200], rec
+        if unchecked:
+            note = f"unchecked: {len(unchecked)} ops (supported on this target, unsupported in the reference)"
+            return "PASS", seconds, (str(rec.get("detail", ""))[:200 - len(note) - 3] + " | " + note), rec
     return "PASS", seconds, str(rec.get("detail", ""))[:200], rec
 
 

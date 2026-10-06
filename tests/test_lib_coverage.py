@@ -188,7 +188,7 @@ class RunsOnCpu(unittest.TestCase):
         self.assertTrue(pw.compare(manifest, ref, ref))
         self.assertFalse(pw.compare(manifest, bad, ref))
         gone = dict(ref, spmm_csr_dense="unsupported")
-        self.assertFalse(pw.compare(manifest, gone, ref))     # a limited backend fails on exactly that key
+        self.assertFalse(pw.compare(manifest, *pw.split_unsupported(manifest, gone, ref)[:2]))     # a limited backend fails on exactly that key
 
     def test_benchmark_code_path_runs_at_tiny_size(self):
         p = subprocess.run([PY, str(LIB / "libkernels.py"), "lib-composite-blocks", "--bench"], capture_output=True, text=True,
@@ -202,6 +202,25 @@ class RunsOnCpu(unittest.TestCase):
     def test_metrics_are_not_reported_for_simulated_targets(self):
         out = in_torch('import libkernels as lk; lk.finish("x", "d", {"a": 1.0})', PW_TARGET="sim:amd/mi300x")
         self.assertEqual(json.loads(out)["metrics"], {})
+
+
+class UncheckedOps(unittest.TestCase):
+    def test_ops_the_reference_lacks_are_unchecked_not_failed(self):
+        manifest = {"compare": "tolerance", "tolerance": {"abs": 1e-4, "rel": 1e-3}}
+        ref = {"a": [1.0, 2.0], "b": "unsupported", "c": "unsupported", "d": [3.0]}
+        out = {"a": [1.0, 2.0], "b": [9.0, 9.0], "c": "unsupported", "d": [3.0]}   # b: the target has a kernel, c: neither has
+        o, r, unchecked = pw.split_unsupported(manifest, out, ref)
+        self.assertEqual(unchecked, ["b"])
+        self.assertTrue(pw.compare(manifest, o, r))
+        o, r, _ = pw.split_unsupported(manifest, dict(out, a=[1.0, 2.5]), ref)      # a wrong checked op still fails
+        self.assertFalse(pw.compare(manifest, o, r))
+        # the reverse: a number in the reference, "unsupported" on the target, fails unless the manifest lists it
+        lacking = dict(out, a="unsupported")
+        self.assertFalse(pw.compare(manifest, *pw.split_unsupported(manifest, lacking, ref)[:2]))
+        listed = dict(manifest, unsupported_ok=["a"])
+        o, r, unchecked = pw.split_unsupported(listed, lacking, ref)
+        self.assertTrue(pw.compare(listed, o, r))
+        self.assertEqual(unchecked, ["b"])
 
 
 class CondaHelper(unittest.TestCase):
