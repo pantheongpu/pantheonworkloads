@@ -1,0 +1,20 @@
+name: gpt-train-bench
+description: Training throughput (steps/s, tokens/s) of a 10.7M-parameter character-level GPT, fp32 and bf16, on real GPUs.
+kind: benchmark
+runtime: pytorch
+targets: [cpu, gpu]
+timeout_s: 1800
+model:
+  id: gpt-train-baby (defined in workloads/_shared/gpt_train.py; no pretrained weights)
+  revision: workloads/_shared/gpt_train.py at this repository's commit
+  licence: Apache-2.0       # this repository's own code (LICENSE); design follows nanoGPT (MIT), see docs/models.md
+  source_url: https://github.com/karpathy/nanoGPT
+notes: >
+  Metrics: fp32_steps_per_s, fp32_tokens_per_s, bf16_steps_per_s, bf16_tokens_per_s (bf16 only where
+  torch reports it supported). One AdamW step is forward, backward, gradient clipping and the
+  optimizer on a batch of 32 x 256 tokens, timed after one warm-up step with a device sync at both
+  ends; each dtype starts from the same seeded weights. fp32 means real fp32 (TF32 off), so the
+  fp32 number is the card's fp32 rate, not its tensor-core rate. A run whose loss is not finite
+  or does not fall fails instead of reporting a speed. Not a simulator target: a simulated GPU's
+  time is not GPU time. The cpu target exists to test the workload; record GPU numbers with
+  `bin/pw run gpt-train-bench --target gpu --bench`. Not yet run on any GPU.
