@@ -31,6 +31,6 @@ notes: >
   so 1e-3 is about 100x above reordering noise on CPU; a GPU's fp32 kernels (TF32 off) may differ more, and
   if so the evidence should be recorded here. A wrong kernel moves the logits by 1e-1 or more.
   Reference recorded on the cpu target only (CPU-only PyTorch 2.13.0 + transformers 5.18.0 from conda-forge,
-  tools/torch-cpu-env.sh); not run on any GPU or simulator. attn defaults to sdpa (PW_ARCH_ATTN=eager to
+  tools/torch-cpu-env.sh); also run on sim:nvidia/{rtx5090, h100, a100, t4} (PyTorch 2.14.1+cu130, transformers 5.18.0): ids identical, statistics within 1.1e-6 of this reference (docs/sim-validation.md); not run on a physical GPU. attn defaults to sdpa (PW_ARCH_ATTN=eager to
   override); MoE experts default to transformers' grouped_mm (PW_ARCH_EXPERTS=eager for the loop, e.g.
   if a simulated GPU lacks grouped_mm).

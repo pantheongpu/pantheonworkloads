@@ -143,5 +143,9 @@ fi
 echo "export VGPU_BUILD_DIR=$SIM_BUILD"
 echo "export PANTHEONSIM_DIR=$pdir"
 [[ -x "$SIM_TORCH_VENV/bin/python" ]] && echo "export VGPU_TORCH_CUDA_PYTHON=$SIM_TORCH_VENV/bin/python"
+# The simulator's NVRTC shim compiles PyTorch's run-time kernels (jiterator: complex abs, det, slogdet...) with
+# a real libnvrtc when one is named, so no nvcc is needed; the pip wheel in the torch venv carries one.
+nvrtc=$(ls "$SIM_TORCH_VENV"/lib/python3*/site-packages/nvidia/cu13/lib/libnvrtc.so.13 2>/dev/null | head -1 || true)
+[[ -n "$nvrtc" ]] && echo "export VGPU_NVRTC_LIB=$nvrtc"
 echo "export CUDA_HOME=$SIM_CUDA_HOME"
 exit 0
