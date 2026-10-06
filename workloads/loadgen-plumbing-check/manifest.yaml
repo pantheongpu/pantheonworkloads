@@ -1,0 +1,18 @@
+name: loadgen-plumbing-check
+description: MLCommons LoadGen drives a trivial CPU system under test through Offline and Server; plumbing check only.
+kind: functional
+runtime: none
+targets: [cpu]
+compare: exact
+timeout_s: 600
+notes: >
+  NOT AN MLPERF RESULT. This runs the MLCommons LoadGen library (pip mlcommons-loadgen 6.0.17, from
+  github.com/mlcommons/inference loadgen/, Apache-2.0) against a toy SUT: an 8x8 integer
+  matrix-vector product, no model, no MLPerf dataset, no MLPerf settings or compliance runs.
+  It checks that LoadGen's Python bindings run, that both scenarios query the SUT, that all 256
+  samples come back with the right bytes in the accuracy log, and that LoadGen calls the
+  performance runs VALID against the settings used here (min duration 100 ms, 1024 queries).
+  MLCommons' Results Messaging Guidelines forbid presenting non-compliant runs as MLPerf results
+  and restrict use of the MLPerf name, so no throughput or latency is reported (metrics are empty)
+  and nothing here should be quoted as MLPerf Inference. The workload is deliberately not named
+  after MLPerf. See docs/mlperf.md. No model, so model.* is absent (runtime: none).

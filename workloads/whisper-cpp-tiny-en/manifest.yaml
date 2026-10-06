@@ -1,0 +1,25 @@
+name: whisper-cpp-tiny-en
+description: whisper.cpp transcribes an 11 s clip with the tiny.en model (CPU, CUDA or HIP build).
+kind: functional
+runtime: whisper.cpp
+targets: [cpu, gpu]
+compare: exact
+timeout_s: 1800
+model:
+  id: ggerganov/whisper.cpp ggml-tiny.en.bin   # OpenAI Whisper tiny.en converted to ggml by whisper.cpp
+  revision: "sha1:c78c86eb1a8faa21b369bcd33207cc90d64ae9df"   # whisper.cpp models/README.md @ v1.9.5; sha256 not yet recorded (file could not be downloaded where this was written)
+  licence: MIT          # openai/whisper README: "Whisper's code and model weights are released under the MIT License"
+  source_url: https://huggingface.co/ggerganov/whisper.cpp
+notes: >
+  Runtime: whisper.cpp tag v1.9.5 (commit d1be6fde11ac6e0407606b4e42fe72d34add8037, MIT), built by
+  tools/build-whisper-cpp.sh (CPU by default; cuda/hip via PW_WHISPER_BACKEND, hip needs PW_HIP_ARCH).
+  Nothing is committed: the model and the clip are fetched at run time and checked against pinned
+  checksums (tools/whisper-assets.sh). Audio: samples/jfk.wav from the whisper.cpp repo at that commit
+  (sha256 59dfb9a4...). The spoken words are from a 1961 US presidential address (a US federal-government
+  work), but the whisper.cpp repo does NOT state the recording's provenance or licence, so it is not
+  committed here and its redistribution status is unverified. Output is the lower-cased transcript with
+  punctuation removed, compared exactly with reference.json; in addition the run fails when the word
+  error rate against the known text exceeds PW_WHISPER_WER_MAX (0.15). Greedy decoding without
+  temperature fallback; CUDA/HIP floating-point differences could still change a word, in which case
+  record a reference per backend or loosen the comparison. No sim: targets: not attempted.
+  No reference.json unless one was recorded (see the commit that added it for the target).

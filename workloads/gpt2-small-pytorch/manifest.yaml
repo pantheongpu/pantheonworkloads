@@ -1,0 +1,26 @@
+name: gpt2-small-pytorch
+description: GPT-2 small (124M) in Hugging Face transformers, five greedy tokens after "The capital of France is", float32.
+kind: functional
+runtime: pytorch
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: tolerance
+tolerance:
+  abs: 1.0e-3
+  rel: 1.0e-3
+  fields:
+    first_step_top1_logit: {abs: 2.0e-3, rel: 1.0e-4}
+timeout_s: 3600
+model:
+  id: openai-community/gpt2
+  revision: null            # UNPINNED: not downloaded where this was written. Pin the commit hash from the first download (PW_HF_REVISION overrides until then).
+  licence: "UNVERIFIED: huggingface.co was unreachable when this was written, so the model card was not read. Read it, then replace this with the SPDX id."
+  source_url: https://huggingface.co/openai-community/gpt2
+notes: >
+  Greedy decoding with an explicit KV-cache loop, eager attention, fp32. Token ids and text are
+  compared exactly (strings in `output`); the run fails if any step's top-1 and top-2 logits are
+  within 1e-3, so a reference is never a near-tie that another backend could flip. The one float,
+  the first step's top-1 logit (about -100..-30), gets abs 2e-3 / rel 1e-4: fp32 backends agree
+  to ~1e-4 there. Not run: no reference.json and the bounds are reasoned, not measured. The
+  run's detail line prints the licence the model card declares at run time.
+  Weights are fetched into $PW_CACHE (default ~/.cache/pantheonworkloads/hf), never the repo.
+  Benchmark (target gpu): decode_tokens_per_s over 64 generated tokens.

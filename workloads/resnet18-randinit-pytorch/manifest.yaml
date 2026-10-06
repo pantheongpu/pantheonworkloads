@@ -1,0 +1,25 @@
+name: resnet18-randinit-pytorch
+description: torchvision ResNet-18 architecture with seeded random weights (no pretrained weights), one forward pass on 4 random 64x64 images.
+kind: functional
+runtime: pytorch
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: tolerance
+tolerance:
+  abs: 1.0e-3
+  rel: 1.0e-3
+timeout_s: 1800
+model:
+  id: torchvision.models.resnet18(weights=None)   # architecture only; weights are generated from torch.manual_seed(0) on the CPU
+  revision: "torchvision==0.25.0 (see workloads/_pytorch/requirements-torch.txt)"
+  licence: BSD-3-Clause   # torchvision's CODE: first line of https://github.com/pytorch/vision/blob/main/LICENSE ("BSD 3-Clause License"). No pretrained weights are used.
+  source_url: https://github.com/pytorch/vision
+notes: >
+  Random-init on purpose: the licence/dataset terms of torchvision's ImageNet weights were not
+  verified, and a functional check only needs a deterministic network. Weights, inputs and the
+  BatchNorm running statistics (set by one seeded train-mode pass) are all computed on the CPU,
+  so every target runs the same network. Which random weights torch's init yields is tied to the
+  torch version (pinned): a new torch major may need a new reference. Compared exactly: top-5
+  class ids per image (fails if neighbouring top-6 logits are within 1e-3). With tolerance: logit
+  statistics, abs/rel 1e-3 (fp32 conv stacks agree to ~1e-5). cudnn TF32 and benchmark mode are off.
+  The classes are meaningless (random net): this checks the stack, not accuracy. Not run: no
+  reference.json. Benchmark (target gpu): images_per_s_b64_224.

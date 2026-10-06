@@ -1,0 +1,25 @@
+name: vllm-greedy-smollm2-135m
+description: vLLM greedy-decoding 8 tokens of a fixed prompt on a 135M-parameter model, for real and simulated GPUs.
+kind: functional
+runtime: vllm
+targets: [gpu, "sim:amd/*"]
+compare: exact
+timeout_s: 5400
+model:
+  id: HuggingFaceTB/SmolLM2-135M
+  revision: null            # UNPINNED: fill in the commit hash of the model repo once pulled (huggingface.co was not reachable from the authoring host)
+  licence: "UNVERIFIED: expected Apache-2.0 (as the smollm2-135m-ollama manifest says); the model card was not reachable when this was written. Confirm before relying on it."
+  source_url: https://huggingface.co/HuggingFaceTB/SmolLM2-135M
+notes: >
+  vLLM v0.30.0 (Apache-2.0: LICENSE and pyproject.toml `license = "Apache-2.0"` at that tag), the
+  version pantheonsim's nightly runs on simulated AMD GPUs (0.30.0+rocm723). Engine settings are
+  pantheonsim's: eager mode, max_model_len 128, one sequence, fp16, seed 0, temperature 0, 8 tokens.
+  Targets: a real CUDA or ROCm GPU; simulated AMD GPUs through pantheonsim's approach (PyTorch's
+  ROCm build with the simulator's libamdhip64 and ROCm SMI in front, VGPU_VLLM_PYTHON, see
+  ../_shared/torch_env.sh), minus the RX 6900 XT, which vLLM has no kernels for. pantheonsim does
+  not run vLLM on simulated NVIDIA GPUs, so neither does this. No CPU target: vLLM here needs a GPU
+  stack. pantheonsim's own test uses facebook/opt-125m and compares with transformers on the CPU;
+  set PW_MODEL to use it (check its licence first).
+  NOT YET RUN anywhere, and no reference.json: record one on a real GPU
+  (PW_MODEL_REVISION=<hash> bin/pw record vllm-greedy-smollm2-135m --target gpu), say which in
+  the commit message, then pin the revision above.

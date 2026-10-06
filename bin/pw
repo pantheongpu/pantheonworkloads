@@ -1,0 +1,345 @@
+#!/usr/bin/env python3
+"""pantheonworkloads runner.
+
+    pw list
+    pw validate [workload ...]
+    pw run <workload ...> --target cpu|gpu|sim:<vendor>/<profile> [--out DIR]
+    pw record <workload> --target T
+    pw run <workload ...> --target gpu --bench [--repeat N] [--device NAME]   record to bench/
+    pw matrix <results-dir>
+    pw bench-table [bench-dir]
+
+See README.md and docs/workload-contract.md.
+"""
+import argparse
+import fnmatch
+import json
+import os
+import pathlib
+import platform
+import re
+import socket
+import statistics
+import subprocess
+import sys
+import time
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tools"))
+import validate  # noqa: E402
+
+WORKLOADS = ROOT / "workloads"
+SKIP_STATUS = 77
+MARK = {"PASS": "✅", "SKIP": "➖", "FAIL": "❌", "TIMEOUT": "⏱️", "MISSING": "🚫"}
+
+
+def names():
+    return sorted(p.parent.name for p in WORKLOADS.glob("*/manifest.yaml"))
+
+
+def target_ok(target, patterns):
+    return any(fnmatch.fnmatchcase(target, p) for p in patterns)
+
+
+def close(a, b, absolute, relative, fields=None):
+    """Numbers within abs + rel*|b|; lists element-wise; dicts key by key (same keys), where
+    `fields` may give a key its own {abs, rel}; anything else (strings, bools) must be equal."""
+    if isinstance(a, dict) and isinstance(b, dict):
+        if a.keys() != b.keys():
+            return False
+        fields = fields or {}
+        for k in b:
+            f = fields.get(k) or {}
+            if not close(a[k], b[k], f.get("abs", absolute), f.get("rel", relative)):
+                return False
+        return True
+    if isinstance(a, bool) or isinstance(b, bool):
+        return a == b
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        return abs(a - b) <= absolute + relative * abs(b)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(close(x, y, absolute, relative) for x, y in zip(a, b))
+    return a == b
+
+
+def compare(manifest, output, reference):
+    how = manifest.get("compare", "exact")
+    if how == "exact":
+        return output == reference
+    tol = manifest.get("tolerance") or {}
+    return close(output, reference, tol.get("abs", 0.0), tol.get("rel", 0.0), tol.get("fields"))
+
+
+def last_json(text):
+    for line in reversed(text.splitlines()):
+        line = line.strip()
+        if line:
+            return json.loads(line)
+    raise ValueError("the workload printed nothing")
+
+
+def execute(name, target, scratch):
+    """Run one workload once. Returns (result, seconds, detail, record)."""
+    wdir = WORKLOADS / name
+    manifest = validate.load(wdir / "manifest.yaml")
+    errors, _ = validate.check(wdir / "manifest.yaml")
+    if errors:
+        return "FAIL", 0.0, "invalid manifest: " + "; ".join(errors), {}
+    if not target_ok(target, manifest["targets"]):
+        return "SKIP", 0.0, f"{target} is not one of this workload's targets", {}
+
+    env = dict(os.environ, PW_TARGET=target, PW_WORKLOAD_DIR=str(wdir), PW_OUT=str(scratch))
+    if target.startswith("sim:"):
+        env["PW_SIM_PROFILE"] = target[4:]
+    scratch.mkdir(parents=True, exist_ok=True)
+    limit = float(os.environ.get("PW_TIMEOUT_S") or manifest.get("timeout_s", 600))   # PW_TIMEOUT_S: tests and slow hosts
+    start = time.monotonic()
+    try:
+        p = subprocess.run(["bash", str(wdir / "run.sh")], cwd=ROOT, env=env, capture_output=True,
+                           text=True, timeout=limit)
+    except subprocess.TimeoutExpired as e:
+        log = (e.stdout or b"")
+        (scratch / f"{name}.log").write_text(log.decode() if isinstance(log, bytes) else log)
+        return "TIMEOUT", time.monotonic() - start, f"no answer in {limit:g} s", {}
+    seconds = time.monotonic() - start
+    (scratch / f"{name}.log").write_text(p.stdout + "\n--- stderr ---\n" + p.stderr)
+    if p.returncode == SKIP_STATUS:
+        why = (p.stdout.strip().splitlines() or ["cannot run here"])[-1]
+        return "SKIP", seconds, why[:200], {}
+    if p.returncode != 0:
+        tail = (p.stderr.strip().splitlines() or p.stdout.strip().splitlines() or [""])[-1]
+        return "FAIL", seconds, f"exit {p.returncode}: {tail}"[:200], {}
+    try:
+        rec = last_json(p.stdout)
+        output = rec["output"]
+    except (ValueError, KeyError, TypeError) as e:
+        return "FAIL", seconds, f"last stdout line is not the contract's JSON ({e})", {}
+    if target.startswith("sim:") and rec.get("metrics"):
+        return "FAIL", seconds, "benchmark metrics on a simulated target: simulator time is not GPU time", rec
+    if manifest["kind"] == "functional":
+        ref_file = wdir / "reference.json"
+        if not ref_file.exists():
+            return "SKIP", seconds, "no reference recorded (bin/pw record)", rec
+        reference = json.loads(ref_file.read_text())["output"]
+        if not compare(manifest, output, reference):
+            return "FAIL", seconds, f"output differs from reference: got {output!r}, want {reference!r}"[:200], rec
+    return "PASS", seconds, str(rec.get("detail", ""))[:200], rec
+
+
+def bench_dir():
+    return pathlib.Path(os.environ.get("PW_BENCH_DIR") or ROOT / "bench")
+
+
+def tool_output(cmd):
+    """First line of a command's output, or None when it is missing or fails."""
+    try:
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return (p.stdout.strip().splitlines() or [None])[0] if p.returncode == 0 else None
+
+
+def detect_device():
+    """(device name, driver) from nvidia-smi when it is there; otherwise (None, None).
+    AMD cards are not auto-detected: pass --device so the number is attributable."""
+    line = tool_output(["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"])
+    if line and "," in line:
+        name, driver = (x.strip() for x in line.split(",", 1))
+        return name, driver
+    return None, None
+
+
+def collect_env(manifest, target, device):
+    detected, driver = detect_device()
+    return {
+        "target": target,
+        "device": device or detected,
+        "driver": driver,
+        "runtime": manifest.get("runtime"),
+        "runtime_version": manifest.get("runtime_version") or (tool_output([manifest["runtime"], "--version"]) if manifest.get("runtime") not in (None, "none") else None),
+        "model": manifest.get("model"),
+        "host_os": platform.platform(),
+        "repo_commit": tool_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"]),
+        "repo_dirty": bool(tool_output(["git", "-C", str(ROOT), "status", "--porcelain"])),
+    }
+
+
+def slug(text):
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+
+
+def cmd_list(_):
+    for n in names():
+        m = validate.load(WORKLOADS / n / "manifest.yaml")
+        print(f"{n}\t{m.get('kind')}\t{','.join(m.get('targets', []))}\t{m.get('description', '')}")
+
+
+def cmd_validate(a):
+    bad = 0
+    for n in a.workload or names():
+        errors, warnings = validate.check(WORKLOADS / n / "manifest.yaml")
+        for w in warnings:
+            print(f"warn  {n}: {w}")
+        for e in errors:
+            print(f"ERROR {n}: {e}")
+        bad += bool(errors)
+        if not errors:
+            print(f"ok    {n}")
+    return 1 if bad else 0
+
+
+def cmd_run(a):
+    if a.bench and a.target.startswith("sim:"):
+        print("--bench is for real targets only: a simulated GPU's time is not GPU time", file=sys.stderr)
+        return 2
+    reps = a.repeat if a.bench else 1
+    run_id = time.strftime("%Y%m%dT%H%M%S") + "-" + a.target.replace("/", "-").replace(":", "-")
+    out = pathlib.Path(a.out) if a.out else ROOT / "results" / run_id
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "machine.txt").write_text(f"{a.target} on {socket.gethostname()}\n")
+    failed = False
+    with open(out / "results.tsv", "a", encoding="utf-8") as tsv:
+        for n in a.workload:
+            if not (WORKLOADS / n / "manifest.yaml").exists():
+                print(f"no such workload: {n}", file=sys.stderr)
+                return 2
+            runs, total = [], 0.0
+            for _ in range(reps):
+                result, seconds, detail, rec = execute(n, a.target, out)
+                total += seconds
+                runs.append(rec)
+                if result != "PASS":
+                    break
+            if a.bench and result == "PASS":
+                problem = write_bench(n, a, runs, out)
+                if problem:
+                    result, detail = "FAIL", problem
+            detail = detail.replace("\t", " ").replace("\n", " ")
+            tsv.write(f"{n}\t{result}\t{total:.1f}\t{detail}\n")
+            (out / f"{n}.json").write_text(json.dumps(
+                {"workload": n, "target": a.target, "result": result, "seconds": round(total, 3),
+                 "detail": detail, **{k: rec[k] for k in ("output", "metrics") if k in rec}}, indent=2) + "\n")
+            print(f"{result:7} {n}  ({total:.1f}s)  {detail}")
+            failed = failed or result in ("FAIL", "TIMEOUT")
+    print(f"results in {out}")
+    return 1 if failed else 0
+
+
+def write_bench(name, a, runs, out):
+    """Write bench/<workload>/<time>-<device>.json. Returns a problem string, or None when written."""
+    manifest = validate.load(WORKLOADS / name / "manifest.yaml")
+    env = collect_env(manifest, a.target, a.device)
+    if not env["device"]:
+        return "device unknown: pass --device \"<GPU name>\" (only NVIDIA cards are auto-detected)"
+    series = {}
+    for rec in runs:
+        for key, value in (rec.get("metrics") or {}).items():
+            series.setdefault(key, []).append(value)
+    if not series:
+        return "the workload reported no metrics, so there is nothing to record"
+    record = {
+        "schema": "pw-bench/0",
+        "workload": name,
+        "date": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "environment": env,
+        "repeats": len(runs),
+        "metrics": {k: {"median": statistics.median(v), "values": v} for k, v in sorted(series.items())},
+    }
+    dest = bench_dir() / name
+    dest.mkdir(parents=True, exist_ok=True)
+    path = dest / (time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()) + "-" + slug(env["device"]) + ".json")
+    path.write_text(json.dumps(record, indent=2) + "\n")
+    print(f"benchmark written to {path}")
+    return None
+
+
+def cmd_record(a):
+    n = a.workload
+    scratch = ROOT / "results" / ("record-" + n)
+    manifest = validate.load(WORKLOADS / n / "manifest.yaml")
+    if manifest.get("kind") != "functional":
+        print("only functional workloads have a reference", file=sys.stderr)
+        return 2
+    # Run without comparing: a reference is what a trusted target produced.
+    ref = WORKLOADS / n / "reference.json"
+    hidden = None
+    if ref.exists():
+        hidden = ref.read_text()
+        ref.unlink()
+    try:
+        result, seconds, detail, rec = execute(n, a.target, scratch)
+    finally:
+        if hidden is not None and not ref.exists():
+            ref.write_text(hidden)
+    if "output" not in rec or result not in ("PASS", "SKIP") or (result == "SKIP" and "no reference" not in detail):
+        print(f"{result}: {detail}", file=sys.stderr)
+        return 1
+    ref.write_text(json.dumps({"output": rec["output"], "recorded_on": a.target,
+                               "recorded_at": time.strftime("%Y-%m-%d")}, indent=2) + "\n")
+    print(f"recorded {ref.relative_to(ROOT)} from {a.target}; say so in the commit message")
+    return 0
+
+
+def cmd_matrix(a):
+    machines = []
+    for tsv in sorted(pathlib.Path(a.results).glob("**/results.tsv")):
+        label_file = tsv.with_name("machine.txt")
+        label = label_file.read_text().strip() if label_file.exists() else tsv.parent.name
+        rows = {}
+        for line in tsv.read_text().splitlines():
+            p = line.split("\t")
+            if len(p) >= 2:
+                rows[p[0]] = (p[1], p[3] if len(p) > 3 else "")
+        machines.append((label, rows))
+    if not machines:
+        print("No results found.")
+        return 1
+    workloads = sorted({w for _, rows in machines for w in rows})
+    print("| Workload | " + " | ".join(label for label, _ in machines) + " |")
+    print("| --- |" + " :---: |" * len(machines))
+    for w in workloads:
+        print(f"| {w} | " + " | ".join(MARK.get(rows.get(w, ("MISSING", ""))[0], "?") for _, rows in machines) + " |")
+    print("\n✅ pass · ❌ fail · ⏱️ timeout · ➖ skipped (cannot run here, or no reference yet) · 🚫 not run")
+    return 0
+
+
+def cmd_bench_table(a):
+    rows = []
+    for f in sorted(pathlib.Path(a.dir or bench_dir()).glob("*/*.json")):
+        rec = json.loads(f.read_text())
+        env = rec["environment"]
+        for metric, m in rec["metrics"].items():
+            rows.append((rec["workload"], env["device"], metric, m["median"], rec["repeats"],
+                         rec["date"][:10], (env.get("model") or {}).get("revision") or "unpinned",
+                         env.get("runtime_version") or "?"))
+    if not rows:
+        print("No benchmark records yet.")
+        return 1
+    print("| Workload | Device | Metric | Median | Runs | Date | Model revision | Runtime |")
+    print("| --- | --- | --- | ---: | ---: | --- | --- | --- |")
+    for r in rows:
+        print("| " + " | ".join(str(x) for x in r) + " |")
+    return 0
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(prog="pw")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("list").set_defaults(fn=cmd_list)
+    v = sub.add_parser("validate"); v.add_argument("workload", nargs="*"); v.set_defaults(fn=cmd_validate)
+    r = sub.add_parser("run"); r.add_argument("workload", nargs="+"); r.add_argument("--target", required=True)
+    r.add_argument("--out")
+    r.add_argument("--bench", action="store_true", help="record the metrics under bench/ (real targets only)")
+    r.add_argument("--repeat", type=int, default=3, help="runs per workload with --bench (default 3)")
+    r.add_argument("--device", help="GPU name for the record when it cannot be detected")
+    r.set_defaults(fn=cmd_run)
+    c = sub.add_parser("record"); c.add_argument("workload"); c.add_argument("--target", required=True)
+    c.set_defaults(fn=cmd_record)
+    m = sub.add_parser("matrix"); m.add_argument("results"); m.set_defaults(fn=cmd_matrix)
+    b = sub.add_parser("bench-table"); b.add_argument("dir", nargs="?"); b.set_defaults(fn=cmd_bench_table)
+    a = ap.parse_args(argv)
+    return a.fn(a) or 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
