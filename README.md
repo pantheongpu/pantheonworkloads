@@ -56,6 +56,7 @@ Early scaffold. What exists and what does not:
 
 - Runner, manifest validation, results format, a no-GPU `selftest`: exist and are tested (`tests/`).
 - `smollm2-135m-ollama`: written, **not yet run** and no reference recorded. See its manifest.
+- `llamacpp-*` (llama.cpp functional + `llama-bench` workloads, `docs/llamacpp.md`, `docs/models.md`): see the status there; model licences/revisions are **unverified**.
 - Benchmark recording (`--bench`, `bench-table`): exists and is tested with the selftest, but **no real GPU has
   run it yet**, so `bench/` is empty. See `docs/benchmarks.md`.
 - Trace capture: designed only (`docs/trace-schema.md` is a draft).

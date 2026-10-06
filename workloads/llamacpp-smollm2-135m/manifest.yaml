@@ -1,0 +1,23 @@
+name: llamacpp-smollm2-135m
+description: llama.cpp (llama-completion) greedy-decodes 3 tokens from SmolLM2-135M-Instruct (Q8_0 GGUF).
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: exact
+timeout_s: 3600
+model:
+  id: HuggingFaceTB/SmolLM2-135M-Instruct-GGUF (smollm2-135m-instruct-q8_0.gguf)
+  revision: null            # UNPINNED: no network route to huggingface.co when written; pin the HF commit and put the file's sha256 in model.sha256
+  licence: "UNVERIFIED (expected Apache-2.0; the model card was not reachable from the machine that wrote this)"
+  source_url: https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct-GGUF
+notes: >
+  llama.cpp itself is MIT (LICENSE read at the pinned commit). The model licence, file name and download
+  URL were NOT checked: huggingface.co was unreachable (proxy 403) when this was written. Verify the
+  card, then fill in revision, licence and model.sha256.
+  Backends: cpu (portable CPU build, no offload), gpu (CUDA or ROCm/HIP build, detected or
+  PW_LLAMACPP_BACKEND), sim:nvidia/* (CUDA build under pantheonsim's cuda shims), sim:amd/* (HIP build
+  under pantheonsim's libamdhip64/libhsa shims). The sim: wiring mirrors pantheonsim's run_ollama.sh and
+  run_ollama_amd.sh and has never been run. Build and knobs: docs/llamacpp.md.
+  Prompt "The capital of France is", -n 3, --temp 0, seed 1, no chat template. Keep it short: longer
+  decodes diverge on floating-point differences between backends.

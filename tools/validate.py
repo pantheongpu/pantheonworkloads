@@ -57,6 +57,8 @@ def check(path):
             for key in ("id", "licence", "source_url"):
                 if not model.get(key):
                     errors.append(f"model.{key} is required")
+            if str(model.get("licence", "")).upper().startswith("UNVERIFIED"):
+                warnings.append("model.licence is marked UNVERIFIED: read the model's own card before relying on it")
             if "revision" not in model:
                 errors.append("model.revision is required (null while unpinned)")
             elif model["revision"] is None:

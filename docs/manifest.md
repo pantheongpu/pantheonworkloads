@@ -10,6 +10,7 @@ Every workload directory has one. `bin/pw validate` checks them against these ru
 | `kind` | yes | `functional` (checked against a reference) or `benchmark`. |
 | `runtime` | yes | What executes the model: `ollama`, `llama.cpp`, `pytorch`, `none`, ... |
 | `targets` | yes | List of target patterns it supports: `cpu`, `gpu`, `sim:nvidia/*`, `sim:amd/*`. |
+| `runtime_version` | no | A pinned runtime version, recorded in benchmark records instead of asking `<runtime> --version` (for runtimes with no such command on PATH, e.g. a pinned llama.cpp build). |
 | `model` | when a model is used | `id` (where it comes from), `revision` (digest or commit; `null` only while unpinned), `licence` (SPDX id or the licence's name), `source_url`. |
 | `compare` | for `functional` | How a result is compared to `reference.json`: `exact` text, or `tolerance` (with `abs`/`rel` numeric bounds). |
 | `timeout_s` | no | Default 600. |
