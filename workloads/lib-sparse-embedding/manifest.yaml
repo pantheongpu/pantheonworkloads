@@ -1,0 +1,26 @@
+name: lib-sparse-embedding
+description: CSR/COO sparse matmul, sparse softmax, SDDMM, embedding_bag, scatter/gather/index_add, sort/topk/cumsum/unique on seeded inputs; model-free.
+kind: functional
+runtime: pytorch
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: tolerance
+tolerance:
+  abs: 1.0e-4
+  rel: 1.0e-3
+  fields:
+    {}
+timeout_s: 1800
+model: null     # downloads no model
+notes: >
+  GPU libraries exercised: cuSPARSE / hipSPARSE, CUB / hipCUB / rocPRIM (sort, scan, unique), PyTorch's embedding kernels. Inputs come from CPU generators with fixed seeds (docs/lib-coverage.md);
+  TF32 is off except in the ops that turn it on for themselves. Output: per op a checksum, [mean|y|, rms, y at three
+  fixed positions] for floats or a count/sum/weighted-sum/head string for integers. An op the backend has no kernel
+  for is reported as the string "unsupported" (never skipped), so against a reference with numbers it fails on exactly
+  that key. Every run also fails if any op is further from its own float64 CPU result than the op's bound
+  (max |error| as a fraction of the result's rms; integer results must be equal). Integer results (sort/topk ids, unique, scans, nonzero, searchsorted) are compared exactly through a position-weighted checksum and the first 8 values, and against the same op on the CPU; the sort keys have ties but sorts are stable. Sparse results are checked against dense float64 matmul/softmax of the same matrix. Unsupported sparse formats on a backend appear as 'unsupported'.
+  Tolerances: default abs 1e-4 / rel 1e-3 for fp32 ops; fp16 and bf16 ops carry their own (fields above): rel 4 eps of the
+  dtype, abs 4x the largest checksum deviation measured on the CPU between the dtype run and the float64 run, a 1-thread run
+  and a repeat (at least one eps of the checksum's rms). The fp32 ops use under 1% of the default tolerance on the CPU.
+  Derivation: `libkernels.py lib-sparse-embedding --calibrate` (docs/lib-coverage.md). The reference was recorded on the cpu target
+  (CPU PyTorch from conda-forge); ops that the CPU cannot run are recorded as "unsupported", so a first GPU run is
+  expected to differ on those keys until a reference is recorded on a GPU. Not run on any GPU or simulator.
