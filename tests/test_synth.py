@@ -1,7 +1,7 @@
 """Tests for the synthetic-GGUF generator and the llamacpp-synth-* workloads.
 
 No network, no GPU and no llama.cpp build needed: the generator is pure Python (numpy + the MIT-licensed
-`gguf` package; the tests skip when those are missing), and the workload scripts are driven with stub binaries.
+`gguf` package; the whole module skips when those are missing), and the workload scripts are driven with stub binaries.
 
     python3 -m unittest discover -s tests -v
 """
@@ -24,10 +24,12 @@ try:
     import gguf
     import synth_gguf
     import synth_run
+    import synth_workloads
     HAVE = True
-except ImportError:      # numpy or gguf missing: the generator tests are skipped, the manifest tests still run
-    HAVE = False
-import synth_workloads  # noqa: E402  (needs only pyyaml)
+except ImportError:
+    # synth_workloads imports the generator (synth_gguf), which needs numpy and the `gguf` package, so
+    # without them nothing in this module can run: skip it as a whole instead of failing the import.
+    raise unittest.SkipTest("numpy and gguf are needed (pip install numpy gguf==0.19.0)")
 import validate  # noqa: E402
 
 # sha256 of the F16 file for each architecture at tiny size, default seed, generator version 1.
