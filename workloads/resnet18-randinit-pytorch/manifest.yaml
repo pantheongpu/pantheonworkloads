@@ -21,5 +21,6 @@ notes: >
   torch version (pinned): a new torch major may need a new reference. Compared exactly: top-5
   class ids per image (fails if neighbouring top-6 logits are within 1e-3). With tolerance: logit
   statistics, abs/rel 1e-3 (fp32 conv stacks agree to ~1e-5). cudnn TF32 and benchmark mode are off.
-  The classes are meaningless (random net): this checks the stack, not accuracy. Not run: no
-  reference.json. Benchmark (target gpu): images_per_s_b64_224.
+  The classes are meaningless (random net): this checks the stack, not accuracy. Reference recorded on cpu
+  (torch 2.14.1+cu130 run on the CPU, torchvision 0.29.1); run on seven simulated NVIDIA GPUs, which
+  agree with it (docs/sim-validation.md). Benchmark (target gpu): images_per_s_b64_224.

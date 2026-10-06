@@ -8,6 +8,8 @@
 #   PW_TORCH_PYTHON   a Python to use as it is (skips discovery and install)
 #   PW_TORCH_FLAVOR   cpu | cu130 | rocm: which PyTorch build (default: by target)
 #   PW_VENV_ROOT      where venvs are made (default ~/.cache/pantheonworkloads/venvs)
+#   PANTHEONSIM_DIR / VGPU_BUILD_DIR   sim: targets: a built pantheonsim checkout, or its build directory
+#                     (tools/sim-env.sh builds one and prints both)
 #   PW_NO_INSTALL=1   never create a venv or pip install (SKIP instead)
 #   PW_CACHE          model cache (default ~/.cache/pantheonworkloads); weights are never in the repo
 #   PW_TORCH_INDEX_<FLAVOR>  override the PyTorch wheel index URL for a flavour (CPU, CU130, ROCM)
@@ -57,7 +59,8 @@ _pw_install() {  # flavor venv
   [[ "${PW_NO_INSTALL:-0}" != 1 ]] || pw_skip "no Python with $flavor PyTorch (PW_NO_INSTALL=1)"
   echo "creating $venv ($flavor PyTorch from $index)" >&2
   python3 -m venv "$venv" >&2 || { rm -rf "$venv"; pw_skip "python3 -m venv failed"; }
-  "$venv/bin/pip" install -q --index-url "$index" --extra-index-url https://pypi.org/simple \
+  # --retries/--timeout: with the index unreachable, pip's defaults spent 8 minutes failing.
+  "$venv/bin/pip" install -q --retries 1 --timeout 15 --index-url "$index" --extra-index-url https://pypi.org/simple \
       -r "$here/requirements-torch.txt" >&2 \
     && "$venv/bin/pip" install -q -r "$here/requirements-common.txt" >&2 \
     || { rm -rf "$venv"; pw_skip "could not install PyTorch from $index (no network, or the pin is not on that index)"; }
@@ -90,14 +93,16 @@ pw_torch_run() {
   rm -f "$PW_RESULT_FILE"
   local log="$PW_OUT/$(basename "$PW_WORKLOAD_DIR").run.log" status tmp
   local cap=() run=()
-  tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+  # The trap runs when the script exits, after this function's locals are gone: `set -u` made it
+  # print "tmp: unbound variable", so it names the directory itself, not the variable.
+  tmp=$(mktemp -d); trap "rm -rf '$tmp'" EXIT
   export TRITON_CACHE_DIR="$tmp/triton" TORCHINDUCTOR_CACHE_DIR="$tmp/inductor"
   case "$PW_TARGET" in
     cpu) PW_DEVICE=cpu; export CUDA_VISIBLE_DEVICES= HIP_VISIBLE_DEVICES=; run=("$PW_PY" "$script") ;;
     gpu) PW_DEVICE=cuda; run=("$PW_PY" "$script") ;;
     sim:*)
-      [[ -n "${PANTHEONSIM_DIR:-}" ]] || pw_skip "set PANTHEONSIM_DIR to a built pantheonsim checkout"
-      local build="$PANTHEONSIM_DIR/build"
+      local build="${VGPU_BUILD_DIR:-${PANTHEONSIM_DIR:+$PANTHEONSIM_DIR/build}}"
+      [[ -n "$build" ]] || pw_skip "set PANTHEONSIM_DIR (a built pantheonsim checkout) or VGPU_BUILD_DIR (its build directory)"
       [[ -x "$build/vgpu" ]] || pw_skip "$build/vgpu is not built"
       PW_DEVICE=cuda
       # PyTorch on a simulated device can take many GB of host memory and these machines are

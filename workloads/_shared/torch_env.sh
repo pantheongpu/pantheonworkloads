@@ -14,7 +14,8 @@
 #                      $VGPU_VLLM_PYTHON for vllm) in a tree of links to its package whose
 #                      libamdhip64 and librocm_smi64 are pantheonsim's, as amd/tests/e2e/run_pytorch.sh
 #                      and run_vllm_amd.sh do it.
-# Needs PANTHEONSIM_DIR (a built checkout) for sim: targets.
+# Needs PANTHEONSIM_DIR (a built checkout, built in its build/) or VGPU_BUILD_DIR (the build directory
+# itself, wherever it is; it wins) for sim: targets. tools/sim-env.sh builds one and prints both.
 
 pw_skip() { echo "SKIP: $*"; exit 77; }
 
@@ -30,8 +31,8 @@ pw_setup() {
       python="${PW_PYTHON:-python3}" ;;
     sim:nvidia/*)
       [[ "$flavour" == torch ]] || pw_skip "pantheonsim runs vLLM on simulated AMD GPUs only (amd/tests/e2e/run_vllm_amd.sh)"
-      [[ -n "${PANTHEONSIM_DIR:-}" ]] || pw_skip "set PANTHEONSIM_DIR to a built pantheonsim checkout"
-      local build="$PANTHEONSIM_DIR/build"
+      local build="${VGPU_BUILD_DIR:-${PANTHEONSIM_DIR:+$PANTHEONSIM_DIR/build}}"
+      [[ -n "$build" ]] || pw_skip "set PANTHEONSIM_DIR (a built pantheonsim checkout) or VGPU_BUILD_DIR (its build directory)"
       [[ -e "$build/shim/libcudart.so.13" ]] || pw_skip "no CUDA 13 runtime shim in $build/shim"
       [[ -x "$build/vgpu" ]] || pw_skip "$build/vgpu is not built"
       for c in "${VGPU_TORCH_CUDA_PYTHON:-}" $(ls -d "$HOME"/.local/share/torch-cu13*/bin/python 2>/dev/null); do
@@ -42,8 +43,8 @@ pw_setup() {
       PW_ENV=(TRITON_CACHE_DIR="$PW_OUT/triton" TORCHINDUCTOR_CACHE_DIR="$PW_OUT/inductor")
       PW_PREFIX=("$build/vgpu" run --gpu "$PW_SIM_PROFILE" --preload) ;;
     sim:amd/*)
-      [[ -n "${PANTHEONSIM_DIR:-}" ]] || pw_skip "set PANTHEONSIM_DIR to a built pantheonsim checkout"
-      local build="$PANTHEONSIM_DIR/build"
+      local build="${VGPU_BUILD_DIR:-${PANTHEONSIM_DIR:+$PANTHEONSIM_DIR/build}}"
+      [[ -n "$build" ]] || pw_skip "set PANTHEONSIM_DIR (a built pantheonsim checkout) or VGPU_BUILD_DIR (its build directory)"
       [[ -e "$build/shim/libamdhip64.so.7" ]] || pw_skip "no HIP shim in $build/shim"
       if [[ "$flavour" == vllm ]]; then
         python="${VGPU_VLLM_PYTHON:-}"
