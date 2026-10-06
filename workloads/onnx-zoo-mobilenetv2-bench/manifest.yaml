@@ -1,0 +1,17 @@
+name: onnx-zoo-mobilenetv2-bench
+description: ONNX model zoo MobileNetV2-12, images per second at batch 32 on a real GPU.
+kind: benchmark
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: onnx/models validated/vision/classification/mobilenet/model/mobilenetv2-12.onnx
+  revision: "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; mobilenetv2-12.onnx sha256 c0c3f76d93fa3fd6580652a45618618a220fced18babf65774ed169de0432ad5 (= its git-LFS oid)"
+  licence: Apache-2.0   # mobilenet/README.md "License" section at that commit and repo LICENSE
+  source_url: https://github.com/onnx/models/tree/main/validated/vision/classification/mobilenet
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). The zoo's test tensor repeated to PW_ORT_BATCH (32) images, 5 warm-up runs,
+  median of PW_ORT_REPEATS (30) timed runs of session.run on host arrays (so host-device copies are
+  included). The functional check on the single image runs first.

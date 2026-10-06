@@ -1,0 +1,22 @@
+name: ppocr-rapidocr
+description: PP-OCRv3 (via rapidocr_onnxruntime) reads the text of a screenshot (detect, classify, recognise).
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {mean_score: {abs: 0.01, rel: 0.0}}}
+timeout_s: 900
+model:
+  id: PP-OCRv3 det + rec and PP-OCR v2.0 cls (ONNX, from PaddleOCR) in PyPI rapidocr_onnxruntime
+  revision: "PyPI rapidocr_onnxruntime==1.2.3; wheel models sha256 3439588c..., 897a3ede..., e47acedf... (model.sha256)"
+  licence: Apache-2.0   # RapidOCR README "Models" section at commit f65c7da00e72c19c258245e8e0e5f33af14488be; PaddleOCR LICENSE
+  source_url: https://github.com/RapidAI/RapidOCR
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Input: python/tests/test_files/en.jpg of the RapidOCR repo (Apache-2.0) at
+  the pinned commit; the image is a screenshot of a paper's text, whose own rights are not stated
+  there, so it is fetched, not committed. The model files come inside the pinned wheel and are
+  sha256-checked at run time. Output: the recognised lines joined with | (exact) and the mean line
+  score (abs 0.01). RapidOCR 1.2.3 only uses the CUDA execution provider, so gpu on AMD is a SKIP. No
+  sim: targets.

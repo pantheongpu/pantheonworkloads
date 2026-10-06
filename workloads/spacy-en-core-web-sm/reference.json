@@ -1,0 +1,11 @@
+{
+  "output": {
+    "tokens": "Apple is looking at buying a U.K. startup for $ 1 billion in London on Monday . || The quick brown fox jumps over the lazy dog near the old stone bridge . || Dr. Maria Lopez moved from Madrid to Austin , Texas , in March 2019 to join the University of Texas . || Engineers at the observatory measured the comet 's tail at roughly 40 million kilometres .",
+    "pos": "PROPN AUX VERB ADP VERB DET PROPN NOUN ADP SYM NUM NUM ADP PROPN ADP PROPN PUNCT || DET ADJ ADJ NOUN VERB ADP DET ADJ NOUN ADP DET ADJ NOUN NOUN PUNCT || PROPN PROPN PROPN VERB ADP PROPN ADP PROPN PUNCT PROPN PUNCT ADP PROPN NUM PART VERB DET PROPN ADP PROPN PUNCT || NOUN ADP DET NOUN VERB DET NOUN PART NOUN ADP ADV NUM NUM NOUN PUNCT",
+    "dep": "nsubj>2 aux>2 ROOT>2 prep>2 pcomp>3 det>6 dobj>4 advcl>2 prep>7 quantmod>11 compound>11 pobj>8 prep>11 pobj>12 prep>7 pobj>14 punct>2 || det>3 amod>3 amod>3 nsubj>4 ROOT>4 prep>4 det>8 amod>8 pobj>5 prep>8 det>13 amod>13 compound>13 pobj>9 punct>4 || compound>2 compound>2 nsubj>3 ROOT>3 prep>3 pobj>4 prep>3 pobj>6 punct>7 appos>7 punct>7 prep>3 pobj>11 nummod>12 aux>15 advcl>3 det>17 dobj>15 prep>17 pobj>18 punct>3 || nsubj>4 prep>0 det>3 pobj>1 ROOT>4 det>6 poss>8 case>6 dobj>4 prep>4 advmod>12 compound>12 nummod>13 pobj>9 punct>4",
+    "ents": "Apple/ORG; U.K./GPE; $1 billion/MONEY; London/GPE; Monday/DATE ||  || Maria Lopez/PERSON; Madrid/GPE; Austin/GPE; Texas/GPE; March 2019/DATE; the University of Texas/ORG || roughly 40 million kilometres/MONEY",
+    "model_version": "3.8.0"
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-06"
+}

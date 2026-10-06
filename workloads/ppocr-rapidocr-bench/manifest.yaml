@@ -1,0 +1,17 @@
+name: ppocr-rapidocr-bench
+description: PP-OCRv3 (rapidocr_onnxruntime), images per second on a real GPU.
+kind: benchmark
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: PP-OCRv3 det + rec and PP-OCR v2.0 cls (ONNX, from PaddleOCR) in PyPI rapidocr_onnxruntime
+  revision: "PyPI rapidocr_onnxruntime==1.2.3; wheel models sha256 3439588c..., 897a3ede..., e47acedf... (model.sha256)"
+  licence: Apache-2.0   # RapidOCR README "Models" section at commit f65c7da00e72c19c258245e8e0e5f33af14488be; PaddleOCR LICENSE
+  source_url: https://github.com/RapidAI/RapidOCR
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). One screenshot through detection, classification and recognition, median of
+  PW_ORT_REPEATS (10) after one warm-up run; CUDA execution provider only. Pre- and post-processing
+  run on the CPU, so this is an end-to-end pipeline number, not model throughput.

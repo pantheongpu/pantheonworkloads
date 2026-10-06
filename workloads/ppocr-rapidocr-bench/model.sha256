@@ -1,0 +1,5 @@
+# PP-OCRv3 det/rec and PP-OCR v2.0 cls inside the rapidocr_onnxruntime 1.2.3 wheel (checked by tools/ort_tasks.py):
+# 3439588c030faea393a54515f51e983d8e155b19a2e8aba7891934c1cf0de526  ch_PP-OCRv3_det_infer.onnx
+# 897a3ededb38fee0dae2c1ccee38241f37df202c9509e3abca02e9217c5ee615  ch_PP-OCRv3_rec_infer.onnx
+# e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c  ch_ppocr_mobile_v2.0_cls_infer.onnx
+7945522d6cf648b4bfb0a9480efdec00b833d1df5b60aef8ce815a1bc1a82f41  ocr-en.jpg
