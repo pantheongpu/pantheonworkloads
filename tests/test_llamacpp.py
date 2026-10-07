@@ -257,6 +257,13 @@ class HipBuild(unittest.TestCase):
         for what in ("pw_hipStreamWaitEvent", "pw_hipblasStrsmBatched", "pw_hipGetLastError", "x[ne] = {};"):
             self.assertIn(what, patch)
 
+    def test_mmq_padding_patch(self):
+        patch = (LC / "patches" / "mmq-y-overread.patch").read_text()
+        p = subprocess.run(["git", "apply", "--stat", "-"], input=patch, capture_output=True, text=True)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertIn("ggml-cuda/mmq.cu", p.stdout)
+        self.assertEqual(patch.count("+            2048;") + patch.count("+        2048;"), 2)   # both allocations of the activation buffer
+
     def test_sim_amd_target_names_the_shim_after_the_hip_soname_the_build_asks_for(self):
         """A build made with ROCm 5 asks for libamdhip64.so.5, and the simulator's library is preloaded under that name."""
         with tempfile.TemporaryDirectory() as tmp:

@@ -80,9 +80,13 @@ if [[ ! -e "$src/.pw-patched-for-$commit" ]]; then
     && git -C "$src" checkout -q FETCH_HEAD || { cat "$work/git.err" >&2; skip "cannot fetch llama.cpp $commit from $repo"; }
 fi
 got=$(git -C "$src" rev-parse HEAD)
-if [[ "$backend" == hip ]] && (( HIP_COMPAT )) && [[ ! -e "$src/.pw-patched-for-$commit" ]]; then
-  git -C "$src" apply "$here/patches/hip-rocm5.patch" 2>"$work/patch.err" \
-    || { cat "$work/patch.err" >&2; echo "patches/hip-rocm5.patch does not apply to llama.cpp $got" >&2; exit 1; }
+if [[ "$backend" == hip && ! -e "$src/.pw-patched-for-$commit" ]]; then
+  # mmq-y-overread.patch: the quantised-activation buffer of the MMQ kernels is padded for the tile it needs but
+  # the tile load reads up to 2 KiB further; harmless on a card, an out-of-bounds read the simulator reports.
+  for p in mmq-y-overread.patch $( (( HIP_COMPAT )) && echo hip-rocm5.patch ); do
+    git -C "$src" apply "$here/patches/$p" 2>"$work/patch.err" \
+      || { cat "$work/patch.err" >&2; echo "patches/$p does not apply to llama.cpp $got" >&2; exit 1; }
+  done
 fi
 [[ "$got" == "$commit" || ${#commit} -lt 40 ]] || { echo "fetched $got, wanted $commit" >&2; exit 1; }
 touch "$src/.pw-patched-for-$commit"
