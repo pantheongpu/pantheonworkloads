@@ -79,7 +79,17 @@ lc_setup() {
       # the one simulated GPU is HIP device 0; rocBLAS stays off hipBLASLt (no kernel library for gfx12 there).
       mkdir -p "$PW_OUT/shim"
       cp -L "$shim"/libamdhip64.so.7 "$shim"/libhsa-runtime64.so.1 "$PW_OUT/shim/"
-      LC_ENV=(LD_PRELOAD="$PW_OUT/shim/libamdhip64.so.7:$PW_OUT/shim/libhsa-runtime64.so.1" VGPU_GPU="$PW_SIM_PROFILE"
+      # A build made with ROCm 5.x (tools/llamacpp/build.sh hip with apt's hipcc) asks for libamdhip64.so.5, one made
+      # with ROCm 6 for .so.6: the shim stands in for whichever soname the backend needs, under that name (as
+      # pantheonsim's amd/tests/e2e/run_memtest_patterns.sh does), preloaded so rocBLAS and hipBLAS bind to it too.
+      local hipso preload="$PW_OUT/shim/libamdhip64.so.7:$PW_OUT/shim/libhsa-runtime64.so.1"
+      if command -v readelf >/dev/null && [[ -e "$LC_LIB/libggml-hip.so" ]]; then
+        hipso=$(readelf -d "$LC_LIB/libggml-hip.so" | sed -n 's/.*Shared library: \[\(libamdhip64\.so\.[0-9]*\)\].*/\1/p' | head -1)
+        if [[ -n "$hipso" && "$hipso" != libamdhip64.so.7 ]]; then
+          cp -L "$shim/libamdhip64.so.7" "$PW_OUT/shim/$hipso"; preload="$PW_OUT/shim/$hipso:$PW_OUT/shim/libhsa-runtime64.so.1"
+        fi
+      fi
+      LC_ENV=(LD_PRELOAD="$preload" LD_LIBRARY_PATH="$PW_OUT/shim:$LD_LIBRARY_PATH" VGPU_GPU="$PW_SIM_PROFILE"
               CUDA_VISIBLE_DEVICES=-1 HIP_VISIBLE_DEVICES=0 ROCBLAS_USE_HIPBLASLT=0
               VGPU_TELEMETRY_PATH="$PW_OUT/vgpu-run" VGPU_STATE_DIR="$PW_OUT/vgpu-state") ;;
   esac
