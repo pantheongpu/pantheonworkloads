@@ -35,6 +35,7 @@
 #   SIM_BUILD=$SIM_ROOT/sim-main-build   build directory
 #   SIM_TORCH_VENV=$HOME/.local/share/torch-cu13
 #   SIM_CUDA_HOME=$HOME/.local/share/sim-cuda-home
+#   SIM_TRANSFORMERS=5.18.0 (pinned: the arch-* references were recorded with it)
 #   SIM_JOBS=3    SIM_MIN_FREE_GB=4    SIM_SKIP_TORCH=1 (do not install torch)
 set -euo pipefail
 
@@ -68,6 +69,13 @@ if ! torch_ok; then
     python3 -m venv "$SIM_TORCH_VENV"
     "$SIM_TORCH_VENV/bin/pip" install --no-cache-dir -q torch torchvision numpy >&2
   fi
+fi
+# transformers: the arch-* workloads build their models from its config classes. Pinned to the version the
+# references were recorded with (tools/torch-cpu-env.sh uses the same pin; pure Python, ~13 MB wheel + ~25 MB deps).
+SIM_TRANSFORMERS=${SIM_TRANSFORMERS:-5.18.0}
+if torch_ok && ! "$SIM_TORCH_VENV/bin/python" -c "import transformers,sys; sys.exit(0 if transformers.__version__=='$SIM_TRANSFORMERS' else 1)" 2>/dev/null; then
+  if (( CHECK )); then missing+=("transformers==$SIM_TRANSFORMERS in $SIM_TORCH_VENV")
+  else log "installing transformers==$SIM_TRANSFORMERS"; "$SIM_TORCH_VENV/bin/pip" install --no-cache-dir -q "transformers==$SIM_TRANSFORMERS" >&2; fi
 fi
 
 # ---- 1. CUDA ABI headers ------------------------------------------------------------------------------------
@@ -135,5 +143,9 @@ fi
 echo "export VGPU_BUILD_DIR=$SIM_BUILD"
 echo "export PANTHEONSIM_DIR=$pdir"
 [[ -x "$SIM_TORCH_VENV/bin/python" ]] && echo "export VGPU_TORCH_CUDA_PYTHON=$SIM_TORCH_VENV/bin/python"
+# The simulator's NVRTC shim compiles PyTorch's run-time kernels (jiterator: complex abs, det, slogdet...) with
+# a real libnvrtc when one is named, so no nvcc is needed; the pip wheel in the torch venv carries one.
+nvrtc=$(ls "$SIM_TORCH_VENV"/lib/python3*/site-packages/nvidia/cu13/lib/libnvrtc.so.13 2>/dev/null | head -1 || true)
+[[ -n "$nvrtc" ]] && echo "export VGPU_NVRTC_LIB=$nvrtc"
 echo "export CUDA_HOME=$SIM_CUDA_HOME"
 exit 0

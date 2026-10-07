@@ -41,6 +41,14 @@ pw_setup() {
       done
       [[ -n "$python" ]] || pw_skip "no Python with PyTorch for CUDA 13 (set VGPU_TORCH_CUDA_PYTHON)"
       PW_ENV=(TRITON_CACHE_DIR="$PW_OUT/triton" TORCHINDUCTOR_CACHE_DIR="$PW_OUT/inductor")
+      # PyTorch compiles some kernels at run time (jiterator: complex abs, det, slogdet, ...). The simulator's NVRTC
+      # shim then needs a real libnvrtc, from a toolkit's nvcc or, with none installed, from the pip wheel in the
+      # torch environment (nvidia/cu13/lib). Without it those ops fail with "nvcc was not found".
+      if [[ -z "${VGPU_NVRTC_LIB:-}" ]]; then
+        for c in "$(dirname "$(dirname "$python")")"/lib/python3*/site-packages/nvidia/cu13/lib/libnvrtc.so.13; do
+          [[ -e "$c" ]] && PW_ENV+=(VGPU_NVRTC_LIB="$c") && break
+        done
+      fi
       PW_PREFIX=("$build/vgpu" run --gpu "$PW_SIM_PROFILE" --preload) ;;
     sim:amd/*)
       local build="${VGPU_BUILD_DIR:-${PANTHEONSIM_DIR:+$PANTHEONSIM_DIR/build}}"
