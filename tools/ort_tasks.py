@@ -42,7 +42,7 @@ def assets(*names):
     sums = a.parse_sums((pathlib.Path(wdir) / "model.sha256").read_text())
     cache = pathlib.Path(os.environ.get("PW_CACHE") or pathlib.Path.home() / ".cache" / "pantheonworkloads") / "ort-assets"
     try:
-        return [a.fetch(n, sums[n], cache) for n in names]
+        return [a.fetch(n, sums[n], cache, sums) for n in names]
     except (RuntimeError, KeyError) as e:
         raise Skip(str(e))
 

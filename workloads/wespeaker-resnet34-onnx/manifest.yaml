@@ -1,0 +1,31 @@
+name: wespeaker-resnet34-onnx
+description: WeSpeaker ResNet34 (VoxCeleb, ONNX) turns three 10 s clips into 256-d speaker embeddings with onnxruntime.
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {cosine_a_a2_b: {abs: 0.003, rel: 0.0}, norms: {abs: 0.02, rel: 0.0}, embeddings: {abs: 0.01, rel: 0.0}}}
+timeout_s: 1800
+model:
+  id: wenet-e2e/wespeaker voxceleb_resnet34 (ONNX), as repackaged with metadata by k2-fsa/sherpa-onnx (wespeaker_en_voxceleb_resnet34.onnx)
+  revision: "k2-fsa/sherpa-onnx release tag speaker-recongition-models (sic; a rolling tag), wespeaker_en_voxceleb_resnet34.onnx sha256 5ef208a9da1453335308a6b6f4e6dfbd7e183a38b604de0a57664f45d257fe94; preprocessing read at wenet-e2e/wespeaker commit 9fecd6cb4f47475d01761d87c826298dff4ef18c"
+  licence: CC-BY-4.0   # wenet-e2e/wespeaker docs/pretrained.md at commit 9fecd6c, "Model License": models follow their dataset's licence, "the pretrained model on VoxCeleb follows Creative Commons Attribution 4.0 International License"; the wespeaker code is Apache-2.0 (README badge)
+  source_url: https://github.com/wenet-e2e/wespeaker/blob/master/docs/pretrained.md
+notes: >
+  Nothing is committed: the model (26.5 MB) and the two recordings are fetched at run time and checked
+  against model.sha256. The weights come from the sherpa-onnx release, not from WeSpeaker's own host
+  (blocked here); the release page's text could not be read from here (the API and release listing are
+  blocked), so the licence evidence is WeSpeaker's own statement plus the model's metadata url, which is
+  WeSpeaker's voxceleb_resnet34.onnx. Clips: samples 0-160000 and 240000-400000 of silero-vad's
+  tests/data/test.wav (the Silero workload's recording; MIT repository, provenance of the recording not
+  stated) and the GTCRN repository's mix.wav (MIT repository, provenance not stated), fetched, never
+  committed. Features follow wespeaker/bin/infer_onnx.py at the pinned commit (Kaldi fbank, 80 bins,
+  25/10 ms, Hamming, samples x 32768, mean subtracted); the numpy fbank was checked against
+  kaldi-native-fbank 1.22.3 (max abs diff 1e-4 on the log-mel values). The ONNX model itself was
+  checked against sherpa-onnx 1.13.8 (cosine 1.0000000, max diff 2e-6 when given the same features;
+  sherpa computes them without the mean subtraction, which WeSpeaker applies). With the mean
+  subtraction two windows of the same recording score 0.84 and different recordings about 0.03.
+  Output: cosines, norms and the embeddings rounded to 3 decimals; the tolerances leave room for GPU
+  float rounding (embedding entries abs 0.01). fp32 model: on the gpu target all nodes can run on the
+  GPU provider. No sim: targets.
