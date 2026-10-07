@@ -1,0 +1,24 @@
+name: onnx-zoo-bidaf
+description: "ONNX model zoo BiDAF-9 answers 16 SQuAD v1.1 questions (the zoo's own test set) and one hand-tokenized example with onnxruntime."
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: exact
+timeout_s: 900
+model:
+  id: onnx/models validated/text/machine_comprehension/bidirectional_attention_flow/model/bidaf-9.tar.gz
+  revision: "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; bidaf-9.tar.gz sha256 c74387eec257f2cb37cefc2846e1c4078bfebf06cd6486e9dafe6c9f7cdc1ef3 (= its git-LFS oid); bidaf/bidaf.onnx inside it sha256 dfc317b56d065a3e297240a9e9b9118ff2260790b5850f4be2bc6ea1bcc65e80 (= the LFS oid of bidaf-9.onnx)"
+  licence: MIT   # bidirectional_attention_flow/README.md at that commit: SPDX header "MIT" and the "License" section "MIT License" (the repo LICENSE is Apache-2.0)
+  source_url: https://github.com/onnx/models/tree/main/validated/text/machine_comprehension/bidirectional_attention_flow
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py; archives are extracted into the cache and deleted, members are checked again on every
+  use). Inputs and expected outputs: the 16 test_data_set_N of the zoo's bidaf-9.tar.gz (string tensors); the
+  run FAILS if any answer span differs from the zoo's expected span. Output: the 16 spans as 'start-end' token
+  offsets (exact; no SQuAD text is copied into reference.json because the paragraphs are CC BY-SA Wikipedia
+  text), plus the model README's fox example (tokenized by hand, so NLTK is not needed). Everything is an
+  integer or a string: nothing is toleranced. The model is a 2016 BiDAF trained on SQuAD v1.1 (converted from
+  CNTK); the README states its licence (MIT) and nothing about the training data's terms. String tensors on a
+  GPU execution provider: onnxruntime may keep the string ops on the CPU (the provider check only looks at the
+  first provider). Not run on a GPU here. No sim: targets.

@@ -1,0 +1,60 @@
+{
+  "output": {
+    "vocab": 400000,
+    "dim": 50,
+    "neighbours": "king: prince queen ii emperor son | paris: prohertrib france brussels amsterdam french | python: reticulated spamalot php owl mouse | doctor: nurse physician patient child teacher | music: musical pop dance songs recording | king - man + woman: queen throne prince daughter elizabeth | paris - france + italy: rome milan turin venice madrid",
+    "scores": [
+      [
+        0.82362,
+        0.7839,
+        0.77462,
+        0.77362,
+        0.76672
+      ],
+      [
+        0.86113,
+        0.80253,
+        0.77965,
+        0.77698,
+        0.77361
+      ],
+      [
+        0.69164,
+        0.66357,
+        0.64145,
+        0.63015,
+        0.62755
+      ],
+      [
+        0.79775,
+        0.79652,
+        0.76117,
+        0.75589,
+        0.75383
+      ],
+      [
+        0.88535,
+        0.86821,
+        0.85312,
+        0.85255,
+        0.83919
+      ],
+      [
+        0.85236,
+        0.76643,
+        0.75921,
+        0.74739,
+        0.74602
+      ],
+      [
+        0.84656,
+        0.7766,
+        0.76664,
+        0.75916,
+        0.75658
+      ]
+    ]
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}

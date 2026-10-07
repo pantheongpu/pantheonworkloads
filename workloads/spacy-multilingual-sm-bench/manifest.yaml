@@ -1,0 +1,16 @@
+name: spacy-multilingual-sm-bench
+description: "spaCy ru/uk/nb/xx small pipelines, words per second per pipeline over 1000 short documents, on a real GPU."
+kind: benchmark
+runtime: spacy
+runtime_version: "spacy 3.8.16 (PyPI), thinc 8.3.13, cupy-cuda12x"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: explosion/spacy-models ru_core_news_sm, uk_core_news_sm, nb_core_news_sm, xx_ent_wiki_sm
+  revision: "release *-3.8.0 of each (explosion/spacy-models commit ca6f473afda3c4943d3919d3e39406c1b3f48b85); wheel sha256 ru 69978d47b43e2c4f..., uk d20adb50b42c0dcf..., nb 086f2cfcc1568b2e..., xx 6f3c4b853852ea9e... (full values in model.sha256)"
+  licence: MIT   # <pkg>-3.8.0.dist-info/LICENSE inside each wheel (MIT, Copyright 2021 ExplosionAI GmbH, identical text) and meta.json; LICENSES_SOURCES read for all four: ru Nerus (MIT), uk Ukr-Synth (MIT), nb UD Norwegian Bokmaal and NorNE (both CC0), xx WikiNER (CC BY 4.0, attribution)
+  source_url: https://github.com/explosion/spacy-models/releases/tag/ru_core_news_sm-3.8.0
+notes: >
+  For each of the four pipelines: its fixed sentences repeated to 1000 documents through nlp.pipe with
+  batch_size 64, median of PW_TEXT_REPEATS (5) passes; metrics are <pipeline>_words_per_s. spaCy's tokenizer and
+  rule components run on the CPU. NVIDIA GPUs only (cupy). Not run where this was written (no GPU).

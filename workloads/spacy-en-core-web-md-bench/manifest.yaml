@@ -1,0 +1,16 @@
+name: spacy-en-core-web-md-bench
+description: "spaCy en_core_web_md 3.8.0, words per second over 1000 short documents, on a real GPU."
+kind: benchmark
+runtime: spacy
+runtime_version: "spacy 3.8.16 (PyPI), thinc 8.3.13, cupy-cuda12x"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: explosion/spacy-models en_core_web_md
+  revision: "release en_core_web_md-3.8.0 (explosion/spacy-models commit ca6f473afda3c4943d3919d3e39406c1b3f48b85 has meta/en_core_web_md-3.8.0.json); wheel sha256 5e6329fe3fecedb1d1a02c3ea2172ee0fede6cea6e4aefb6a02d832dba78a310 (model.sha256)"
+  licence: MIT   # en_core_web_md-3.8.0.dist-info/LICENSE inside that wheel (Copyright 2021 ExplosionAI GmbH) and meta.json "license": "MIT"; LICENSES_SOURCES: OntoNotes 5 (commercial, licensed by Explosion), ClearNLP guideline (citation), WordNet 3.0 (own licence), Explosion vectors (CC0)
+  source_url: https://github.com/explosion/spacy-models/releases/tag/en_core_web_md-3.8.0
+notes: >
+  1000 short documents (the three fixed sentences repeated) through nlp.pipe with batch_size 64, median of
+  PW_TEXT_REPEATS (5) passes. spaCy's tokenizer and rule components run on the CPU, so this is a pipeline
+  number, not a GPU-kernel number. NVIDIA GPUs only (cupy). Not run where this was written (no GPU).

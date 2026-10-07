@@ -1,0 +1,23 @@
+name: spacy-multilingual-sm
+description: "spaCy Russian, Ukrainian, Norwegian and multilingual-NER small pipelines (3.8.0) tag, parse and find entities in fixed sentences."
+kind: functional
+runtime: spacy
+runtime_version: "spacy 3.8.16 (PyPI), thinc 8.3.13"
+targets: [cpu, gpu]
+compare: exact
+timeout_s: 900
+model:
+  id: explosion/spacy-models ru_core_news_sm, uk_core_news_sm, nb_core_news_sm, xx_ent_wiki_sm
+  revision: "release *-3.8.0 of each (explosion/spacy-models commit ca6f473afda3c4943d3919d3e39406c1b3f48b85); wheel sha256 ru 69978d47b43e2c4f..., uk d20adb50b42c0dcf..., nb 086f2cfcc1568b2e..., xx 6f3c4b853852ea9e... (full values in model.sha256)"
+  licence: MIT   # <pkg>-3.8.0.dist-info/LICENSE inside each wheel (MIT, Copyright 2021 ExplosionAI GmbH, identical text) and meta.json; LICENSES_SOURCES read for all four: ru Nerus (MIT), uk Ukr-Synth (MIT), nb UD Norwegian Bokmaal and NorNE (both CC0), xx WikiNER (CC BY 4.0, attribution)
+  source_url: https://github.com/explosion/spacy-models/releases/tag/ru_core_news_sm-3.8.0
+notes: >
+  Four wheels are fetched at run time (11-15 MB each, sha256-pinned), unpacked into the cache and loaded with
+  spacy.load(path); nothing is pip-installed. Candidates NOT added because their licences are not permissive (CC
+  BY-SA, CC BY-NC-SA, GPL, LGPL-LR) are listed in docs/pretrained-reachable.md. Two sentences per pipeline
+  (three for xx_ent_wiki_sm), written for this repo. Output per pipeline: tokens, coarse POS, dependency
+  label>head and entities, all exact (xx_ent_wiki_sm only has an NER, so no pos/dep keys). No floats. The
+  Russian and Ukrainian lemmatizers need pymorphy3 (not installed), so the lemmatizer is excluded for all. CC BY
+  4.0 WikiNER requires attribution if you redistribute the xx model's derived data: Nothman et al., 'Learning
+  multilingual named entity recognition from Wikipedia' (Artificial Intelligence 2013). The gpu path (cupy) was
+  NOT run where this was written; it is a SKIP without a usable CUDA GPU, never a CPU fallback. No sim: targets.
