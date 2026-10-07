@@ -1,0 +1,10 @@
+{
+  "output": {
+    "top_ids": "388",
+    "top_logits": [
+      0.999
+    ]
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}

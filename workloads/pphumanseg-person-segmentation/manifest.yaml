@@ -1,0 +1,32 @@
+name: pphumanseg-person-segmentation
+description: "PP-HumanSeg foreground segmentation (OpenCV Zoo, Apache-2.0) on a photo of a person and a photo of a cat."
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {foreground_fraction_astronaut: {abs: 0.01, rel: 0}, foreground_grid_8x8_astronaut: {abs: 0.1, rel: 0}, foreground_fraction_chelsea: {abs: 0.02, rel: 0}}}
+timeout_s: 900
+model:
+  id: opencv/opencv_zoo models/human_segmentation_pphumanseg/human_segmentation_pphumanseg_2023mar.onnx
+  revision: "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; human_segmentation_pphumanseg_2023mar.onnx sha256 552d8a984054e59b5d773d24b9b12022b22046ceb2bbc4c9aaeaceb36a9ddf24 (= its git-LFS oid)"
+  licence: Apache-2.0   # models/human_segmentation_pphumanseg/LICENSE (Apache License 2.0 text, "Copyright (c) 2021 PaddlePaddle Authors") and its README "License" section ("All files in this directory are licensed under Apache 2.0 License"), read at that commit
+  source_url: https://github.com/opencv/opencv_zoo/tree/main/models/human_segmentation_pphumanseg
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Pre- and post-processing are re-written in tools/ort_vision.py from the model's
+  documented usage and never use OpenCV's dnn module, so the same onnxruntime session runs on every target. No
+  sim: targets (onnxruntime on pantheonsim is not shown to work). The reference was recorded on the cpu target
+  only (onnxruntime CPU provider, 1 thread); the tolerances below are reasoned, not measured on any GPU: a GPU
+  provider may use TF32 or different reduction orders, which moves float outputs by roughly 1e-3 relative.
+  Input: RGB, resized to 192x192, (x/255 - 0.5)/0.5. Output: the share of pixels of the 192x192 argmax mask
+  that are class 1 (abs 0.01; the cat image abs 0.02 because many of its cells are close to a tie) and, for
+  the astronaut, the mean of that mask over an 8x8 grid (abs 0.1). On the astronaut the mask is the body and
+  head, as expected. On the cat image the model also marks about half the pixels as class 1: it is a person
+  model, so that number only shows what the network does on an out-of-domain input, and its tolerance exists
+  to keep a tie-flip from failing the run. The zoo's own wrapper converts BGR to RGB twice (so feeds BGR);
+  this workload feeds RGB once, as the model was trained. Test images are the scikit-image sample images
+  astronaut.png (NASA photo, 'no known copyright restrictions, released into the public domain'), chelsea.png
+  and coffee.png ('CC0 by the photographer'), read from the docstrings of skimage/data/_fetchers.py at scikit-
+  image tag v0.22.0 (commit 441fe68b95a86d4ae2a351311a0c39a4232b6521; the repo itself is BSD-3-Clause); they
+  are fetched at run time and never committed.

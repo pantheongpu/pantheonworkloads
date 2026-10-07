@@ -1,0 +1,19 @@
+name: onnx-zoo-efficientnet-lite4-bench
+description: "EfficientNet-Lite4-11, images per second at its fixed batch of 1 on a real GPU."
+kind: benchmark
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: onnx/models validated/vision/classification/efficientnet-lite4/model/efficientnet-lite4-11.onnx
+  revision: "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; efficientnet-lite4-11.onnx sha256 d111689907c06eea7c82e4833ddef758da6453b9d4cf60b7e99ca05c7cbd9c12 (= its git-LFS oid)"
+  licence: MIT   # validated/vision/classification/efficientnet-lite4/README.md "License" section ("MIT License") at that commit; the onnx/models repo LICENSE is Apache-2.0
+  source_url: https://github.com/onnx/models/tree/main/validated/vision/classification/efficientnet-lite4
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Throughput is measured only on a real GPU target (metrics are refused on sim:
+  targets); none has been run on a GPU here. The zoo test tensor at the model's fixed batch of 1 (this export
+  has no dynamic batch dimension, so PW_ORT_BATCH is ignored), 5 warm-up runs, median of PW_ORT_REPEATS (30)
+  timed runs of session.run on host arrays. The task's functional output is computed first, in the same run.
+  See the functional workload onnx-zoo-efficientnet-lite4 for the model, preprocessing and licence evidence.

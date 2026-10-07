@@ -1,0 +1,18 @@
+name: crnn-text-recognition-bench
+description: "CRNN word recogniser, images per second at batch 1 on a real GPU."
+kind: benchmark
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: opencv/opencv_zoo models/text_recognition_crnn/text_recognition_CRNN_EN_2021sep.onnx
+  revision: "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; text_recognition_CRNN_EN_2021sep.onnx sha256 a84b1f6e11a65c2d733cb0cc1f014aae3f99051e3f11447dc282faa678eee544 (= its git-LFS oid)"
+  licence: Apache-2.0   # models/text_recognition_crnn/LICENSE (Apache License 2.0 text) and its README "License" section ("All files in this directory are licensed under Apache 2.0 License"), read at that commit
+  source_url: https://github.com/opencv/opencv_zoo/tree/main/models/text_recognition_crnn
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Throughput is measured only on a real GPU target (metrics are refused on sim:
+  targets); none has been run on a GPU here. Median of PW_ORT_REPEATS (30) timed single-word runs after 5
+  warm-up runs (model and CTC decoding). The task's functional output is computed first, in the same run. See
+  the functional workload crnn-text-recognition for the model, preprocessing and licence evidence.

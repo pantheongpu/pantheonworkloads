@@ -1,0 +1,33 @@
+name: onnx-zoo-ssd-mobilenetv1
+description: "ONNX model zoo SSD-MobileNetV1-12 COCO detector (NMS inside the graph) on three public-domain photos."
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {n_astronaut: {abs: 0, rel: 0}, n_chelsea: {abs: 0, rel: 0}, n_coffee: {abs: 0, rel: 0}, scores_astronaut: {abs: 0.03, rel: 0}, scores_chelsea: {abs: 0.03, rel: 0}, scores_coffee: {abs: 0.03, rel: 0}, boxes_astronaut: {abs: 3.0, rel: 0}, boxes_chelsea: {abs: 3.0, rel: 0}, boxes_coffee: {abs: 3.0, rel: 0}}}
+timeout_s: 900
+model:
+  id: onnx/models validated/vision/object_detection_segmentation/ssd-mobilenetv1/model/ssd_mobilenet_v1_12.onnx
+  revision: "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; ssd_mobilenet_v1_12.onnx sha256 b8fba5e404077d4048d27fcd1667e85e27e192eb9bf51e696c46a3acd7d21058 (= its git-LFS oid)"
+  licence: MIT   # validated/vision/object_detection_segmentation/ssd-mobilenetv1/README.md "License" section ("MIT License") at that commit; the onnx/models repo LICENSE is Apache-2.0
+  source_url: https://github.com/onnx/models/tree/main/validated/vision/object_detection_segmentation/ssd-mobilenetv1
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Pre- and post-processing are re-written in tools/ort_vision.py from the model's
+  documented usage and never use OpenCV's dnn module, so the same onnxruntime session runs on every target. No
+  sim: targets (onnxruntime on pantheonsim is not shown to work). The reference was recorded on the cpu target
+  only (onnxruntime CPU provider, 1 thread); the tolerances below are reasoned, not measured on any GPU: a GPU
+  provider may use TF32 or different reduction orders, which moves float outputs by roughly 1e-3 relative.
+  Input: the RGB image as uint8 NHWC at its own size; the graph contains resizing, box decoding and NMS (10
+  detections at most), and this workload keeps those with score >= 0.5. Recorded on cpu: person 0.88
+  (astronaut), cat 0.92 (cat), cup 0.99 and dining table 0.64 (coffee); classes are ids of the 91-id COCO
+  label map of TensorFlow models (1 person, 17 cat, 47 cup, 67 dining table), compared exactly; the lowest
+  kept score is 0.14 above the cut. Boxes in original pixels (abs 3 px), scores abs 0.03. The README's licence
+  section names the licence only (no licence text file sits beside the model); the README's Source line says
+  it is a TensorFlow SSD-MobileNetV1 converted to ONNX and its classes are COCO's; nothing is said there about
+  the training data's terms. Test images are the scikit-image sample images astronaut.png (NASA photo, 'no
+  known copyright restrictions, released into the public domain'), chelsea.png and coffee.png ('CC0 by the
+  photographer'), read from the docstrings of skimage/data/_fetchers.py at scikit-image tag v0.22.0 (commit
+  441fe68b95a86d4ae2a351311a0c39a4232b6521; the repo itself is BSD-3-Clause); they are fetched at run time and
+  never committed.

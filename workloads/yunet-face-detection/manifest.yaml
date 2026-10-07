@@ -1,0 +1,31 @@
+name: yunet-face-detection
+description: "YuNet face detector (OpenCV Zoo, MIT) finds the face and its five landmarks in a NASA astronaut photo and finds none in a cat photo."
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {n_faces_astronaut: {abs: 0, rel: 0}, box_astronaut: {abs: 2.0, rel: 0}, landmarks_astronaut: {abs: 2.0, rel: 0}, score_astronaut: {abs: 0.02, rel: 0}}}
+timeout_s: 900
+model:
+  id: opencv/opencv_zoo models/face_detection_yunet/face_detection_yunet_2023mar.onnx
+  revision: "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; face_detection_yunet_2023mar.onnx sha256 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4 (= its git-LFS oid)"
+  licence: MIT   # models/face_detection_yunet/LICENSE ("MIT License, Copyright (c) 2020 Shiqi Yu") and its README "License" section ("All files in this directory are licensed under MIT License"), read at that commit
+  source_url: https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Pre- and post-processing are re-written in tools/ort_vision.py from the model's
+  documented usage and never use OpenCV's dnn module, so the same onnxruntime session runs on every target. No
+  sim: targets (onnxruntime on pantheonsim is not shown to work). The reference was recorded on the cpu target
+  only (onnxruntime CPU provider, 1 thread); the tolerances below are reasoned, not measured on any GPU: a GPU
+  provider may use TF32 or different reduction orders, which moves float outputs by roughly 1e-3 relative.
+  Input: the 512x512 astronaut image and the cat image, each resized to the model's fixed 640x640 input (BGR,
+  0..255). Decoding (per-stride grids, score = sqrt(cls*obj), greedy NMS at IoU 0.3, score threshold 0.6) is
+  re-written; it finds the same face as OpenCV's FaceDetectorYN (box within 1 px, checked once by hand).
+  Output: face counts (exact), box [x, y, w, h], the five landmarks (x, y pairs) in original pixels (abs 2 px)
+  and the score (abs 0.02). The best non-face score on the cat image is 0.39, well under the 0.6 threshold.
+  Test images are the scikit-image sample images astronaut.png (NASA photo, 'no known copyright restrictions,
+  released into the public domain'), chelsea.png and coffee.png ('CC0 by the photographer'), read from the
+  docstrings of skimage/data/_fetchers.py at scikit-image tag v0.22.0 (commit
+  441fe68b95a86d4ae2a351311a0c39a4232b6521; the repo itself is BSD-3-Clause); they are fetched at run time and
+  never committed.

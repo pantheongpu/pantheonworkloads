@@ -1,0 +1,34 @@
+name: nanodet-object-detection
+description: "NanoDet-Plus-m 416 COCO object detector (OpenCV Zoo, Apache-2.0) on three public-domain photos."
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {n_astronaut: {abs: 0, rel: 0}, n_chelsea: {abs: 0, rel: 0}, n_coffee: {abs: 0, rel: 0}, scores_astronaut: {abs: 0.03, rel: 0}, scores_chelsea: {abs: 0.03, rel: 0}, scores_coffee: {abs: 0.03, rel: 0}, boxes_astronaut: {abs: 3.0, rel: 0}, boxes_chelsea: {abs: 3.0, rel: 0}, boxes_coffee: {abs: 3.0, rel: 0}}}
+timeout_s: 900
+model:
+  id: opencv/opencv_zoo models/object_detection_nanodet/object_detection_nanodet_2022nov.onnx
+  revision: "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; object_detection_nanodet_2022nov.onnx sha256 4b82da9944b88577175ee23a459dce2e26e6e4be573def65b1055dc2d9720186 (= its git-LFS oid)"
+  licence: Apache-2.0   # models/object_detection_nanodet/LICENSE (Apache License 2.0 text) and its README "License" section ("All files in this directory are licensed under Apache 2.0 License"), read at that commit
+  source_url: https://github.com/opencv/opencv_zoo/tree/main/models/object_detection_nanodet
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Pre- and post-processing are re-written in tools/ort_vision.py from the model's
+  documented usage and never use OpenCV's dnn module, so the same onnxruntime session runs on every target. No
+  sim: targets (onnxruntime on pantheonsim is not shown to work). The reference was recorded on the cpu target
+  only (onnxruntime CPU provider, 1 thread); the tolerances below are reasoned, not measured on any GPU: a GPU
+  provider may use TF32 or different reduction orders, which moves float outputs by roughly 1e-3 relative.
+  Input: RGB, aspect-preserving INTER_AREA resize centred on a black 416x416 canvas, the zoo demo's mean/std.
+  Decoding (distribution-focal-loss boxes at strides 8/16/32/64, class-aware greedy NMS at IoU 0.6, score
+  threshold 0.35) is re-written. Only the best detection per image is recorded, because on these photos
+  NanoDet-m returns several duplicate or weak boxes with scores within 0.05 of the 0.35 threshold, whose count
+  is not stable. Recorded on cpu: person 0.50 (astronaut), cat 0.57 (cat), cup 0.69 (coffee); classes are
+  COCO-80 ids as in the zoo demo (0 person, 15 cat, 41 cup), compared exactly. Boxes are [x1, y1, x2, y2] in
+  original pixels (abs 3 px); scores abs 0.03. On the astronaut the runner-up (same class, 0.45) is 0.047
+  below the best, so a numerical difference above about 0.02 could swap them and fail the run: that would be a
+  finding, not noise to tolerate. Test images are the scikit-image sample images astronaut.png (NASA photo,
+  'no known copyright restrictions, released into the public domain'), chelsea.png and coffee.png ('CC0 by the
+  photographer'), read from the docstrings of skimage/data/_fetchers.py at scikit-image tag v0.22.0 (commit
+  441fe68b95a86d4ae2a351311a0c39a4232b6521; the repo itself is BSD-3-Clause); they are fetched at run time and
+  never committed.

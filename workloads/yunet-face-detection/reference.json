@@ -1,0 +1,27 @@
+{
+  "output": {
+    "n_faces_astronaut": 1,
+    "box_astronaut": [
+      178.9,
+      63.2,
+      90.8,
+      110.9
+    ],
+    "score_astronaut": 0.944,
+    "landmarks_astronaut": [
+      201.5,
+      105.0,
+      245.2,
+      104.9,
+      220.7,
+      127.1,
+      203.9,
+      145.2,
+      242.4,
+      145.0
+    ],
+    "n_faces_chelsea": 0
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}

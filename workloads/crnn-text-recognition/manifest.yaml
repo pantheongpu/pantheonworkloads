@@ -1,0 +1,29 @@
+name: crnn-text-recognition
+description: "CRNN English word recogniser (OpenCV Zoo, Apache-2.0) reads six words rendered in code."
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {words: {abs: 0, rel: 0}, text: {abs: 0, rel: 0}, mean_confidence: {abs: 0.02, rel: 0}}}
+timeout_s: 900
+model:
+  id: opencv/opencv_zoo models/text_recognition_crnn/text_recognition_CRNN_EN_2021sep.onnx
+  revision: "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; text_recognition_CRNN_EN_2021sep.onnx sha256 a84b1f6e11a65c2d733cb0cc1f014aae3f99051e3f11447dc282faa678eee544 (= its git-LFS oid)"
+  licence: Apache-2.0   # models/text_recognition_crnn/LICENSE (Apache License 2.0 text) and its README "License" section ("All files in this directory are licensed under Apache 2.0 License"), read at that commit
+  source_url: https://github.com/opencv/opencv_zoo/tree/main/models/text_recognition_crnn
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Pre- and post-processing are re-written in tools/ort_vision.py from the model's
+  documented usage and never use OpenCV's dnn module, so the same onnxruntime session runs on every target. No
+  sim: targets (onnxruntime on pantheonsim is not shown to work). The reference was recorded on the cpu target
+  only (onnxruntime CPU provider, 1 thread); the tolerances below are reasoned, not measured on any GPU: a GPU
+  provider may use TF32 or different reduction orders, which moves float outputs by roughly 1e-3 relative.
+  Input: no image file. Six words (hello, world, pantheon, gpu2024, street, model) are drawn in code with
+  Pillow 12.3.0's bundled default font at 48 px, cropped to the text with an 8 px margin and squeezed to the
+  model's 100x32 grey input ((x-127.5)/127.5); a different Pillow or FreeType would draw slightly different
+  pixels. Decoding: softmax, greedy CTC (blank 0, repeats collapsed) over the model's 36-character lower-case-
+  and-digits charset. Recorded on cpu: all six words are read back exactly; mean confidence of kept steps
+  0.99. The text is compared exactly, confidence abs 0.02. Reading rendered text is an easy case: this checks
+  the network executes, not OCR accuracy. (With a looser crop, 'hello' came out as 'shellor' in a trial, so
+  the crop is part of the workload.)
