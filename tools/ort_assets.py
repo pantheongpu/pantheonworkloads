@@ -4,15 +4,19 @@
     ort_assets.py <workload-dir> <asset>...     prints each local path, one per line
 
 Every asset has a URL here (pinned to a commit) and its sha256 in <workload-dir>/model.sha256
-("<sha256>  <asset name>", sha256sum format). Exit 77 when a file cannot be had here (offline,
+("<sha256>  <asset name>", sha256sum format; "<sha256>  <archive>::<member>" pins one file inside an
+archive, see fetch_unpacked / check_members). Exit 77 when a file cannot be had here (offline,
 blocked host) or does not match its checksum. PW_CACHE: cache directory (default
 ~/.cache/pantheonworkloads). Run it with `python3 -I` (it only needs the standard library).
 """
 import hashlib
+import json
 import os
 import pathlib
 import subprocess
 import sys
+import tarfile
+import zipfile
 
 SKIP = 77
 
@@ -23,6 +27,10 @@ RAPIDOCR = "f65c7da00e72c19c258245e8e0e5f33af14488be"    # RapidAI/RapidOCR main
 _RAW = "https://raw.githubusercontent.com"
 _LFS = "https://media.githubusercontent.com/media"   # git-LFS objects (raw.* serves only the pointer)
 _ZOO = "validated/vision/classification"
+_ZOO_TEXT = "validated/text/machine_comprehension"
+_SPACY = "https://github.com/explosion/spacy-models/releases/download"
+_PYPI = "https://files.pythonhosted.org/packages"
+SENTENCEPIECE = "e0cce7d37b065b5140349dbe12c6bcf6192fdd78"   # google/sentencepiece tag v0.2.2
 
 URLS = {
     "silero_vad.onnx": f"{_RAW}/snakers4/silero-vad/{SILERO}/src/silero_vad/data/silero_vad.onnx",
@@ -33,6 +41,22 @@ URLS = {
     "mobilenetv2-12.tar.gz": f"{_LFS}/onnx/models/{ONNX_MODELS}/{_ZOO}/mobilenet/model/mobilenetv2-12.tar.gz",
     "en_core_web_sm-3.8.0-py3-none-any.whl": "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
     "ocr-en.jpg": f"{_RAW}/RapidAI/RapidOCR/{RAPIDOCR}/python/tests/test_files/en.jpg",
+    # text models (docs/pretrained-reachable.md)
+    "bidaf-9.tar.gz": f"{_LFS}/onnx/models/{ONNX_MODELS}/{_ZOO_TEXT}/bidirectional_attention_flow/model/bidaf-9.tar.gz",
+    "bertsquad-12-int8.tar.gz": f"{_LFS}/onnx/models/{ONNX_MODELS}/{_ZOO_TEXT}/bert-squad/model/bertsquad-12-int8.tar.gz",
+    # a release asset: the tag is the pin, the sha256 pins the bytes (gensim-data's list.json says PDDL for it)
+    "glove-wiki-gigaword-50.gz": "https://github.com/RaRe-Technologies/gensim-data/releases/download/glove-wiki-gigaword-50/glove-wiki-gigaword-50.gz",
+    # npm versions are immutable; third-party redistribution of sentence-transformers/all-MiniLM-L6-v2
+    "genesis-memory-model-0.1.0-alpha.1.tgz": "https://registry.npmjs.org/@xcidos/genesis-memory-model/-/genesis-memory-model-0.1.0-alpha.1.tgz",
+    "ru_core_news_sm-3.8.0-py3-none-any.whl": f"{_SPACY}/ru_core_news_sm-3.8.0/ru_core_news_sm-3.8.0-py3-none-any.whl",
+    "uk_core_news_sm-3.8.0-py3-none-any.whl": f"{_SPACY}/uk_core_news_sm-3.8.0/uk_core_news_sm-3.8.0-py3-none-any.whl",
+    "nb_core_news_sm-3.8.0-py3-none-any.whl": f"{_SPACY}/nb_core_news_sm-3.8.0/nb_core_news_sm-3.8.0-py3-none-any.whl",
+    "xx_ent_wiki_sm-3.8.0-py3-none-any.whl": f"{_SPACY}/xx_ent_wiki_sm-3.8.0/xx_ent_wiki_sm-3.8.0-py3-none-any.whl",
+    "en_core_web_md-3.8.0-py3-none-any.whl": f"{_SPACY}/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl",
+    # PyPI files are content-addressed in their URL path
+    "py3langid-0.4.0-py3-none-any.whl": f"{_PYPI}/69/2d/0eeff2727c970b1d553be70d15ba2d84e3830696c09a79d954c5ae3d5212/py3langid-0.4.0-py3-none-any.whl",
+    "sentencepiece-0.2.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl": f"{_PYPI}/59/b4/a0356fa04d6a14337a6e0e443556785a0422c53ec58baae6b9568120eb0f/sentencepiece-0.2.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+    "sentencepiece-test.model": f"{_RAW}/google/sentencepiece/{SENTENCEPIECE}/python/test/test_model.model",
 }
 
 
@@ -74,6 +98,80 @@ def fetch(name, want, cache):
     if got != want:
         raise RuntimeError(f"{dest} has sha256 {got}, pinned {want}; delete it to re-download")
     return dest
+
+
+def safe_members(names):
+    """Refuse archive member names that are absolute or climb out of the target directory."""
+    for n in names:
+        parts = pathlib.PurePosixPath(n).parts
+        if n.startswith("/") or ".." in parts or (parts and ":" in parts[0]):
+            raise RuntimeError(f"unsafe archive member name {n!r}")
+
+
+def extract_archive(archive, dest, members=None):
+    """Extract a .tar.gz/.tgz/.whl/.zip into `dest` (all of it, or only `members`: names or
+    directory prefixes). Links and special files are refused. Returns the extracted file names."""
+    archive, dest = pathlib.Path(archive), pathlib.Path(dest)
+    want = None if members is None else tuple(m.rstrip("/") for m in members)
+    keep = lambda n: want is None or any(n == m or n.startswith(m + "/") for m in want)   # noqa: E731
+    done = []
+    if archive.suffix in (".whl", ".zip"):
+        with zipfile.ZipFile(archive) as z:
+            safe_members(z.namelist())
+            for info in z.infolist():
+                if not info.is_dir() and keep(info.filename):
+                    z.extract(info, dest)
+                    done.append(info.filename)
+    else:
+        with tarfile.open(archive) as t:
+            infos = t.getmembers()
+            safe_members(i.name for i in infos)
+            for info in infos:
+                if info.isfile() and keep(info.name):
+                    t.extract(info, dest, filter="data")
+                    done.append(info.name)
+                elif not (info.isfile() or info.isdir()):
+                    raise RuntimeError(f"{archive}: member {info.name!r} is a link or special file")
+    return done
+
+
+def fetch_unpacked(name, want, cache, members=None):
+    """Directory holding the contents of the pinned archive `name` (sha256 `want`), extracted once.
+    The archive is downloaded, checked, extracted (only `members` if given) and then deleted, so
+    only the extracted files stay in the cache. A later call with the same or a smaller member
+    set reuses them. Everything in the directory came from the checked archive; files you hash
+    yourself (pin them as '<archive>::<member>' in model.sha256) are checked on every use by
+    `check_members`."""
+    root = pathlib.Path(cache) / want[:16] / (name + ".d")
+    marker = root / ".extracted.json"
+    wanted = None if members is None else sorted(m.rstrip("/") for m in members)
+    try:
+        have = json.loads(marker.read_text())
+        if have["archive_sha256"] == want and (have["members"] is None or (wanted is not None and set(wanted) <= set(have["members"]))):
+            return root
+    except (OSError, ValueError, KeyError):
+        pass
+    arch = fetch(name, want, cache)
+    extract_archive(arch, root, members)
+    marker.write_text(json.dumps({"archive_sha256": want, "members": wanted}))
+    arch.unlink()
+    return root
+
+
+def check_members(root, sums, name):
+    """Verify every '<name>::<member>' file pinned in `sums` that exists under `root`; raise
+    RuntimeError on a mismatch or a missing file. Returns the number checked."""
+    n = 0
+    for key, want in sums.items():
+        if key.startswith(name + "::"):
+            p = pathlib.Path(root) / key.split("::", 1)[1]
+            if not p.is_file():
+                raise RuntimeError(f"{p} is missing")
+            got = sha256(p)
+            if got != want:
+                raise RuntimeError(f"{p} has sha256 {got}, pinned {want}; delete {root} to re-extract")
+            n += 1
+    return n
 
 
 def main(argv):

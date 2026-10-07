@@ -1,0 +1,19 @@
+name: minilm-l6-v2-onnx-bench
+description: "all-MiniLM-L6-v2 (ONNX), sentences per second over a 36-sentence batch on a real GPU."
+kind: benchmark
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: npm @xcidos/genesis-memory-model onnx/model.onnx (sentence-transformers/all-MiniLM-L6-v2, fp32)
+  revision: "npm @xcidos/genesis-memory-model 0.1.0-alpha.1 (tgz sha256 3462d151396de1943a4f69c154223d9473146f3c4e1a1250f98980aa447e9235; npm integrity sha512-kCEWeIgZ...3WvZSA== matches); the package README pins sentence-transformers/all-MiniLM-L6-v2 at Hugging Face revision c9745ed1d9f207416be6d2e6f8de32d1f16199bf; package/onnx/model.onnx sha256 6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452, package/tokenizer.json sha256 be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+  licence: Apache-2.0   # package/README.md of that tarball (sha256 af6b01d8...): 'The bundled model and tokenizer are redistributed from all-MiniLM-L6-v2 under Apache-2.0'; package.json license Apache-2.0. A third party's statement: the upstream Hugging Face model card is not reachable from where this was written
+  source_url: https://www.npmjs.com/package/@xcidos/genesis-memory-model
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py; archives are extracted into the cache and deleted, members are checked again on every
+  use). 36 short sentences (the six fixed ones, six times) per call, padded to the longest (14 tokens),
+  tokenization included in the timing (pure Python WordPiece), median of PW_TEXT_REPEATS (20) calls after one
+  warm-up. gpu target only; exits 77 when onnxruntime has no GPU execution provider. Weights come from a third-
+  party npm repackaging (see onnx licence note in minilm-l6-v2-onnx). Not run on a GPU here (no bench/ record).

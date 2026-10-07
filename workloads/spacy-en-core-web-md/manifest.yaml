@@ -1,0 +1,26 @@
+name: spacy-en-core-web-md
+description: "spaCy's pretrained en_core_web_md 3.8.0 tags, parses, finds entities and compares static word vectors on three fixed sentences."
+kind: functional
+runtime: spacy
+runtime_version: "spacy 3.8.16 (PyPI), thinc 8.3.13"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {word_similarity: {abs: 0.0001, rel: 0.0}, king_ranking_sims: {abs: 0.0001, rel: 0.0}, doc_similarity: {abs: 0.0001, rel: 0.0}}}
+timeout_s: 900
+model:
+  id: explosion/spacy-models en_core_web_md
+  revision: "release en_core_web_md-3.8.0 (explosion/spacy-models commit ca6f473afda3c4943d3919d3e39406c1b3f48b85 has meta/en_core_web_md-3.8.0.json); wheel sha256 5e6329fe3fecedb1d1a02c3ea2172ee0fede6cea6e4aefb6a02d832dba78a310 (model.sha256)"
+  licence: MIT   # en_core_web_md-3.8.0.dist-info/LICENSE inside that wheel (Copyright 2021 ExplosionAI GmbH) and meta.json "license": "MIT"; LICENSES_SOURCES: OntoNotes 5 (commercial, licensed by Explosion), ClearNLP guideline (citation), WordNet 3.0 (own licence), Explosion vectors (CC0)
+  source_url: https://github.com/explosion/spacy-models/releases/tag/en_core_web_md-3.8.0
+notes: >
+  The wheel is fetched at run time from the GitHub release (sha256-pinned), unpacked into the cache and loaded
+  from there with spacy.load(path): it is not pip-installed, the spacy-cpu venv is untouched. Same training-data
+  notices as en_core_web_sm (see spacy-en-core-web-sm): read LICENSES_SOURCES before redistributing or building
+  on the model. The md model adds 20,000 static 300d vectors (684,830 keys share those rows, CC0 per
+  LICENSES_SOURCES). Output: tokens, POS, dependency labels/heads and entities (exact), and word-vector facts:
+  cosine of six word pairs, the ranking of twelve fixed candidate words by cosine to 'king' (similarities
+  rounded to 4 digits before ranking), and the similarity of two sentences' averaged vectors (abs 1e-4). Because
+  the table keeps only 20,000 rows, many words share a vector, so king~prince and cat~dog are exactly 1.0: that
+  is the model, not a bug here. The lemmatizer is excluded. The gpu path (spacy.prefer_gpu with cupy-cuda12x)
+  was NOT run where this was written; it is a SKIP without a usable CUDA GPU, never a CPU fallback. No sim:
+  targets.

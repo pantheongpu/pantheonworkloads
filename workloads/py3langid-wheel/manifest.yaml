@@ -1,0 +1,24 @@
+name: py3langid-wheel
+description: "py3langid (langid.py fork, BSD-3-Clause) identifies the language of ten sentences, CPU only."
+kind: functional
+runtime: numpy
+runtime_version: "py3langid 0.4.0 on numpy 2.5.3 (the ort-cpu venv)"
+targets: [cpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {scores: {abs: 0.01, rel: 0.0001}}}
+timeout_s: 900
+model:
+  id: adbar/py3langid py3langid 0.4.0 (PyPI) data/model.npz.xz
+  revision: "PyPI py3langid-0.4.0-py3-none-any.whl sha256 c25bd038147951ba3a89efe9ec12cc7d2116cb6f311ff8af84ade398a8bc0616 (model.sha256); the sources are tag v0.4.0 = commit 3b99caf00d0dcbc9416a9d06f8e5b690e919a74e of adbar/py3langid"
+  licence: BSD-3-Clause   # py3langid-0.4.0.dist-info/licenses/LICENSE inside the wheel (BSD 3-Clause; fork Copyright 2021 Adrien Barbaresi, original Copyright 2011 Marco Lui) and METADATA "License-Expression: BSD-3-Clause"
+  source_url: https://github.com/adbar/py3langid
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py; archives are extracted into the cache and deleted, members are checked again on every
+  use). A linear classifier over byte n-gram features for 139 languages (4.6 MB, numpy only). The wheel is
+  unpacked into the cache and put on sys.path; it is not pip-installed. Output: the predicted language of ten
+  translations of one sentence (exact) and the raw (unnormalised log-probability) scores (abs 0.01 + rel 1e-4).
+  The wheel states BSD-3-Clause for code and model; the repository's TRAINING.md says the model was trained on
+  Wikipedia leads (CC BY-SA), Leipzig news, Tatoeba and CC-100 text, whose own terms were not read, so the
+  licence of the data behind the statistics is not established here. There is no GPU code path, so the only
+  target is cpu (a 'gpu' label would run numpy on the CPU). No sim: targets.
