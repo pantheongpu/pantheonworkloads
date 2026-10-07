@@ -3,7 +3,9 @@
 
     python3 -I tools/ort_tasks.py <task> [--bench]
 
-Tasks: vad (Silero VAD), ocr (PP-OCRv3 through rapidocr_onnxruntime), mnist, mobilenetv2.
+Tasks: vad (Silero VAD), ocr (PP-OCRv3 through rapidocr_onnxruntime), mnist, mobilenetv2, and the vision
+models of tools/ort_vision.py (yunet, sface, pphumanseg, nanodet, yolox, ssdmobilenet, crnn, shufflenet,
+efficientnet).
 Environment from bin/pw: PW_TARGET (cpu | gpu), PW_WORKLOAD_DIR (its model.sha256 pins the files).
 Prints, as the last stdout line, {"output", "detail", "metrics"} (docs/workload-contract.md);
 metrics are only set with --bench on the gpu target. Exit 77: cannot run here (no network, no GPU
@@ -16,6 +18,7 @@ import os
 import pathlib
 import statistics
 import sys
+import types
 import tarfile
 import time
 import wave
@@ -235,14 +238,19 @@ def task_ocr(bench):
 # ---------------------------------------------------------------- ONNX model zoo classifiers
 
 def zoo_sample(tar_path, stem):
-    """(input, expected output) tensors of test_data_set_0 in a model-zoo tarball, as numpy arrays."""
+    """(input, expected output) tensors of test_data_set_0 in a model-zoo tarball, as numpy arrays. The
+    tarball's top directory is usually `stem` but not always (efficientnet-lite4-11.tar.gz has
+    efficientnet-lite4/), so the member is found by its path below that directory."""
     import onnx
     from onnx import numpy_helper
     arrays = []
     with tarfile.open(tar_path) as t:
         for name in ("input_0", "output_0"):
             tp = onnx.TensorProto()
-            tp.ParseFromString(t.extractfile(f"{stem}/test_data_set_0/{name}.pb").read())
+            member = [m for m in t.getnames() if m.count("/") == 2 and m.endswith(f"/test_data_set_0/{name}.pb")]
+            if len(member) != 1:
+                raise RuntimeError(f"{tar_path}: expected one test_data_set_0/{name}.pb, found {member}")
+            tp.ParseFromString(t.extractfile(member[0]).read())
             arrays.append(numpy_helper.to_array(tp))
     return arrays
 
@@ -251,6 +259,11 @@ def top_k(logits, k):
     """Indices of the k largest values, largest first, ties to the lower index."""
     order = sorted(range(len(logits)), key=lambda i: (-logits[i], i))
     return order[:k]
+
+
+def is_probability(v):
+    """True for a softmax-like vector: no negative entry, sum 1."""
+    return min(v) >= 0 and abs(sum(v) - 1) < 1e-3
 
 
 def task_zoo(stem, bench):
@@ -265,11 +278,14 @@ def task_zoo(stem, bench):
         raise RuntimeError(f"differs from the model zoo's own expected output (max abs diff {err:.3g})")
     logits = got[0].tolist()
     ids = top_k(logits, 5 if len(logits) > 10 else 3)
+    if is_probability(logits):   # softmax output: ranks among near-zero probabilities are numerical noise
+        ids = [i for i in ids if logits[i] >= 1e-3] or ids[:1]
     output = {"top_ids": " ".join(map(str, ids)), "top_logits": [round(logits[i], 3) for i in ids]}
     detail = f"top class {ids[0]}; max abs diff to the zoo's expected output {err:.2g}; {prov}"
     metrics = {}
     if bench:
-        batch = int(os.environ.get("PW_ORT_BATCH", "32"))
+        fixed = sess.get_inputs()[0].shape[0]   # a model exported with a fixed batch dimension is timed at that batch
+        batch = fixed if isinstance(fixed, int) else int(os.environ.get("PW_ORT_BATCH", "32"))
         xb = np.repeat(x, batch, axis=0)
         for _ in range(5):
             sess.run(None, {name: xb})
@@ -290,17 +306,28 @@ TASKS = {
 }
 
 
+def all_tasks():
+    """TASKS plus the vision tasks (tools/ort_vision.py, loaded by path: `python3 -I` has no script dir on sys.path)."""
+    spec = importlib.util.spec_from_file_location("ort_vision", HERE / "ort_vision.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    # speech_tasks.py and text_tasks.py load this file by path without putting it in sys.modules
+    me = sys.modules.get(__name__) or types.SimpleNamespace(**globals())
+    return {**TASKS, **mod.register(me)}
+
+
 def main(argv):
+    tasks = all_tasks()
     args = [a for a in argv[1:] if a != "--bench"]
     bench = "--bench" in argv[1:]
-    if len(args) != 1 or args[0] not in TASKS:
-        print(f"usage: ort_tasks.py {{{'|'.join(TASKS)}}} [--bench]", file=sys.stderr)
+    if len(args) != 1 or args[0] not in tasks:
+        print(f"usage: ort_tasks.py {{{'|'.join(tasks)}}} [--bench]", file=sys.stderr)
         return 2
     if bench and os.environ.get("PW_TARGET") != "gpu":
         print("SKIP: benchmarks are for the real gpu target only")
         return 77
     try:
-        output, detail, metrics = TASKS[args[0]](bench)
+        output, detail, metrics = tasks[args[0]](bench)
     except Skip as e:
         print(f"SKIP: {e}")
         return 77

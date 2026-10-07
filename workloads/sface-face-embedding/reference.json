@@ -1,0 +1,20 @@
+{
+  "output": {
+    "embedding_dim": 128,
+    "embedding_norm": 12.594,
+    "embedding_head": [
+      0.151,
+      -1.697,
+      1.312,
+      1.902,
+      0.187,
+      0.181,
+      1.177,
+      0.391
+    ],
+    "cosine_face_vs_mirrored": 0.975,
+    "cosine_face_vs_cat": 0.127
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}

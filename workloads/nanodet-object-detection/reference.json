@@ -1,0 +1,39 @@
+{
+  "output": {
+    "n_astronaut": 1,
+    "classes_astronaut": "0",
+    "scores_astronaut": [
+      0.499
+    ],
+    "boxes_astronaut": [
+      3.2,
+      12.0,
+      378.4,
+      421.2
+    ],
+    "n_chelsea": 1,
+    "classes_chelsea": "15",
+    "scores_chelsea": [
+      0.571
+    ],
+    "boxes_chelsea": [
+      38.7,
+      0.0,
+      388.1,
+      289.1
+    ],
+    "n_coffee": 1,
+    "classes_coffee": "41",
+    "scores_coffee": [
+      0.69
+    ],
+    "boxes_coffee": [
+      165.6,
+      19.4,
+      409.3,
+      325.9
+    ]
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}

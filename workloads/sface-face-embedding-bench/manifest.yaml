@@ -1,0 +1,23 @@
+name: sface-face-embedding-bench
+description: "SFace face embedding, images per second at batch 1 on a real GPU."
+kind: benchmark
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: opencv/opencv_zoo models/face_recognition_sface/face_recognition_sface_2021dec.onnx
+  revision: "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; face_recognition_sface_2021dec.onnx sha256 0ba9fbfa01b5270c96627c4ef784da859931e02f04419c829e83484087c34e79 (= its git-LFS oid)"
+  licence: Apache-2.0   # models/face_recognition_sface/LICENSE (Apache License 2.0 text) and its README "License" section ("All files in this directory are licensed under Apache 2.0 License"), read at that commit
+  source_url: https://github.com/opencv/opencv_zoo/tree/main/models/face_recognition_sface
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Throughput is measured only on a real GPU target (metrics are refused on sim:
+  targets); none has been run on a GPU here. Median of PW_ORT_REPEATS (30) timed single-crop runs after 5
+  warm-up runs (model runs only; the crop is aligned once). The task's functional output is computed first, in
+  the same run. See the functional workload sface-face-embedding for the model, preprocessing and licence
+  evidence. Test images are the scikit-image sample images astronaut.png (NASA photo, 'no known copyright
+  restrictions, released into the public domain'), chelsea.png and coffee.png ('CC0 by the photographer'),
+  read from the docstrings of skimage/data/_fetchers.py at scikit-image tag v0.22.0 (commit
+  441fe68b95a86d4ae2a351311a0c39a4232b6521; the repo itself is BSD-3-Clause); they are fetched at run time and
+  never committed.

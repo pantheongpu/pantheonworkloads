@@ -1,0 +1,9 @@
+{
+  "output": {
+    "words": "hello|world|pantheon|gpu2024|street|model",
+    "text": "hello|world|pantheon|gpu2024|street|model",
+    "mean_confidence": 0.99
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}

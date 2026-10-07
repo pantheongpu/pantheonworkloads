@@ -1,0 +1,23 @@
+name: nanodet-object-detection-bench
+description: "NanoDet-Plus-m detector, images per second at batch 1 on a real GPU."
+kind: benchmark
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: opencv/opencv_zoo models/object_detection_nanodet/object_detection_nanodet_2022nov.onnx
+  revision: "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; object_detection_nanodet_2022nov.onnx sha256 4b82da9944b88577175ee23a459dce2e26e6e4be573def65b1055dc2d9720186 (= its git-LFS oid)"
+  licence: Apache-2.0   # models/object_detection_nanodet/LICENSE (Apache License 2.0 text) and its README "License" section ("All files in this directory are licensed under Apache 2.0 License"), read at that commit
+  source_url: https://github.com/opencv/opencv_zoo/tree/main/models/object_detection_nanodet
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Throughput is measured only on a real GPU target (metrics are refused on sim:
+  targets); none has been run on a GPU here. Median of PW_ORT_REPEATS (30) timed single-image runs after 5
+  warm-up runs, including pre- and post-processing on the host. The task's functional output is computed
+  first, in the same run. See the functional workload nanodet-object-detection for the model, preprocessing
+  and licence evidence. Test images are the scikit-image sample images astronaut.png (NASA photo, 'no known
+  copyright restrictions, released into the public domain'), chelsea.png and coffee.png ('CC0 by the
+  photographer'), read from the docstrings of skimage/data/_fetchers.py at scikit-image tag v0.22.0 (commit
+  441fe68b95a86d4ae2a351311a0c39a4232b6521; the repo itself is BSD-3-Clause); they are fetched at run time and
+  never committed.

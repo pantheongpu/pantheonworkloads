@@ -1,0 +1,26 @@
+name: onnx-zoo-shufflenet-v2
+description: "ONNX model zoo ShuffleNet-v2-12 classifies the zoo's own preprocessed test image with onnxruntime."
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {top_logits: {abs: 0.01, rel: 0.001}}}
+timeout_s: 900
+model:
+  id: onnx/models validated/vision/classification/shufflenet/model/shufflenet-v2-12.onnx
+  revision: "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; shufflenet-v2-12.onnx sha256 ea69821b4dd374ae2f33f9710dd1229ac263d0ee5b5a46ca3521f6483e1ba035 (= its git-LFS oid)"
+  licence: BSD-3-Clause   # validated/vision/classification/shufflenet/README.md "License" section ("BSD 3-Clause License") at that commit; the onnx/models repo LICENSE is Apache-2.0
+  source_url: https://github.com/onnx/models/tree/main/validated/vision/classification/shufflenet
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Pre- and post-processing are re-written in tools/ort_vision.py from the model's
+  documented usage and never use OpenCV's dnn module, so the same onnxruntime session runs on every target. No
+  sim: targets (onnxruntime on pantheonsim is not shown to work). The reference was recorded on the cpu target
+  only (onnxruntime CPU provider, 1 thread); the tolerances below are reasoned, not measured on any GPU: a GPU
+  provider may use TF32 or different reduction orders, which moves float outputs by roughly 1e-3 relative.
+  Input and expected output: test_data_set_0 in the zoo's shufflenet-v2-12.tar.gz (an ImageNet-style
+  preprocessed tensor); the run also fails if the logits differ from the zoo's own by more than 1e-3. Output:
+  top-5 class ids (exact) and logits (abs 0.01 + rel 1e-3; the top logit is 119.5, so about 0.13 there). The
+  README's licence section names the licence only (no licence text file sits beside the model). Weights were
+  trained on ImageNet; nothing is said about that data's terms.

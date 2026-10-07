@@ -1,0 +1,31 @@
+name: yolox-object-detection
+description: "YOLOX-S 640 COCO object detector (OpenCV Zoo, Apache-2.0) on three public-domain photos."
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {n_astronaut: {abs: 0, rel: 0}, n_chelsea: {abs: 0, rel: 0}, n_coffee: {abs: 0, rel: 0}, scores_astronaut: {abs: 0.03, rel: 0}, scores_chelsea: {abs: 0.03, rel: 0}, scores_coffee: {abs: 0.03, rel: 0}, boxes_astronaut: {abs: 3.0, rel: 0}, boxes_chelsea: {abs: 3.0, rel: 0}, boxes_coffee: {abs: 3.0, rel: 0}}}
+timeout_s: 900
+model:
+  id: opencv/opencv_zoo models/object_detection_yolox/object_detection_yolox_2022nov.onnx
+  revision: "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; object_detection_yolox_2022nov.onnx sha256 c5c2d13e59ae883e6af3b45daea64af4833a4951c92d116ec270d9ddbe998063 (= its git-LFS oid)"
+  licence: Apache-2.0   # models/object_detection_yolox/LICENSE (Apache License 2.0 text) and its README "License" section ("All files in this directory are licensed under Apache 2.0 License"), read at that commit
+  source_url: https://github.com/opencv/opencv_zoo/tree/main/models/object_detection_yolox
+notes: >
+  Nothing is committed: weights and images are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py). Pre- and post-processing are re-written in tools/ort_vision.py from the model's
+  documented usage and never use OpenCV's dnn module, so the same onnxruntime session runs on every target. No
+  sim: targets (onnxruntime on pantheonsim is not shown to work). The reference was recorded on the cpu target
+  only (onnxruntime CPU provider, 1 thread); the tolerances below are reasoned, not measured on any GPU: a GPU
+  provider may use TF32 or different reduction orders, which moves float outputs by roughly 1e-3 relative.
+  Input: RGB 0..255, aspect-preserving resize pasted top-left on a 640x640 canvas of 114 (the zoo demo's
+  letterbox). Decoding (grids at strides 8/16/32, score = objectness x class probability, class-aware greedy
+  NMS at IoU 0.5, threshold 0.35) is re-written. Recorded on cpu: person 0.92 (astronaut), cat 0.90 (cat), cup
+  0.84 and dining table 0.52 (coffee); classes are COCO-80 ids (0 person, 15 cat, 41 cup, 60 dining table),
+  compared exactly; the lowest score is 0.17 above the threshold. Boxes are [x1, y1, x2, y2] in original
+  pixels (abs 3 px, a box is a regression whose exp() amplifies logit noise); scores abs 0.03. Test images are
+  the scikit-image sample images astronaut.png (NASA photo, 'no known copyright restrictions, released into
+  the public domain'), chelsea.png and coffee.png ('CC0 by the photographer'), read from the docstrings of
+  skimage/data/_fetchers.py at scikit-image tag v0.22.0 (commit 441fe68b95a86d4ae2a351311a0c39a4232b6521; the
+  repo itself is BSD-3-Clause); they are fetched at run time and never committed.
