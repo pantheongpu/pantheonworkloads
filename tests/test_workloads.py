@@ -135,7 +135,12 @@ class SimEnv(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             os.makedirs(f"{tmp}/shim")
             pathlib.Path(f"{tmp}/shim/libcudart.so.13").touch()
-            result, _, detail, _ = run("pytorch-microsuite", "sim:nvidia/h100", VGPU_BUILD_DIR=tmp, PW_TORCH_PYTHON=sys.executable)
+            # A stand-in interpreter that says it has torch: the test is about what comes after that check, and
+            # sys.executable has torch only on a machine that installed it (not on a CI runner).
+            fake = pathlib.Path(tmp) / "python-with-torch"
+            fake.write_text("#!/bin/sh\nexit 0\n")
+            fake.chmod(0o755)
+            result, _, detail, _ = run("pytorch-microsuite", "sim:nvidia/h100", VGPU_BUILD_DIR=tmp, PW_TORCH_PYTHON=str(fake))
             self.assertEqual(result, "SKIP")
             self.assertIn(f"{tmp}/vgpu is not built", detail)
             self.assertNotIn("unbound variable", detail)
