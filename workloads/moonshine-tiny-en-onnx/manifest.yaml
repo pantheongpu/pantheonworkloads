@@ -1,0 +1,29 @@
+name: moonshine-tiny-en-onnx
+description: Moonshine tiny (English, int8 ONNX) transcribes two 16 kHz speech clips with onnxruntime.
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: exact
+timeout_s: 1800
+model:
+  id: usefulsensors/moonshine tiny English (v1), int8 ONNX export by k2-fsa/sherpa-onnx (sherpa-onnx-moonshine-tiny-en-int8.tar.bz2)
+  revision: "k2-fsa/sherpa-onnx release tag asr-models (a rolling tag), archive sha256 d5fe6ec4334fef36255b2a4010412cad4c007e33103fec62fb5d17cad88086f2 (files dated 2024-10-26 inside); each file used is pinned by its own sha256 in model.sha256"
+  licence: MIT   # LICENSE inside the archive (MIT, Copyright 2024 Useful Sensors); usefulsensors/moonshine README at commit 234f60faa0eb388b01cdf7e60aca232af37aefda, "License": the code and the models are MIT, the exceptions being legacy non-English non-streaming models
+  source_url: https://github.com/k2-fsa/sherpa-onnx/releases/tag/asr-models
+notes: >
+  Nothing is committed: the archive is fetched at run time (about 108 MB), the pinned members are
+  extracted into the cache (about 124 MB) and the archive is deleted (tools/ort_assets.py). Runtime: onnxruntime
+  directly (preprocess, encode, uncached_decode, cached_decode ONNX files, greedy search, at most 6 tokens
+  per second of audio), written after sherpa-onnx's offline-moonshine-greedy-search-decoder.cc; on the
+  development machine the two transcripts and token counts were identical to sherpa-onnx 1.13.8's
+  OfflineRecognizer.from_moonshine. Input: test_wavs/0.wav and 1.wav from the same archive (LibriSpeech-style
+  read English, 6.6 s and 16.7 s; the archive does not state the recordings' provenance or licence, so they
+  are fetched, never committed). Output: the transcripts and the token ids, compared exactly; the run also
+  fails when the word error rate against the archive's own trans.txt exceeds PW_ASR_WER_MAX (0.15; it is
+  0.021 on the cpu recording, case and punctuation ignored). The model is int8 only (dynamically
+  quantised): on the gpu target the CUDA/ROCm execution providers have no kernels for some integer ops,
+  so onnxruntime may keep those nodes on its CPU provider inside the same session. The provider check
+  (the session must report the GPU provider first) passes, but a GPU benchmark of this model would
+  measure a mixed placement. A transcript that flips one token on a GPU is a real difference to
+  investigate. No sim: targets.

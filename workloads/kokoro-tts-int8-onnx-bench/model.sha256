@@ -1,0 +1,6 @@
+# The archive is deleted after its members are extracted (tools/ort_assets.py); each member is pinned on its own.
+c9f0dd393615805b0bab050c340834d5e684e732aec91c0e860cd30e982c08bd  kokoro-int8-en-v0_19.tar.bz2
+e0530c5031c03c5dc957edfc6d72582c2246e9b4566643ff67eeb03610c11641  kokoro-model.int8.onnx
+a372c67b056ef0b695c375d39b99630d23fb07ad4c8d87aa32a19a62fca523ad  kokoro-voices.bin
+4f31c71282d14af4e926cd12462078fe9d20d00c589e63fe2750a8f56d6d7f7b  kokoro-tokens.txt
+cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30  kokoro-LICENSE

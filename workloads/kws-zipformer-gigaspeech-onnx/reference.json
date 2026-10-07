@@ -1,0 +1,14 @@
+{
+  "output": {
+    "keywords": "LIGHT UP|LOVELY CHILD FOREVER",
+    "token_ids": "20,33,166,141|399,51,345,33,11|47,10,126",
+    "timestamps": "76,77,78,80|135,139,146,150,151|112,116,117",
+    "chunk_starts": [
+      320,
+      608,
+      1088
+    ]
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}

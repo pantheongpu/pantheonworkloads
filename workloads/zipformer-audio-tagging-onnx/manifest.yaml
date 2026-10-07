@@ -1,0 +1,26 @@
+name: zipformer-audio-tagging-onnx
+description: Zipformer (small, AudioSet, ONNX) tags six 3-10 s sound clips with the top AudioSet classes using onnxruntime.
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {top3_scores: {abs: 0.02, rel: 0.0}}}
+timeout_s: 1800
+model:
+  id: k2-fsa/icefall egs/audioset/AT/zipformer (small zipformer2 audio tagger, trained on AudioSet), as released by k2-fsa/sherpa-onnx (sherpa-onnx-zipformer-small-audio-tagging-2024-04-15)
+  revision: "k2-fsa/sherpa-onnx release tag audio-tagging-models (a rolling tag), archive sha256 07e2fafcdcbc461f2816188d9b0bbafced12584030cf67d5652e549ef256a2c6 (files dated 2024-04-15 inside); each file used is pinned by its own sha256 in model.sha256"
+  licence: Apache-2.0   # README.md inside the archive, front matter "license: apache-2.0" (the Hugging Face model card of the same model; it could not be read from here directly); icefall and sherpa-onnx are Apache-2.0. AudioSet's own terms (clips from YouTube; labels CC-BY-4.0) were not read.
+  source_url: https://github.com/k2-fsa/sherpa-onnx/releases/tag/audio-tagging-models
+notes: >
+  Nothing is committed: the archive (111 MB) is fetched at run time, the pinned members (the fp32 model 92 MB,
+  the label file, README, six wavs) are extracted into the cache and the archive is deleted. Runtime:
+  onnxruntime directly: Kaldi fbank (80 bins, samples in [-1, 1), povey window, reflection-padded edges)
+  and the model's sigmoid scores for the 527 AudioSet classes, as sherpa-onnx's audio tagging does; on the
+  development machine the top-3 classes and scores of six clips were identical to sherpa-onnx 1.13.8's
+  AudioTagging. Input: test_wavs 1, 2, 5, 7, 9 and 13 of the archive (top class on cpu: Animal, Whistling,
+  Finger snapping, Smoke alarm, Siren, Oink; 16 kHz). The archive does not say where the clips come from or under what
+  licence, so they are fetched, never committed. Output: the top-3 class ids per clip (exact) and their
+  scores (abs 0.02). Top-3 classes whose scores are close (clip 1: 0.946, 0.933, 0.922; clip 2: 0.244,
+  0.241) could swap places on a GPU: that would show as a failure to investigate, not a tolerance to widen. fp32 model: on the
+  gpu target all nodes can run on the GPU provider. No sim: targets.

@@ -1,0 +1,11 @@
+# The archive is deleted after its members are extracted (tools/ort_assets.py); each member is pinned on its own.
+d5fe6ec4334fef36255b2a4010412cad4c007e33103fec62fb5d17cad88086f2  sherpa-onnx-moonshine-tiny-en-int8.tar.bz2
+f33addce61a143460fe753b5ee5b7db255e5140b5b779c065b94f6c83ff0bf4e  moonshine-preprocess.onnx
+8774dfba578de027ec6595c2c654a0836434489bc963a0db124a7f181f571acb  moonshine-encode.int8.onnx
+216737000dd5881a17aa043f6bbd286add33e4c3b0ae257153e2ec15438bdc41  moonshine-uncached-decode.int8.onnx
+2aff28bba6a03d8dcf5c9feac45462629bae37317442299f28115ad09da773f6  moonshine-cached-decode.int8.onnx
+1165c2aeb9f72f457a83be2d459a09054f27490acd9b41bd43794dfd25e296ea  moonshine-tokens.txt
+29f60769d1779eb7e196d96b8d2dd471d0263cf8200c79e55c0c00183971ee1b  moonshine-LICENSE
+b9ac44e7b794abb1a2d5faf0005e98a665971e7ac2ed15435832cc34edaa9100  moonshine-test-trans.txt
+6bc58a4efdf20daac252b6b1502632601a71efe0308f6757dc1eda34891a7e4f  moonshine-test-0.wav
+5143a6ba93c4b274e2c4ac22deb75c2c48936c853f0519add1de828b6c79cc5a  moonshine-test-1.wav
