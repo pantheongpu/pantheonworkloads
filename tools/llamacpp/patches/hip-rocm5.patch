@@ -1,0 +1,84 @@
+diff --git a/ggml/src/ggml-cuda/mma.cuh b/ggml/src/ggml-cuda/mma.cuh
+index 93a51aa..f579bb7 100644
+--- a/ggml/src/ggml-cuda/mma.cuh
++++ b/ggml/src/ggml-cuda/mma.cuh
+@@ -452,7 +452,7 @@ namespace ggml_cuda_mma {
+         }
+ #elif defined(AMD_MFMA_AVAILABLE)
+         static constexpr int ne = tile<I_, J_, half2, DATA_LAYOUT_I_MAJOR>::ne;
+-        nv_bfloat162 x[ne] = {{0.0f, 0.0f}};
++        nv_bfloat162 x[ne] = {};
+ 
+         static constexpr __device__ bool supported() {
+             return tile<I_, J_, half2, DATA_LAYOUT_I_MAJOR>::supported();
+diff --git a/ggml/src/ggml-cuda/vendors/hip.h b/ggml/src/ggml-cuda/vendors/hip.h
+index da7e3da..ee629e8 100644
+--- a/ggml/src/ggml-cuda/vendors/hip.h
++++ b/ggml/src/ggml-cuda/vendors/hip.h
+@@ -34,7 +34,18 @@
+ #define __shfl_xor_sync(mask, var, laneMask, width) __shfl_xor(var, laneMask, width)
+ #define __all_sync(mask, var) __all(var)
+ #define __any_sync(mask, var) __any(var)
++#if HIP_VERSION < 60000000
++// hipBLAS 0.x/1.x takes float * const AP[]: no const on the pointed-to matrices
++static inline hipblasStatus_t pw_hipblasStrsmBatched(hipblasHandle_t handle, hipblasSideMode_t side, hipblasFillMode_t uplo,
++        hipblasOperation_t trans, hipblasDiagType_t diag, int m, int n, const float * alpha,
++        const float * const AP[], int lda, float * BP[], int ldb, int batch_count) {
++    return hipblasStrsmBatched(handle, side, uplo, trans, diag, m, n, alpha,
++                               const_cast<float * const *>(AP), lda, BP, ldb, batch_count);
++}
++#define cublasStrsmBatched pw_hipblasStrsmBatched
++#else
+ #define cublasStrsmBatched hipblasStrsmBatched
++#endif
+ #define cublasCreate hipblasCreate
+ #define cublasDestroy hipblasDestroy
+ #define cublasGemmEx hipblasGemmEx
+@@ -72,7 +83,18 @@
+ #define cudaGetDeviceCount hipGetDeviceCount
+ #define cudaGetDeviceProperties hipGetDeviceProperties
+ #define cudaGetErrorString hipGetErrorString
++#if HIP_VERSION < 60000000
++// ROCm 5.x's rocBLAS looks a kernel up in each of its code objects in turn; a miss is hipErrorNotFound, and
++// ROCm 6 and later (the runtimes this backend is written for) keep that failure until the next
++// hipGetLastError, where ROCm 5's next successful call replaced it. A miss is the library's own probing, not an error.
++static inline hipError_t pw_hipGetLastError() {
++    const hipError_t e = hipGetLastError();
++    return e == hipErrorNotFound ? hipSuccess : e;
++}
++#define cudaGetLastError pw_hipGetLastError
++#else
+ #define cudaGetLastError hipGetLastError
++#endif
+ #define cudaHostAlloc hipHostMalloc
+ #define cudaHostAllocPortable hipHostMallocPortable
+ #define cudaHostAllocMapped hipHostMallocMapped
+@@ -121,7 +143,15 @@
+ #define cudaStreamNonBlocking hipStreamNonBlocking
+ #define cudaStreamPerThread hipStreamPerThread
+ #define cudaStreamSynchronize hipStreamSynchronize
++#if HIP_VERSION < 60000000
++// ROCm 5.x declares hipStreamWaitEvent(stream, event, flags) with no default for flags
++static inline hipError_t pw_hipStreamWaitEvent(hipStream_t stream, hipEvent_t event, unsigned int flags = 0) {
++    return hipStreamWaitEvent(stream, event, flags);
++}
++#define cudaStreamWaitEvent pw_hipStreamWaitEvent
++#else
+ #define cudaStreamWaitEvent hipStreamWaitEvent
++#endif
+ #define cudaGraphExec_t hipGraphExec_t
+ #define cudaGraphNode_t hipGraphNode_t
+ #define cudaKernelNodeParams hipKernelNodeParams
+diff --git a/ggml/src/ggml-hip/CMakeLists.txt b/ggml/src/ggml-hip/CMakeLists.txt
+index 75d4d60..72d3064 100644
+--- a/ggml/src/ggml-hip/CMakeLists.txt
++++ b/ggml/src/ggml-hip/CMakeLists.txt
+@@ -51,7 +51,7 @@ if (GGML_HIP_RCCL)
+     find_package(rccl REQUIRED)
+ endif()
+ 
+-if (${hip_VERSION} VERSION_LESS 6.1)
++if (${hip_VERSION} VERSION_LESS 5.7)
+     message(FATAL_ERROR "At least ROCM/HIP V6.1 is required")
+ endif()
+ 
