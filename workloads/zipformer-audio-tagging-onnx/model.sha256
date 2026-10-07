@@ -1,0 +1,11 @@
+# The archive is deleted after its members are extracted (tools/ort_assets.py); each member is pinned on its own.
+07e2fafcdcbc461f2816188d9b0bbafced12584030cf67d5652e549ef256a2c6  sherpa-onnx-zipformer-small-audio-tagging-2024-04-15.tar.bz2
+e61bdfaab92b48bc51209c0da91621fb8d89d1564bb5bb38be6e4a4380c1ed34  audiotag-model.onnx
+cdd1049833c4b86127c2773ac0d14a2754b6a6d0d1798002ed5c66e699708429  audiotag-labels.csv
+a00e3521a62cf6d6fc6fc9b0ce1779cf637ffab77b017e7cf48851cb187909a6  audiotag-README.md
+ce16b2d9b657a68795d48aff8bba7ded5bb12f75ad30ed18e45e2d72e1c8f58c  audiotag-test-1.wav
+2466dcfe841ae2ac3763ac4e4c834a523b3111cdb3e667943af1ded57ced2021  audiotag-test-2.wav
+836b2d550ada991c4efb84f14c880f8e49057e1fdd35b6e05732041aff8ccbc5  audiotag-test-5.wav
+d5d38fe922c4b70d24dfc4a400b1aafc10e44034cbfca4f9110fff195323c667  audiotag-test-7.wav
+3e64664ba3af83a323b2f77749d2dcb9c1d9dbf0353fbe233fc025fb8e0c2145  audiotag-test-9.wav
+a300cfdcc92cb35701a21fe89619a1a9d2d0ebc8bf168c03733f4cc365454612  audiotag-test-13.wav

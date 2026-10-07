@@ -6,7 +6,7 @@ the licence text were fetched and read** from hosts that are reachable (PyPI, `r
 `media.githubusercontent.com` for git-LFS objects, GitHub release downloads). Weights are never committed:
 each workload's `model.sha256` pins them and `tools/ort_assets.py` downloads and checks them at run time.
 
-Written 2026-10-06; the text-model rows (second table) and the vision section were added 2026-10-07. The licences were read on those dates at the pins below.
+Written 2026-10-06; the text-model rows (second table), the vision section and the speech / audio models were added 2026-10-07. The licences were read on those dates at the pins below.
 
 | Model | What it does | Licence, and where it was read | Pin | Size | Workloads | State |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -32,12 +32,24 @@ images `astronaut.png`, `chelsea.png`, `coffee.png` at scikit-image tag v0.22.0 
 that commit: astronaut "No known copyright restrictions, released into the public domain" (NASA photo of Eileen Collins),
 chelsea and coffee "No copyright restrictions. CC0 by the photographer"; the repository itself is BSD-3-Clause. The
 CRNN workload draws its words in code (Pillow's bundled default font). The classifiers use the zoo's own test tensors.
+| Moonshine tiny English (int8 ONNX; sherpa-onnx export of Useful Sensors' model) | speech recognition, 16 kHz | **MIT**: `LICENSE` inside the sherpa-onnx archive (MIT, Copyright 2024 Useful Sensors, sha256 `29f60769...`), and the "License" section of usefulsensors/moonshine `README.md` at commit `234f60faa0eb388b01cdf7e60aca232af37aefda` ("The models are MIT by default ... the only exceptions are the legacy non-streaming models for languages other than English"). | k2-fsa/sherpa-onnx release tag `asr-models` (rolling tag): `sherpa-onnx-moonshine-tiny-en-int8.tar.bz2` sha256 `d5fe6ec4...`; every member used pinned in `workloads/moonshine-tiny-en-onnx/model.sha256` | 108 MB archive, 124 MB used | `moonshine-tiny-en-onnx`, `moonshine-tiny-en-onnx-bench` | cpu reference recorded and re-run PASS; transcripts identical to sherpa-onnx 1.13.8 |
+| WeSpeaker ResNet34, VoxCeleb (ONNX) | speaker embedding (256-d), 16 kHz | **CC-BY-4.0**: wenet-e2e/wespeaker `docs/pretrained.md` at commit `9fecd6cb4f47475d01761d87c826298dff4ef18c`, "Model License": the pretrained models follow their dataset's licence, "the pretrained model on VoxCeleb follows Creative Commons Attribution 4.0 International License"; the code is Apache-2.0 (README badge). The weights file comes from the sherpa-onnx release (metadata `url` = WeSpeaker's `voxceleb_resnet34.onnx`); the release text itself was not readable here. VoxCeleb's own terms were not read. | release tag `speaker-recongition-models` (sic): `wespeaker_en_voxceleb_resnet34.onnx` sha256 `5ef208a9...` | 26.5 MB | `wespeaker-resnet34-onnx`, `wespeaker-resnet34-onnx-bench` | cpu reference recorded and re-run PASS |
+| Kokoro v0.19 int8 (ONNX; hexgrad/Kokoro-82M "kLegacy", sherpa-onnx export) | text-to-speech, English, 24 kHz, 11 voices | **Apache-2.0**: `LICENSE` inside the sherpa-onnx archive (full Apache-2.0 text, sha256 `cfc7749b...`); the archive's README points to huggingface.co/hexgrad/Kokoro-82M, which is blocked here and was not read. | release tag `tts-models` (rolling): `kokoro-int8-en-v0_19.tar.bz2` sha256 `c9f0dd39...`; members pinned in `model.sha256` | 103 MB archive, 140 MB used | `kokoro-tts-int8-onnx`, `kokoro-tts-int8-onnx-bench` | cpu reference recorded and re-run PASS (run-to-run noise in the vocoder: compared by statistics, see below) |
+| GTCRN (streaming ONNX, `gtcrn_simple.onnx`) | speech enhancement / denoising, 16 kHz, 0.5 MB | **MIT**: `LICENSE` of Xiaobin-Rong/gtcrn at commit `502ebfab64da7c4a9af78dcb9c6ceef1ebb01c73` (Copyright 2024 Rong Xiaobin). The README has no separate statement for the weights (`gtcrn_simple.onnx` is the ONNX export of `model_trained_on_dns3.tar` made by `stream/gtcrn_stream.py`). | `raw.githubusercontent.com` at that commit: `stream/onnx_models/gtcrn_simple.onnx` sha256 `b4718df6...` | 0.5 MB | `gtcrn-enhance-onnx`, `gtcrn-enhance-onnx-bench` | cpu reference recorded and re-run PASS; output equals the repo's own `enh.wav` to 16-bit rounding |
+| Streaming Zipformer2 keyword spotter, GigaSpeech, 3.3 M parameters (ONNX, icefall via sherpa-onnx) | keyword spotting / wake words (custom keyword lists) | **Apache-2.0**, as the model's own card states: `README.md` inside the sherpa-onnx archive, front matter `license: Apache License 2.0` (sha256 `74e42d37...`); icefall and sherpa-onnx are Apache-2.0. **Open point:** the terms of the training data (GigaSpeech) were not found (its repository README states no data licence; `TERMS_OF_ACCESS` is 404 at commit `44289e4bb6d65291456cf94de495ea83668d1df1`). | release tag `kws-models` (rolling): `sherpa-onnx-kws-zipformer-gigaspeech-3.3M-2024-01-01.tar.bz2` sha256 `f170013b...` | 17.6 MB archive, 14 MB used | `kws-zipformer-gigaspeech-onnx`, `kws-zipformer-gigaspeech-onnx-bench` | cpu reference recorded and re-run PASS; detections identical to sherpa-onnx 1.13.8 |
+| Zipformer small audio tagger, AudioSet, 527 classes (ONNX, icefall via sherpa-onnx) | audio classification / sound-event tagging, 16 kHz | **Apache-2.0**, as the model's own card states: `README.md` inside the sherpa-onnx archive, front matter `license: apache-2.0` (sha256 `a00e3521...`); the card text is the Hugging Face model card, which could not be read directly. AudioSet's terms (clips from YouTube; labels CC-BY-4.0) were not read. | release tag `audio-tagging-models` (rolling): `sherpa-onnx-zipformer-small-audio-tagging-2024-04-15.tar.bz2` sha256 `07e2fafc...` | 111 MB archive, 92 MB used | `zipformer-audio-tagging-onnx`, `zipformer-audio-tagging-onnx-bench` | cpu reference recorded and re-run PASS; top-3 classes and scores identical to sherpa-onnx 1.13.8 |
 
-Inputs that are not models: the Silero clip (`tests/data/test.wav`, 60 s) and the RapidOCR screenshot
+Inputs that are not models (first group): the Silero clip (`tests/data/test.wav`, 60 s) and the RapidOCR screenshot
 (`python/tests/test_files/en.jpg`) come from those MIT / Apache-2.0 repositories at the pinned commits, but
 **neither repository states the recording's or the screenshot's own provenance**, so they are fetched and
 never committed. The MNIST digit and MobileNet tensor come from the zoo's own test tarballs. The spaCy
 sentences were written for this repo.
+
+Inputs of the speech / audio workloads: the Moonshine, KWS and audio-tagging clips are the `test_wavs` shipped inside
+the sherpa-onnx archives (LibriSpeech-style read English for ASR and KWS; short sound-event clips for tagging), the
+speaker workload uses the Silero clip and GTCRN's `mix.wav`, GTCRN uses its repository's `mix.wav` / `enh.wav`. **None of
+those sources states the recordings' provenance or licence**, so they are fetched at run time and never committed; the
+TTS workload needs no audio (two hand-typed phoneme strings), and the model-free coverage workloads synthesise theirs.
 
 ## Text models (second batch, 2026-10-07)
 
@@ -109,6 +121,38 @@ WordPiece tokenizer (so no tokenizer package is needed); `tools/text_tasks.py` h
   workload records the foreground fraction, not a correctness claim), and NanoDet's weaker duplicate boxes are
   not recorded because their number is not stable.
 
+### Speech / audio workloads (added 2026-10-07)
+
+- Runtime: onnxruntime directly, **not** sherpa-onnx, so the gpu target uses the same provider check as the rest (the
+  sherpa-onnx PyPI wheels, `sherpa-onnx` + `sherpa-onnx-core` 1.13.8, Apache-2.0, are CPU builds; CUDA builds are published elsewhere
+  (not checked)). Feature extraction (Kaldi fbank, STFT/iSTFT), greedy / keyword beam search, the keyword graph and
+  tokenisation are numpy re-writes in `tools/speech_tasks.py`, written after the sherpa-onnx C++ sources and the
+  upstream scripts. Same venvs and `tools/ort-env.sh` as before; no new Python packages.
+- Archive assets: `tools/ort_assets.py` now supports members of a release archive (`MEMBERS`): the archive is pinned by
+  sha256 in `model.sha256` next to each member, downloaded once, the pinned members extracted into the cache (each
+  checked) and the archive deleted, so only the needed files stay on disk.
+- Checked against sherpa-onnx 1.13.8 on the development machine (CPU, not part of the workloads): Moonshine transcripts
+  and token counts, the keyword detections (keyword and firing chunk), the audio-tagging top-3 and scores, and the
+  speaker model's embeddings when fed the same features (cosine 1.0000000, max diff 2e-6). The numpy fbank agrees with
+  kaldi-native-fbank 1.22.3 to 1e-4 (log-mel). GTCRN's output equals the repository's own `enh.wav`. Kokoro's output, read
+  back by Moonshine tiny, gives the intended sentences ("The quick brown fox jumps over the lazy dog.", "Hello world,
+  this is a test.").
+- Preprocessing choices worth knowing: the speaker workload follows WeSpeaker's own `infer_onnx.py` (Hamming window,
+  `snip_edges`, mean subtraction), **not** sherpa-onnx, which for this file computes features differently and skips the
+  mean subtraction (same-recording cosine 0.88 / different 0.52 there, 0.84 / 0.03 with WeSpeaker's recipe on the
+  clips used).
+- Comparison: ASR transcripts and token ids, KWS detections and tagging class ids exact; embeddings abs 0.01, cosines abs
+  0.003; TTS: the Kokoro vocoder draws random numbers, so two runs on the same CPU differ by up to 0.05 per sample
+  (0.3 peak). The workload compares sample counts (exact), RMS (abs 0.003), spectral centroid (abs 150 Hz) and the RMS in
+  100 ms windows (abs 0.01), whose observed run-to-run spread was 0.0001, 30 Hz and 0.002. GTCRN: sample count exact,
+  RMS in 0.5 s windows abs 0.003. These bounds are reasoned from CPU runs only; no GPU has run them.
+- int8 caveat: Moonshine and Kokoro are only available as int8 here. A CUDA/ROCm provider lacks kernels for some integer ops,
+  so onnxruntime may place those nodes on its CPU provider inside the same session; the session check (GPU provider first)
+  passes, but GPU timings of those two would be a mixed placement. The other four are fp32.
+- Benchmarks: the `*-bench` workloads (gpu only) report real-time factor and latency (plus embeddings/s, frames/s, clips/s);
+  their code paths were run on the CPU with the provider check bypassed (not recorded; e.g. Moonshine RTF 17, GTCRN 13,
+  speaker 25, Kokoro 0.47, 1 thread). **None has been run on a GPU.**
+
 Text-model workloads, in addition: onnxruntime 1.30.0 for BiDAF, BERT-Squad, MiniLM and GloVe (the GloVe search
 is a two-node ONNX graph, MatMul then TopK, built in `tools/text_tasks.py`, so it runs on the target's execution
 provider); spaCy 3.8.16 for the three spaCy workloads (the Russian and Ukrainian lemmatizers need pymorphy3, which is
@@ -126,7 +170,8 @@ pipelines. Their code paths were exercised on the CPU with the gpu check bypasse
 
 ## What was run
 
-On the cpu target (4 shared cores, onnxruntime 1 thread): the five functional workloads were run, their
+On the cpu target (4 shared cores, onnxruntime 1 thread): the five functional workloads (and, for the speech / audio
+additions, the six listed above) were run, their
 references recorded with `bin/pw record --target cpu` (recorder: the CPU backend of onnxruntime 1.30.0 /
 spaCy 3.8.16, Python 3.13.16, numpy 2.5.3) and re-run to PASS. On the gpu target here every workload is a clean
 SKIP (no NVIDIA GPU). The nine vision workloads of 2026-10-07 were recorded the same way (recorder: onnxruntime 1.30.0 CPU
@@ -161,6 +206,24 @@ GPU. Unit tests: `tests/test_ort_tools.py` (updated for archive members and npm 
 | opencv_zoo `license_plate_detection_yunet` (Apache-2.0), `face_image_quality_assessment_ediffiqa` (**CC-BY-4.0**, 7 MB), `edge_detection_dexined` (MIT, 47 MB), `image_classification_mobilenet` (Apache-2.0), `text_detection_ppocr` (Apache-2.0), `qrcode_wechatqrcode` (Apache-2.0, Caffe models) | licence files read and permissive; not added: no licensed licence-plate image; eDifFIQA needs aligned faces and a quality reference; DexiNed and PP-OCR detection were left out for scope (OCR is covered by `ppocr-rapidocr` and `crnn-text-recognition`, MobileNetV2 by `onnx-zoo-mobilenetv2`); WeChat QR models are Caffe, not ONNX. |
 | opencv_zoo `.int8` / `.int8bq` / `fp16` variants | not added: quantised kernels differ between execution providers, so cross-target comparison would need a different tolerance story. |
 | Hugging Face, download.pytorch.org (torchvision weights) | not reachable from here (see the top of this page), so torchvision, timm and Ultralytics models were not considered. |
+
+### Speech / audio candidates (2026-10-07)
+
+| Candidate | Finding |
+| --- | --- |
+| openWakeWord pretrained models (dscripka/openWakeWord) | README at commit `368c03716d1e92591906a84949bc477f3a834455`, "License": the code is Apache-2.0 but "all of the included pre-trained models are licensed under ... CC BY-NC-SA 4.0 ... due to the inclusion of datasets with unknown or restrictive licensing". Non-commercial: not added. (Only its Google speech-embedding backbone is Apache-2.0, which is not a wake-word model on its own.) |
+| CED audio tagging (sherpa-onnx `sherpa-onnx-ced-*-audio-tagging-2024-04-19`) | the archives carry no licence file or statement (README: "converted from https://github.com/RicherMans/CED"); RicherMans/CED `LICENSE` at commit `4b2149dc9ba1ed25c6348083f82dba03f00a5022` is **GPL-3.0**: copyleft, not in the permissive list. Not added. The Zipformer tagger above was used instead. |
+| FunASR / SenseVoice (sherpa-onnx SenseVoice archives) | modelscope/FunASR `MODEL_LICENSE` at commit `66d7a4c264a5993a2a63ed00c1f402c296ee521a` is the custom "FunASR Model Open Source License Agreement v1.1" (attribution, retain model names, community-conduct clause, termination). Custom terms: not added. The sherpa archive's own `LICENSE` is a 71-byte file whose text was not read. |
+| GigaAM (Russian), reverb diarization, TeleSpeech | sherpa-onnx's docs say GigaAM's licence is `GigaAM License_NC.pdf`, Revai/reverb-diarization is "non-commercial", and TeleSpeech uses the "TeleSpeech model community licence". NC or custom: not added (read in k2-fsa/sherpa docs at commit `c02f72ca1540163a54019e845127fa52d5de175b`; the licence documents themselves were not fetched). |
+| TEN VAD | sherpa-onnx's VAD docs describe a "modified version" licence (TEN-framework/ten-vad `LICENSE`, not fetched): custom, not added. Silero VAD (MIT) is already in. |
+| pyannote segmentation 3.0 (sherpa-onnx `sherpa-onnx-pyannote-segmentation-3-0`) | the archive has an MIT `LICENSE`, but pyannote distributes the model behind Hugging Face's gated access (user conditions; not verifiable here, Hugging Face is blocked). Gated: not added. |
+| NeMo TitaNet small, 3D-Speaker ERes2Net (sherpa-onnx speaker models) | reachable (40 MB each) but no licence statement was read (NeMo and ModelScope cards are on blocked hosts), and WeSpeaker already covers speaker embeddings. Not added. |
+| VITS LJSpeech (`vits-ljs.tar.bz2`) | card says `apache-2.0` but the weights are a third-party re-upload (`yo2266911/mb-vits-models`, Hugging Face) of the original VITS LJSpeech checkpoint, whose repository (jaywalnut310/vits) is MIT: unclear which terms govern the file, and it needs a lexicon/phonemiser. Not added (Kokoro covers TTS). |
+| Piper voices (`vits-piper-*`) | per-voice dataset licences live in model cards on Hugging Face (blocked); the archives bundle the espeak-ng data directory (its licence was not read). Not added. |
+| kokoro-onnx v1.0 (`thewh1teagle/kokoro-onnx` release `model-files-v1.0`: 92 MB int8 model, 28 MB voices) | reachable, but a second Kokoro adds little and its Python package needs espeak-ng/phonemizer; v0.19 from sherpa-onnx was used. Not added. |
+| Whisper tiny.en ONNX (sherpa-onnx) | same model as the existing whisper.cpp workload; not duplicated. |
+| `pocketsphinx` 5.1.1 wheel (29 MB, bundles the en-us acoustic and language models) | a CPU-only C library with no GPU path, so it would not exercise a GPU; not added. |
+| streaming Zipformer English ASR, other sherpa-onnx ASR/TTS models | not examined: the six above already cover ASR, KWS, TTS, speaker embedding, enhancement and audio tagging. |
 
 ### Investigated and not added (text models, 2026-10-07)
 

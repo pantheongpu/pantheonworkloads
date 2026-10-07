@@ -18,6 +18,7 @@ import os
 import pathlib
 import statistics
 import sys
+import types
 import tarfile
 import time
 import wave
@@ -44,7 +45,7 @@ def assets(*names):
     sums = a.parse_sums((pathlib.Path(wdir) / "model.sha256").read_text())
     cache = pathlib.Path(os.environ.get("PW_CACHE") or pathlib.Path.home() / ".cache" / "pantheonworkloads") / "ort-assets"
     try:
-        return [a.fetch(n, sums[n], cache) for n in names]
+        return [a.fetch(n, sums[n], cache, sums) for n in names]
     except (RuntimeError, KeyError) as e:
         raise Skip(str(e))
 
@@ -310,7 +311,9 @@ def all_tasks():
     spec = importlib.util.spec_from_file_location("ort_vision", HERE / "ort_vision.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    return {**TASKS, **mod.register(sys.modules[__name__])}
+    # speech_tasks.py and text_tasks.py load this file by path without putting it in sys.modules
+    me = sys.modules.get(__name__) or types.SimpleNamespace(**globals())
+    return {**TASKS, **mod.register(me)}
 
 
 def main(argv):

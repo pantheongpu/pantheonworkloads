@@ -1,0 +1,26 @@
+name: gtcrn-enhance-onnx
+description: GTCRN (streaming ONNX, 0.5 MB) denoises a 9.8 s noisy speech clip frame by frame with onnxruntime.
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {rms_in: {abs: 0.00002, rel: 0.0}, rms_out: {abs: 0.002, rel: 0.0}, envelope_out: {abs: 0.003, rel: 0.0}}}
+timeout_s: 1800
+model:
+  id: Xiaobin-Rong/gtcrn stream/onnx_models/gtcrn_simple.onnx (the repository's DNS3-trained model)
+  revision: "Xiaobin-Rong/gtcrn commit 502ebfab64da7c4a9af78dcb9c6ceef1ebb01c73 (main on 2026-10-07); gtcrn_simple.onnx sha256 b4718df6228e7bdf1a8a435cf98f838636eb2fd331acabf86ba87c5192ebcb87"
+  licence: MIT   # LICENSE of Xiaobin-Rong/gtcrn at that commit (MIT, Copyright 2024 Rong Xiaobin); the README says nothing separate about the weights
+  source_url: https://github.com/Xiaobin-Rong/gtcrn
+notes: >
+  Nothing is committed: the model (0.5 MB), test_wavs/mix.wav (noisy input, 9.77 s, 16 kHz) and
+  test_wavs/enh.wav (the repository's own enhanced output of its offline PyTorch model) are fetched at the
+  pinned commit. The repository is MIT but does not state where mix.wav comes from, so it is fetched, never
+  committed. The STFT (512 FFT, hop 256, square-root Hann, centred with reflection padding) and its
+  inverse are numpy re-writes of torch.stft / torch.istft as used in the repository's gtcrn_stream.py;
+  the streaming ONNX model runs one frame per call (611 calls) with its three caches carried along.
+  On the cpu target the result matches the repository's enh.wav to the 16-bit quantisation of that
+  file (max abs diff 0.0000 at four decimals), and the run fails if it exceeds 0.005. Output: sample
+  count (exact), input and output RMS, and the output RMS in 0.5 s windows (abs 0.003). fp32 model with
+  recurrent (GRU) layers: GPU rounding can accumulate along the 611 frames, so the tolerances are a guess
+  until a GPU reference exists. No sim: targets.

@@ -1,0 +1,32 @@
+name: kws-zipformer-gigaspeech-onnx
+description: Streaming Zipformer2 keyword spotter (3.3M parameters, ONNX) finds keywords in two 16 kHz speech clips with onnxruntime.
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: exact
+timeout_s: 1800
+model:
+  id: pkufool/sherpa-onnx-kws-zipformer-gigaspeech-3.3M-2024-01-01 (icefall streaming Zipformer2 transducer, trained on GigaSpeech XL), as released by k2-fsa/sherpa-onnx
+  revision: "k2-fsa/sherpa-onnx release tag kws-models (a rolling tag), archive sha256 f170013b4716e41b62b9bfd809687c207cef798ef9bc6534d524e17af9b6561a (files dated 2024-01-23 inside); each file used is pinned by its own sha256 in model.sha256"
+  licence: Apache-2.0   # README.md inside the archive, front matter "license: Apache License 2.0" (the ModelScope model card of the same model); icefall and sherpa-onnx are Apache-2.0. The terms of the training data (GigaSpeech) were NOT found: its repository's README states no data licence.
+  source_url: https://github.com/k2-fsa/sherpa-onnx/releases/tag/kws-models
+notes: >
+  Nothing is committed: the archive (17.6 MB) is fetched at run time, the pinned members (fp32 encoder
+  12 MB, decoder, joiner, tokens, keyword lists, two wavs, README) are extracted into the cache and the
+  archive is deleted. Runtime: onnxruntime directly: streaming Zipformer2 encoder (45-frame chunks, 32-frame
+  shift, 39 cache tensors carried along; their shapes are read from the ONNX inputs), stateless decoder,
+  joiner, and a Python port of sherpa-onnx's keyword beam search (Aho-Corasick keyword graph, 4 active
+  paths, boost 1.0, threshold 0.25, at least one trailing blank, reset after a detection or 1.5 s of
+  trailing blanks). Features: Kaldi fbank of the samples in [-1, 1) after 0.66 s of zero padding, as the
+  sherpa-onnx python example feeds them. On the development machine the detections (keyword and the
+  chunk it fired in) were identical to sherpa-onnx 1.13.8's KeywordSpotter on the same two clips. Keywords: the
+  archive's keywords.txt (9 phrases such as HELLO WORLD) plus test_wavs/test_keywords.txt (LIGHT UP,
+  LOVELY CHILD, FOREVER), all written as BPE token lists, so no sentencepiece is needed. Input: the
+  archive's test_wavs 0.wav and 1.wav (the same bytes as the Moonshine archive's clips: LibriSpeech-style
+  read English, 6.6 s and 16.7 s; the archive does not state their provenance or licence, so they are
+  fetched, never committed). Output, compared exactly: keywords per clip, token ids, token timestamps (output
+  frames of 40 ms since the last reset) and the input frame each firing chunk started at. A
+  detection that moves by a chunk or disappears on a GPU is a real difference to investigate (the decision
+  compares probabilities with thresholds). fp32 model: on the gpu target all nodes can run on the GPU
+  provider. Training-data terms are the open point of the licence (see model.licence). No sim: targets.
