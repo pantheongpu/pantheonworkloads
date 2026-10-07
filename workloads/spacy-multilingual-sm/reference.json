@@ -1,0 +1,24 @@
+{
+  "output": {
+    "ru_core_news_sm.tokens": "\u0412\u043b\u0430\u0434\u0438\u043c\u0438\u0440 \u041f\u0443\u0442\u0438\u043d \u0432\u0441\u0442\u0440\u0435\u0442\u0438\u043b\u0441\u044f \u0441 \u0410\u043d\u0433\u0435\u043b\u043e\u0439 \u041c\u0435\u0440\u043a\u0435\u043b\u044c \u0432 \u0411\u0435\u0440\u043b\u0438\u043d\u0435 \u0432 \u043f\u043e\u043d\u0435\u0434\u0435\u043b\u044c\u043d\u0438\u043a . || \u0418\u043d\u0436\u0435\u043d\u0435\u0440\u044b \u043e\u0431\u0441\u0435\u0440\u0432\u0430\u0442\u043e\u0440\u0438\u0438 \u0438\u0437\u043c\u0435\u0440\u0438\u043b\u0438 \u0445\u0432\u043e\u0441\u0442 \u043a\u043e\u043c\u0435\u0442\u044b .",
+    "ru_core_news_sm.pos": "PROPN PROPN VERB ADP PROPN PROPN ADP PROPN ADP NOUN PUNCT || NOUN NOUN VERB NOUN NOUN PUNCT",
+    "ru_core_news_sm.dep": "nsubj>2 appos>0 ROOT>2 case>4 obl>2 flat:name>4 case>7 nmod>4 case>9 obl>2 punct>2 || nsubj>2 nmod>0 ROOT>2 obj>2 nmod>3 punct>2",
+    "ru_core_news_sm.ents": "\u0412\u043b\u0430\u0434\u0438\u043c\u0438\u0440 \u041f\u0443\u0442\u0438\u043d/PER; \u0410\u043d\u0433\u0435\u043b\u043e\u0439 \u041c\u0435\u0440\u043a\u0435\u043b\u044c/PER; \u0411\u0435\u0440\u043b\u0438\u043d\u0435/LOC || ",
+    "ru_core_news_sm.version": "3.8.0",
+    "uk_core_news_sm.tokens": "\u041f\u0440\u0435\u0437\u0438\u0434\u0435\u043d\u0442 \u0423\u043a\u0440\u0430\u0457\u043d\u0438 \u0412\u043e\u043b\u043e\u0434\u0438\u043c\u0438\u0440 \u0417\u0435\u043b\u0435\u043d\u0441\u044c\u043a\u0438\u0439 \u0432\u0456\u0434\u0432\u0456\u0434\u0430\u0432 \u041b\u044c\u0432\u0456\u0432 \u0443 \u043f'\u044f\u0442\u043d\u0438\u0446\u044e . || \u0406\u043d\u0436\u0435\u043d\u0435\u0440\u0438 \u043e\u0431\u0441\u0435\u0440\u0432\u0430\u0442\u043e\u0440\u0456\u0457 \u0432\u0438\u043c\u0456\u0440\u044f\u043b\u0438 \u0445\u0432\u0456\u0441\u0442 \u043a\u043e\u043c\u0435\u0442\u0438 .",
+    "uk_core_news_sm.pos": "NOUN PROPN PROPN PROPN VERB PROPN ADP NOUN PUNCT || NOUN NOUN VERB NOUN NOUN PUNCT",
+    "uk_core_news_sm.dep": "nsubj>4 nmod>0 flat:title>0 flat:name>2 ROOT>4 obj>4 case>7 obl>4 punct>4 || nsubj>2 nmod>0 ROOT>2 obj>2 nmod>3 punct>2",
+    "uk_core_news_sm.ents": "\u0412\u043e\u043b\u043e\u0434\u0438\u043c\u0438\u0440 \u0417\u0435\u043b\u0435\u043d\u0441\u044c\u043a\u0438\u0439/PER; \u041b\u044c\u0432\u0456\u0432/LOC || ",
+    "uk_core_news_sm.version": "3.8.0",
+    "nb_core_news_sm.tokens": "Statsminister Jonas Gahr St\u00f8re bes\u00f8kte Bergen i mandags . || Ingeni\u00f8rene ved observatoriet m\u00e5lte halen p\u00e5 kometen .",
+    "nb_core_news_sm.pos": "NOUN PROPN PROPN PROPN VERB PROPN ADP NOUN PUNCT || NOUN ADP NOUN VERB NOUN ADP NOUN PUNCT",
+    "nb_core_news_sm.dep": "nmod>1 nsubj>4 flat:name>1 flat:name>1 ROOT>4 obj>4 case>7 obl>4 punct>4 || nsubj>3 case>2 nmod>0 ROOT>3 obj>3 case>6 obl>3 punct>3",
+    "nb_core_news_sm.ents": "Jonas Gahr St\u00f8re/PER; Bergen/GPE_LOC || ",
+    "nb_core_news_sm.version": "3.8.0",
+    "xx_ent_wiki_sm.tokens": "Angela Merkel visited Paris with Emmanuel Macron on Monday . || Die Universit\u00e4t von Texas liegt in Austin . || Le Louvre est \u00e0 Paris , pr\u00e8s de la Seine .",
+    "xx_ent_wiki_sm.ents": "Angela Merkel/PER; Paris/LOC; Emmanuel Macron/PER || Universit\u00e4t von Texas/ORG; Austin/LOC || Le Louvre/LOC; Paris/LOC",
+    "xx_ent_wiki_sm.version": "3.8.0"
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}

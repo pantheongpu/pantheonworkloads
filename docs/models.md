@@ -172,5 +172,8 @@ was found about their terms (several are member-only or gated, several unverifie
 - `docs/lib-coverage.md`: model-free GPU-library kernel checks.
 - `docs/llamacpp-synth.md`: synthetic GGUFs (`gguf` package MIT, llama.cpp MIT).
 - `docs/pretrained-reachable.md`: pretrained models with licences read from source (the only models in this repo
-  whose licences were verified, besides code-only dependencies).
+  whose licences were verified, besides code-only dependencies): Silero VAD, PP-OCRv3, ONNX zoo MNIST / MobileNetV2 /
+  BiDAF / BERT-Squad int8, spaCy `en_core_web_sm` / `en_core_web_md` / ru / uk / nb / xx pipelines, all-MiniLM-L6-v2 (via
+  a third-party npm package, licence second-hand), GloVe 50d vectors, py3langid, a SentencePiece test model. Also what
+  was found about language-model (LLM) weights: none with a readable permissive licence.
 - `docs/mlperf.md`: MLPerf Inference feasibility and terms.

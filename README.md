@@ -69,13 +69,17 @@ Early scaffold. What exists and what does not:
   architectures and many quantization types; `docs/llamacpp-synth.md`). References were recorded **on the CPU
   only**; tolerances are unverified on any GPU or simulated GPU.
 - **Pretrained models whose licence and weights were read from source and pinned by sha256**: Silero VAD (MIT),
-  PP-OCRv3 via RapidOCR (Apache-2.0), ONNX zoo MNIST and MobileNetV2, spaCy `en_core_web_sm` (MIT), and six speech /
-  audio models run on onnxruntime: Moonshine tiny ASR (MIT, `moonshine-tiny-en-onnx`), WeSpeaker ResNet34 speaker
-  embeddings (CC-BY-4.0, `wespeaker-resnet34-onnx`), Kokoro v0.19 int8 TTS (Apache-2.0, `kokoro-tts-int8-onnx`), GTCRN
-  speech enhancement (MIT, `gtcrn-enhance-onnx`), a Zipformer2 keyword spotter (Apache-2.0 per its card,
-  `kws-zipformer-gigaspeech-onnx`) and a Zipformer AudioSet tagger (Apache-2.0 per its card,
-  `zipformer-audio-tagging-onnx`), each with a gpu-only `-bench` twin. CPU references recorded, **no GPU run yet**; see
-  `docs/pretrained-reachable.md` (licence evidence, pins, what was rejected and why).
+  PP-OCRv3 via RapidOCR (Apache-2.0), ONNX zoo MNIST, MobileNetV2, BiDAF (MIT) and BERT-Squad int8 (Apache-2.0), spaCy
+  `en_core_web_sm` / `en_core_web_md` / Russian / Ukrainian / Norwegian / multilingual-NER small pipelines (MIT),
+  all-MiniLM-L6-v2 (Apache-2.0, **second-hand**: stated by a third-party npm repackaging), GloVe 50d word vectors (PDDL),
+  py3langid (BSD-3-Clause), a SentencePiece test model (Apache-2.0), and six speech / audio models run on onnxruntime:
+  Moonshine tiny ASR (MIT, `moonshine-tiny-en-onnx`), WeSpeaker ResNet34 speaker embeddings (CC-BY-4.0,
+  `wespeaker-resnet34-onnx`), Kokoro v0.19 int8 TTS (Apache-2.0, `kokoro-tts-int8-onnx`), GTCRN speech enhancement (MIT,
+  `gtcrn-enhance-onnx`), a Zipformer2 keyword spotter (Apache-2.0 per its card, `kws-zipformer-gigaspeech-onnx`) and a
+  Zipformer AudioSet tagger (Apache-2.0 per its card, `zipformer-audio-tagging-onnx`), each with a gpu-only `-bench`
+  twin. CPU references recorded, **no GPU run yet**; see `docs/pretrained-reachable.md` (licence evidence, pins, what was
+  rejected and why), which also records that **no small LLM weights with a readable permissive licence were found** (the
+  reachable ones are Gemma-family files without a licence text, and a TinyLlama GGUF on npm that is too large and unread).
 - `whisper-cpp-tiny-en` (functional) and `whisper-cpp-bench-tiny-en` (GPU benchmark): written; the CPU build of
   whisper.cpp v1.9.5 was built and run here, but the tiny.en model could not be downloaded (Hugging Face blocked),
   so **no transcript has been produced and no reference or benchmark is recorded**. See their manifests and `docs/models.md`.

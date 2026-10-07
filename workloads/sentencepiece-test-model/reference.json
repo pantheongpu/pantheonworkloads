@@ -1,0 +1,11 @@
+{
+  "output": {
+    "vocab_size": 1000,
+    "ids": "284 47 11 4 15 400 6 | 9 459 11 939 44 11 4 142 82 8 28 21 132 6 | 151 88 21 887 5 10 46 98 25 997 149 14 210 91 98 102 54 17 8 110 4 997 297 998 87 999 46 453 6 | 4 199 16 63 4 595 54 46 47 623 37 40 192 296 21 85 112 20 4 596 351 596 351 147",
+    "pieces": "\u2581This \u2581is \u2581a \u2581 t est . | \u2581I \u2581saw \u2581a \u2581girl \u2581with \u2581a \u2581 te le s c o pe . | \u2581He ll o \u2581world , \u2581to k en i z ation \u2581of \u2581un se en \u2581w or d s \u2581like \u2581 z x q v j k \u2581works . | \u2581 N e w \u2581 Y or k \u2581is \u2581big g er \u2581than \u2581B o st on \u2581in \u2581 2 0 2 0 !",
+    "roundtrip_ok": true,
+    "decoded": "This is a test. | I saw a girl with a telescope. | Hello world, tokenization of unseen words like zxqvjk works. | New York is bigger than Boston in 2020!"
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}
