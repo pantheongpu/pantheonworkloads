@@ -26,6 +26,9 @@ PERMISSIVE = {"MIT", "Apache-2.0", "BSD-3-Clause", "BSD-2-Clause", "CC-BY-4.0"}
 ORT_WORKLOADS = ["silero-vad-onnx", "silero-vad-onnx-bench", "ppocr-rapidocr", "ppocr-rapidocr-bench",
                  "onnx-zoo-mnist", "onnx-zoo-mobilenetv2", "onnx-zoo-mobilenetv2-bench", "spacy-en-core-web-sm", "spacy-en-core-web-sm-bench"]
 ORT_WORKLOADS += [w + suffix for w in VISION for suffix in ("", "-bench")]
+TEXT_WORKLOADS = ["onnx-zoo-bidaf", "onnx-zoo-bertsquad-int8", "onnx-zoo-bertsquad-int8-bench", "minilm-l6-v2-onnx", "minilm-l6-v2-onnx-bench",
+                  "glove-wiki-gigaword-50-knn", "glove-wiki-gigaword-50-knn-bench", "spacy-en-core-web-md", "spacy-en-core-web-md-bench",
+                  "spacy-multilingual-sm", "spacy-multilingual-sm-bench", "py3langid-wheel", "sentencepiece-test-model"]
 
 
 class Assets(unittest.TestCase):
@@ -61,24 +64,31 @@ class Assets(unittest.TestCase):
                 assets.fetch("w.bin", good, t)
 
     def test_every_workload_pins_every_file_it_uses(self):
-        for w in ORT_WORKLOADS:
+        for w in ORT_WORKLOADS + TEXT_WORKLOADS:
             sums = assets.parse_sums((ROOT / "workloads" / w / "model.sha256").read_text())
             self.assertTrue(sums, w)
             for name, digest in sums.items():
-                self.assertIn(name, assets.URLS, f"{w}: {name} has no URL")
+                archive = name.split("::", 1)[0]   # '<archive>::<member>' pins a file inside an archive
+                self.assertIn(archive, assets.URLS, f"{w}: {name} has no URL")
+                if "::" in name:
+                    self.assertIn(archive, sums, f"{w}: member {name} pinned without its archive")
                 self.assertRegex(digest, r"^[0-9a-f]{64}$")
 
     def test_urls_are_pinned_to_commits_or_release_tags(self):
         for name, url in assets.URLS.items():
             if "/releases/download/" in url:   # a release asset: the tag is the pin (and the sha256 pins the bytes)
                 self.assertRegex(url, r"^https://github\.com/[^/]+/[^/]+/releases/download/[^/]*\d[^/]*/", name)
+            elif url.startswith("https://registry.npmjs.org/"):   # npm versions are immutable
+                self.assertRegex(url, r"/-/[^/]+-\d+\.\d+\.\d+[^/]*\.tgz$", name)
+            elif url.startswith("https://files.pythonhosted.org/packages/"):   # content-addressed path of one release file
+                self.assertRegex(url, r"^https://files\.pythonhosted\.org/packages/[0-9a-f]{2}/[0-9a-f]{2}/[0-9a-f]{60}/[^/]+\.whl$", name)
             else:
                 self.assertRegex(url, r"^https://(raw|media)\.githubusercontent\.com/", name)
                 self.assertRegex(url, r"[0-9a-f]{40}", name)   # a commit, never a branch
 
     def test_same_file_has_the_same_sum_everywhere(self):
         seen = {}
-        for w in ORT_WORKLOADS:
+        for w in ORT_WORKLOADS + TEXT_WORKLOADS:
             for n, d in assets.parse_sums((ROOT / "workloads" / w / "model.sha256").read_text()).items():
                 self.assertEqual(seen.setdefault(n, d), d, n)
 

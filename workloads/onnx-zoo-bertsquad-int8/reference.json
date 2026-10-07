@@ -1,0 +1,14 @@
+{
+  "output": {
+    "answers": "helen marsh | 1887 | port of sedgwick | grain",
+    "spans": "20-21 15-15 36-41 40-40",
+    "span_scores": [
+      15.6245,
+      12.3278,
+      14.9173,
+      13.5225
+    ]
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}

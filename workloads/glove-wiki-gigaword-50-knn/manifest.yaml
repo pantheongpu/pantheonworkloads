@@ -1,0 +1,26 @@
+name: glove-wiki-gigaword-50-knn
+description: "GloVe 50d word vectors (400k words): nearest neighbours and analogies as a MatMul+TopK graph on onnxruntime."
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {scores: {abs: 0.0001, rel: 0.0}}}
+timeout_s: 900
+model:
+  id: gensim-data release glove-wiki-gigaword-50 (Stanford GloVe vectors, Wikipedia 2014 + Gigaword 5, 6B tokens, 400k words, 50d)
+  revision: "RaRe-Technologies/gensim-data release tag glove-wiki-gigaword-50, glove-wiki-gigaword-50.gz sha256 5c55f98957aa9fed8d2ac5fb1dcff57af3b23c5a3ee7af3f7945f8d49198eb24 (md5 c289bc5d7f2f02c6dc9f2f9b67641813 equals the checksum in list.json)"
+  licence: PDDL-1.0   # stanfordnlp/GloVe README.md at commit 52f7dbc512be3f72e9c11e7cbb19dfdfa4651e9c: 'Pre-trained word vectors are made available under the Public Domain Dedication and License'; gensim-data list.json at commit bd93f51f7536dbf84f194cd8a81c0644b7b95b41 says license http://opendatacommons.org/licenses/pddl/ for this file
+  source_url: https://github.com/RaRe-Technologies/gensim-data/releases/tag/glove-wiki-gigaword-50
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py; archives are extracted into the cache and deleted, members are checked again on every
+  use). Word vectors, not a neural network: the 400,000 x 50 matrix is normalised and used as the weight of one
+  ONNX graph (MatMul then TopK) built in tools/text_tasks.py, so the nearest-neighbour search runs on the
+  onnxruntime provider of the target. Queries: five words and two analogies (king - man + woman, paris - france
+  + italy), query words excluded from their own answers. Output: the neighbour words (exact) and cosine scores
+  (abs 1e-4; fp32 matmul on another device agrees to about 1e-6). A different device could flip two words whose
+  scores differ by less than that: a real difference to investigate. The vectors were trained on Wikipedia (CC
+  BY-SA) and Gigaword 5 (LDC licensed); the Stanford README declares the vectors public domain (PDDL) and does
+  not discuss those sources, so read them before building on the vectors. Memory: about 0.5 GB while loading.
+  Not run on a GPU here. No sim: targets.

@@ -1,0 +1,28 @@
+name: minilm-l6-v2-onnx
+description: "all-MiniLM-L6-v2 (ONNX) embeds six fixed sentences with onnxruntime and finds each one's nearest neighbour."
+kind: functional
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [cpu, gpu]
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {similarity: {abs: 0.002, rel: 0.0}, embedding_head: {abs: 0.002, rel: 0.0}}}
+timeout_s: 900
+model:
+  id: npm @xcidos/genesis-memory-model onnx/model.onnx (sentence-transformers/all-MiniLM-L6-v2, fp32)
+  revision: "npm @xcidos/genesis-memory-model 0.1.0-alpha.1 (tgz sha256 3462d151396de1943a4f69c154223d9473146f3c4e1a1250f98980aa447e9235; npm integrity sha512-kCEWeIgZ...3WvZSA== matches); the package README pins sentence-transformers/all-MiniLM-L6-v2 at Hugging Face revision c9745ed1d9f207416be6d2e6f8de32d1f16199bf; package/onnx/model.onnx sha256 6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452, package/tokenizer.json sha256 be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+  licence: Apache-2.0   # package/README.md of that tarball (sha256 af6b01d8...): 'The bundled model and tokenizer are redistributed from all-MiniLM-L6-v2 under Apache-2.0'; package.json license Apache-2.0. A third party's statement: the upstream Hugging Face model card is not reachable from where this was written
+  source_url: https://www.npmjs.com/package/@xcidos/genesis-memory-model
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py; archives are extracted into the cache and deleted, members are checked again on every
+  use). A 6-layer, 384-dimension sentence embedding model (22M parameters). Hugging Face is not reachable from
+  where this was written, so the weights come from a third party's npm package that redistributes them; the
+  weights' provenance and licence are therefore only as good as that package's README (read, quoted in the
+  licence comment) - the upstream model card was NOT read. Treat the Apache-2.0 label as the redistributor's
+  statement. Tokenization: tools/wordpiece.py (WordPiece, uncased) with the package's tokenizer.json vocabulary;
+  token ids of six fixed sentences are compared exactly (the first sentence gives 101 1996 4937 2938 2006 1996
+  13523 1012 102, the known ids of '[CLS] the cat sat on the mat . [SEP]'). Output: embeddings are mean-pooled
+  over the attention mask and L2-normalised (one padded batch of six); compared are the nearest other sentence
+  (exact), the 6x6 cosine matrix and the first four dimensions of every embedding (abs 2e-3: fp32 rounding on
+  another device is orders smaller, the slack allows for different GEMM kernels). Not run on a GPU here. No sim:
+  targets.

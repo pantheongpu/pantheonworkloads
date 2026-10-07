@@ -1,0 +1,19 @@
+name: onnx-zoo-bertsquad-int8-bench
+description: "BERT-Squad-12 int8 (ONNX), questions per second at sequence length 256 on a real GPU."
+kind: benchmark
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: onnx/models validated/text/machine_comprehension/bert-squad/model/bertsquad-12-int8.tar.gz
+  revision: "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; bertsquad-12-int8.tar.gz sha256 6c33f44ee1949ee25936e259cb68da3e19bea7f6e7d5ea72a4d95ae300c86d87 (= its git-LFS oid); bertsquad-12-int8/bertsquad-12-int8.onnx inside it sha256 24325bdf732256859e07a385d2f363a6839b20b2bb4a57ac362b3982fc8ce121 (= the LFS oid of bertsquad-12-int8.onnx). Vocabulary: npm @xcidos/genesis-memory-model 0.1.0-alpha.1 (tgz sha256 3462d151396de1943a4f69c154223d9473146f3c4e1a1250f98980aa447e9235; npm integrity sha512-kCEWeIgZ...3WvZSA== matches); the package README pins sentence-transformers/all-MiniLM-L6-v2 at Hugging Face revision c9745ed1d9f207416be6d2e6f8de32d1f16199bf"
+  licence: Apache-2.0   # bert-squad/README.md at that commit: SPDX header "Apache-2.0" and the "License" section "Apache 2.0". The vocabulary file comes from a third-party npm repackaging (see the notes)
+  source_url: https://github.com/onnx/models/tree/main/validated/text/machine_comprehension/bert-squad
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py; archives are extracted into the cache and deleted, members are checked again on every
+  use). One question, batch 1, sequence length 256, median of PW_TEXT_REPEATS (20) calls after 3 warm-up calls:
+  per-call latency, not batch throughput. int8 ops may run on the CPU under the CUDA provider, so this may not
+  measure the GPU. gpu target only; exits 77 when onnxruntime has no GPU execution provider. Not run on a GPU
+  here (no bench/ record).

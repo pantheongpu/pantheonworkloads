@@ -1,0 +1,22 @@
+name: sentencepiece-test-model
+description: "SentencePiece 0.2.2 encodes four fixed sentences with the upstream test unigram model, CPU only."
+kind: functional
+runtime: sentencepiece
+runtime_version: "sentencepiece 0.2.2 (PyPI wheel, cp313 manylinux x86-64)"
+targets: [cpu]
+compare: exact
+timeout_s: 900
+model:
+  id: google/sentencepiece python/test/test_model.model (unigram, 1000 pieces) and sentencepiece 0.2.2 (PyPI)
+  revision: "google/sentencepiece tag v0.2.2 = commit e0cce7d37b065b5140349dbe12c6bcf6192fdd78; test_model.model sha256 4884d27bf50494e080aa99dbb868f27b68b6a3b6bd128da37ad6057c5e3cf5a2; PyPI wheel sentencepiece-0.2.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl sha256 64b656f025355cf8c51abe9fbe3848540756c6d7ca5e6791b1afa664bc24c7cb"
+  licence: Apache-2.0   # LICENSE of google/sentencepiece at that commit (Apache License 2.0) and "License-Expression: Apache-2.0" in the wheel METADATA. The repository states no separate licence or training corpus for test_model.model: the repo-wide licence is assumed to cover it
+  source_url: https://github.com/google/sentencepiece
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py; archives are extracted into the cache and deleted, members are checked again on every
+  use). A tokenizer, not a language model: the 1000-piece unigram model used by sentencepiece's own Python
+  tests. The wheel (CPython 3.13, Linux x86-64 only: other interpreters SKIP) is unpacked into the cache and put
+  on sys.path; it is not pip-installed. Output: vocabulary size, token ids, pieces, and the decode round trip
+  for four fixed sentences, all exact (integers and strings). The model's training text is not documented in the
+  repository (its test scripts train other models on data/botchan.txt). No GPU code path, so the only target is
+  cpu. No sim: targets.

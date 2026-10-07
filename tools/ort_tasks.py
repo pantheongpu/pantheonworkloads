@@ -62,15 +62,19 @@ def choose_provider(target, available, gpu_ok=GPU_PROVIDERS):
     raise Skip(f"target {target} is not supported by the ort workloads")
 
 
-def session(path):
-    """(InferenceSession, provider name) for the current target."""
+def session(path, log_level=None):
+    """(InferenceSession, provider name) for the current target. `log_level` 3 silences
+    onnxruntime's warnings (some zoo models trigger a screenful of them)."""
     import onnxruntime as ort
     prov = choose_provider(os.environ.get("PW_TARGET", "cpu"), ort.get_available_providers())
     opts = ort.SessionOptions()
+    if log_level is not None:
+        opts.log_severity_level = log_level
     if prov == "CPUExecutionProvider":   # fixed thread count: stable results and a polite use of shared hosts
         opts.intra_op_num_threads = opts.inter_op_num_threads = int(os.environ.get("PW_ORT_THREADS", "1"))
     providers = [prov] if prov == "CPUExecutionProvider" else [prov, "CPUExecutionProvider"]
-    s = ort.InferenceSession(str(path), sess_options=opts, providers=providers)
+    model = bytes(path) if isinstance(path, (bytes, bytearray)) else str(path)   # a serialized graph or a file name
+    s = ort.InferenceSession(model, sess_options=opts, providers=providers)
     if s.get_providers()[0] != prov:
         raise Skip(f"{prov} was requested but the session runs on {s.get_providers()}")
     return s, prov

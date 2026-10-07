@@ -1,0 +1,35 @@
+{
+  "output": {
+    "tokens": "Apple is looking at buying a U.K. startup for $ 1 billion in London on Monday . || Dr. Maria Lopez moved from Madrid to Austin , Texas , in March 2019 to join the University of Texas . || The king and the queen visited Paris .",
+    "pos": "PROPN AUX VERB ADP VERB DET PROPN NOUN ADP SYM NUM NUM ADP PROPN ADP PROPN PUNCT || PROPN PROPN PROPN VERB ADP PROPN ADP PROPN PUNCT PROPN PUNCT ADP PROPN NUM PART VERB DET PROPN ADP PROPN PUNCT || DET NOUN CCONJ DET NOUN VERB PROPN PUNCT",
+    "dep": "nsubj>2 aux>2 ROOT>2 prep>2 pcomp>3 det>7 compound>7 dobj>4 prep>4 quantmod>11 compound>11 pobj>8 prep>11 pobj>12 prep>4 pobj>14 punct>2 || compound>2 compound>2 nsubj>3 ROOT>3 prep>3 pobj>4 prep>3 pobj>6 punct>7 appos>7 punct>7 prep>3 pobj>11 nummod>12 aux>15 advcl>3 det>17 dobj>15 prep>17 pobj>18 punct>3 || det>1 nsubj>5 cc>1 det>4 conj>1 ROOT>5 dobj>5 punct>5",
+    "ents": "Apple/ORG; U.K./GPE; $1 billion/MONEY; London/GPE; Monday/DATE || Maria Lopez/PERSON; Madrid/GPE; Austin/GPE; Texas/GPE; March 2019/DATE; the University of Texas/ORG || Paris/GPE",
+    "model_version": "3.8.0",
+    "word_similarity": [
+      0.38253,
+      0.21109,
+      1.0,
+      0.06998,
+      0.3981,
+      0.47971
+    ],
+    "king_ranking": "emperor prince castle monarch queen happy city horse banana river car table",
+    "king_ranking_sims": [
+      1.0,
+      1.0,
+      0.4466,
+      0.3829,
+      0.3825,
+      0.3459,
+      0.2987,
+      0.2849,
+      0.2111,
+      0.1599,
+      0.142,
+      0.0921
+    ],
+    "doc_similarity": 0.86964
+  },
+  "recorded_on": "cpu",
+  "recorded_at": "2026-10-07"
+}

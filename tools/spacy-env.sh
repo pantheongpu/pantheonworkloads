@@ -27,7 +27,7 @@ _sp_python() {
   venv="${PW_VENV_ROOT:-$HOME/.cache/pantheonworkloads/venvs}/spacy-$flavor"
   if ! _sp_have "$venv/bin/python"; then
     [[ "${PW_NO_INSTALL:-0}" != 1 ]] || pw_skip "no spacy-$flavor venv (PW_NO_INSTALL=1)"
-    wheel=$(python3 -I "$here/ort_assets.py" "$PW_WORKLOAD_DIR" en_core_web_sm-3.8.0-py3-none-any.whl) \
+    wheel=$(python3 -I "$here/ort_assets.py" "$here/../workloads/spacy-en-core-web-sm" en_core_web_sm-3.8.0-py3-none-any.whl) \
       || { echo "$wheel"; exit 77; }
     wheel=$(tail -1 <<<"$wheel")
     echo "creating $venv" >&2

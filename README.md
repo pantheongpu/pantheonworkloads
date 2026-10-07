@@ -69,10 +69,15 @@ Early scaffold. What exists and what does not:
   architectures and many quantization types; `docs/llamacpp-synth.md`). References were recorded **on the CPU
   only**; tolerances are unverified on any GPU or simulated GPU.
 - **Pretrained models whose licence and weights were read from source and pinned by sha256**: Silero VAD (MIT),
-  PP-OCRv3 via RapidOCR (Apache-2.0), ONNX zoo MNIST and MobileNetV2, spaCy `en_core_web_sm` (MIT), and nine vision
-  models (YuNet MIT, SFace, PP-HumanSeg, NanoDet, YOLOX and CRNN from OpenCV Zoo, Apache-2.0; ONNX zoo SSD-MobileNetV1
-  MIT, ShuffleNet-v2 BSD-3-Clause, EfficientNet-Lite4 MIT; plus a `-bench` workload each). CPU references
-  recorded; the `-bench` workloads have not run on a GPU. See `docs/pretrained-reachable.md`.
+  PP-OCRv3 via RapidOCR (Apache-2.0), ONNX zoo MNIST, MobileNetV2, BiDAF (MIT), BERT-Squad int8 (Apache-2.0), SSD-MobileNetV1 (MIT),
+  ShuffleNet-v2 (BSD-3-Clause) and EfficientNet-Lite4 (MIT), nine vision models in all (YuNet MIT; SFace, PP-HumanSeg, NanoDet,
+  YOLOX and CRNN from OpenCV Zoo, Apache-2.0), spaCy `en_core_web_sm` / `en_core_web_md` / Russian / Ukrainian / Norwegian /
+  multilingual-NER small pipelines (MIT),
+  all-MiniLM-L6-v2 (Apache-2.0, **second-hand**: stated by a third-party npm repackaging), GloVe 50d word vectors (PDDL),
+  py3langid (BSD-3-Clause), a SentencePiece test model (Apache-2.0). The vision models have a `-bench` workload each. CPU
+  references recorded, nothing run on a GPU; see `docs/pretrained-reachable.md`, which also records that **no small LLM
+  weights with a readable permissive licence were found** (the reachable ones are Gemma-family files without a licence
+  text, and a TinyLlama GGUF on npm that is too large and unread).
 - `whisper-cpp-tiny-en` (functional) and `whisper-cpp-bench-tiny-en` (GPU benchmark): written; the CPU build of
   whisper.cpp v1.9.5 was built and run here, but the tiny.en model could not be downloaded (Hugging Face blocked),
   so **no transcript has been produced and no reference or benchmark is recorded**. See their manifests and `docs/models.md`.

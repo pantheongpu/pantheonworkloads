@@ -1,0 +1,18 @@
+name: glove-wiki-gigaword-50-knn-bench
+description: "GloVe 50d nearest-neighbour search (MatMul+TopK over 400k words), queries per second on a real GPU."
+kind: benchmark
+runtime: onnxruntime
+runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
+targets: [gpu]
+timeout_s: 900
+model:
+  id: gensim-data release glove-wiki-gigaword-50 (Stanford GloVe vectors, Wikipedia 2014 + Gigaword 5, 6B tokens, 400k words, 50d)
+  revision: "RaRe-Technologies/gensim-data release tag glove-wiki-gigaword-50, glove-wiki-gigaword-50.gz sha256 5c55f98957aa9fed8d2ac5fb1dcff57af3b23c5a3ee7af3f7945f8d49198eb24 (md5 c289bc5d7f2f02c6dc9f2f9b67641813 equals the checksum in list.json)"
+  licence: PDDL-1.0   # stanfordnlp/GloVe README.md at commit 52f7dbc512be3f72e9c11e7cbb19dfdfa4651e9c: 'Pre-trained word vectors are made available under the Public Domain Dedication and License'; gensim-data list.json at commit bd93f51f7536dbf84f194cd8a81c0644b7b95b41 says license http://opendatacommons.org/licenses/pddl/ for this file
+  source_url: https://github.com/RaRe-Technologies/gensim-data/releases/tag/glove-wiki-gigaword-50
+notes: >
+  Nothing is committed: weights and inputs are fetched at run time and checked against model.sha256
+  (tools/ort_assets.py; archives are extracted into the cache and deleted, members are checked again on every
+  use). 256 random word vectors (seeded) per call against all 400,000 words, k=9, median of PW_TEXT_REPEATS (20)
+  calls after 3 warm-up calls; host arrays in and out. gpu target only; exits 77 when onnxruntime has no GPU
+  execution provider. Not run on a GPU here (no bench/ record).
