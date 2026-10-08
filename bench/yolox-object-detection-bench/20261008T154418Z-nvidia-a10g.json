@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "yolox-object-detection-bench",
+  "date": "2026-10-08T15:44:18Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)",
+    "model": {
+      "id": "opencv/opencv_zoo models/object_detection_yolox/object_detection_yolox_2022nov.onnx",
+      "revision": "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; object_detection_yolox_2022nov.onnx sha256 c5c2d13e59ae883e6af3b45daea64af4833a4951c92d116ec270d9ddbe998063 (= its git-LFS oid)",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/opencv/opencv_zoo/tree/main/models/object_detection_yolox"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "images_per_s": {
+      "median": 70.69881572506544,
+      "values": [
+        70.60085706787527,
+        104.07911011582917,
+        70.60097918317996,
+        76.50908040653239,
+        70.69881572506544
+      ]
+    },
+    "latency_ms": {
+      "median": 14.144508500521624,
+      "values": [
+        14.16413399965677,
+        9.608075999949506,
+        14.164109500597988,
+        13.070343999515899,
+        14.144508500521624
+      ]
+    }
+  }
+}

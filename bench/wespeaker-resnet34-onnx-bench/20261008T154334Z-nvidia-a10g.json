@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "wespeaker-resnet34-onnx-bench",
+  "date": "2026-10-08T15:43:34Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)",
+    "model": {
+      "id": "wenet-e2e/wespeaker voxceleb_resnet34 (ONNX), as repackaged with metadata by k2-fsa/sherpa-onnx (wespeaker_en_voxceleb_resnet34.onnx)",
+      "revision": "k2-fsa/sherpa-onnx release tag speaker-recongition-models (sic; a rolling tag), wespeaker_en_voxceleb_resnet34.onnx sha256 5ef208a9da1453335308a6b6f4e6dfbd7e183a38b604de0a57664f45d257fe94; preprocessing read at wenet-e2e/wespeaker commit 9fecd6cb4f47475d01761d87c826298dff4ef18c",
+      "licence": "CC-BY-4.0",
+      "source_url": "https://github.com/wenet-e2e/wespeaker/blob/master/docs/pretrained.md"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "embeddings_per_s": {
+      "median": 14.107976688146609,
+      "values": [
+        14.107976688146609,
+        14.035252530914684,
+        14.145932333164534,
+        14.077154075408975,
+        14.13318917726632
+      ]
+    },
+    "realtime_factor": {
+      "median": 139.9928648441168,
+      "values": [
+        139.9928648441168,
+        139.27122606207763,
+        140.36949712814445,
+        139.6870133421968,
+        140.24304732313132
+      ]
+    }
+  }
+}

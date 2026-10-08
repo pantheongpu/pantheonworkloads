@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "zipformer-audio-tagging-onnx-bench",
+  "date": "2026-10-08T15:45:01Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)",
+    "model": {
+      "id": "k2-fsa/icefall egs/audioset/AT/zipformer (small zipformer2 audio tagger, trained on AudioSet), as released by k2-fsa/sherpa-onnx (sherpa-onnx-zipformer-small-audio-tagging-2024-04-15)",
+      "revision": "k2-fsa/sherpa-onnx release tag audio-tagging-models (a rolling tag), archive sha256 07e2fafcdcbc461f2816188d9b0bbafced12584030cf67d5652e549ef256a2c6 (files dated 2024-04-15 inside); each file used is pinned by its own sha256 in model.sha256",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/k2-fsa/sherpa-onnx/releases/tag/audio-tagging-models"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "clips_per_s": {
+      "median": 21.01701791026039,
+      "values": [
+        20.965838231699628,
+        20.99586965048172,
+        21.01929004351512,
+        21.088034393013356,
+        21.01701791026039
+      ]
+    },
+    "realtime_factor": {
+      "median": 173.00421005554716,
+      "values": [
+        172.58291813401445,
+        172.8301255116466,
+        173.02291340445015,
+        173.58879111038857,
+        173.00421005554716
+      ]
+    }
+  }
+}

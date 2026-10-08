@@ -1,0 +1,64 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "spacy-multilingual-sm-bench",
+  "date": "2026-10-08T15:37:52Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "spacy",
+    "runtime_version": "spacy 3.8.16 (PyPI), thinc 8.3.13, cupy-cuda12x",
+    "model": {
+      "id": "explosion/spacy-models ru_core_news_sm, uk_core_news_sm, nb_core_news_sm, xx_ent_wiki_sm",
+      "revision": "release *-3.8.0 of each (explosion/spacy-models commit ca6f473afda3c4943d3919d3e39406c1b3f48b85); wheel sha256 ru 69978d47b43e2c4f..., uk d20adb50b42c0dcf..., nb 086f2cfcc1568b2e..., xx 6f3c4b853852ea9e... (full values in model.sha256)",
+      "licence": "MIT",
+      "source_url": "https://github.com/explosion/spacy-models/releases/tag/ru_core_news_sm-3.8.0"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "nb_core_news_sm_words_per_s": {
+      "median": 13361.302931391778,
+      "values": [
+        13151.466652052035,
+        13497.57291624975,
+        13361.302931391778,
+        13227.790505968604,
+        13545.411548058515
+      ]
+    },
+    "ru_core_news_sm_words_per_s": {
+      "median": 13410.867325105952,
+      "values": [
+        13504.643073719017,
+        13250.505080006722,
+        13410.867325105952,
+        13205.125277975376,
+        13648.488541179093
+      ]
+    },
+    "uk_core_news_sm_words_per_s": {
+      "median": 12045.9893078133,
+      "values": [
+        11980.535957369622,
+        12192.87033726929,
+        12045.9893078133,
+        11910.505139547182,
+        12269.115110317367
+      ]
+    },
+    "xx_ent_wiki_sm_words_per_s": {
+      "median": 27177.610380818183,
+      "values": [
+        26799.202251447612,
+        27177.610380818183,
+        26824.394846814976,
+        27198.204763452653,
+        27197.448622126078
+      ]
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "moonshine-tiny-en-onnx-bench",
+  "date": "2026-10-08T15:29:53Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)",
+    "model": {
+      "id": "usefulsensors/moonshine tiny English (v1), int8 ONNX export by k2-fsa/sherpa-onnx (sherpa-onnx-moonshine-tiny-en-int8.tar.bz2)",
+      "revision": "k2-fsa/sherpa-onnx release tag asr-models (a rolling tag), archive sha256 d5fe6ec4334fef36255b2a4010412cad4c007e33103fec62fb5d17cad88086f2 (files dated 2024-10-26 inside); each file used is pinned by its own sha256 in model.sha256",
+      "licence": "MIT",
+      "source_url": "https://github.com/k2-fsa/sherpa-onnx/releases/tag/asr-models"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "latency_ms_per_clip": {
+      "median": 515.6938974996592,
+      "values": [
+        512.3018059998685,
+        515.6938974996592,
+        515.3543239998726,
+        517.0429145000526,
+        515.696399999797
+      ]
+    },
+    "realtime_factor": {
+      "median": 22.6297035054748,
+      "values": [
+        22.779541011422854,
+        22.6297035054748,
+        22.64461450410356,
+        22.57066033152034,
+        22.62959369118069
+      ]
+    }
+  }
+}

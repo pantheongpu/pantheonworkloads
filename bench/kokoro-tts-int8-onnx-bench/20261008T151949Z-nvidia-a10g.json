@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "kokoro-tts-int8-onnx-bench",
+  "date": "2026-10-08T15:19:49Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)",
+    "model": {
+      "id": "hexgrad/Kokoro-82M v0.19 (the \"kLegacy\" release), int8 ONNX export by k2-fsa/sherpa-onnx (kokoro-int8-en-v0_19.tar.bz2)",
+      "revision": "k2-fsa/sherpa-onnx release tag tts-models (a rolling tag), archive sha256 c9f0dd393615805b0bab050c340834d5e684e732aec91c0e860cd30e982c08bd (files dated 2025-08-10 inside); each file used is pinned by its own sha256 in model.sha256",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "latency_ms_per_sentence": {
+      "median": 4661.390207500062,
+      "values": [
+        4665.201910499945,
+        4741.6918664998775,
+        4654.921076500159,
+        4661.390207500062,
+        4658.444281000357
+      ]
+    },
+    "realtime_factor": {
+      "median": 0.7374409450788194,
+      "values": [
+        0.7368384189895911,
+        0.7249522104728036,
+        0.7384657964135695,
+        0.7374409450788194,
+        0.7379072910713939
+      ]
+    }
+  }
+}

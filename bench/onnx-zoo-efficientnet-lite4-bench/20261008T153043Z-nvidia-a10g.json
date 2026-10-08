@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "onnx-zoo-efficientnet-lite4-bench",
+  "date": "2026-10-08T15:30:43Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)",
+    "model": {
+      "id": "onnx/models validated/vision/classification/efficientnet-lite4/model/efficientnet-lite4-11.onnx",
+      "revision": "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; efficientnet-lite4-11.onnx sha256 d111689907c06eea7c82e4833ddef758da6453b9d4cf60b7e99ca05c7cbd9c12 (= its git-LFS oid)",
+      "licence": "MIT",
+      "source_url": "https://github.com/onnx/models/tree/main/validated/vision/classification/efficientnet-lite4"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "batch_latency_ms": {
+      "median": 2.882213000248157,
+      "values": [
+        2.880451999772049,
+        2.8894779998154263,
+        2.89156249982625,
+        2.882213000248157,
+        2.8804474995922646
+      ]
+    },
+    "images_per_s": {
+      "median": 346.9556205297459,
+      "values": [
+        347.1677362022131,
+        346.0832718102986,
+        345.8337836585198,
+        346.9556205297459,
+        347.1682785891959
+      ]
+    }
+  }
+}

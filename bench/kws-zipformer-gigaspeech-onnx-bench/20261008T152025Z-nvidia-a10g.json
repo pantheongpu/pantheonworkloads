@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "kws-zipformer-gigaspeech-onnx-bench",
+  "date": "2026-10-08T15:20:25Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)",
+    "model": {
+      "id": "pkufool/sherpa-onnx-kws-zipformer-gigaspeech-3.3M-2024-01-01 (icefall streaming Zipformer2 transducer, trained on GigaSpeech XL), as released by k2-fsa/sherpa-onnx",
+      "revision": "k2-fsa/sherpa-onnx release tag kws-models (a rolling tag), archive sha256 f170013b4716e41b62b9bfd809687c207cef798ef9bc6534d524e17af9b6561a (files dated 2024-01-23 inside); each file used is pinned by its own sha256 in model.sha256",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/k2-fsa/sherpa-onnx/releases/tag/kws-models"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "latency_ms_per_clip": {
+      "median": 608.8937340000484,
+      "values": [
+        609.42979750007,
+        622.7925340003821,
+        608.7342714999977,
+        608.8937340000484,
+        607.6311645001624
+      ]
+    },
+    "realtime_factor": {
+      "median": 19.16590588531015,
+      "values": [
+        19.14904726987633,
+        18.738182240304184,
+        19.170926537853134,
+        19.16590588531015,
+        19.20572986015249
+      ]
+    }
+  }
+}

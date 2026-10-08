@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "onnx-zoo-shufflenet-v2-bench",
+  "date": "2026-10-08T15:31:24Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)",
+    "model": {
+      "id": "onnx/models validated/vision/classification/shufflenet/model/shufflenet-v2-12.onnx",
+      "revision": "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; shufflenet-v2-12.onnx sha256 ea69821b4dd374ae2f33f9710dd1229ac263d0ee5b5a46ca3521f6483e1ba035 (= its git-LFS oid)",
+      "licence": "BSD-3-Clause",
+      "source_url": "https://github.com/onnx/models/tree/main/validated/vision/classification/shufflenet"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "batch_latency_ms": {
+      "median": 1.3499195001713815,
+      "values": [
+        1.32713950051766,
+        1.3534244999391376,
+        1.3655194998136722,
+        1.3499195001713815,
+        1.3177340001675475
+      ]
+    },
+    "images_per_s": {
+      "median": 740.7849133767185,
+      "values": [
+        753.5002911223296,
+        738.8664827960254,
+        732.3220211329476,
+        740.7849133767185,
+        758.8784989025493
+      ]
+    }
+  }
+}
