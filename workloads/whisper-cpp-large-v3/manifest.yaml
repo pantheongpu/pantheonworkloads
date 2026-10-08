@@ -1,0 +1,20 @@
+name: whisper-cpp-large-v3
+description: whisper.cpp transcribes an 11 s clip with the large-v3 model (CUDA or HIP build).
+kind: functional
+runtime: whisper.cpp
+targets: [gpu]
+compare: exact
+timeout_s: 3600
+model:
+  id: ggerganov/whisper.cpp ggml-large-v3.bin   # OpenAI Whisper large-v3 converted to ggml by whisper.cpp
+  revision: "ggerganov/whisper.cpp HF commit 5359861c739e955e79d9a303bcbc70fb988958b1; ggml-large-v3.bin sha256 64d182b440b98d5203c4f9bd541544d84c605196c4f7b845dfa11fb23594d1e2 (3095033483 bytes, the Hub's LFS oid)"
+  licence: MIT   # read 2026-10-08: card front matter of ggerganov/whisper.cpp at that commit (license: mit); the weights are OpenAI Whisper large-v3, whose card openai/whisper-large-v3 @ 06f233fe says license: apache-2.0 (not gated, no LICENSE file in that repo) while the openai/whisper code repository is MIT; the two cards disagree (MIT vs Apache-2.0), both permissive, so the manifest records MIT as the conversion repo states it and this note records the discrepancy
+  source_url: https://huggingface.co/ggerganov/whisper.cpp
+notes: >
+  Same as whisper-cpp-tiny-en with the 3.1 GB multilingual large-v3 model (-l en forced). Runtime: whisper.cpp
+  tag v1.9.5 (commit d1be6fde11ac6e0407606b4e42fe72d34add8037, MIT), built by tools/build-whisper-cpp.sh.
+  Model and clip are fetched at run time and checked against pinned checksums (tools/whisper-assets.sh).
+  Audio: samples/jfk.wav (provenance unstated in the whisper.cpp repo, see whisper-cpp-tiny-en). Output is the
+  lower-cased transcript with punctuation removed, compared exactly; the run also fails when the word error rate
+  against the known text exceeds 0.15. Greedy decoding (-bs 1 -bo 1) with temperature fallback left at whisper.cpp's
+  default. Reference recorded on an NVIDIA A10G. Real GPU only (the CPU build of large-v3 is not worth running here).

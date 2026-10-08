@@ -1,0 +1,8 @@
+# On top of requirements-torch.txt and requirements-common.txt, for the diffusers and BLIP-2 workloads
+# (sdxl-base-diffusers, blip2-opt-2p7b-pytorch). Exact PyPI releases; checked on an NVIDIA A10G (see docs/first-gpu-run-a10g.md).
+diffusers==0.41.0
+accelerate==1.15.0
+pillow==12.3.0
+safetensors==0.8.0
+sentencepiece
+protobuf

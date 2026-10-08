@@ -1,0 +1,14 @@
+name: llamacpp-bench-llama32-1b-instruct
+description: "llama-bench prompt-processing and token-generation tokens/s for Llama-3.2-1B-Instruct (Q8_0 GGUF)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7200
+restricted: true
+model:
+  id: "bartowski/Llama-3.2-1B-Instruct-GGUF (Llama-3.2-1B-Instruct-Q8_0.gguf; a community Q8_0 conversion of meta-llama/Llama-3.2-1B-Instruct)"
+  revision: "067b946cf014b7c697f3654f621d577a3e3afd1c (HF commit of the GGUF repo); file sha256 432f310a77f4650a88d0fd59ecdd7cebed8d684bafea53cbff0473542964f0c3; base model meta-llama/Llama-3.2-1B-Instruct @ 9213176726f574b556790deb65791e0c5aa438b6"
+  licence: Llama 3.2 Community Licence   # read 2026-10-08: GGUF repo card front matter (license: llama3.2; full licence text in extra_gated_prompt; 'Llama 3.2 is licensed under the Llama 3.2 Community License, Copyright (c) Meta Platforms'); official meta-llama/Llama-3.2-1B-Instruct @ 9213176726 is gated=manual, only its API metadata (license: llama3.2) was readable
+  source_url: https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-08, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. RESTRICTED: Llama 3.2 Community Licence (acceptable-use policy, attribution and 'Built with Llama' terms, 700M-MAU clause; it is not an OSI licence). The official repo meta-llama/Llama-3.2-1B-Instruct is gated (manual approval) and needs a Hugging Face login, which this repo does not have, so its LICENSE.txt could not be read; only its API metadata (license: llama3.2, gated: manual) was. The licence text was read from the community conversion bartowski/Llama-3.2-1B-Instruct-GGUF, which is not gated and whose card front matter carries the full 'LLAMA 3.2 COMMUNITY LICENSE AGREEMENT' (extra_gated_prompt) and states license: llama3.2. This is a third-party conversion (quantized_by bartowski). Accept Meta's terms yourself before using it. Excluded from default selections (docs/manifest.md). Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp512_tokens_per_s and tg128_tokens_per_s from llama-bench -o json (mean of PW_BENCH_REPS=3 inside llama-bench; bin/pw's --repeat adds outer repeats), -ngl 99, one NVIDIA A10G. AMD devices are not auto-detected: pass --device."

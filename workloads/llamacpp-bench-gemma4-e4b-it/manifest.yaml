@@ -1,0 +1,13 @@
+name: llamacpp-bench-gemma4-e4b-it
+description: "llama-bench prompt-processing and token-generation tokens/s for Gemma 4 E4B-it (QAT Q4_0) (Q4_0 (quantization-aware-trained) GGUF)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7200
+model:
+  id: "google/gemma-4-E4B-it-qat-q4_0-gguf (gemma-4-E4B_q4_0-it.gguf; Google's own QAT Q4_0 GGUF of Gemma 4 E4B instruction-tuned (official repo))"
+  revision: "4b4a2c1d584be7264f87aac328a1bc739ce81b6c (HF commit of the GGUF repo); file sha256 676c35070db6dbe52f93e9c864ee0fba4eddea94b9c875d9cb10daff453fbaee; base model google/gemma-4-E4B-it @ ee0ef6023621cff504d758262d4e04895a5af4a2"
+  licence: Apache-2.0   # read 2026-10-08: card front matter of the official GGUF repo google/gemma-4-E4B-it-qat-q4_0-gguf @ 4b4a2c1d (license: apache-2.0, license_link: https://ai.google.dev/gemma/docs/gemma_4_license; the card header says 'License: Apache 2.0') and of google/gemma-4-E4B-it @ ee0ef602 (license: apache-2.0); neither repo is gated and neither has a LICENSE file. Gemma 3 and earlier were under the Gemma Terms of Use; Gemma 4 is not
+  source_url: https://huggingface.co/google/gemma-4-E4B-it-qat-q4_0-gguf
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-08, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp512_tokens_per_s and tg128_tokens_per_s from llama-bench -o json (mean of PW_BENCH_REPS=3 inside llama-bench; bin/pw's --repeat adds outer repeats), -ngl 99, one NVIDIA A10G. AMD devices are not auto-detected: pass --device."

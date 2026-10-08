@@ -1,0 +1,17 @@
+name: sdxl-base-diffusers
+description: "Stable Diffusion XL base 1.0 (fp16, diffusers) generates one 1024x1024 image (25 steps, fixed seed); image statistics are compared."
+kind: functional
+runtime: pytorch
+targets: [gpu]
+compare: tolerance
+tolerance:
+  abs: 0.02
+  rel: 0.0
+timeout_s: 3600
+restricted: true
+model:
+  id: "stabilityai/stable-diffusion-xl-base-1.0 (fp16 variant: unet, text_encoder, text_encoder_2, vae; diffusers StableDiffusionXLPipeline)"
+  revision: "462165984030d82259a11f4367a4eed129e94a7b (HF commit); the four fp16 safetensors files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: OpenRAIL++-M   # read 2026-10-08 from the official stabilityai/stable-diffusion-xl-base-1.0 @ 46216598: card front matter (license: openrail++) and its LICENSE.md (CreativeML Open RAIL++-M License); the repo is not gated
+  source_url: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
+notes: "RESTRICTED: the CreativeML Open RAIL++-M licence is a use-based licence (it lists prohibited uses and requires passing those restrictions on); it is not an OSI licence. Not gated, so the official files are used directly; only the fp16 files are downloaded (about 6.9 GB). stable-diffusion-3-medium was not added: stabilityai/stable-diffusion-3-medium-diffusers is gated (gated: auto, needs a Hugging Face login and acceptance of the Stability AI Community licence; the card names license_name: stabilityai-nc-research-community, LICENSE in the repo), and this environment has no Hugging Face credentials. See docs/models.md. Prompt, negative prompt, 25 Euler steps (the pipeline's default scheduler), guidance 5.0, 1024x1024, torch.Generator seed 1234 on the GPU. Output is image statistics on a 0..1 scale, never pixels: per-channel mean and std, an 8x8 grid of block means and the mean absolute horizontal/vertical gradient (abs tolerance 0.02). Measured on an NVIDIA A10G (2026-10-08): the recording run and 3 further runs (each its own process) and 2 more generations in an analysis process all produced identical pixels (uint8 sha256 e137244f2217...); forcing PyTorch's math SDPA kernel instead of flash/mem-efficient attention changed the statistics by at most 0.0043 (mean absolute pixel difference 0.0062); another seed changes them by up to 0.52. So 0.02 is 4.7x the cross-kernel spread and 26x below the signal of a different image. Not measured on any other card. Reference recorded on an NVIDIA A10G. fp16 weights on the GPU, TF32 off; diffusers 0.41.0 from requirements-diffusion.txt."

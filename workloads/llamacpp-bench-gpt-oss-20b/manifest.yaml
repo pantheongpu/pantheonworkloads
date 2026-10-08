@@ -1,0 +1,13 @@
+name: llamacpp-bench-gpt-oss-20b
+description: "llama-bench prompt-processing and token-generation tokens/s for gpt-oss-20b (MXFP4) (MXFP4 GGUF)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7200
+model:
+  id: "ggml-org/gpt-oss-20b-GGUF (gpt-oss-20b-MXFP4.gguf; ggml-org's automatic MXFP4 conversion of openai/gpt-oss-20b (ggml-org is the llama.cpp project's organisation))"
+  revision: "ef9b12f2ff56c69cf32153a02784e7a3c88bf524 (HF commit of the GGUF repo); file sha256 27cd6c432c7672cb812a92f611cf3ba7bbc35928262bb1e1253ff4ee6ae35901; base model openai/gpt-oss-20b @ 6cee5e81ee83917806bbde320786a8fb61efebee"
+  licence: Apache-2.0   # read 2026-10-08: official openai/gpt-oss-20b @ 6cee5e81 LICENSE file (Apache License 2.0 text) and card front matter (license: apache-2.0), not gated; its USAGE_POLICY file is a one-line request to comply with applicable law and is not a licence condition; GGUF repo ggml-org/gpt-oss-20b-GGUF card front matter (license: apache-2.0, base_model: openai/gpt-oss-20b), not gated, no LICENSE file
+  source_url: https://huggingface.co/ggml-org/gpt-oss-20b-GGUF
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-08, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp512_tokens_per_s and tg128_tokens_per_s from llama-bench -o json (mean of PW_BENCH_REPS=3 inside llama-bench; bin/pw's --repeat adds outer repeats), -ngl 99, one NVIDIA A10G. AMD devices are not auto-detected: pass --device."

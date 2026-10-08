@@ -1,0 +1,4 @@
+# Salesforce/blip2-opt-2.7b @ 59a1ef6c1e5117b3f65523d1c6066825bcf315e3 (LFS oids of the safetensors shards); astronaut.png is the scikit-image v0.22.0 sample (same pin as yolox-object-detection)
+b81228c9ac1b3dee1731ee71d51fe3b2c34f915019c44c25a793b51300ae24fc  model-00001-of-00002.safetensors
+536bd73b8f1de7d94f503b23fea2eaa4f7f3ea5f74f8f874fcb21d6df1555a19  model-00002-of-00002.safetensors
+88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5  astronaut.png

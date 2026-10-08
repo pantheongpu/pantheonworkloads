@@ -1,0 +1,17 @@
+name: whisper-cpp-bench-large-v3
+description: whisper.cpp's whisper-bench (encoder and decoder timing) with large-v3 on a real GPU.
+kind: benchmark
+runtime: whisper.cpp
+targets: [gpu]
+timeout_s: 3600
+model:
+  id: ggerganov/whisper.cpp ggml-large-v3.bin   # OpenAI Whisper large-v3 converted to ggml by whisper.cpp
+  revision: "ggerganov/whisper.cpp HF commit 5359861c739e955e79d9a303bcbc70fb988958b1; ggml-large-v3.bin sha256 64d182b440b98d5203c4f9bd541544d84c605196c4f7b845dfa11fb23594d1e2 (3095033483 bytes, the Hub's LFS oid)"
+  licence: MIT   # read 2026-10-08: card front matter of ggerganov/whisper.cpp at that commit (license: mit); the weights are OpenAI Whisper large-v3, whose card openai/whisper-large-v3 @ 06f233fe says license: apache-2.0 (not gated, no LICENSE file in that repo) while the openai/whisper code repository is MIT; the two cards disagree (MIT vs Apache-2.0), both permissive, so the manifest records MIT as the conversion repo states it and this note records the discrepancy
+  source_url: https://huggingface.co/ggerganov/whisper.cpp
+notes: >
+  Runs `whisper-bench` from whisper.cpp v1.9.5 (commit d1be6fde11ac6e0407606b4e42fe72d34add8037) built
+  for cuda or hip by tools/build-whisper-cpp.sh. whisper-bench times the encoder on synthetic (empty)
+  mel input and a few decoder steps, so the numbers say how fast the GPU runs this model's graphs,
+  not how well it transcribes. Metrics are milliseconds per run (lower is better): encode_ms_per_run,
+  decode_ms_per_run. Real GPU only; CPU runs are refused. Recorded on one NVIDIA A10G.

@@ -12,6 +12,10 @@ pinned commit). The pin is in `tools/llamacpp/pin.env`: tag `b11447`, commit
 | `llamacpp-bench-qwen25-0p5b` | benchmark | `cpu`, `gpu` | the same bench for Qwen2.5-0.5B-Instruct |
 | `llamacpp-mistral-7b-v03` | functional | `gpu` | the same 3-token greedy decode for Mistral-7B-v0.3 Q8_0 (7.7 GB, `-ngl 99`); reference recorded on an A10G |
 | `llamacpp-bench-mistral-7b-v03` | benchmark | `gpu` | the same bench for Mistral-7B-v0.3 Q8_0 (default download, pinned; override with `PW_MODEL_URL`/`PW_MODEL_FILE` for other quantisations) |
+| `llamacpp-llama32-1b-instruct`, `llamacpp-llama32-3b-instruct` (+ `llamacpp-bench-*`) | functional, benchmark | `gpu` | Llama-3.2-1B/3B-Instruct Q8_0 (bartowski conversion). **restricted** (Llama 3.2 Community Licence): skipped by default selections |
+| `llamacpp-gemma4-e4b-it` (+ bench) | functional, benchmark | `gpu` | Gemma 4 E4B-it, Google's own QAT Q4_0 GGUF (5.2 GB). Apache-2.0, not restricted |
+| `llamacpp-gpt-oss-20b` (+ bench) | functional, benchmark | `gpu` | gpt-oss-20b MXFP4 GGUF from ggml-org (12.1 GB, fits one 24 GB card with `-ngl 99`). Apache-2.0 |
+| `llamacpp-deepseek-r1-distill-qwen-7b`, `llamacpp-deepseek-r1-distill-qwen-1p5b` (+ bench) | functional, benchmark | `gpu` | DeepSeek-R1-Distill-Qwen Q8_0 (bartowski conversions). MIT |
 
 ## Backends and building
 

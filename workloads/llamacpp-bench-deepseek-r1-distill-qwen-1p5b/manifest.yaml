@@ -1,0 +1,13 @@
+name: llamacpp-bench-deepseek-r1-distill-qwen-1p5b
+description: "llama-bench prompt-processing and token-generation tokens/s for DeepSeek-R1-Distill-Qwen-1.5B (Q8_0 GGUF)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7200
+model:
+  id: "bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF (DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf; a community Q8_0 conversion of deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B)"
+  revision: "9cc28b17e86fa2415fcb070f8ee5ec27c965aa61 (HF commit of the GGUF repo); file sha256 166baa90e6a963de31a7713ff034f82317ff1fa41602f7c3ce583d3f6b551829; base model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B @ ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562"
+  licence: MIT   # read 2026-10-08: official deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B @ ad9f0ae0 LICENSE file (MIT, Copyright (c) 2023 DeepSeek) and card front matter (license: mit), not gated. The GGUF repo bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF has no LICENSE file and no license field in its front matter, so the licence rests on the official repo and the card's base_model link
+  source_url: https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-08, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp512_tokens_per_s and tg128_tokens_per_s from llama-bench -o json (mean of PW_BENCH_REPS=3 inside llama-bench; bin/pw's --repeat adds outer repeats), -ngl 99, one NVIDIA A10G. AMD devices are not auto-detected: pass --device."

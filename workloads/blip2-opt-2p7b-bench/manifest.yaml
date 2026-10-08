@@ -1,0 +1,13 @@
+name: blip2-opt-2p7b-bench
+description: "BLIP-2 (OPT-2.7b, fp16) captions per second at batch 8 and decode tokens per second at batch 1."
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 3600
+restricted: true
+model:
+  id: "Salesforce/blip2-opt-2.7b (Blip2ForConditionalGeneration, fp16; vision tower + Q-Former + OPT-2.7b)"
+  revision: "59a1ef6c1e5117b3f65523d1c6066825bcf315e3 (HF commit); the two safetensors shards and the image are pinned by sha256 in model.sha256 and verified on every run"
+  licence: OPT-2.7b licence (non-commercial)   # read 2026-10-08: Salesforce/blip2-opt-2.7b @ 59a1ef6c card front matter says license: mit (not gated, no LICENSE file), BUT the checkpoint contains the language model facebook/opt-2.7b @ 905a4b60, whose card says license: other and commercial: false (Meta's OPT licence, non-commercial research); the MIT statement does not release the OPT weights, so this is treated as non-permissive
+  source_url: https://huggingface.co/Salesforce/blip2-opt-2.7b
+notes: "RESTRICTED: the card says MIT but the weights embed OPT-2.7b, which Meta released under a non-commercial licence (OPT card: license: other, commercial: false; the licence text itself, in facebook/opt-2.7b, was not found as a file there, so only the card front matter was read). Image: skimage astronaut.png (NASA photo, public domain per scikit-image's data docstring; scikit-image tag v0.22.0, commit 441fe68b, BSD-3-Clause repo), fetched at run time, sha256 pinned, never committed (same pin as yolox-object-detection). Same script as blip2-opt-2p7b-pytorch in bench mode, after its own correctness checks. Metrics: captions_per_s_b8 (8 images per call, 20 forced new tokens, mean of 3 calls) and decode_tokens_per_s_b1 (20 tokens per caption for one image, which includes the vision tower and Q-Former, mean of 3). Model load excluded. Real GPU only; recorded on one NVIDIA A10G."

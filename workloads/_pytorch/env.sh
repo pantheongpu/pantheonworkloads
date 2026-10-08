@@ -10,6 +10,7 @@
 #   PW_VENV_ROOT      where venvs are made (default ~/.cache/pantheonworkloads/venvs)
 #   PANTHEONSIM_DIR / VGPU_BUILD_DIR   sim: targets: a built pantheonsim checkout, or its build directory
 #                     (tools/sim-env.sh builds one and prints both)
+#   PW_TORCH_EXTRA_REQ  a requirements file to install on top (set by workloads that need diffusers etc.)
 #   PW_NO_INSTALL=1   never create a venv or pip install (SKIP instead)
 #   PW_CACHE          model cache (default ~/.cache/pantheonworkloads); weights are never in the repo
 #   PW_TORCH_INDEX_<FLAVOR>  override the PyTorch wheel index URL for a flavour (CPU, CU130, ROCM)
@@ -79,7 +80,15 @@ _pw_python() {  # modules... -> sets PW_PY
     [[ -n "$c" ]] && _pw_have "$c" "$flavor" "$@" && { PW_PY=$c; return; }
   done
   [[ -z "${PW_TORCH_PYTHON:-}" ]] || pw_skip "PW_TORCH_PYTHON lacks torch or one of: $*"
+  # PW_TORCH_EXTRA_REQ: a requirements file a workload needs on top of the common ones (diffusers, ...);
+  # installed into an existing venv that lacks the modules, or into the new one.
+  if [[ -n "${PW_TORCH_EXTRA_REQ:-}" && -x "$venv/bin/pip" && "${PW_NO_INSTALL:-0}" != 1 ]]; then
+    "$venv/bin/pip" install -q -r "$PW_TORCH_EXTRA_REQ" >&2 && _pw_have "$venv/bin/python" "$flavor" "$@" && { PW_PY="$venv/bin/python"; return; }
+  fi
   _pw_install "$flavor" "$venv"
+  if [[ -n "${PW_TORCH_EXTRA_REQ:-}" && -x "$venv/bin/pip" ]]; then
+    "$venv/bin/pip" install -q -r "$PW_TORCH_EXTRA_REQ" >&2 || pw_skip "could not install $PW_TORCH_EXTRA_REQ"
+  fi
   _pw_have "$venv/bin/python" "$flavor" "$@" || pw_skip "the new venv cannot import: $*"
   PW_PY="$venv/bin/python"
 }
