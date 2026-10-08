@@ -8,7 +8,10 @@ pinned commit). The pin is in `tools/llamacpp/pin.env`: tag `b11447`, commit
 | --- | --- | --- | --- |
 | `llamacpp-smollm2-135m` | functional | `cpu`, `gpu`, `sim:nvidia/*`, `sim:amd/*` | `llama-completion`, 3 greedy tokens (temp 0, seed 1, no chat template) after a fixed prompt, compared with `reference.json` |
 | `llamacpp-bench-smollm2-135m` | benchmark | `cpu`, `gpu` | `llama-bench -o json`: prompt processing (`pp512_tokens_per_s`) and token generation (`tg128_tokens_per_s`) |
-| `llamacpp-bench-mistral-7b-v03` | benchmark | `gpu` | the same, for a Mistral-7B-v0.3 GGUF you supply (no default download) |
+| `llamacpp-qwen25-0p5b` | functional | `cpu`, `gpu`, `sim:nvidia/*`, `sim:amd/*` | the same for Qwen2.5-0.5B-Instruct Q8_0 (official GGUF) |
+| `llamacpp-bench-qwen25-0p5b` | benchmark | `cpu`, `gpu` | the same bench for Qwen2.5-0.5B-Instruct |
+| `llamacpp-mistral-7b-v03` | functional | `gpu` | the same 3-token greedy decode for Mistral-7B-v0.3 Q8_0 (7.7 GB, `-ngl 99`); reference recorded on an A10G |
+| `llamacpp-bench-mistral-7b-v03` | benchmark | `gpu` | the same bench for Mistral-7B-v0.3 Q8_0 (default download, pinned; override with `PW_MODEL_URL`/`PW_MODEL_FILE` for other quantisations) |
 
 ## Backends and building
 
@@ -39,7 +42,7 @@ the CPU build or a real GPU, never from a simulated target.
 
 | Variable | Meaning |
 | --- | --- |
-| `PW_MODEL_URL` | direct `.gguf` link (the SmolLM2 workloads have a default; Mistral has none) |
+| `PW_MODEL_URL` | direct `.gguf` link (every workload has a pinned default) |
 | `PW_MODEL_SHA256` | expected sha256; default is `workloads/<name>/model.sha256` when that file exists. A mismatch fails the run. With no hash a warning prints the file's actual hash so you can pin it |
 | `PW_MODEL_FILE` | a local GGUF, used instead of downloading |
 | `PW_NGL` | layers offloaded (default 99 on gpu targets, 0 on cpu) |

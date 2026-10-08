@@ -1,0 +1,18 @@
+name: llamacpp-bench-qwen25-0p5b
+description: llama-bench prompt-processing and token-generation tokens/s for Qwen2.5-0.5B-Instruct (Q8_0 GGUF).
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [cpu, gpu]
+timeout_s: 7200
+model:
+  id: Qwen/Qwen2.5-0.5B-Instruct-GGUF (qwen2.5-0.5b-instruct-q8_0.gguf; the official Q8_0 GGUF of Qwen/Qwen2.5-0.5B-Instruct)
+  revision: "9217f5db79a29953eb74d5343926648285ec7e67 (HF commit of the GGUF repo); file sha256 ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e; base model Qwen/Qwen2.5-0.5B-Instruct @ 7ae557604adf67be50417f59c2c2f167def9a775"
+  licence: Apache-2.0   # read 2026-10-08 on the rig: GGUF repo card front matter (license: apache-2.0) and its LICENSE file (Apache License 2.0 text); base model card (apache-2.0) and LICENSE file; neither repo is gated
+  source_url: https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF
+notes: >
+  Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp<N>_tokens_per_s (prompt
+  processing) and tg<M>_tokens_per_s (generation), default pp512 and tg128, from llama-bench -o json
+  (mean of PW_BENCH_REPS=3 inside llama-bench; bin/pw's --repeat adds outer repeats). llama.cpp is MIT
+  (LICENSE read at the pinned commit). Models, quantisation and offload: docs/llamacpp.md.
+  Model licence, revision and sha256 were read and checked on 2026-10-08 (docs/models.md). AMD devices are not auto-detected: pass --device.

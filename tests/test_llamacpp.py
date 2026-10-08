@@ -56,6 +56,34 @@ class BenchParse(unittest.TestCase):
             bench_parse.parse("no json here")
 
 
+PINNED = {"llamacpp-qwen25-0p5b": True, "llamacpp-bench-qwen25-0p5b": False,
+          "llamacpp-mistral-7b-v03": True, "llamacpp-bench-mistral-7b-v03": False}   # name -> functional
+
+
+class PinnedModels(unittest.TestCase):
+    """Real-model workloads: licence read, revision pinned, sha256 consistent between manifest, model.sha256 and run.sh."""
+
+    def test_pins_are_consistent(self):
+        import re
+        for name, functional in PINNED.items():
+            d = ROOT / "workloads" / name
+            errors, warnings = validate.check(d / "manifest.yaml")
+            self.assertEqual(errors, [], name)
+            self.assertFalse(any("UNVERIFIED" in w for w in warnings), name)
+            m = validate.load(d / "manifest.yaml")
+            sha = (d / "model.sha256").read_text().strip()
+            self.assertRegex(sha, r"^[0-9a-f]{64}$", name)
+            self.assertIn(sha, m["model"]["revision"], name)
+            rev = re.match(r"([0-9a-f]{40}) ", m["model"]["revision"])
+            self.assertTrue(rev, name)
+            self.assertIn("/resolve/" + rev.group(1) + "/", (d / "run.sh").read_text(), name)
+            self.assertNotIn("UNVERIFIED", str(m["model"]["licence"]), name)
+            if functional:
+                ref = json.loads((d / "reference.json").read_text())
+                self.assertEqual(ref["recorded_on"], "gpu", name)
+                self.assertTrue(ref["output"], name)
+
+
 class Manifests(unittest.TestCase):
     def test_valid_and_licence_never_silently_asserted(self):
         for name in WORKLOADS:

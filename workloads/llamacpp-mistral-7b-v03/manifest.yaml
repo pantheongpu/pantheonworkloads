@@ -1,19 +1,21 @@
-name: llamacpp-bench-mistral-7b-v03
-description: llama-bench prompt-processing and token-generation tokens/s for Mistral-7B-v0.3 GGUF (Q8_0).
-kind: benchmark
+name: llamacpp-mistral-7b-v03
+description: llama.cpp (llama-completion) greedy-decodes 3 tokens from Mistral-7B-v0.3 (Q8_0 GGUF).
+kind: functional
 runtime: llama.cpp
 runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
 targets: [gpu]
-timeout_s: 7200
+compare: exact
+timeout_s: 3600
 model:
   id: mradermacher/Mistral-7B-v0.3-GGUF (Mistral-7B-v0.3.Q8_0.gguf; a third-party static Q8_0 conversion of mistralai/Mistral-7B-v0.3)
   revision: "768042462c239dab9e96b9ec65a43775665d6959 (HF commit of the GGUF repo); file sha256 1a69d4e484c86b35f6e8208e4f5d6031abd664809daef84e7a81c6f4189bed55; base model mistralai/Mistral-7B-v0.3 @ caa1feb0e54d415e2df31207e5f4e273e33509b1"
   licence: Apache-2.0   # read 2026-10-08 on the rig: base model card front matter (license: apache-2.0; the repo has no LICENSE file, and is not gated although its card carries an extra_gated_description) and the GGUF repo card front matter (license: apache-2.0, base_model: mistralai/Mistral-7B-v0.3; no LICENSE file, not gated)
   source_url: https://huggingface.co/mradermacher/Mistral-7B-v0.3-GGUF
 notes: >
-  Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp<N>_tokens_per_s (prompt
-  processing) and tg<M>_tokens_per_s (generation), default pp512 and tg128, from llama-bench -o json
-  (mean of PW_BENCH_REPS=3 inside llama-bench; bin/pw's --repeat adds outer repeats). llama.cpp is MIT
-  (LICENSE read at the pinned commit). Models, quantisation and offload: docs/llamacpp.md.
-  Model licence, revision and sha256 were read and checked on 2026-10-08 (docs/models.md). AMD devices are not auto-detected: pass --device.
-  Other quantisations: set PW_MODEL_URL/PW_MODEL_SHA256 (the recorded model pointer stays the manifest's, so add a manifest for them).
+  llama.cpp itself is MIT (LICENSE read at the pinned commit). Model licence, revision and sha256 were
+  read and checked on 2026-10-08 (docs/models.md); the sha256 is verified on every run. The reference
+  was recorded on an NVIDIA A10G and was identical in 3 consecutive runs. Real GPU only: the 7.7 GB
+  model is not run on the CPU or the simulator here.
+  Build and knobs: docs/llamacpp.md.
+  Prompt "The capital of France is", -n 3, --temp 0, seed 1, no chat template. Keep it short: longer
+  decodes diverge on floating-point differences between backends.

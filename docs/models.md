@@ -9,8 +9,7 @@ had open internet, so the models that were blocked before are now resolved: mode
 repositories, revisions pinned to commit hashes, weights checksummed (sha256 in each workload's `model.sha256` or manifest), and the
 references recorded **on that GPU** (not the CPU; each commit message says so). Resolved: `gpt2-small-pytorch`
 (MIT), `bert-base-uncased-pytorch` (Apache-2.0), `whisper-cpp-tiny-en` and its bench twin (MIT), `smollm2-135m-ollama`,
-`vllm-greedy-smollm2-135m`, `vllm-bench-throughput`, `llamacpp-smollm2-135m` and its bench twin (all Apache-2.0). Still open:
-Mistral-7B-v0.3 (`llamacpp-bench-mistral-7b-v03`, you supply the GGUF), the sections below that still say "unverified" for text
+`vllm-greedy-smollm2-135m`, `vllm-bench-throughput`, `llamacpp-smollm2-135m` and its bench twin (all Apache-2.0). Added later the same day on a second g5.2xlarge (A10G): `llamacpp-qwen25-0p5b` (+ bench) and `llamacpp-mistral-7b-v03` (+ bench), all Apache-2.0 as read from the cards. Still open: the sections below that still say "unverified" for text
 older than this note, and everything on the simulator or AMD. GitHub and PyPI were always reachable; Hugging Face was not from the host that wrote the first version.
 
 Each section below is self-contained and covers one workload family.
@@ -20,8 +19,9 @@ Each section below is self-contained and covers one workload family.
 | Model | Workload | Licence | State |
 | --- | --- | --- | --- |
 | SmolLM2-135M-Instruct (GGUF, `bartowski/SmolLM2-135M-Instruct-GGUF` Q8_0) | `llamacpp-smollm2-135m`, `llamacpp-bench-smollm2-135m` | Apache-2.0 (GGUF repo card and base model card, 2026-10-08) | pinned: HF commit `09816acd...`, file sha256 `5a139571...`; reference recorded on an A10G. A third-party conversion: no official GGUF repo of that name exists |
-| Mistral-7B-v0.3 | `llamacpp-bench-mistral-7b-v03` (benchmark only, real GPU) | UNVERIFIED (believed Apache-2.0; the original repo may also require accepting terms on Hugging Face) | no default download; you supply the GGUF |
-| Qwen2.5-0.5B-Instruct, TinyLlama-1.1B, SmolLM2-360M | not added | not read | candidates (expected Apache-2.0); add after the cards are read |
+| Qwen2.5-0.5B-Instruct (official GGUF, `Qwen/Qwen2.5-0.5B-Instruct-GGUF` Q8_0) | `llamacpp-qwen25-0p5b`, `llamacpp-bench-qwen25-0p5b` | Apache-2.0, read 2026-10-08 from the GGUF repo card and its LICENSE file (Apache License 2.0 text), and from the base card `Qwen/Qwen2.5-0.5B-Instruct` @ `7ae55760...` and its LICENSE file; not gated | pinned: GGUF repo commit `9217f5db...`, file sha256 `ca59ca7f...`; reference recorded on an A10G, identical in 4 consecutive GPU runs |
+| TinyLlama-1.1B, SmolLM2-360M | not added | not read | candidates (expected Apache-2.0); add after the cards are read |
+| Mistral-7B-v0.3 (GGUF, `mradermacher/Mistral-7B-v0.3-GGUF` Q8_0, 7.7 GB) | `llamacpp-mistral-7b-v03` (GPU only), `llamacpp-bench-mistral-7b-v03` | Apache-2.0, read 2026-10-08 from the front matter of the base card `mistralai/Mistral-7B-v0.3` @ `caa1feb0...` and of the GGUF repo card (the official repo has no LICENSE file; neither repo is gated, although the official card carries an `extra_gated_description`) | pinned: GGUF repo commit `76804246...`, file sha256 `1a69d4e4...`; there is no official GGUF, so this is a third-party conversion (static quants, `base_model: mistralai/Mistral-7B-v0.3`). Reference recorded on an A10G, identical in 4 consecutive GPU runs. Unverified: how the conversion was produced beyond its card |
 | Llama family (Meta) | not included: needs the user to accept the licence | Llama community licence (gated) | not fetched; bring your own GGUF with `PW_MODEL_FILE` and add a manifest that cites the licence you accepted |
 
 To pin a model: read its card, put the licence and the commit hash in the manifest, download the file,

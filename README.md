@@ -101,19 +101,22 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 
 <!-- coverage:start -->
 
-#### llama.cpp (synthetic GGUF, pretrained GGUF and llama-bench): 22
+#### llama.cpp (synthetic GGUF, pretrained GGUF and llama-bench): 25
 
 | Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| llamacpp-bench-mistral-7b-v03 | benchmark | llama.cpp | gpu | n/a | UNVERIFIED | no | no | no |
-| llamacpp-bench-smollm2-135m | benchmark | llama.cpp | cpu, gpu | n/a | UNVERIFIED | no | no | no |
-| llamacpp-smollm2-135m | functional | llama.cpp | cpu, gpu, sim:nvidia, sim:amd | no | UNVERIFIED | no | no | no |
-| llamacpp-synth-bench-gemma | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | no |
-| llamacpp-synth-bench-llama | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | no |
-| llamacpp-synth-bench-mistral | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | no |
-| llamacpp-synth-bench-mixtral | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | no |
-| llamacpp-synth-bench-phi3 | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | no |
-| llamacpp-synth-bench-qwen2 | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | no |
+| llamacpp-bench-mistral-7b-v03 | benchmark | llama.cpp | gpu | n/a | Apache-2.0 (per card) | yes | no | no |
+| llamacpp-bench-qwen25-0p5b | benchmark | llama.cpp | cpu, gpu | n/a | Apache-2.0 (per card) | yes | no | no |
+| llamacpp-bench-smollm2-135m | benchmark | llama.cpp | cpu, gpu | n/a | Apache-2.0 | yes | no | bench |
+| llamacpp-mistral-7b-v03 | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 (per card) | yes | no | no |
+| llamacpp-qwen25-0p5b | functional | llama.cpp | cpu, gpu, sim:nvidia, sim:amd | yes (gpu) | Apache-2.0 (per card) | yes | no | no |
+| llamacpp-smollm2-135m | functional | llama.cpp | cpu, gpu, sim:nvidia, sim:amd | yes (gpu) | Apache-2.0 | yes | no | no |
+| llamacpp-synth-bench-gemma | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | bench |
+| llamacpp-synth-bench-llama | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | bench |
+| llamacpp-synth-bench-mistral | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | bench |
+| llamacpp-synth-bench-mixtral | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | bench |
+| llamacpp-synth-bench-phi3 | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | bench |
+| llamacpp-synth-bench-qwen2 | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | bench |
 | llamacpp-synth-gemma | functional | llama.cpp | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | yes | no | no |
 | llamacpp-synth-llama | functional | llama.cpp | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | yes | no | no |
 | llamacpp-synth-mistral | functional | llama.cpp | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | yes | no | no |
@@ -133,63 +136,63 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | crnn-text-recognition | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
-| crnn-text-recognition-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | no |
+| crnn-text-recognition-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | bench |
 | glove-wiki-gigaword-50-knn | functional | onnxruntime | cpu, gpu | yes (cpu) | PDDL-1.0 | yes | no | no |
-| glove-wiki-gigaword-50-knn-bench | benchmark | onnxruntime | gpu | n/a | PDDL-1.0 | yes | no | no |
+| glove-wiki-gigaword-50-knn-bench | benchmark | onnxruntime | gpu | n/a | PDDL-1.0 | yes | no | bench |
 | gtcrn-enhance-onnx | functional | onnxruntime | cpu, gpu | yes (cpu) | MIT | yes | no | no |
-| gtcrn-enhance-onnx-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | no |
+| gtcrn-enhance-onnx-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | bench |
 | kokoro-tts-int8-onnx | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
-| kokoro-tts-int8-onnx-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | no |
+| kokoro-tts-int8-onnx-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | bench |
 | kws-zipformer-gigaspeech-onnx | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 (per card) | yes | no | no |
-| kws-zipformer-gigaspeech-onnx-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 (per card) | yes | no | no |
+| kws-zipformer-gigaspeech-onnx-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
 | minilm-l6-v2-onnx | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 (second-hand) | yes | no | no |
-| minilm-l6-v2-onnx-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 (second-hand) | yes | no | no |
+| minilm-l6-v2-onnx-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 (second-hand) | yes | no | bench |
 | moonshine-tiny-en-onnx | functional | onnxruntime | cpu, gpu | yes (cpu) | MIT | yes | no | no |
-| moonshine-tiny-en-onnx-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | no |
+| moonshine-tiny-en-onnx-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | bench |
 | nanodet-object-detection | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
-| nanodet-object-detection-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | no |
+| nanodet-object-detection-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | bench |
 | onnx-zoo-bertsquad-int8 | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
 | onnx-zoo-bertsquad-int8-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | no |
 | onnx-zoo-bidaf | functional | onnxruntime | cpu, gpu | yes (cpu) | MIT | yes | no | no |
 | onnx-zoo-efficientnet-lite4 | functional | onnxruntime | cpu, gpu | yes (cpu) | MIT | yes | no | no |
-| onnx-zoo-efficientnet-lite4-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | no |
+| onnx-zoo-efficientnet-lite4-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | bench |
 | onnx-zoo-mnist | functional | onnxruntime | cpu, gpu | yes (cpu) | MIT | yes | no | no |
 | onnx-zoo-mobilenetv2 | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
-| onnx-zoo-mobilenetv2-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | no |
+| onnx-zoo-mobilenetv2-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | bench |
 | onnx-zoo-shufflenet-v2 | functional | onnxruntime | cpu, gpu | yes (cpu) | BSD-3-Clause | yes | no | no |
-| onnx-zoo-shufflenet-v2-bench | benchmark | onnxruntime | gpu | n/a | BSD-3-Clause | yes | no | no |
+| onnx-zoo-shufflenet-v2-bench | benchmark | onnxruntime | gpu | n/a | BSD-3-Clause | yes | no | bench |
 | onnx-zoo-ssd-mobilenetv1 | functional | onnxruntime | cpu, gpu | yes (cpu) | MIT | yes | no | no |
-| onnx-zoo-ssd-mobilenetv1-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | no |
+| onnx-zoo-ssd-mobilenetv1-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | bench |
 | pphumanseg-person-segmentation | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
-| pphumanseg-person-segmentation-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | no |
+| pphumanseg-person-segmentation-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | bench |
 | ppocr-rapidocr | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
-| ppocr-rapidocr-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | no |
+| ppocr-rapidocr-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | bench |
 | py3langid-wheel | functional | numpy | cpu | yes (cpu) | BSD-3-Clause | yes | no | no |
 | sentencepiece-test-model | functional | sentencepiece | cpu | yes (cpu) | Apache-2.0 | yes | no | no |
 | sface-face-embedding | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
-| sface-face-embedding-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | no |
+| sface-face-embedding-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | bench |
 | silero-vad-onnx | functional | onnxruntime | cpu, gpu | yes (cpu) | MIT | yes | no | no |
-| silero-vad-onnx-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | no |
+| silero-vad-onnx-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | bench |
 | spacy-en-core-web-md | functional | spacy | cpu, gpu | yes (cpu) | MIT | yes | no | no |
-| spacy-en-core-web-md-bench | benchmark | spacy | gpu | n/a | MIT | yes | no | no |
+| spacy-en-core-web-md-bench | benchmark | spacy | gpu | n/a | MIT | yes | no | bench |
 | spacy-en-core-web-sm | functional | spacy | cpu, gpu | yes (cpu) | MIT | yes | no | no |
-| spacy-en-core-web-sm-bench | benchmark | spacy | gpu | n/a | MIT | yes | no | no |
+| spacy-en-core-web-sm-bench | benchmark | spacy | gpu | n/a | MIT | yes | no | bench |
 | spacy-multilingual-sm | functional | spacy | cpu, gpu | yes (cpu) | MIT | yes | no | no |
-| spacy-multilingual-sm-bench | benchmark | spacy | gpu | n/a | MIT | yes | no | no |
+| spacy-multilingual-sm-bench | benchmark | spacy | gpu | n/a | MIT | yes | no | bench |
 | wespeaker-resnet34-onnx | functional | onnxruntime | cpu, gpu | yes (cpu) | CC-BY-4.0 | yes | no | no |
-| wespeaker-resnet34-onnx-bench | benchmark | onnxruntime | gpu | n/a | CC-BY-4.0 | yes | no | no |
+| wespeaker-resnet34-onnx-bench | benchmark | onnxruntime | gpu | n/a | CC-BY-4.0 | yes | no | bench |
 | yolox-object-detection | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
-| yolox-object-detection-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | no |
+| yolox-object-detection-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | bench |
 | yunet-face-detection | functional | onnxruntime | cpu, gpu | yes (cpu) | MIT | yes | no | no |
-| yunet-face-detection-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | no |
+| yunet-face-detection-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | bench |
 | zipformer-audio-tagging-onnx | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 (per card) | yes | no | no |
-| zipformer-audio-tagging-onnx-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 (per card) | yes | no | no |
+| zipformer-audio-tagging-onnx-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
 
 #### Architecture coverage (random-weight PyTorch): 6
 
 | Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| arch-bench | benchmark | pytorch | cpu, gpu | n/a | n/a (no weights) | n/a | no | no |
+| arch-bench | benchmark | pytorch | cpu, gpu | n/a | n/a (no weights) | n/a | no | bench |
 | arch-encdec | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x4 | no |
 | arch-llama-family | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x4 | no |
 | arch-moe | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x4 | no |
@@ -203,7 +206,7 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | lib-attention-precision | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x4 | no |
 | lib-composite-blocks | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x4 | no |
 | lib-fft-linalg | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x4 | no |
-| lib-kernels-bench | benchmark | pytorch | gpu | n/a | n/a (no weights) | n/a | no | no |
+| lib-kernels-bench | benchmark | pytorch | gpu | n/a | n/a (no weights) | n/a | no | bench |
 | lib-rnn-conv | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x4 | no |
 | lib-sparse-embedding | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x4 | no |
 
@@ -211,7 +214,7 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 
 | Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| gpt-train-bench | benchmark | pytorch | cpu, gpu | n/a | n/a (no weights) | n/a | no | no |
+| gpt-train-bench | benchmark | pytorch | cpu, gpu | n/a | n/a (no weights) | n/a | no | bench |
 | gpt-train-bf16 | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x5 | no |
 | gpt-train-fp32 | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x6 | no |
 
@@ -219,29 +222,29 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 
 | Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| bert-base-uncased-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | no | UNVERIFIED | no | no | no |
-| gpt2-small-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | no | UNVERIFIED | no | no | no |
+| bert-base-uncased-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (gpu) | Apache-2.0 | yes | no | bench |
+| gpt2-small-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (gpu) | MIT (per card) | yes | no | bench |
 | loadgen-plumbing-check | functional | none | cpu | yes (cpu) | n/a (no weights) | n/a | no | no |
-| pytorch-microsuite | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x8 | no |
-| resnet18-randinit-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x8 | no |
+| pytorch-microsuite | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x8 | bench |
+| resnet18-randinit-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x8 | bench |
 | selftest | functional | none | cpu, gpu, sim:* | yes (cpu) | n/a (no weights) | n/a | amd x1, nvidia x1 | no |
-| smollm2-135m-ollama | functional | ollama | cpu, gpu, sim:nvidia | no | Apache-2.0 (per card) | no | no | no |
-| vllm-bench-throughput | benchmark | vllm | gpu | n/a | UNVERIFIED | no | no | no |
-| vllm-greedy-smollm2-135m | functional | vllm | gpu, sim:amd | no | UNVERIFIED | no | no | no |
-| whisper-cpp-bench-tiny-en | benchmark | whisper.cpp | gpu | n/a | MIT | revision only | no | no |
-| whisper-cpp-tiny-en | functional | whisper.cpp | cpu, gpu | no | MIT | revision only | no | no |
+| smollm2-135m-ollama | functional | ollama | cpu, gpu, sim:nvidia | yes (gpu) | Apache-2.0 | yes | no | bench |
+| vllm-bench-throughput | benchmark | vllm | gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
+| vllm-greedy-smollm2-135m | functional | vllm | gpu, sim:amd | yes (gpu) | Apache-2.0 (per card) | yes | no | no |
+| whisper-cpp-bench-tiny-en | benchmark | whisper.cpp | gpu | n/a | MIT | yes | no | bench |
+| whisper-cpp-tiny-en | functional | whisper.cpp | cpu, gpu | yes (gpu) | MIT | yes | no | no |
 
 #### Totals
 
 | Family | Workloads | Functional | Benchmark | Reference recorded | Model sha256-pinned | Sim-validated | GPU-validated |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| llamacpp | 22 | 14 | 8 | 13 | 13 | 0 | 0 |
-| pretrained | 52 | 28 | 24 | 28 | 52 | 0 | 0 |
-| arch | 6 | 5 | 1 | 5 | 0 | 5 | 0 |
-| lib | 6 | 5 | 1 | 5 | 0 | 5 | 0 |
-| train | 3 | 2 | 1 | 2 | 0 | 2 | 0 |
-| other | 11 | 9 | 2 | 4 | 0 | 3 | 0 |
-| **all** | 100 | 63 | 37 | 57 | 65 | 15 | 0 |
+| llamacpp | 25 | 16 | 9 | 16 | 19 | 0 | 7 |
+| pretrained | 52 | 28 | 24 | 28 | 52 | 0 | 23 |
+| arch | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
+| lib | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
+| train | 3 | 2 | 1 | 2 | 0 | 2 | 1 |
+| other | 11 | 9 | 2 | 9 | 7 | 3 | 7 |
+| **all** | 103 | 65 | 38 | 65 | 78 | 15 | 40 |
 
 <!-- coverage:end -->
 

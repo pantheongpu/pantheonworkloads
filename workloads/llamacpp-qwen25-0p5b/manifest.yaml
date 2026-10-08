@@ -1,0 +1,23 @@
+name: llamacpp-qwen25-0p5b
+description: llama.cpp (llama-completion) greedy-decodes 3 tokens from Qwen2.5-0.5B-Instruct (Q8_0 GGUF).
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
+compare: exact
+timeout_s: 3600
+model:
+  id: Qwen/Qwen2.5-0.5B-Instruct-GGUF (qwen2.5-0.5b-instruct-q8_0.gguf; the official Q8_0 GGUF of Qwen/Qwen2.5-0.5B-Instruct)
+  revision: "9217f5db79a29953eb74d5343926648285ec7e67 (HF commit of the GGUF repo); file sha256 ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e; base model Qwen/Qwen2.5-0.5B-Instruct @ 7ae557604adf67be50417f59c2c2f167def9a775"
+  licence: Apache-2.0   # read 2026-10-08 on the rig: GGUF repo card front matter (license: apache-2.0) and its LICENSE file (Apache License 2.0 text); base model card (apache-2.0) and LICENSE file; neither repo is gated
+  source_url: https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF
+notes: >
+  llama.cpp itself is MIT (LICENSE read at the pinned commit). Model licence, revision and sha256 were
+  read and checked on an AWS g5.2xlarge on 2026-10-08 (docs/models.md); the sha256 is verified on every run.
+  The reference was recorded on an NVIDIA A10G, not the CPU.
+  Backends: cpu (portable CPU build, no offload), gpu (CUDA or ROCm/HIP build, detected or
+  PW_LLAMACPP_BACKEND), sim:nvidia/* (CUDA build under pantheonsim's cuda shims), sim:amd/* (HIP build
+  under pantheonsim's libamdhip64/libhsa shims). The sim: wiring mirrors pantheonsim's run_ollama.sh and
+  run_ollama_amd.sh and has never been run. Build and knobs: docs/llamacpp.md.
+  Prompt "The capital of France is", -n 3, --temp 0, seed 1, no chat template. Keep it short: longer
+  decodes diverge on floating-point differences between backends.
