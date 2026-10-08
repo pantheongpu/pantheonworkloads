@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "vllm-bench-throughput",
+  "date": "2026-10-08T15:43:13Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "vllm",
+    "runtime_version": null,
+    "model": {
+      "id": "HuggingFaceTB/SmolLM2-135M",
+      "revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2; model.safetensors sha256 in model.sha256",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/HuggingFaceTB/SmolLM2-135M"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "output_tokens_per_s": {
+      "median": 32545.13,
+      "values": [
+        32348.24,
+        32671.56,
+        32552.33,
+        32545.13,
+        32455.3
+      ]
+    },
+    "requests_per_s": {
+      "median": 254.259,
+      "values": [
+        252.721,
+        255.247,
+        254.315,
+        254.259,
+        253.557
+      ]
+    },
+    "total_tokens_per_s": {
+      "median": 65090.3,
+      "values": [
+        64696.5,
+        65343.1,
+        65104.7,
+        65090.3,
+        64910.6
+      ]
+    }
+  }
+}

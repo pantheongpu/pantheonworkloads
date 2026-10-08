@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "whisper-cpp-bench-tiny-en",
+  "date": "2026-10-08T15:43:58Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "whisper.cpp",
+    "runtime_version": null,
+    "model": {
+      "id": "ggerganov/whisper.cpp ggml-tiny.en.bin",
+      "revision": "ggerganov/whisper.cpp HF commit 5359861c739e955e79d9a303bcbc70fb988958b1; ggml-tiny.en.bin sha256 921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f (sha1 c78c86eb1a8faa21b369bcd33207cc90d64ae9df, as whisper.cpp v1.9.5 models/README.md lists)",
+      "licence": "MIT",
+      "source_url": "https://huggingface.co/ggerganov/whisper.cpp"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "decode_ms_per_run": {
+      "median": 0.82,
+      "values": [
+        0.82,
+        0.82,
+        0.82,
+        0.82,
+        0.82
+      ]
+    },
+    "encode_ms_per_run": {
+      "median": 3.07,
+      "values": [
+        3.08,
+        3.09,
+        3.06,
+        3.07,
+        3.06
+      ]
+    }
+  }
+}

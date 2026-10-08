@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-smollm2-135m",
+  "date": "2026-10-08T15:25:36Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "bartowski/SmolLM2-135M-Instruct-GGUF (SmolLM2-135M-Instruct-Q8_0.gguf; a community Q8_0 conversion of HuggingFaceTB/SmolLM2-135M-Instruct, no official GGUF repo exists under that name)",
+      "revision": "09816acd5d99df7be770d85ea30822623dab342c (HF commit of the GGUF repo); file sha256 5a1395716f7913741cc51d98581b9b1228d80987a9f7d3664106742eb06bba83",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/bartowski/SmolLM2-135M-Instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 36022.3,
+      "values": [
+        36044.56,
+        35987.96,
+        35973.16,
+        36022.3,
+        36024.82
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 654.91,
+      "values": [
+        655.69,
+        655.05,
+        654.91,
+        654.78,
+        654.19
+      ]
+    }
+  }
+}
