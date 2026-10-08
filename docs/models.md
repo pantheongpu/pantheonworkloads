@@ -12,6 +12,8 @@ references recorded **on that GPU** (not the CPU; each commit message says so). 
 `vllm-greedy-smollm2-135m`, `vllm-bench-throughput`, `llamacpp-smollm2-135m` and its bench twin (all Apache-2.0). Added later the same day on a second g5.2xlarge (A10G): `llamacpp-qwen25-0p5b` (+ bench) and `llamacpp-mistral-7b-v03` (+ bench), all Apache-2.0 as read from the cards. Still open: the sections below that still say "unverified" for text
 older than this note, and everything on the simulator or AMD. GitHub and PyPI were always reachable; Hugging Face was not from the host that wrote the first version.
 
+The Tier 1 models added on a third g5.2xlarge (Llama 3.2 1B/3B, Gemma 4 E4B, gpt-oss-20b, DeepSeek-R1-Distill-Qwen 1.5B/7B, Whisper large-v3, SDXL base, BLIP-2) are in "Tier 1 models" below, with the ones that are blocked or too big for one A10G.
+
 Each section below is self-contained and covers one workload family.
 
 ## llama.cpp workloads
@@ -22,7 +24,7 @@ Each section below is self-contained and covers one workload family.
 | Qwen2.5-0.5B-Instruct (official GGUF, `Qwen/Qwen2.5-0.5B-Instruct-GGUF` Q8_0) | `llamacpp-qwen25-0p5b`, `llamacpp-bench-qwen25-0p5b` | Apache-2.0, read 2026-10-08 from the GGUF repo card and its LICENSE file (Apache License 2.0 text), and from the base card `Qwen/Qwen2.5-0.5B-Instruct` @ `7ae55760...` and its LICENSE file; not gated | pinned: GGUF repo commit `9217f5db...`, file sha256 `ca59ca7f...`; reference recorded on an A10G, identical in 4 consecutive GPU runs |
 | TinyLlama-1.1B, SmolLM2-360M | not added | not read | candidates (expected Apache-2.0); add after the cards are read |
 | Mistral-7B-v0.3 (GGUF, `mradermacher/Mistral-7B-v0.3-GGUF` Q8_0, 7.7 GB) | `llamacpp-mistral-7b-v03` (GPU only), `llamacpp-bench-mistral-7b-v03` | Apache-2.0, read 2026-10-08 from the front matter of the base card `mistralai/Mistral-7B-v0.3` @ `caa1feb0...` and of the GGUF repo card (the official repo has no LICENSE file; neither repo is gated, although the official card carries an `extra_gated_description`) | pinned: GGUF repo commit `76804246...`, file sha256 `1a69d4e4...`; there is no official GGUF, so this is a third-party conversion (static quants, `base_model: mistralai/Mistral-7B-v0.3`). Reference recorded on an A10G, identical in 4 consecutive GPU runs. Unverified: how the conversion was produced beyond its card |
-| Llama family (Meta) | not included: needs the user to accept the licence | Llama community licence (gated) | not fetched; bring your own GGUF with `PW_MODEL_FILE` and add a manifest that cites the licence you accepted |
+| Llama family (Meta) | `llamacpp-llama32-1b-instruct`, `llamacpp-llama32-3b-instruct` (+ bench twins), `restricted: true` | Llama 3.2 Community Licence (official repos gated) | see "Tier 1 models" below: community conversion whose card carries the licence text; Llama 3.2 Vision 11B blocked |
 
 To pin a model: read its card, put the licence and the commit hash in the manifest, download the file,
 `sha256sum` it into `workloads/<name>/model.sha256`, and use the commit-pinned `resolve/<hash>/...` URL.
@@ -171,6 +173,55 @@ time by `tools/whisper-assets.sh` and checked against pinned checksums.
 
 MLPerf benchmark models and datasets are **not** used by any workload; see `docs/mlperf.md` for what
 was found about their terms (several are member-only or gated, several unverified).
+
+## Tier 1 models: one 24 GB card (added 2026-10-08, g5.2xlarge, NVIDIA A10G)
+
+Scope agreed with the user: open models that fit one A10G. Each row records what was **actually read** on 2026-10-08 (Hugging Face API
+metadata, card front matter, LICENSE files, fetched with no Hugging Face credentials), whether the repo is gated, and the pin.
+Every file's sha256 is the Hub's LFS oid at the pinned commit and is verified on every run. References were recorded on the A10G
+(llama.cpp b11447 with CUDA sm_86, `-ngl 99`; PyTorch 2.10.0+cu130, transformers 5.19.0, diffusers 0.41.0) and checked in 3 further
+consecutive runs (all identical). `restricted: true` workloads (docs/manifest.md) are skipped by `bin/pw list --default`,
+`bin/pw matrix` and every default selection; name them to run them.
+
+| Model | Workloads | Licence as read | Restricted | Pin |
+| --- | --- | --- | --- | --- |
+| Llama 3.2 1B-Instruct, Q8_0 (1.3 GB) | `llamacpp-llama32-1b-instruct`, `llamacpp-bench-llama32-1b-instruct` | Llama 3.2 Community Licence. The official `meta-llama/Llama-3.2-1B-Instruct` is **gated (manual)**: only its API metadata (`license: llama3.2`) was readable, its `LICENSE.txt` was not. The text was read from the card front matter (`extra_gated_prompt`, the full agreement incl. the Acceptable Use Policy, the "Built with Llama" attribution and the 700-million-MAU clause) of the community conversion `bartowski/Llama-3.2-1B-Instruct-GGUF` (not gated) | **yes** | GGUF repo `067b946c...`, file sha256 `432f310a...`; third-party conversion |
+| Llama 3.2 3B-Instruct, Q8_0 (3.4 GB) | `llamacpp-llama32-3b-instruct`, `llamacpp-bench-llama32-3b-instruct` | as above, `bartowski/Llama-3.2-3B-Instruct-GGUF` card (same text); official repo gated | **yes** | GGUF repo `5ab33fa9...`, file sha256 `b5607b50...` |
+| Gemma 4 E4B-it, QAT Q4_0 (5.2 GB) | `llamacpp-gemma4-e4b-it`, `llamacpp-bench-gemma4-e4b-it` | Apache-2.0: front matter of the official GGUF repo `google/gemma-4-E4B-it-qat-q4_0-gguf` (`license: apache-2.0`, `license_link: https://ai.google.dev/gemma/docs/gemma_4_license`, header "License: Apache 2.0") and of `google/gemma-4-E4B-it`; neither gated, neither has a LICENSE file. (Gemma 3 and earlier use the Gemma Terms of Use; Gemma 4 does not.) | no | GGUF repo `4b4a2c1d...`, file sha256 `676c3507...`; Google's own conversion |
+| gpt-oss-20b, MXFP4 (12.1 GB) | `llamacpp-gpt-oss-20b`, `llamacpp-bench-gpt-oss-20b` | Apache-2.0, verified: the official `openai/gpt-oss-20b` @ `6cee5e81` has a `LICENSE` file (Apache License 2.0 text) and `license: apache-2.0` front matter; not gated. Its `USAGE_POLICY` is one sentence asking users to follow applicable law. The GGUF repo `ggml-org/gpt-oss-20b-GGUF` says `license: apache-2.0` | no | GGUF repo `ef9b12f2...`, file sha256 `27cd6c43...`; ggml-org automatic conversion. Fits 24 GB with all layers offloaded |
+| DeepSeek-R1-Distill-Qwen-7B, Q8_0 (8.1 GB) | `llamacpp-deepseek-r1-distill-qwen-7b`, `llamacpp-bench-...` | MIT: official `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` @ `916b56a4` LICENSE (MIT, "Copyright (c) 2023 DeepSeek") and `license: mit`; the GGUF repo `bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF` carries the same LICENSE file | no | GGUF repo `36100415...`, file sha256 `cae89f90...` |
+| DeepSeek-R1-Distill-Qwen-1.5B, Q8_0 (1.9 GB) | `llamacpp-deepseek-r1-distill-qwen-1p5b`, `llamacpp-bench-...` | MIT: official repo @ `ad9f0ae0` LICENSE and front matter. The bartowski GGUF repo has **no LICENSE file and no license field**, so its licence rests on the official repo | no | GGUF repo `9cc28b17...`, file sha256 `166baa90...` |
+| Whisper large-v3 via whisper.cpp (3.1 GB) | `whisper-cpp-large-v3`, `whisper-cpp-bench-large-v3` | MIT per `ggerganov/whisper.cpp` card front matter. **The two cards disagree**: `openai/whisper-large-v3` @ `06f233fe` says `license: apache-2.0` (no LICENSE file); the `openai/whisper` code repo is MIT. Both permissive | no | `ggerganov/whisper.cpp` `5359861c...` (same pin as tiny.en), `ggml-large-v3.bin` sha256 `64d182b4...` |
+| Stable Diffusion XL base 1.0, fp16 | `sdxl-base-diffusers`, `sdxl-base-bench` | CreativeML Open RAIL++-M: card `license: openrail++` and `LICENSE.md` of the official `stabilityai/stable-diffusion-xl-base-1.0` @ `46216598` (use-based restrictions, Attachment A); not gated | **yes** | repo `46216598...`; four fp16 safetensors (unet, text_encoder, text_encoder_2, vae; 6.9 GB) pinned in `model.sha256` |
+| BLIP-2 OPT-2.7b, fp16 | `blip2-opt-2p7b-pytorch`, `blip2-opt-2p7b-bench` | Card of `Salesforce/blip2-opt-2.7b` @ `59a1ef6c` says `license: mit` (not gated, no LICENSE file). **But** the checkpoint embeds `facebook/opt-2.7b` @ `905a4b60`, whose card says `license: other` and `commercial: false` (Meta's OPT licence, non-commercial research; its text is not a file in that repo, so only the front matter was read). Treated as non-permissive | **yes** | repo `59a1ef6c...`; two safetensors shards pinned; image: scikit-image `astronaut.png` (NASA, public domain; scikit-image v0.22.0 commit `441fe68b`), sha256 pinned, fetched at run time |
+
+Blocked or deferred (nothing here was run):
+
+| Model | Why |
+| --- | --- |
+| Stable Diffusion 3 medium | `stabilityai/stable-diffusion-3-medium-diffusers` is gated (`gated: auto`; login and acceptance of Stability's community licence needed; card names `stabilityai-nc-research-community`, the LICENSE file is behind the gate). No Hugging Face credentials were available and no ungated copy whose card carries the licence text was looked for. Blocked |
+| Llama 3.2 Vision 11B | The official `meta-llama/Llama-3.2-11B-Vision-Instruct` is gated (manual). The only ungated route found is `unsloth/Llama-3.2-11B-Vision-Instruct-bnb-4bit` (about 7.2 GB, would fit in 4-bit), but its card only links the Llama 3.2 Community Licence instead of carrying the text, which fails the rule for community conversions. In fp16 the weights alone are about 21 GB, which does not leave room for the vision activations on one A10G; not tried. Recorded as: deferred, blocked on a readable licence, does not fit one A10G in fp16 |
+
+Out of scope for one A10G (deferred, needs a bigger rig). Nothing larger than one A10G was launched:
+
+| Model | Reason |
+| --- | --- |
+| DeepSeek-V3 / R1 (full) | 671B-parameter MoE: hundreds of GB even at 4-bit (not re-checked here) |
+| Llama 4 (Scout, Maverick) | large MoE models, well beyond 24 GB even at 4-bit (not sized here); also gated (Scout: `gated: manual`, `license: other` / `llama4`) |
+| Large Qwen, GLM, Kimi | tens to hundreds of billions of parameters |
+| gpt-oss-120b | the MXFP4 GGUF (`ggml-org/gpt-oss-120b-GGUF`) is 63.4 GB (read from the Hub): needs an 80 GB card |
+
+Notes on the results (details and bench numbers: `docs/benchmarks.md`):
+
+- The three-token greedy references of the instruct models are the short continuations of "The capital of France is" (" Paris. The", etc.);
+  Gemma 4 produces " Paris." and then its end-of-text token, which `llama-completion` prints as `[end of text]`, so that string is part of
+  its reference. Longer decodes were not used (documented floating-point divergence between backends).
+- SDXL: the functional output is image statistics (per-channel mean/std, an 8x8 grid of block means, mean absolute gradients) with an abs tolerance
+  of 0.02, never pixels. Measured on the A10G: pixels were bit-identical in every run with default kernels (the recording run, 3 further
+  processes, and 2 generations in an analysis process; uint8 sha256 `e137244f2217...`), a forced math SDPA kernel moved the statistics by at most
+  0.0043, a different seed by up to 0.52. Other cards were not measured, so the tolerance is a reasoned bound, not a cross-card measurement.
+- BLIP-2: the caption of astronaut.png is "a woman in an orange space suit with a space helmet" (greedy, fp16); the smallest top-1/top-2 logit gap
+  over its 12 tokens is 0.141, above the 0.1 floor the workload enforces.
 
 ## Other model groups, documented in their own files
 

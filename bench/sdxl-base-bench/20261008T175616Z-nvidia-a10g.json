@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "sdxl-base-bench",
+  "date": "2026-10-08T17:56:16Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": null,
+    "model": {
+      "id": "stabilityai/stable-diffusion-xl-base-1.0 (fp16 variant: unet, text_encoder, text_encoder_2, vae; diffusers StableDiffusionXLPipeline)",
+      "revision": "462165984030d82259a11f4367a4eed129e94a7b (HF commit); the four fp16 safetensors files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "OpenRAIL++-M",
+      "source_url": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "978153e702b09aa86aec3e92b8a7e6dfa95623e1",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "images_per_s_1024_25steps": {
+      "median": 0.1268,
+      "values": [
+        0.1268,
+        0.1267,
+        0.1268,
+        0.1268,
+        0.1268
+      ]
+    },
+    "unet_steps_per_s": {
+      "median": 3.169,
+      "values": [
+        3.17,
+        3.168,
+        3.169,
+        3.169,
+        3.169
+      ]
+    }
+  }
+}

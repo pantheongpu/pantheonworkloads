@@ -105,12 +105,12 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 
 | Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| llamacpp-bench-deepseek-r1-distill-qwen-1p5b | benchmark | llama.cpp | gpu | n/a | MIT | yes | no | no |
-| llamacpp-bench-deepseek-r1-distill-qwen-7b | benchmark | llama.cpp | gpu | n/a | MIT | yes | no | no |
-| llamacpp-bench-gemma4-e4b-it | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | no |
-| llamacpp-bench-gpt-oss-20b | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | no |
-| llamacpp-bench-llama32-1b-instruct | benchmark | llama.cpp | gpu | n/a | Llama 3.2 Community Licence (restricted) | yes | no | no |
-| llamacpp-bench-llama32-3b-instruct | benchmark | llama.cpp | gpu | n/a | Llama 3.2 Community Licence (restricted) | yes | no | no |
+| llamacpp-bench-deepseek-r1-distill-qwen-1p5b | benchmark | llama.cpp | gpu | n/a | MIT | yes | no | bench |
+| llamacpp-bench-deepseek-r1-distill-qwen-7b | benchmark | llama.cpp | gpu | n/a | MIT | yes | no | bench |
+| llamacpp-bench-gemma4-e4b-it | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | bench |
+| llamacpp-bench-gpt-oss-20b | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | bench |
+| llamacpp-bench-llama32-1b-instruct | benchmark | llama.cpp | gpu | n/a | Llama 3.2 Community Licence (restricted) | yes | no | bench |
+| llamacpp-bench-llama32-3b-instruct | benchmark | llama.cpp | gpu | n/a | Llama 3.2 Community Licence (restricted) | yes | no | bench |
 | llamacpp-bench-mistral-7b-v03 | benchmark | llama.cpp | gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
 | llamacpp-bench-qwen25-0p5b | benchmark | llama.cpp | cpu, gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
 | llamacpp-bench-smollm2-135m | benchmark | llama.cpp | cpu, gpu | n/a | Apache-2.0 | yes | no | bench |
@@ -235,19 +235,19 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | bert-base-uncased-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (gpu) | Apache-2.0 | yes | no | bench |
-| blip2-opt-2p7b-bench | benchmark | pytorch | gpu | n/a | OPT-2.7b licence (restricted) | yes | no | no |
+| blip2-opt-2p7b-bench | benchmark | pytorch | gpu | n/a | OPT-2.7b licence (restricted) | yes | no | bench |
 | blip2-opt-2p7b-pytorch | functional | pytorch | gpu | yes (gpu) | OPT-2.7b licence (restricted) | yes | no | no |
 | gpt2-small-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (gpu) | MIT (per card) | yes | no | bench |
 | loadgen-plumbing-check | functional | none | cpu | yes (cpu) | n/a (no weights) | n/a | no | no |
 | pytorch-microsuite | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x8 | bench |
 | resnet18-randinit-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x8 | bench |
-| sdxl-base-bench | benchmark | pytorch | gpu | n/a | OpenRAIL++-M (restricted) | yes | no | no |
+| sdxl-base-bench | benchmark | pytorch | gpu | n/a | OpenRAIL++-M (restricted) | yes | no | bench |
 | sdxl-base-diffusers | functional | pytorch | gpu | yes (gpu) | OpenRAIL++-M (restricted) | yes | no | no |
 | selftest | functional | none | cpu, gpu, sim:* | yes (cpu) | n/a (no weights) | n/a | amd x1, nvidia x1 | no |
 | smollm2-135m-ollama | functional | ollama | cpu, gpu, sim:nvidia | yes (gpu) | Apache-2.0 | yes | no | bench |
 | vllm-bench-throughput | benchmark | vllm | gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
 | vllm-greedy-smollm2-135m | functional | vllm | gpu, sim:amd | yes (gpu) | Apache-2.0 (per card) | yes | no | no |
-| whisper-cpp-bench-large-v3 | benchmark | whisper.cpp | gpu | n/a | MIT | yes | no | no |
+| whisper-cpp-bench-large-v3 | benchmark | whisper.cpp | gpu | n/a | MIT | yes | no | bench |
 | whisper-cpp-bench-tiny-en | benchmark | whisper.cpp | gpu | n/a | MIT | yes | no | bench |
 | whisper-cpp-large-v3 | functional | whisper.cpp | gpu | yes (gpu) | MIT | yes | no | no |
 | whisper-cpp-tiny-en | functional | whisper.cpp | cpu, gpu | yes (gpu) | MIT | yes | no | no |
@@ -256,13 +256,13 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 
 | Family | Workloads | Functional | Benchmark | Reference recorded | Model sha256-pinned | Sim-validated | GPU-validated |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| llamacpp | 37 | 22 | 15 | 22 | 31 | 0 | 9 |
+| llamacpp | 37 | 22 | 15 | 22 | 31 | 0 | 15 |
 | pretrained | 52 | 28 | 24 | 28 | 52 | 0 | 23 |
 | arch | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | lib | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | train | 3 | 2 | 1 | 2 | 0 | 2 | 1 |
-| other | 17 | 12 | 5 | 12 | 13 | 3 | 7 |
-| **all** | 121 | 74 | 47 | 74 | 96 | 15 | 42 |
+| other | 17 | 12 | 5 | 12 | 13 | 3 | 10 |
+| **all** | 121 | 74 | 47 | 74 | 96 | 15 | 51 |
 
 <!-- coverage:end -->
 

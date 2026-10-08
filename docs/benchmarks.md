@@ -73,3 +73,30 @@ Caveats that apply to the numbers:
 - The llama.cpp `llamacpp-synth-bench-*` models are tiny random-weight GGUFs; their tokens/s say nothing about real model sizes.
 - One host, one card, one run day. The A10G is a cloud card; compare cards only by comparing records.
 - Not collected yet: memory, time to first token, AMD devices (not auto-detected).
+
+## Tier 1 models (2026-10-08, third g5.2xlarge, NVIDIA A10G)
+
+Same card and software as above (driver 595.91.07; llama.cpp b11447 CUDA sm_86 `-ngl 99`, whisper.cpp v1.9.5 CUDA, torch 2.10.0+cu130, transformers 5.19.0,
+diffusers 0.41.0), 5 repeats each, recorded from a clean checkout of commit `978153e` (`repo_dirty: false`) with `PW_BENCH_DIR` outside it.
+Medians (the records under `bench/` hold all five values; llama-bench's own mean of 3 sits inside each value):
+
+| Workload | Metric | Median |
+| --- | --- | ---: |
+| `llamacpp-bench-llama32-1b-instruct` (Q8_0) | pp512 / tg128 tokens/s | 18391.93 / 299.64 |
+| `llamacpp-bench-llama32-3b-instruct` (Q8_0) | pp512 / tg128 tokens/s | 7646.12 / 123.27 |
+| `llamacpp-bench-gemma4-e4b-it` (QAT Q4_0) | pp512 / tg128 tokens/s | 5459.27 / 114.45 |
+| `llamacpp-bench-gpt-oss-20b` (MXFP4) | pp512 / tg128 tokens/s | 4388.35 / 143.39 |
+| `llamacpp-bench-deepseek-r1-distill-qwen-1p5b` (Q8_0) | pp512 / tg128 tokens/s | 12804.82 / 219.05 |
+| `llamacpp-bench-deepseek-r1-distill-qwen-7b` (Q8_0) | pp512 / tg128 tokens/s | 4229.72 / 60.37 |
+| `whisper-cpp-bench-large-v3` | encode / decode ms per run (lower is better) | 96.46 / 7.72 |
+| `sdxl-base-bench` (fp16, 1024x1024, 25 steps, batch 1) | images/s; UNet steps/s | 0.1268; 3.169 |
+| `blip2-opt-2p7b-bench` (fp16) | captions/s at batch 8; decode tokens/s at batch 1 | 17.207; 45.46 |
+
+Caveats: the Llama 3.2, SDXL and BLIP-2 workloads are `restricted: true`; the recorded runtime version for the PyTorch and whisper records is `null` as for
+the earlier PyTorch records. `sdxl-base-bench` excludes model load and one warm-up image; BLIP-2's decode figure includes the vision tower and Q-Former once per caption.
+The functional unit-test run on the same host (233 tests) had two failures that are not caused by these workloads: `lib-attention-precision` against its CPU
+reference (the known fp8 conversion difference of `docs/first-gpu-run-a10g.md`) and a vLLM glue test that assumes no `vllm-greedy-smollm2-135m` reference exists.
+
+Setup traps seen on this run: `uv pip install torch==2.10.0 --index-url .../cu130 --extra-index-url pypi` silently picks PyPI's `+cu128` build, which
+`workloads/_pytorch/env.sh` rejects for the `cu130` flavour; add `--index-strategy unsafe-best-match` (or drop the extra index for torch). The first load of the 7 GB SDXL
+files from a fresh EBS volume took minutes; later loads 2 to 18 s. whisper.cpp's CUDA build took about 40 min on 8 vCPUs when competing with other jobs.

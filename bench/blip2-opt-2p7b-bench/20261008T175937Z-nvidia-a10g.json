@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "blip2-opt-2p7b-bench",
+  "date": "2026-10-08T17:59:37Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": null,
+    "model": {
+      "id": "Salesforce/blip2-opt-2.7b (Blip2ForConditionalGeneration, fp16; vision tower + Q-Former + OPT-2.7b)",
+      "revision": "59a1ef6c1e5117b3f65523d1c6066825bcf315e3 (HF commit); the two safetensors shards and the image are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "OPT-2.7b licence (non-commercial)",
+      "source_url": "https://huggingface.co/Salesforce/blip2-opt-2.7b"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "978153e702b09aa86aec3e92b8a7e6dfa95623e1",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "captions_per_s_b8": {
+      "median": 17.207,
+      "values": [
+        17.013,
+        17.351,
+        17.017,
+        17.207,
+        17.431
+      ]
+    },
+    "decode_tokens_per_s_b1": {
+      "median": 45.46,
+      "values": [
+        45.1,
+        45.51,
+        44.73,
+        45.46,
+        47.02
+      ]
+    }
+  }
+}

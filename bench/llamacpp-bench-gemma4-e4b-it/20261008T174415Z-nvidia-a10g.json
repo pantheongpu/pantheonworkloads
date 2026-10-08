@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-gemma4-e4b-it",
+  "date": "2026-10-08T17:44:15Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "google/gemma-4-E4B-it-qat-q4_0-gguf (gemma-4-E4B_q4_0-it.gguf; Google's own QAT Q4_0 GGUF of Gemma 4 E4B instruction-tuned (official repo))",
+      "revision": "4b4a2c1d584be7264f87aac328a1bc739ce81b6c (HF commit of the GGUF repo); file sha256 676c35070db6dbe52f93e9c864ee0fba4eddea94b9c875d9cb10daff453fbaee; base model google/gemma-4-E4B-it @ ee0ef6023621cff504d758262d4e04895a5af4a2",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/google/gemma-4-E4B-it-qat-q4_0-gguf"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "978153e702b09aa86aec3e92b8a7e6dfa95623e1",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 5459.27,
+      "values": [
+        5305.75,
+        5457.76,
+        5459.27,
+        5469.67,
+        5467.44
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 114.45,
+      "values": [
+        114.41,
+        114.45,
+        114.48,
+        114.5,
+        114.41
+      ]
+    }
+  }
+}

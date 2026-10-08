@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-gpt-oss-20b",
+  "date": "2026-10-08T17:49:50Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "ggml-org/gpt-oss-20b-GGUF (gpt-oss-20b-MXFP4.gguf; ggml-org's automatic MXFP4 conversion of openai/gpt-oss-20b (ggml-org is the llama.cpp project's organisation))",
+      "revision": "ef9b12f2ff56c69cf32153a02784e7a3c88bf524 (HF commit of the GGUF repo); file sha256 27cd6c432c7672cb812a92f611cf3ba7bbc35928262bb1e1253ff4ee6ae35901; base model openai/gpt-oss-20b @ 6cee5e81ee83917806bbde320786a8fb61efebee",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/ggml-org/gpt-oss-20b-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "978153e702b09aa86aec3e92b8a7e6dfa95623e1",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 4388.35,
+      "values": [
+        4383.27,
+        4380.66,
+        4388.35,
+        4390.15,
+        4391.66
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 143.39,
+      "values": [
+        143.38,
+        143.46,
+        143.39,
+        143.43,
+        143.38
+      ]
+    }
+  }
+}

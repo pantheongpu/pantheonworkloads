@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-deepseek-r1-distill-qwen-1p5b",
+  "date": "2026-10-08T17:37:33Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF (DeepSeek-R1-Distill-Qwen-1.5B-Q8_0.gguf; a community Q8_0 conversion of deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B)",
+      "revision": "9cc28b17e86fa2415fcb070f8ee5ec27c965aa61 (HF commit of the GGUF repo); file sha256 166baa90e6a963de31a7713ff034f82317ff1fa41602f7c3ce583d3f6b551829; base model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B @ ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562",
+      "licence": "MIT",
+      "source_url": "https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "978153e702b09aa86aec3e92b8a7e6dfa95623e1",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 12804.82,
+      "values": [
+        12325.5,
+        12815.39,
+        12799.7,
+        12815.15,
+        12804.82
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 219.05,
+      "values": [
+        219.02,
+        219.01,
+        219.09,
+        219.07,
+        219.05
+      ]
+    }
+  }
+}
