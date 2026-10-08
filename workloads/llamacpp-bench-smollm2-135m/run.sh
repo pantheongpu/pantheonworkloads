@@ -14,8 +14,8 @@ set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 . "$here/../../tools/llamacpp/common.sh"
 lc_setup
-default_url="https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct-GGUF/resolve/main/smollm2-135m-instruct-q8_0.gguf"
+default_url="https://huggingface.co/bartowski/SmolLM2-135M-Instruct-GGUF/resolve/09816acd5d99df7be770d85ea30822623dab342c/SmolLM2-135M-Instruct-Q8_0.gguf"
 sha="${PW_MODEL_SHA256:-$(cat "$here/model.sha256" 2>/dev/null | tr -d '[:space:]')}"
-lc_fetch_model "${PW_MODEL_URL:-$default_url}" "$sha" "smollm2-135m-instruct-q8_0.gguf"
+lc_fetch_model "${PW_MODEL_URL:-$default_url}" "$sha" "SmolLM2-135M-Instruct-Q8_0.gguf"
 . "$here/../../tools/llamacpp/bench.sh"
 lc_bench

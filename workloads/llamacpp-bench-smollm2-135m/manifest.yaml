@@ -6,10 +6,10 @@ runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
 targets: [cpu, gpu]
 timeout_s: 7200
 model:
-  id: HuggingFaceTB/SmolLM2-135M-Instruct-GGUF (smollm2-135m-instruct-q8_0.gguf)
-  revision: null            # UNPINNED, see notes
-  licence: "UNVERIFIED (expected Apache-2.0; the model card was not reachable from the machine that wrote this)"
-  source_url: https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct-GGUF
+  id: bartowski/SmolLM2-135M-Instruct-GGUF (SmolLM2-135M-Instruct-Q8_0.gguf; a community Q8_0 conversion of HuggingFaceTB/SmolLM2-135M-Instruct, no official GGUF repo exists under that name)
+  revision: "09816acd5d99df7be770d85ea30822623dab342c (HF commit of the GGUF repo); file sha256 5a1395716f7913741cc51d98581b9b1228d80987a9f7d3664106742eb06bba83"
+  licence: Apache-2.0   # read 2026-10-08 from the GGUF repo card front matter (license: apache-2.0) and the base model HuggingFaceTB/SmolLM2-135M-Instruct card (apache-2.0); the repo has no LICENSE file
+  source_url: https://huggingface.co/bartowski/SmolLM2-135M-Instruct-GGUF
 notes: >
   Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp<N>_tokens_per_s (prompt
   processing) and tg<M>_tokens_per_s (generation), default pp512 and tg128, from llama-bench -o json

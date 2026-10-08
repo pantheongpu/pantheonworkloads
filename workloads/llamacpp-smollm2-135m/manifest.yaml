@@ -7,10 +7,10 @@ targets: [cpu, gpu, "sim:nvidia/*", "sim:amd/*"]
 compare: exact
 timeout_s: 3600
 model:
-  id: HuggingFaceTB/SmolLM2-135M-Instruct-GGUF (smollm2-135m-instruct-q8_0.gguf)
-  revision: null            # UNPINNED: no network route to huggingface.co when written; pin the HF commit and put the file's sha256 in model.sha256
-  licence: "UNVERIFIED (expected Apache-2.0; the model card was not reachable from the machine that wrote this)"
-  source_url: https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct-GGUF
+  id: bartowski/SmolLM2-135M-Instruct-GGUF (SmolLM2-135M-Instruct-Q8_0.gguf; a community Q8_0 conversion of HuggingFaceTB/SmolLM2-135M-Instruct, no official GGUF repo exists under that name)
+  revision: "09816acd5d99df7be770d85ea30822623dab342c (HF commit of the GGUF repo); file sha256 5a1395716f7913741cc51d98581b9b1228d80987a9f7d3664106742eb06bba83"
+  licence: Apache-2.0   # read 2026-10-08 from the GGUF repo card front matter (license: apache-2.0) and the base model HuggingFaceTB/SmolLM2-135M-Instruct card (apache-2.0); the repo has no LICENSE file
+  source_url: https://huggingface.co/bartowski/SmolLM2-135M-Instruct-GGUF
 notes: >
   llama.cpp itself is MIT (LICENSE read at the pinned commit). The model licence, file name and download
   URL were NOT checked: huggingface.co was unreachable (proxy 403) when this was written. Verify the

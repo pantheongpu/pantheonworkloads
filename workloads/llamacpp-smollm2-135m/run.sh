@@ -10,9 +10,9 @@ set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 . "$here/../../tools/llamacpp/common.sh"
 lc_setup
-default_url="https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct-GGUF/resolve/main/smollm2-135m-instruct-q8_0.gguf"
+default_url="https://huggingface.co/bartowski/SmolLM2-135M-Instruct-GGUF/resolve/09816acd5d99df7be770d85ea30822623dab342c/SmolLM2-135M-Instruct-Q8_0.gguf"
 sha="${PW_MODEL_SHA256:-$(cat "$here/model.sha256" 2>/dev/null | tr -d '[:space:]')}"
-lc_fetch_model "${PW_MODEL_URL:-$default_url}" "$sha" "smollm2-135m-instruct-q8_0.gguf"
+lc_fetch_model "${PW_MODEL_URL:-$default_url}" "$sha" "SmolLM2-135M-Instruct-Q8_0.gguf"
 
 # Greedy (temp 0), fixed seed, no chat template (-no-cnv), prompt not echoed: stdout is the 3 new tokens.
 env "${LC_ENV[@]}" "$LC_BIN/llama-completion" -m "$LC_MODEL" -p "The capital of France is" -n 3 \
