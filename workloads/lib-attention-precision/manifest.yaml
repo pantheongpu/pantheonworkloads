@@ -53,6 +53,7 @@ model: null     # downloads no model
 #  - the flash ops on a t4: FlashAttention needs sm_80 or newer (Turing runs the memory-efficient and math backends).
 unsupported_ok:
   "*": [sdpa_flash_fp32_causal, dynamic_quantized_linear]
+  "gpu": [fp8_scaled_mm_e4m3]   # real cards: A10G (sm_86) measured "unsupported"; Hopper/Ada and newer run it, and then it is checked as usual only if the reference has a number
   "sim:nvidia/a100": [fp8_scaled_mm_e4m3]
   "sim:nvidia/rtx3060": [fp8_scaled_mm_e4m3]
   "sim:nvidia/rtx3080ti": [fp8_scaled_mm_e4m3]

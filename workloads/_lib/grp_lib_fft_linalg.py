@@ -180,7 +180,9 @@ def _(c):
     return torch.linalg.svdvals(c(SQ32))
 
 
-@op("eigh_values_and_reconstruction", bound=1e-4)
+# bound 3e-4, was 1e-4: the first real GPU (A10G, cuSOLVER syevd, torch 2.10.0+cu130) measured 1.44e-4 of rms against the float64
+# CPU result. 3e-4 is about 2x that, still ~100x tighter than a wrong eigendecomposition; the 1e-4 was derived from CPU runs only.
+@op("eigh_values_and_reconstruction", bound=3e-4)
 def _(c):
     w, v = torch.linalg.eigh(c(S64))
     return w, (v * w) @ v.T
