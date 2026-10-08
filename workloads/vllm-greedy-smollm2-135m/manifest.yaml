@@ -22,4 +22,4 @@ notes: >
   set PW_MODEL to use it (check its licence first).
   First real run (2026-10-08, NVIDIA A10G, vLLM 0.30.0 from PyPI, torch 2.13.0+cu130): the engine failed in warm-up inside
   FlashInfer's sampler (it JIT-compiles with ninja, which was not on PATH); with VLLM_USE_FLASHINFER_SAMPLER=0 it runs.
-  Greedy output is unaffected by the sampler choice. Reference recorded on that GPU, not the CPU.
+  The reference was recorded with that variable set, on that GPU, not the CPU.

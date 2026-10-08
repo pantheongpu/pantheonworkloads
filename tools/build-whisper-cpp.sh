@@ -6,7 +6,7 @@
 #
 #   PW_CACHE         build cache (default ~/.cache/pantheonworkloads)
 #   PW_BUILD_JOBS    make parallelism (default 2: hosts are shared)
-#   PW_CUDA_ARCH     CMAKE_CUDA_ARCHITECTURES for cuda (default: native)
+#   PW_CUDA_ARCH     CMAKE_CUDA_ARCHITECTURES for cuda (default: the first GPU's compute capability from nvidia-smi, else native)
 #   PW_HIP_ARCH      AMDGPU_TARGETS for hip, e.g. gfx942 (required for hip)
 #   PW_WHISPER_BIN_DIR  use an existing build instead (must hold whisper-cli, whisper-bench)
 #
@@ -35,7 +35,10 @@ case "$backend" in
   cpu) ;;
   cuda)
     command -v nvcc >/dev/null || skip "nvcc is not installed (CUDA toolkit needed for the cuda backend)"
-    flags+=(-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="${PW_CUDA_ARCH:-native}") ;;
+    # "native" needs CMake >= 3.24; Ubuntu 22.04 has 3.22 and then nvcc fails with "Unsupported gpu architecture 'compute_'".
+    arch="${PW_CUDA_ARCH:-}"
+    [[ -n "$arch" ]] || arch=$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader 2>/dev/null | head -1 | tr -d '. ')
+    flags+=(-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="${arch:-native}") ;;
   hip)
     command -v hipconfig >/dev/null || skip "hipconfig is not installed (ROCm needed for the hip backend)"
     [[ -n "${PW_HIP_ARCH:-}" ]] || skip "set PW_HIP_ARCH to the GPU architecture, e.g. gfx942"
