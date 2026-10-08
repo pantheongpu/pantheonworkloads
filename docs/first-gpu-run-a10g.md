@@ -59,7 +59,7 @@ The vLLM and llama.cpp checksums are in the workloads' `model.sha256`; the vLLM 
    `rapidocr_onnxruntime` pulls in the CPU `onnxruntime`; reinstall `onnxruntime-gpu` after it (the two share files).
 3. **`LD_LIBRARY_PATH` on the DLAMI points at `/usr/local/cuda-13.2` and `cuda-12.9`**. PyTorch then loads the system cuBLAS and every matmul fails with
    `CUBLAS_STATUS_NOT_INITIALIZED`. Run the PyTorch and vLLM workloads with `env -u LD_LIBRARY_PATH`. The ONNX Runtime GPU workloads need it (CUDA 12 and cuDNN 9 come from there).
-4. PyTorch `torch==2.10.0` / `torchvision==0.25.0` do exist on `download.pytorch.org/whl/cu130`; `transformers==5.19.0` installs with a current pip
+4. (The pins are torch 2.14.1 / torchvision 0.29.1 since the re-run below; both exist on `download.pytorch.org/whl/cu130` as `+cu130`.) PyTorch `torch==2.10.0` / `torchvision==0.25.0` existed there; `transformers==5.19.0` installs with a current pip
    (the pip in a fresh 3.10 venv hits a resolver assertion; upgrade pip first).
 5. llama.cpp's CUDA build with CMake's default architecture list took about 10 minutes at `-j8`; use `PW_CUDA_ARCHS=86 PW_BUILD_JOBS=8`.
 6. vLLM 0.30.0 failed in warm-up inside FlashInfer's JIT sampler (`ninja` not found); `VLLM_USE_FLASHINFER_SAMPLER=0` works.
@@ -76,3 +76,26 @@ The vLLM and llama.cpp checksums are in the workloads' `model.sha256`; the vLLM 
   `gpt-train-*` and the 18 `arch-*` architectures within their fp32 tolerances. These are the workloads whose simulated results can be trusted to be compared with this card.
 - Run-to-run nondeterminism on the real card exists (Moonshine text, 2 of 3 runs differ). Exact-compare references of long greedy decodes are fragile.
 - Int8 ONNX models (BERT-Squad, Kokoro) depend on the host CPU, not the GPU, in a mixed CUDA-EP session; do not read their GPU deviations as GPU deviations.
+
+## Re-run on torch 2.14.1 (2026-10-08, fourth g5.2xlarge)
+
+Same card type and driver (A10G, 595.91.07), a fresh Ubuntu 22.04 DLAMI (`Deep Learning Base OSS Nvidia Driver GPU AMI` 20261006), `--target gpu`,
+commit `479c1c7` (PR #19's branch plus a commit that makes the arch, lib and gpt-train workloads report their library versions like the
+`_pytorch/env.sh` ones). Rig setup that worked first time: `uv python install 3.12`; `uv venv --python 3.12 ~/.cache/pantheonworkloads/venvs/cu130`;
+`env -u LD_LIBRARY_PATH uv pip install --python <venv>/bin/python --index-url https://download.pytorch.org/whl/cu130 --extra-index-url https://pypi.org/simple
+--index-strategy unsafe-best-match -r workloads/_pytorch/requirements-torch.txt` (without `unsafe-best-match` uv takes PyPI's `+cu128`), then
+`requirements-common.txt` and `requirements-diffusion.txt`. The arch, lib and gpt-train workloads do not use that venv by themselves
+(`_shared/torch_env.sh` runs `PW_PYTHON` or `python3`), so run them with `PW_PYTHON=<venv>/bin/python`. `torch.__version__` was `2.14.1+cu130`
+(CUDA 13.0), torchvision `0.29.1+cu130`, transformers 5.19.0, diffusers 0.41.0, numpy 2.5.3. The 243 unit tests pass (with the venv one test's
+expected key set needed `versions`; updated), `bin/pw validate` and `bin/pw coverage --check` are clean.
+
+All 18 PyTorch functional workloads PASS against their existing references, with no tolerance changed and no reference re-recorded:
+`arch-encdec`, `arch-llama-family`, `arch-moe`, `arch-ssm`, `arch-vision` (top-1 margins 3.0e-3 to 5.1e-2, fp64 deviations about 1e-6),
+`lib-attention-precision` (67 ops checked, 3 unsupported as allowed, 2 informational; worst 7.5e-2 of rms; the 14 ops the CPU reference lists as
+unsupported are not compared, as before; the fp8 e4m3fn overflow class is `saturates` on CUDA and CPU, so the fp8 failure of the 2.10.0 run is gone),
+`lib-composite-blocks` (worst 3.9e-2 of rms, 3.5e-2 on 2.10.0, inside its bound), `lib-fft-linalg` (3.56e-3), `lib-rnn-conv` (2.6e-2), `lib-sparse-embedding` (1.9e-6),
+`gpt-train-fp32` (loss 3.583 to 2.976), `gpt-train-bf16` (3.583 to 2.979), `pytorch-microsuite` (1.39e-2),
+`resnet18-randinit-pytorch` (min top1-top2 gap 0.00249), `gpt2-small-pytorch`, `bert-base-uncased-pytorch`, `blip2-opt-2p7b-pytorch`
+(caption 'a woman in an orange space suit with a space helmet') and `sdxl-base-diffusers` (informational pixel sha256 `8cdbac1b501c30b5`).
+Where the 2.10.0 pass above gave a figure, the worst errors, losses and margins equal it as printed, except `lib-composite-blocks`. Benchmark medians against the
+2.10.0 records: `docs/benchmarks.md` (torch 2.14.1 re-run). About 45 minutes of instance time, including a 2.10.0 control run of three bench twins.

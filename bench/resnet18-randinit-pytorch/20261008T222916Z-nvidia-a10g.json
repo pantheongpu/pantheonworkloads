@@ -1,0 +1,41 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "resnet18-randinit-pytorch",
+  "date": "2026-10-08T22:29:16Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "torchvision.models.resnet18(weights=None)",
+      "revision": "torchvision==0.25.0 (see workloads/_pytorch/requirements-torch.txt)",
+      "licence": "BSD-3-Clause",
+      "source_url": "https://github.com/pytorch/vision"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "479c1c70674d1b010b0bcbea5433804e472ecc7a",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "images_per_s_b64_224": {
+      "median": 3175.0,
+      "values": [
+        3176.7,
+        3175.2,
+        3175.0,
+        3173.8,
+        3173.4
+      ]
+    }
+  }
+}

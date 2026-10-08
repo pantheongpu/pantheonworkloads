@@ -1,0 +1,71 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "gpt-train-bench",
+  "date": "2026-10-08T22:23:01Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "gpt-train-baby (defined in workloads/_shared/gpt_train.py; no pretrained weights)",
+      "revision": "workloads/_shared/gpt_train.py at this repository's commit",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/karpathy/nanoGPT"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "479c1c70674d1b010b0bcbea5433804e472ecc7a",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "bf16_steps_per_s": {
+      "median": 35.286,
+      "values": [
+        35.275,
+        35.258,
+        35.289,
+        35.288,
+        35.286
+      ]
+    },
+    "bf16_tokens_per_s": {
+      "median": 289063.6,
+      "values": [
+        288973.6,
+        288835.4,
+        289089.5,
+        289080.3,
+        289063.6
+      ]
+    },
+    "fp32_steps_per_s": {
+      "median": 19.299,
+      "values": [
+        19.25,
+        19.298,
+        19.304,
+        19.299,
+        19.299
+      ]
+    },
+    "fp32_tokens_per_s": {
+      "median": 158094.2,
+      "values": [
+        157693.5,
+        158091.3,
+        158140.3,
+        158099.8,
+        158094.2
+      ]
+    }
+  }
+}

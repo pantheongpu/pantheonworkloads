@@ -107,3 +107,56 @@ reference (the known fp8 conversion difference of `docs/first-gpu-run-a10g.md`) 
 Setup traps seen on this run: `uv pip install torch==2.10.0 --index-url .../cu130 --extra-index-url pypi` silently picks PyPI's `+cu128` build, which
 `workloads/_pytorch/env.sh` rejects for the `cu130` flavour; add `--index-strategy unsafe-best-match` (or drop the extra index for torch). The first load of the 7 GB SDXL
 files from a fresh EBS volume took minutes; later loads 2 to 18 s. whisper.cpp's CUDA build took about 40 min on 8 vCPUs when competing with other jobs.
+
+## torch 2.14.1 re-run (2026-10-08, fourth g5.2xlarge, NVIDIA A10G)
+
+The PyTorch workloads were re-run on the pinned **torch 2.14.1+cu130 / torchvision 0.29.1+cu130** (transformers 5.19.0, diffusers 0.41.0,
+numpy 2.5.3; `torch.__version__` read on the rig, not inferred), one on-demand g5.2xlarge in us-east-1b, the same AMI family and driver
+(595.91.07) as the 2.10.0 records above. Each bench twin was re-recorded with `--bench --repeat 5` from a clean tree (`repo_dirty: false`,
+commit `479c1c7` when run; the commit hash in the records is the pre-rebase one) with `PW_BENCH_DIR` outside the checkout. The new records sit beside the
+old ones in `bench/<name>/` and carry `environment.runtime_versions`; the old ones have no such field and ran torch 2.10.0+cu130.
+`mem 99`: these workloads have no memory-fraction option, so none was set.
+
+The 2.10.0 records were not touched. Medians; change is 2.14.1 against the 2026-10-08 2.10.0 record; `**` marks a change above 5%.
+The last column is a control: the same checkout re-run with torch 2.10.0+cu130 on this same instance, to tell a torch effect from a
+different-instance effect (5 repeats; run only for `arch-bench`, `lib-kernels-bench` and `blip2-opt-2p7b-bench`, `-` = not run). The control (arch-bench, lib-kernels-bench, blip2-opt-2p7b-bench) agrees with the old 2.10.0 records to within 1.4% for
+arch-bench and 0.7% for BLIP-2, and within 2.9% for every one of the 56 lib-kernels-bench metrics; the slightly lower matmul numbers
+in the two last rows (-2.5% / -2.4%) are already in the control (65.44), so they are an instance difference, not a torch effect.
+
+| Workload | Metric | 2.10.0 (2026-10-08) | 2.14.1 | Change | 2.10.0 same rig |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `arch-bench` | `llama_small_decode_tokens_per_s` | 1381 | 2086 | +51.1% ** | 1400 |
+| `arch-bench` | `llama_small_prefill_tokens_per_s` | 2.885e+05 | 3.904e+05 | +35.3% ** | 2.888e+05 |
+| `blip2-opt-2p7b-bench` | `captions_per_s_b8` | 17.21 | 18.07 | +5.0% ** (spread 6.4%) | 17.09 |
+| `blip2-opt-2p7b-bench` | `decode_tokens_per_s_b1` | 45.46 | 57.62 | +26.7% ** | 45.47 |
+| `gpt-train-bench` | `bf16_steps_per_s` | 35.22 | 35.29 | +0.2% | - |
+| `gpt-train-bench` | `bf16_tokens_per_s` | 2.885e+05 | 2.891e+05 | +0.2% | - |
+| `gpt-train-bench` | `fp32_steps_per_s` | 19.41 | 19.3 | -0.6% | - |
+| `gpt-train-bench` | `fp32_tokens_per_s` | 1.59e+05 | 1.581e+05 | -0.6% | - |
+| `gpt2-small-pytorch` | `decode_tokens_per_s` | 103.7 | 104.6 | +0.9% | - |
+| `pytorch-microsuite` | `conv2d_fp16_tflops` | 43.28 | 43.49 | +0.5% | - |
+| `pytorch-microsuite` | `copy_gb_s` | 482.2 | 482.1 | -0.0% | - |
+| `pytorch-microsuite` | `matmul_bf16_tflops` | 62.32 | 62.39 | +0.1% | - |
+| `pytorch-microsuite` | `matmul_fp16_tflops` | 62.32 | 62.39 | +0.1% | - |
+| `pytorch-microsuite` | `matmul_fp32_tflops` | 23.11 | 22.48 | -2.8% | - |
+| `pytorch-microsuite` | `matmul_tf32_tflops` | 30.91 | 30.86 | -0.2% | - |
+| `pytorch-microsuite` | `sdpa_causal_fp16_tflops` | 54.96 | 54.91 | -0.1% | - |
+| `resnet18-randinit-pytorch` | `images_per_s_b64_224` | 3233 | 3175 | -1.8% | - |
+| `sdxl-base-bench` | `images_per_s_1024_25steps` | 0.1268 | 0.1273 | +0.4% | - |
+| `sdxl-base-bench` | `unet_steps_per_s` | 3.169 | 3.183 | +0.4% | - |
+| `lib-kernels-bench` | `dlrm_forward_fp32_samples_s` | 7.529e+06 | 1.551e+07 | +106.0% ** | 7.513e+06 |
+| `lib-kernels-bench` | `index_add_gb_s` | 148.9 | 156.4 | +5.0% ** | 148.9 |
+| `lib-kernels-bench` | `lu_solve_batched_32x32_systems_s` | 7.2e+06 | 9.093e+06 | +26.3% ** | 7.103e+06 |
+| `lib-kernels-bench` | `matmul_bf16_tflops` | 67.13 | 65.48 | -2.5% | 65.44 |
+| `lib-kernels-bench` | `matmul_fp16_tflops` | 65.91 | 64.32 | -2.4% | 64.76 |
+
+`lib-kernels-bench` has 56 metrics; the rows listed for it are the five outside 2%
+(51 of 56 are within 2%, worst slowdown -2.5%). There is no slowdown above 5% anywhere.
+
+Reading it: everything limited by the GPU's arithmetic or memory bandwidth (matmul, convolution, FFT, linear algebra, attention,
+the SDXL UNet, the whole `gpt-train-bench`) did not move beyond noise. The large speedups are all in workloads that are bound by the
+host launching many small kernels: a 4-layer, 512-wide model's prefill and decode (`arch-bench`), batch-1 BLIP-2 decoding, a DLRM
+forward pass, and batches of 32x32 solves. With torch 2.10.0 on the same instance these came out at the old values (1400 vs 1381,
+45.47 vs 45.46, 7.51e6 vs 7.53e6), so the change belongs to torch 2.14.1 (probably lower per-op CPU dispatch cost; the cause inside
+torch was not investigated), not to the instance. `index_add` +5.0% is a real small gain (tight spread, reproduced against the control).
+Do not compare a record made with torch 2.10.0 with one made with 2.14.1 for these small-kernel workloads.
