@@ -109,8 +109,10 @@ class VllmGlue(unittest.TestCase):
             result, _, detail, rec = run("vllm-greedy-smollm2-135m", "gpu", **fake_env(tmp))
         self.assertEqual(rec["output"], " the capital")
         self.assertEqual(rec["metrics"], {})
-        self.assertEqual(result, "SKIP")        # no reference.json is recorded
-        self.assertIn("no reference", detail)
+        # reference.json is now recorded (from a real GPU), so the fake generator's text is compared with it
+        # rather than skipped; this test checks the glue, not the model's text.
+        self.assertNotEqual(result, "SKIP", detail)
+        self.assertNotIn("no reference", detail)
 
 
 HAVE_TORCH = importlib.util.find_spec("torch") is not None or bool(os.environ.get("PW_PYTHON"))
