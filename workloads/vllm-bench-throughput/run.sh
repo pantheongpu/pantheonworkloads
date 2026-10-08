@@ -22,7 +22,8 @@ rm -f "$json"
 args=(bench throughput --model "$model" --dtype float16 --seed 0 --backend vllm
       --dataset-name random --random-input-len "$ilen" --random-output-len "$olen"
       --num-prompts "$prompts" --num-warmups "${PW_BENCH_WARMUPS:-16}" --output-json "$json")
-[[ -z "${PW_MODEL_REVISION:-}" ]] || args+=(--revision "$PW_MODEL_REVISION")
+rev="${PW_MODEL_REVISION:-}"; [[ -n "$rev" || -n "${PW_MODEL:-}" ]] || rev=93efa2f097d58c2a74874c7e644dbc9b0cee75a2   # pinned for the default model
+[[ -z "$rev" ]] || args+=(--revision "$rev")
 pw_python -m vllm.entrypoints.cli.main "${args[@]}" >"$PW_OUT/vllm-bench.log" 2>&1
 status=$?
 if [[ $status != 0 || ! -s "$json" ]]; then

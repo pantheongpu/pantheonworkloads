@@ -6,8 +6,8 @@ targets: [gpu]
 timeout_s: 3600
 model:
   id: HuggingFaceTB/SmolLM2-135M
-  revision: null            # UNPINNED: fill in the model repo's commit hash (huggingface.co was not reachable from the authoring host)
-  licence: "UNVERIFIED: expected Apache-2.0 (as the smollm2-135m-ollama manifest says); the model card was not reachable when this was written. Confirm before relying on it."
+  revision: "93efa2f097d58c2a74874c7e644dbc9b0cee75a2; model.safetensors sha256 in model.sha256"
+  licence: Apache-2.0   # read 2026-10-08: model card front matter at that revision (license: apache-2.0); the repo has no LICENSE file
   source_url: https://huggingface.co/HuggingFaceTB/SmolLM2-135M
 notes: >
   Runs `python -m vllm.entrypoints.cli.main bench throughput` (the same as `vllm bench throughput`)

@@ -7,8 +7,8 @@ compare: exact
 timeout_s: 5400
 model:
   id: HuggingFaceTB/SmolLM2-135M
-  revision: null            # UNPINNED: fill in the commit hash of the model repo once pulled (huggingface.co was not reachable from the authoring host)
-  licence: "UNVERIFIED: expected Apache-2.0 (as the smollm2-135m-ollama manifest says); the model card was not reachable when this was written. Confirm before relying on it."
+  revision: "93efa2f097d58c2a74874c7e644dbc9b0cee75a2; model.safetensors sha256 in model.sha256"
+  licence: Apache-2.0   # read 2026-10-08: model card front matter at that revision (license: apache-2.0); the repo has no LICENSE file
   source_url: https://huggingface.co/HuggingFaceTB/SmolLM2-135M
 notes: >
   vLLM v0.30.0 (Apache-2.0: LICENSE and pyproject.toml `license = "Apache-2.0"` at that tag), the
@@ -20,6 +20,6 @@ notes: >
   not run vLLM on simulated NVIDIA GPUs, so neither does this. No CPU target: vLLM here needs a GPU
   stack. pantheonsim's own test uses facebook/opt-125m and compares with transformers on the CPU;
   set PW_MODEL to use it (check its licence first).
-  NOT YET RUN anywhere, and no reference.json: record one on a real GPU
-  (PW_MODEL_REVISION=<hash> bin/pw record vllm-greedy-smollm2-135m --target gpu), say which in
-  the commit message, then pin the revision above.
+  First real run (2026-10-08, NVIDIA A10G, vLLM 0.30.0 from PyPI, torch 2.13.0+cu130): the engine failed in warm-up inside
+  FlashInfer's sampler (it JIT-compiles with ninja, which was not on PATH); with VLLM_USE_FLASHINFER_SAMPLER=0 it runs.
+  Greedy output is unaffected by the sampler choice. Reference recorded on that GPU, not the CPU.

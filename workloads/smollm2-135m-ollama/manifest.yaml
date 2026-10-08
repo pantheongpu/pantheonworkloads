@@ -7,8 +7,8 @@ compare: exact
 timeout_s: 1800
 model:
   id: smollm2:135m          # Ollama registry name
-  revision: null            # UNPINNED: fill in the digest `ollama show --modelfile smollm2:135m` prints after the first pull
-  licence: Apache-2.0       # from the SmolLM2 model card; confirm when pinning the revision
+  revision: "registry.ollama.ai/library/smollm2:135m, manifest sha256 9077fe9d2ae1a4a41a868836b56b8163731a8fe16621397028c2c76f838c6907; model layer sha256 f535f83ec568d040f88ddc04a199fa6da90923bbb41d4dcaed02caa924d6ef57 (a GGUF, 270885952 bytes)"
+  licence: Apache-2.0       # read 2026-10-08: the registry manifest's license layer (sha256 58d1e17f..., 11357 bytes) is the Apache License 2.0 text
   source_url: https://ollama.com/library/smollm2
 notes: >
   Same prompt and 3-token greedy decode as pantheonsim's own ollama test (tests/e2e/run_ollama.sh),

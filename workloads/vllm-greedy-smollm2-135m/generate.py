@@ -17,7 +17,7 @@ def skip(why):
 
 out_file = sys.argv[1]
 model = os.environ.get("PW_MODEL", "HuggingFaceTB/SmolLM2-135M")
-revision = os.environ.get("PW_MODEL_REVISION") or None
+revision = os.environ.get("PW_MODEL_REVISION") or (None if "PW_MODEL" in os.environ else "93efa2f097d58c2a74874c7e644dbc9b0cee75a2")   # pinned for the default model
 prompt = os.environ.get("PW_PROMPT", "The capital of France is")
 sim = os.environ.get("PW_TARGET", "").startswith("sim:")
 
