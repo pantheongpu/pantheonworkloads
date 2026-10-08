@@ -249,7 +249,7 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | vllm-greedy-smollm2-135m | functional | vllm | gpu, sim:amd | yes (gpu) | Apache-2.0 (per card) | yes | no | no |
 | whisper-cpp-bench-large-v3 | benchmark | whisper.cpp | gpu | n/a | MIT | yes | no | no |
 | whisper-cpp-bench-tiny-en | benchmark | whisper.cpp | gpu | n/a | MIT | yes | no | bench |
-| whisper-cpp-large-v3 | functional | whisper.cpp | gpu | no | MIT | yes | no | no |
+| whisper-cpp-large-v3 | functional | whisper.cpp | gpu | yes (gpu) | MIT | yes | no | no |
 | whisper-cpp-tiny-en | functional | whisper.cpp | cpu, gpu | yes (gpu) | MIT | yes | no | no |
 
 #### Totals
@@ -261,8 +261,8 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | arch | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | lib | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | train | 3 | 2 | 1 | 2 | 0 | 2 | 1 |
-| other | 17 | 12 | 5 | 11 | 13 | 3 | 7 |
-| **all** | 121 | 74 | 47 | 73 | 96 | 15 | 42 |
+| other | 17 | 12 | 5 | 12 | 13 | 3 | 7 |
+| **all** | 121 | 74 | 47 | 74 | 96 | 15 | 42 |
 
 <!-- coverage:end -->
 
