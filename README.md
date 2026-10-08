@@ -105,8 +105,8 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 
 | Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| llamacpp-bench-mistral-7b-v03 | benchmark | llama.cpp | gpu | n/a | Apache-2.0 (per card) | yes | no | no |
-| llamacpp-bench-qwen25-0p5b | benchmark | llama.cpp | cpu, gpu | n/a | Apache-2.0 (per card) | yes | no | no |
+| llamacpp-bench-mistral-7b-v03 | benchmark | llama.cpp | gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
+| llamacpp-bench-qwen25-0p5b | benchmark | llama.cpp | cpu, gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
 | llamacpp-bench-smollm2-135m | benchmark | llama.cpp | cpu, gpu | n/a | Apache-2.0 | yes | no | bench |
 | llamacpp-mistral-7b-v03 | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 (per card) | yes | no | no |
 | llamacpp-qwen25-0p5b | functional | llama.cpp | cpu, gpu, sim:nvidia, sim:amd | yes (gpu) | Apache-2.0 (per card) | yes | no | no |
@@ -238,13 +238,13 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 
 | Family | Workloads | Functional | Benchmark | Reference recorded | Model sha256-pinned | Sim-validated | GPU-validated |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| llamacpp | 25 | 16 | 9 | 16 | 19 | 0 | 7 |
+| llamacpp | 25 | 16 | 9 | 16 | 19 | 0 | 9 |
 | pretrained | 52 | 28 | 24 | 28 | 52 | 0 | 23 |
 | arch | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | lib | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | train | 3 | 2 | 1 | 2 | 0 | 2 | 1 |
 | other | 11 | 9 | 2 | 9 | 7 | 3 | 7 |
-| **all** | 103 | 65 | 38 | 65 | 78 | 15 | 40 |
+| **all** | 103 | 65 | 38 | 65 | 78 | 15 | 42 |
 
 <!-- coverage:end -->
 

@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-mistral-7b-v03",
+  "date": "2026-10-08T16:35:59Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "mradermacher/Mistral-7B-v0.3-GGUF (Mistral-7B-v0.3.Q8_0.gguf; a third-party static Q8_0 conversion of mistralai/Mistral-7B-v0.3)",
+      "revision": "768042462c239dab9e96b9ec65a43775665d6959 (HF commit of the GGUF repo); file sha256 1a69d4e484c86b35f6e8208e4f5d6031abd664809daef84e7a81c6f4189bed55; base model mistralai/Mistral-7B-v0.3 @ caa1feb0e54d415e2df31207e5f4e273e33509b1",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/mradermacher/Mistral-7B-v0.3-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "af936207d9105a5fae0ab1099abeb69aff54489f",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 4014.08,
+      "values": [
+        4012.18,
+        4013.46,
+        4016.18,
+        4015.31,
+        4014.08
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 61.02,
+      "values": [
+        61.01,
+        61.02,
+        61.02,
+        61.02,
+        61.02
+      ]
+    }
+  }
+}
