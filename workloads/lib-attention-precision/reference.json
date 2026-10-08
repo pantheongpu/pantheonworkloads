@@ -274,6 +274,8 @@
       -5.0,
       57344.0
     ],
+    "cast_overflow_class_fp8_e4m3fn": "informational",
+    "cast_overflow_class_fp8_e5m2": "informational",
     "int8_matmul_int32_exact": "n=1536 sum=-2298491 chk=586135978 head=-5862 25336 -1663 -72825 66969 10024 6891 97378",
     "int8_linear_with_dequantise": [
       7.75353389,

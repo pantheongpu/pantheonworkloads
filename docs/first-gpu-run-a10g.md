@@ -14,7 +14,7 @@ for the early exploratory runs) with `--target gpu`.
 | `onnx-zoo-bertsquad-int8` (and its `-bench` twin) | FAIL | logits differ from the zoo's expected output by 2.23 (the workload's own bound is 0.25, "int8 noise is about 0.03"). **Not a GPU effect**: the same error (2.225) comes out of the CPU provider on this host, with the same wheel, and out of every graph-optimisation level. The CPU reference was recorded on another CPU; this host has AVX2 only. Probably the u8s8 saturation behaviour of int8 MatMulInteger kernels without VNNI; unproven. Confirm by running it on an AVX-512 host. |
 | `kokoro-tts-int8-onnx` | FAIL | second sentence is 70800 samples, the reference has 71400 (one 25 ms frame; the first sentence, 94200, agrees). Stable over 3 GPU runs. The same 70800 comes out of `--target cpu` on this host, so it is the host CPU's int8 kernels, not the GPU. The manifest says a sample-count difference must be investigated, not tolerated: it is not tolerated. RMS and centroid are inside their tolerances. |
 | `moonshine-tiny-en-onnx` | FAIL (flaky) | exact text compare. 1 of 3 consecutive runs matched; the other two add a comma after "her parent" (token 29892), a near tie flipped by GPU run-to-run nondeterminism. Simulator-relevant: a greedy decode with a near tie is not stable even on one real card. The bench twin recorded (its check is the WER, 0.021). |
-| `lib-attention-precision` | FAIL | one real mismatch: `cast_roundtrip_fp8_e4m3fn`. The inputs include 449.0 and 57344.0, outside e4m3fn's range (max 448). The CPU reference holds 448.0 (saturated); the A10G produces NaN for them. This is the CUDA conversion semantics, not noise. The reference should come from a GPU for this key; the simulator must produce NaN to match hardware. Not changed. |
+| `lib-attention-precision` | FAIL | one real mismatch: `cast_roundtrip_fp8_e4m3fn`. The inputs included 449.0 and 57344.0, outside e4m3fn's range (max 448). The CPU reference (torch 2.13.0) holds 448.0 (saturated); the A10G (the workloads' pinned torch 2.10.0) gave NaN. **Not the card and not the simulator**: it is the PyTorch version. 2.10.0 casts out-of-range values to NaN on the CPU and on CUDA alike, 2.13.0 and newer saturate, identically on an A10G and an L4 (probe in `docs/fp8-cast-semantics.md`). Fixed afterwards: the numerics op sees in-range values only and the overflow class is an informational op. |
 
 Changes made because of the first run (each in its own commit):
 
@@ -67,9 +67,10 @@ The vLLM and llama.cpp checksums are in the workloads' `model.sha256`; the vLLM 
 
 ## Simulator-relevant findings
 
-- Real-card behaviour the simulator must reproduce, or the reference must come from a GPU: fp32 to fp8 e4m3fn out-of-range conversion gives NaN on CUDA
-  (CPU saturates); `torch._scaled_mm` fp8 is unsupported on sm_86; flash attention fp32 and `dynamic_quantized_linear` are unsupported on CUDA
+- Real-card behaviour the simulator must reproduce, or the reference must come from a GPU: `torch._scaled_mm` fp8 is unsupported on sm_86; flash attention fp32 and `dynamic_quantized_linear` are unsupported on CUDA
   (already covered by `unsupported_ok`).
+- Out-of-range fp8 casts are a PyTorch-version property, not a card property (NaN in 2.10.0, saturating in 2.13.0+, CPU and CUDA alike; the
+  simulator matches the hardware in both): `docs/fp8-cast-semantics.md`. Record which torch a GPU run used before comparing it with a CPU reference.
 - Defaults that change numerics silently: ONNX Runtime CUDA EP uses TF32 for fp32 Conv and MatMul on Ampere (errors up to 8e-2 on logits).
 - All 13 `llamacpp-synth-*` workloads (kernels for 30+ quantisation types, six architectures, MoE) matched the CPU references exactly on CUDA; so did
   `gpt-train-*` and the 18 `arch-*` architectures within their fp32 tolerances. These are the workloads whose simulated results can be trusted to be compared with this card.

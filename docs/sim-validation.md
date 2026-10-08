@@ -72,6 +72,7 @@ including starting the simulator and importing torch.
 | lib-attention-precision | sim:nvidia/{rtx5090, h100} | PASS | 14 to 19 s; 68 checked (worst error 7.5e-2 of rms: bf16 / fp8 ops, inside their bounds), 2 unsupported on any GPU (`unsupported_ok`), 14 unchecked (mem-efficient / cuDNN SDPA: unsupported in the CPU reference) | 2026-10-06 |
 | lib-attention-precision | sim:nvidia/a100 | PASS | 14 s; 67 checked, 3 unsupported (also fp8 `_scaled_mm`: needs sm_89), 14 unchecked | 2026-10-06 |
 | lib-attention-precision | sim:nvidia/t4 | PASS | 11 s; 53 checked, 17 unsupported (also every FlashAttention op: needs sm_80, and fp8), 9 unchecked | 2026-10-06 |
+| lib-attention-precision (fp8 casts) | sim:nvidia/{a10, a100, t4, rtx3060} | PASS | 2026-10-08 follow-up on the A10G FAIL of `cast_roundtrip_fp8_e4m3fn`: these runs used torch 2.14.1, which saturates out-of-range values like the CPU reference. With torch 2.10.0 the simulated sm_75/80/86 GPUs give NaN there, exactly as the real A10G and L4 do (probe, `docs/fp8-cast-semantics.md`): no simulator difference | 2026-10-08 |
 | lib-composite-blocks | sim:nvidia/{rtx5090, h100, a100, t4} | PASS | ViT block, diffusion U-Net step, DLRM forward / backward; 14 to 25 s; 11 ops, worst error 4.1e-2 of rms (bf16 U-Net; bound 2e-1) | 2026-10-06 |
 | selftest | sim:nvidia/h100, sim:amd/mi300x | PASS | runner self-check | 2026-10-06 |
 | loadgen-plumbing-check | cpu | PASS | 3.6 s | 2026-10-06 |

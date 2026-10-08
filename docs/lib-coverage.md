@@ -10,7 +10,7 @@ small composite blocks. Seeded inputs, no downloads, no licences to read. They a
 | `lib-fft-linalg` | 38 | functional | cpu, gpu, sim:nvidia/\*, sim:amd/\* |
 | `lib-sparse-embedding` | 54 | functional | same |
 | `lib-rnn-conv` | 78 | functional | same |
-| `lib-attention-precision` | 70 | functional | same |
+| `lib-attention-precision` | 72 | functional | same |
 | `lib-composite-blocks` | 11 | functional | same |
 | `lib-kernels-bench` | 53 metrics | benchmark | gpu only |
 
@@ -49,7 +49,7 @@ Of the 251 ops, 236 ran and passed on the CPU and 15 reported `unsupported` ther
 | SDPA cuDNN backend | cuDNN attention | `lib-attention-precision` | ran: `unsupported` | not run |
 | int8 matmul (`_int_mm`, exact int32), int8 quantise/dequantise, per-tensor and per-channel fake quant, weight-only int8 linear | cuBLASLt int8, native | `lib-attention-precision` | ran | not run |
 | dynamic int8 Linear (torch.ao) | fbgemm / onednn (CPU only) | `lib-attention-precision` | ran | expected `unsupported` |
-| fp8 e4m3 `_scaled_mm`, fp8 casts | cuBLASLt / hipBLASLt fp8 | `lib-attention-precision` | ran | not run |
+| fp8 e4m3 `_scaled_mm`, fp8 casts (in-range numerics; overflow class recorded as informational) | cuBLASLt / hipBLASLt fp8 | `lib-attention-precision` | ran | not run |
 | TF32 matmul / conv / bmm, flags restored afterwards | tensor-core TF32 | `lib-attention-precision` | ran (no TF32 on the CPU: plain fp32) | not run |
 | fp16 / bf16 long-K accumulation, reductions, softmax with large logits, fp16 overflow / underflow, cast rounding (fp16, bf16, fp8) | tensor-core half paths | `lib-attention-precision` | ran | not run |
 | autocast fp16 / bf16: linear, MLP + layer_norm, softmax / loss, conv + bmm + sdpa, backward with fp32 parameters | cuBLAS / cuDNN under autocast | `lib-attention-precision` | ran | not run |
@@ -76,6 +76,13 @@ target device in the op's dtype and on the CPU in float64 (inputs first rounded 
    the string `"unsupported"` in `output` (and a line on stderr). The run still exits 0, so the output shows exactly which ops a
    limited backend lacks; compared with a reference holding numbers, that key fails and only that key. Wrong numbers or any other
    exception fail the run (they are not "unsupported"). A `VirtualGPU error [` line anywhere fails the run, as in the other PyTorch workloads.
+
+4. **Informational ops** (`kind="info"`). Some behaviour is not fixed by the format and varies with the library version, not with
+   the card: what an fp8 cast does with a value above the format's maximum (`docs/fp8-cast-semantics.md`: PyTorch 2.10 gives NaN,
+   2.13 and newer saturate, CPU and CUDA alike). Such an op puts the string `"informational"` into `output` (so no run can fail on it,
+   whatever the backend or version) and records what it saw in the run record's `info` field and on stderr: per input, the class
+   `saturates` / `nan` / `inf` on the device and on the CPU. `lib-attention-precision` has `cast_overflow_class_fp8_e4m3fn` and
+   `cast_overflow_class_fp8_e5m2`; the numerics op `cast_roundtrip_fp8_e4m3fn` sees only values up to +-448.
 
 Ops with a sign or gauge freedom are reduced to invariants first (|R| and Q R for QR, singular values and U S Vh for SVD,
 eigenvalues and V diag(w) V^T for eigh). Tie-prone integer ops use stable sorts. Ops built from random data draw it from CPU
