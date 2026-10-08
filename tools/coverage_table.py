@@ -108,7 +108,7 @@ def licence(model, raw=""):
         return "UNVERIFIED"
     if re.search(r"\bnpm\b", str(model.get("id", ""))):
         short += " (second-hand)"
-    elif re.search(r"model card", re.search(r"^\s+licence:.*$", raw, re.M).group(0) if "licence:" in raw else ""):
+    elif re.search(r"model card", (re.search(r"^\s+licence:.*$", raw, re.M) or re.match(r"", "")).group(0)):
         short += " (per card)"
     return short
 
@@ -133,7 +133,7 @@ def rows(root):
         result.append({
             "name": n, "family": family(n, m.get("runtime")), "kind": m.get("kind"),
             "runtime": m.get("runtime"), "targets": short_targets(m.get("targets", [])),
-            "reference": reference, "licence": licence(m.get("model"), (root / "workloads" / n / "manifest.yaml").read_text(encoding="utf-8")), "pinned": pinned(root, n, m.get("model")),
+            "reference": reference, "licence": licence(m.get("model"), (root / "workloads" / n / "manifest.yaml").read_text(encoding="utf-8")) + (" (restricted)" if validate.is_restricted(m) else ""), "pinned": pinned(root, n, m.get("model")),
             "sim": ", ".join(f"{v} x{len(p)}" for v, p in sorted(sim.items())) or "no", "sim_ok": bool(sim),
             "gpu": " + ".join(gpu) or "no", "gpu_ok": bool(gpu),
         })

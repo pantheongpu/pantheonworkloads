@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """pantheonworkloads runner.
 
-    pw list
+    pw list [--default]
     pw validate [workload ...]
     pw run <workload ...> --target cpu|gpu|sim:<vendor>/<profile> [--out DIR]
     pw record <workload> --target T
     pw run <workload ...> --target gpu --bench [--repeat N] [--device NAME]   record to bench/
-    pw matrix <results-dir>
+    pw matrix <results-dir> [--include-restricted]
     pw bench-table [bench-dir]
 
 See README.md and docs/workload-contract.md.
@@ -35,6 +35,11 @@ MARK = {"PASS": "✅", "SKIP": "➖", "FAIL": "❌", "TIMEOUT": "⏱️", "MISSI
 
 def names():
     return sorted(p.parent.name for p in WORKLOADS.glob("*/manifest.yaml"))
+
+
+def default_names():
+    """The workloads an 'all workloads' selection runs: every one except those marked `restricted: true`."""
+    return [n for n in names() if not validate.is_restricted(validate.load(WORKLOADS / n / "manifest.yaml"))]
 
 
 def target_ok(target, patterns):
@@ -202,10 +207,11 @@ def slug(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
-def cmd_list(_):
-    for n in names():
+def cmd_list(a):
+    for n in (default_names() if a.default else names()):
         m = validate.load(WORKLOADS / n / "manifest.yaml")
-        print(f"{n}\t{m.get('kind')}\t{','.join(m.get('targets', []))}\t{m.get('description', '')}")
+        flag = " [restricted]" if validate.is_restricted(m) else ""
+        print(f"{n}\t{m.get('kind')}\t{','.join(m.get('targets', []))}\t{m.get('description', '')}{flag}")
 
 
 def cmd_validate(a):
@@ -329,6 +335,9 @@ def cmd_matrix(a):
         print("No results found.")
         return 1
     workloads = sorted({w for _, rows in machines for w in rows})
+    if not a.include_restricted:
+        keep = set(default_names())
+        workloads = [w for w in workloads if w in keep or not (WORKLOADS / w / "manifest.yaml").exists()]
     print("| Workload | " + " | ".join(label for label, _ in machines) + " |")
     print("| --- |" + " :---: |" * len(machines))
     for w in workloads:
@@ -374,7 +383,8 @@ def cmd_coverage(a):
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="pw")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("list").set_defaults(fn=cmd_list)
+    ls = sub.add_parser("list"); ls.add_argument("--default", action="store_true", help="leave out restricted workloads")
+    ls.set_defaults(fn=cmd_list)
     v = sub.add_parser("validate"); v.add_argument("workload", nargs="*"); v.set_defaults(fn=cmd_validate)
     r = sub.add_parser("run"); r.add_argument("workload", nargs="+"); r.add_argument("--target", required=True)
     r.add_argument("--out")
@@ -384,7 +394,9 @@ def main(argv=None):
     r.set_defaults(fn=cmd_run)
     c = sub.add_parser("record"); c.add_argument("workload"); c.add_argument("--target", required=True)
     c.set_defaults(fn=cmd_record)
-    m = sub.add_parser("matrix"); m.add_argument("results"); m.set_defaults(fn=cmd_matrix)
+    m = sub.add_parser("matrix"); m.add_argument("results")
+    m.add_argument("--include-restricted", action="store_true", help="also show workloads marked restricted: true")
+    m.set_defaults(fn=cmd_matrix)
     b = sub.add_parser("bench-table"); b.add_argument("dir", nargs="?"); b.set_defaults(fn=cmd_bench_table)
     cv = sub.add_parser("coverage", help="markdown coverage table derived from the repository")
     cv.add_argument("--check", action="store_true", help="exit 1 if README.md's coverage block is stale")

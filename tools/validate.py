@@ -15,6 +15,11 @@ def load(path):
         return yaml.safe_load(f)
 
 
+def is_restricted(manifest):
+    """True for a workload whose model is under a non-permissive or gated licence (`restricted: true`)."""
+    return isinstance(manifest, dict) and manifest.get("restricted") is True
+
+
 def check(path):
     """Return (errors, warnings) for one manifest file."""
     path = pathlib.Path(path)
@@ -46,6 +51,14 @@ def check(path):
             for t in targets:
                 if not isinstance(t, str) or not TARGET.match(t):
                     errors.append(f"target {t!r}: cpu, gpu, or sim:<nvidia|amd>/<profile or *>")
+
+    if "restricted" in m:
+        if not isinstance(m["restricted"], bool):
+            errors.append("restricted must be true or false")
+        elif m["restricted"] and not isinstance(m.get("model"), dict):
+            errors.append("restricted: true needs a 'model' (the restriction is the model's licence)")
+        elif m["restricted"] and not m.get("notes"):
+            errors.append("restricted: true needs 'notes' saying which licence or gate applies and what was read")
 
     model = m.get("model")
     # `model: null` written out says "this workload downloads no model" (a pure-compute suite on a runtime).
