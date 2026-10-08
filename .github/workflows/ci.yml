@@ -30,6 +30,8 @@ jobs:
           echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
       - name: Validate manifests
         run: bin/pw validate
+      - name: README coverage table is current
+        run: bin/pw coverage --check
       - name: Unit tests
         run: python3 -m unittest discover -s tests -v
       - name: Selftest workload on the CPU target
