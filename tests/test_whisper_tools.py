@@ -89,7 +89,7 @@ class Scripts(unittest.TestCase):
             f.flush()
             p = self.sh("tools/whisper-assets.sh", "model", PW_WHISPER_MODEL=f.name)
         self.assertEqual(p.returncode, 77)
-        self.assertIn("sha1", p.stdout)
+        self.assertIn("sha256", p.stdout)
 
     def test_workload_skips_without_model(self):
         with tempfile.TemporaryDirectory() as out, tempfile.TemporaryDirectory() as bindir:

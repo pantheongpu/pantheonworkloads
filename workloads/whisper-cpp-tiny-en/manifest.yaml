@@ -7,8 +7,8 @@ compare: exact
 timeout_s: 1800
 model:
   id: ggerganov/whisper.cpp ggml-tiny.en.bin   # OpenAI Whisper tiny.en converted to ggml by whisper.cpp
-  revision: "sha1:c78c86eb1a8faa21b369bcd33207cc90d64ae9df"   # whisper.cpp models/README.md @ v1.9.5; sha256 not yet recorded (file could not be downloaded where this was written)
-  licence: MIT          # openai/whisper README: "Whisper's code and model weights are released under the MIT License"
+  revision: "ggerganov/whisper.cpp HF commit 5359861c739e955e79d9a303bcbc70fb988958b1; ggml-tiny.en.bin sha256 921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f (sha1 c78c86eb1a8faa21b369bcd33207cc90d64ae9df, as whisper.cpp v1.9.5 models/README.md lists)"
+  licence: MIT          # read 2026-10-08: card front matter of ggerganov/whisper.cpp at that commit (license: mit) and openai/whisper LICENSE (MIT, Copyright (c) 2022 OpenAI)
   source_url: https://huggingface.co/ggerganov/whisper.cpp
 notes: >
   Runtime: whisper.cpp tag v1.9.5 (commit d1be6fde11ac6e0407606b4e42fe72d34add8037, MIT), built by
