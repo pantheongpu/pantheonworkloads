@@ -18,5 +18,5 @@ notes: >
   Compared exactly: the top-5 predicted token ids and strings at the mask (the run fails if
   neighbouring scores among the top 6 are within 1e-3). Compared with tolerance: the top-1
   logit (~10) and three numbers of the last hidden state; fp32 backends agree to ~1e-4, so
-  abs 2e-3 / rel 1e-3 is ~10x headroom. Reference recorded on an NVIDIA A10G (2026-10-08); the CPU of that host differed in the top-1 logit by 1.2e-5 and in the hidden values by under 1e-6 (bound 2e-3), ids identical.
+  abs 2e-3 / rel 1e-3 is ~10x headroom. Reference recorded on an NVIDIA A10G (2026-10-08); the CPU of that host differed in the top-1 logit by 1.9e-6 and in the hidden values by under 1e-6 (bound 2e-3), ids identical.
   Benchmark (target gpu): forward_sequences_per_s_b32_s128.
