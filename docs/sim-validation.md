@@ -88,6 +88,21 @@ cuDNN math on the host, so it lands where the CPU backend does, 1000x inside the
 bf16 deviation (1.5e-3 to 2.7e-3) is rounding of bf16 activations; it differs by card because
 PyTorch's kernels differ per architecture (SASS per SM). Neither tolerance was changed.
 
+## Nightly
+
+`.github/workflows/sim-nightly.yml` repeats the arch-*, lib-* and gpt-train-fp32 runs every night (05:41 UTC) and on
+`workflow_dispatch` (inputs: `sim-ref`, `workloads`), on hosted `ubuntu-24.04` runners, for `sim:nvidia/{h100, a100, rtx3060, t4, rtx5090}`
+(one job each, `fail-fast: false`). A change to the workflow or to `tools/sim-env.sh` runs it on the pull request too.
+Each run is checked by `bin/pw` against the CPU reference. The `report` job publishes `bin/pw matrix` as the job summary
+and uploads `results.tsv` (columns: target, workload, result, seconds, detail) and `matrix.md` as the `results` artifact;
+every GPU's own files are the `results-<gpu>` artifacts.
+
+pantheonsim has no prebuilt simulator image (its GHCR image, `pantheonsim-ci`, is a CUDA toolchain that `tools/sim-env.sh`
+does not need), so the first job builds the simulator with `tools/sim-env.sh` at a pinned pantheonsim commit and caches
+the build by that commit; the GPU jobs unpack it and install torch (`torch==2.14.1`, `torchvision==0.29.1`, and the
+`transformers` pin from `sim-env.sh`). To move the pin, change `SIM_REF_PIN` in the workflow and look at a run first.
+`tests/test_sim_nightly.py` checks the file parses, the workloads exist and are functional, and the pin is a full commit.
+
 ## Issues found and fixed
 
 PyPI's torch 2.14.1 is newer than what pantheonsim's own PyTorch tests used, and `import torch` failed

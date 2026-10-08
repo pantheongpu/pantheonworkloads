@@ -1,0 +1,225 @@
+name: Simulated GPUs nightly
+
+# The arch-* and lib-* workloads (and gpt-train-fp32) on pantheonsim's simulated NVIDIA GPUs, each checked by
+# `bin/pw` against its CPU reference. docs/sim-validation.md is the record of what passes and why.
+#
+# Hosted runners only: the simulator is built once per pin (job `sim`, cached), and every GPU profile then runs
+# the workloads in its own job. pantheonsim has no prebuilt simulator image (its GHCR image,
+# pantheonsim-ci, is only a CUDA toolchain, which tools/sim-env.sh does not need: it takes the CUDA headers
+# from PyTorch's pip wheels), so the simulator is built from a pinned commit instead.
+on:
+  schedule:
+    - cron: '41 5 * * *'
+  workflow_dispatch:
+    inputs:
+      sim-ref:
+        description: pantheongpu/pantheonsim commit, tag or branch (empty is the pin in this file)
+        default: ''
+      workloads:
+        description: Workloads to run, space separated (empty is the list in this file)
+        default: ''
+  # A change to this workflow or to the environment script is tested the way it will run.
+  pull_request:
+    paths:
+      - .github/workflows/sim-nightly.yml
+      - tools/sim-env.sh
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # pantheonsim main of 2026-10-08. It carries the fixes the PyTorch workloads need (NCCL 2.29 symbols #296,
+  # NVRTC builtins #304, cuBLASLt int8 #305, SASS LEA carry #306). Move it on purpose, with a run to show it.
+  SIM_REF_PIN: 0cd395b000d2bd499d22f364fb48e2b68435ca7e
+  # The versions docs/sim-validation.md was recorded with (tools/sim-env.sh pins transformers itself).
+  TORCH_CONSTRAINTS: |
+    torch==2.14.1
+    torchvision==0.29.1
+  # Read by tests/test_sim_nightly.py: every name must be a workload.
+  WORKLOADS: >-
+    arch-llama-family arch-moe arch-ssm arch-vision arch-encdec
+    lib-fft-linalg lib-sparse-embedding lib-rnn-conv lib-attention-precision lib-composite-blocks
+    gpt-train-fp32
+
+jobs:
+  sim:
+    name: build pantheonsim
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      sha: ${{ steps.pin.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the simulator commit
+        id: pin
+        env:
+          REF: ${{ inputs.sim-ref || env.SIM_REF_PIN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(gh api "repos/pantheongpu/pantheonsim/commits/$REF" --jq .sha)
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "pantheonsim $sha" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: pantheongpu/pantheonsim
+          ref: ${{ steps.pin.outputs.sha }}
+          path: pantheonsim
+
+      - name: Cached build
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: sim-build.tgz
+          key: sim-build-${{ steps.pin.outputs.sha }}-${{ hashFiles('tools/sim-env.sh') }}
+
+      - name: Build (a cache miss)
+        if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          SIM_SRC: ${{ github.workspace }}/pantheonsim
+          SIM_BUILD: ${{ runner.temp }}/sim-build
+          SIM_JOBS: '4'
+        run: |
+          # sim-env.sh installs torch only to take the CUDA headers from its wheels.
+          printf '%s' "$TORCH_CONSTRAINTS" > "$RUNNER_TEMP/constraints.txt"
+          export PIP_CONSTRAINT="$RUNNER_TEMP/constraints.txt"
+          tools/sim-env.sh >/dev/null
+          cd "$RUNNER_TEMP"
+          find sim-build -name CMakeFiles -type d -prune -exec rm -rf {} +
+          find sim-build \( -name '*.o' -o -name '*.a' \) -delete
+          # Links stay links (the shim's libraries are links to one file each).
+          tar -czf "$GITHUB_WORKSPACE/sim-build.tgz" sim-build
+          ls -la "$GITHUB_WORKSPACE/sim-build.tgz"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sim-build
+          path: sim-build.tgz
+          retention-days: 1
+
+  run:
+    name: ${{ matrix.gpu }}
+    needs: sim
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        # Hopper, Ampere (data centre and consumer), Turing (no bf16, no FlashAttention) and Blackwell.
+        gpu: [h100, a100, rtx3060, t4, rtx5090]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: pantheongpu/pantheonsim
+          ref: ${{ needs.sim.outputs.sha }}
+          path: pantheonsim
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: sim-build
+
+      - name: Unpack the simulator, install PyTorch
+        env:
+          SIM_SRC: ${{ github.workspace }}/pantheonsim
+          SIM_BUILD: ${{ runner.temp }}/sim-build
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq python3-yaml
+          tar -xzf sim-build.tgz -C "$RUNNER_TEMP" && rm sim-build.tgz
+          printf '%s' "$TORCH_CONSTRAINTS" > "$RUNNER_TEMP/constraints.txt"
+          export PIP_CONSTRAINT="$RUNNER_TEMP/constraints.txt"
+          # The build exists, so this installs torch + transformers and the headers, then prints the exports.
+          tools/sim-env.sh > "$RUNNER_TEMP/sim-exports.sh"
+          cat "$RUNNER_TEMP/sim-exports.sh"
+          df -h / | tail -1
+
+      - name: Run the workloads on the simulated GPU
+        env:
+          GPU: ${{ matrix.gpu }}
+          WORKLOAD_INPUT: ${{ inputs.workloads }}
+        run: |
+          source "$RUNNER_TEMP/sim-exports.sh"
+          list=${WORKLOAD_INPUT:-$WORKLOADS}
+          read -ra workloads <<<"$list"
+          mkdir -p "results/$GPU"
+          status=0
+          bin/pw run "${workloads[@]}" --target "sim:nvidia/$GPU" --out "results/$GPU" || status=$?
+          # The matrix is labelled by target alone, not by the runner's host name.
+          echo "sim:nvidia/$GPU" > "results/$GPU/machine.txt"
+          exit $status
+
+      - name: This GPU's results
+        if: always()
+        env:
+          GPU: ${{ matrix.gpu }}
+        run: |
+          [[ -f "results/$GPU/results.tsv" ]] || { echo "no results were written" >> "$GITHUB_STEP_SUMMARY"; exit 0; }
+          {
+            echo "### sim:nvidia/$GPU"
+            echo "| Workload | Result | Seconds | Detail |"
+            echo "| --- | --- | ---: | --- |"
+            awk -F'\t' '{ gsub(/\|/, "\\|", $4); printf "| %s | %s | %s | %s |\n", $1, $2, $3, $4 }' "results/$GPU/results.tsv"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-${{ matrix.gpu }}
+          path: results/${{ matrix.gpu }}
+          retention-days: 14
+          if-no-files-found: ignore
+
+  report:
+    name: every GPU
+    needs: run
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: results-*
+          path: results
+
+      - name: bin/pw matrix and one results.tsv
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq python3-yaml
+          if bin/pw matrix results > matrix.md; then
+            { echo "## Workloads on simulated NVIDIA GPUs"; echo; cat matrix.md; } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No results were written." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          # target, workload, result, seconds, detail
+          for tsv in results/*/results.tsv; do
+            [[ -f "$tsv" ]] || continue
+            target=$(cat "$(dirname "$tsv")/machine.txt")
+            awk -F'\t' -v t="$target" 'BEGIN { OFS = "\t" } { print t, $0 }' "$tsv"
+          done > results.tsv
+          wc -l results.tsv
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: |
+            results.tsv
+            matrix.md
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Fail when a GPU's job did
+        if: needs.run.result != 'success'
+        run: |
+          echo "::error::the run jobs ended ${{ needs.run.result }}"
+          exit 1
