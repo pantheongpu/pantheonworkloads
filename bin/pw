@@ -356,6 +356,21 @@ def cmd_bench_table(a):
     return 0
 
 
+def cmd_coverage(a):
+    import coverage_table as coverage
+    if a.check:
+        problems = coverage.check(ROOT)
+        for p in problems:
+            print(p, file=sys.stderr)
+        return 1 if problems else 0
+    if a.write:
+        coverage.write(ROOT)
+        print("README.md coverage block rewritten")
+        return 0
+    print(coverage.render(ROOT), end="")
+    return 0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="pw")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -371,6 +386,10 @@ def main(argv=None):
     c.set_defaults(fn=cmd_record)
     m = sub.add_parser("matrix"); m.add_argument("results"); m.set_defaults(fn=cmd_matrix)
     b = sub.add_parser("bench-table"); b.add_argument("dir", nargs="?"); b.set_defaults(fn=cmd_bench_table)
+    cv = sub.add_parser("coverage", help="markdown coverage table derived from the repository")
+    cv.add_argument("--check", action="store_true", help="exit 1 if README.md's coverage block is stale")
+    cv.add_argument("--write", action="store_true", help="rewrite README.md's coverage block")
+    cv.set_defaults(fn=cmd_coverage)
     a = ap.parse_args(argv)
     return a.fn(a) or 0
 
