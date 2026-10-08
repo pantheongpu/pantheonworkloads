@@ -12,15 +12,15 @@ tolerance:
 timeout_s: 3600
 model:
   id: openai-community/gpt2
-  revision: null            # UNPINNED: not downloaded where this was written. Pin the commit hash from the first download (PW_HF_REVISION overrides until then).
-  licence: "UNVERIFIED: huggingface.co was unreachable when this was written, so the model card was not read. Read it, then replace this with the SPDX id."
+  revision: "607a30d783dfa663caf39e06633721c8d4cfcd7e; model.safetensors sha256 in model.sha256 (verified at each run)"
+  licence: MIT   # read 2026-10-08: model card front matter at that revision (license: mit); the repo has no LICENSE file; OpenAI's gpt-2 repository is under a Modified MIT License
   source_url: https://huggingface.co/openai-community/gpt2
 notes: >
   Greedy decoding with an explicit KV-cache loop, eager attention, fp32. Token ids and text are
   compared exactly (strings in `output`); the run fails if any step's top-1 and top-2 logits are
   within 1e-3, so a reference is never a near-tie that another backend could flip. The one float,
   the first step's top-1 logit (about -100..-30), gets abs 2e-3 / rel 1e-4: fp32 backends agree
-  to ~1e-4 there. Not run: no reference.json and the bounds are reasoned, not measured. The
+  to ~1e-4 there. Reference recorded on an NVIDIA A10G (2026-10-08); the same workload on the CPU of that host differed in the first logit by 4.6e-5 (bound 2e-3), tokens identical. The
   run's detail line prints the licence the model card declares at run time.
   Weights are fetched into $PW_CACHE (default ~/.cache/pantheonworkloads/hf), never the repo.
   Benchmark (target gpu): decode_tokens_per_s over 64 generated tokens.

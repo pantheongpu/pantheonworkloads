@@ -1,0 +1,14 @@
+{
+  "output": {
+    "mask_top5_ids": "3000 22479 10241 16766 7562",
+    "mask_top5_tokens": "paris lille lyon marseille tours",
+    "mask_top1_logit": 12.346081733703613,
+    "last_hidden": [
+      0.36646124720573425,
+      0.5245727300643921,
+      -0.3175448179244995
+    ]
+  },
+  "recorded_on": "gpu",
+  "recorded_at": "2026-10-08"
+}

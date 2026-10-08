@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 import common  # noqa: E402
 
 MODEL = "google-bert/bert-base-uncased"
-REVISION = os.environ.get("PW_HF_REVISION") or None
+REVISION = os.environ.get("PW_HF_REVISION") or "86b5e0934494bd15c9632b12f734a8a67f723594"   # pinned (manifest); PW_HF_REVISION overrides
 TEXT = "The capital of France is [MASK]."
 
 common.setup()
@@ -17,6 +17,7 @@ from transformers import AutoModelForMaskedLM, AutoTokenizer  # noqa: E402
 tok = common.hf_load(lambda m, r, c: AutoTokenizer.from_pretrained(m, revision=r, cache_dir=c), MODEL, REVISION)
 model = common.hf_load(lambda m, r, c: AutoModelForMaskedLM.from_pretrained(
     m, revision=r, cache_dir=c, torch_dtype=torch.float32, attn_implementation="sdpa"), MODEL, REVISION)
+common.verify_pinned(MODEL, REVISION, "model.safetensors")
 model = model.eval().to(common.DEVICE)
 
 enc = tok(TEXT, return_tensors="pt").to(common.DEVICE)

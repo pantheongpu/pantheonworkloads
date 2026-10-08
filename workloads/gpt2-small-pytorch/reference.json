@@ -1,0 +1,9 @@
+{
+  "output": {
+    "token_ids": "262 3139 286 262 4141",
+    "text": " the capital of the French",
+    "first_step_top1_logit": -100.249755859375
+  },
+  "recorded_on": "gpu",
+  "recorded_at": "2026-10-08"
+}

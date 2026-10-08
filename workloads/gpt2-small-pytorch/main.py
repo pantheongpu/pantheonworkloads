@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 import common  # noqa: E402
 
 MODEL = "openai-community/gpt2"
-REVISION = os.environ.get("PW_HF_REVISION") or None   # manifest pins it once it has been downloaded
+REVISION = os.environ.get("PW_HF_REVISION") or "607a30d783dfa663caf39e06633721c8d4cfcd7e"   # pinned (manifest); PW_HF_REVISION overrides
 PROMPT = "The capital of France is"
 NEW = 5
 
@@ -19,6 +19,7 @@ tok = common.hf_load(lambda m, r, c: AutoTokenizer.from_pretrained(m, revision=r
 # eager attention: plain matmul/softmax kernels; the micro-suite and the BERT workload cover SDPA.
 model = common.hf_load(lambda m, r, c: AutoModelForCausalLM.from_pretrained(
     m, revision=r, cache_dir=c, torch_dtype=torch.float32, attn_implementation="eager"), MODEL, REVISION)
+common.verify_pinned(MODEL, REVISION, "model.safetensors")
 model = model.eval().to(common.DEVICE)
 
 ids = tok(PROMPT, return_tensors="pt").input_ids.to(common.DEVICE)

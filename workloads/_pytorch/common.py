@@ -84,6 +84,29 @@ def hf_load(factory, model_id, revision):
         skip(f"cannot fetch {model_id} ({type(e).__name__}: {str(e).splitlines()[0][:150]})")
 
 
+def verify_pinned(model_id, revision, filename):
+    """Fail (not SKIP) when the weights file in the cache is not the one pinned in the workload's model.sha256
+    ("<sha256>  <filename>" lines). Only checked when the run uses the pinned revision (PW_HF_REVISION unset)."""
+    if os.environ.get("PW_HF_REVISION"):
+        return
+    import hashlib
+    from huggingface_hub import hf_hub_download
+    sums = {}
+    with open(os.path.join(os.environ["PW_WORKLOAD_DIR"], "model.sha256")) as f:
+        for line in f:
+            if line.strip() and not line.startswith("#"):
+                s, n = line.split()
+                sums[n] = s
+    path = hf_hub_download(model_id, filename, revision=revision,
+                           cache_dir=os.path.join(os.environ.get("PW_CACHE", os.path.expanduser("~/.cache/pantheonworkloads")), "hf"))
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 22), b""):
+            h.update(chunk)
+    if h.hexdigest() != sums[filename]:
+        sys.exit(f"{filename} of {model_id}@{revision} has sha256 {h.hexdigest()}, the pin is {sums[filename]}")
+
+
 def hub_licence(model_id):
     """The licence the model card declares right now, for the run's detail line (None if unknown)."""
     try:
