@@ -157,6 +157,18 @@ def train(dtype, device, cfg, text, torch, steps, timed=False, warmup=0):
     return losses, time.perf_counter() - t0
 
 
+def _library_versions():
+    """{package: version} of the libraries that produced the result; bin/pw copies it into bench records."""
+    from importlib import metadata
+    found = {}
+    for pkg in ("torch", "torchvision", "transformers", "diffusers", "numpy"):
+        try:
+            found[pkg] = metadata.version(pkg)
+        except Exception:
+            pass
+    return found
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=["functional", "bench"], required=True)
@@ -204,7 +216,7 @@ def main(argv=None):
             sys.exit(f"the loss did not fall: {losses[0]:.4f} -> {losses[-1]:.4f}")
         print(json.dumps({"output": [round(v, 6) for v in losses],
                           "detail": f"{dtype} {cfg['steps']} steps, {info}, loss {losses[0]:.3f} -> {losses[-1]:.3f}",
-                          "metrics": {}}))
+                          "metrics": {}, "versions": _library_versions()}))
         return
     metrics = {}
     for dtype in dtypes:
@@ -217,7 +229,7 @@ def main(argv=None):
         metrics[f"{dtype}_tokens_per_s"] = round(cfg["steps"] * n_tokens / seconds, 1)
     print(json.dumps({"output": f"{'+'.join(dtypes)} {cfg['steps']} steps of {n_tokens} tokens",
                       "detail": info + f", {cfg['n_layer']}L/{cfg['n_head']}H/{cfg['n_embd']}E batch {cfg['batch_size']}x{cfg['block_size']}",
-                      "metrics": metrics}))
+                      "metrics": metrics, "versions": _library_versions()}))
 
 
 if __name__ == "__main__":

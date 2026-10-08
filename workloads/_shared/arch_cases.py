@@ -548,7 +548,7 @@ def functional(group):
     if problems:
         sys.exit("; ".join(problems))
     where = dev if dev == "cpu" else torch.cuda.get_device_name(0)
-    print(json.dumps({"output": output, "metrics": {},
+    print(json.dumps({"output": output, "metrics": {}, "versions": _library_versions(),
                       "detail": f"{group}: {len(output)} random-weight architectures on {where}, torch {torch.__version__}, "
                                 f"transformers {transformers.__version__}: " + "; ".join(notes)}))
 
@@ -631,7 +631,19 @@ def bench(arch, size):
                       "detail": f"{arch}-style {params / 1e9:.2f}B random-weight parameters, {L}L/{H}H, batch {B}, prompt {P}, "
                                 f"{N} greedy tokens with KV cache, median of {reps}, torch {torch.__version__}, "
                                 f"transformers {transformers.__version__}",
-                      "metrics": m}))
+                      "metrics": m, "versions": _library_versions()}))
+
+
+def _library_versions():
+    """{package: version} of the libraries that produced the result; bin/pw copies it into bench records."""
+    from importlib import metadata
+    found = {}
+    for pkg in ("torch", "torchvision", "transformers", "diffusers", "numpy"):
+        try:
+            found[pkg] = metadata.version(pkg)
+        except Exception:
+            pass
+    return found
 
 
 def main(argv=None):
