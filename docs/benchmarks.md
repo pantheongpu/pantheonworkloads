@@ -48,9 +48,25 @@ A number from a run that produced the wrong answer is never recorded.
 - Record clocks, power limits and the like by hand in the commit message when they were changed
   from the defaults; the runner does not read them yet.
 
-## What is not done yet
+## What has been recorded
 
-- No real GPU has run anything here, so no benchmark has been recorded, and `smollm2-135m-ollama`
-  itself has not been run (ollama is not installed on the machine this was written on).
-- Metrics beyond decode tokens/s (prompt processing, time to first token, memory) are not collected.
-- AMD devices are not auto-detected, and driver/ROCm versions are not collected for them.
+First real-GPU run, 2026-10-08: one NVIDIA A10G (24 GB, sm_86, ECC on, 300 W, default clocks), AWS g5.2xlarge, Ubuntu 22.04
+Deep Learning AMI, driver 595.91.07. 40 records under `bench/`, 5 repeats each, from a clean tree at commit `7efdb83`
+(`repo_dirty: false`), recorded with `PW_BENCH_DIR` outside the checkout so earlier records do not make later ones dirty.
+`bin/pw bench-table` prints them. Runtime versions: torch 2.10.0+cu130, transformers 5.19.0, onnxruntime-gpu 1.30.0 (CUDA EP, TF32
+off), spaCy 3.8.16 with cupy-cuda12x, llama.cpp b11447 (CUDA, sm_86, `-ngl 99`), whisper.cpp v1.9.5 (CUDA, sm_86), Ollama 0.40.1,
+vLLM 0.30.0 (torch 2.13.0+cu130, `VLLM_USE_FLASHINFER_SAMPLER=0`). Full account, setup traps and every failure: `docs/first-gpu-run-a10g.md`.
+
+Not recorded: `onnx-zoo-bertsquad-int8-bench` (its functional check fails on this host, see that file) and
+`llamacpp-bench-mistral-7b-v03` (needs a GGUF you supply). `llamacpp-smollm2-135m` and `whisper-cpp-tiny-en` print no metrics, so `--bench`
+refuses them; the benchmark twins carry the numbers. `pytorch-microsuite`, `gpt2-small-pytorch`, `bert-base-uncased-pytorch`,
+`resnet18-randinit-pytorch` and `smollm2-135m-ollama` are functional workloads that also report metrics, and were recorded with `--bench`.
+
+Caveats that apply to the numbers:
+
+- The ONNX workloads run with the CUDA execution provider and the CPU provider as fallback. Nodes without a CUDA kernel (probably in the int8
+  models: Kokoro, Moonshine; not checked per node) would run on the host CPU inside the same session, so those numbers may measure a mixed placement
+  (Kokoro ran at 0.74x real time, which suggests it).
+- The llama.cpp `llamacpp-synth-bench-*` models are tiny random-weight GGUFs; their tokens/s say nothing about real model sizes.
+- One host, one card, one run day. The A10G is a cloud card; compare cards only by comparing records.
+- Not collected yet: memory, time to first token, AMD devices (not auto-detected).

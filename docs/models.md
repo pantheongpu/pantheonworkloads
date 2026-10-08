@@ -4,9 +4,14 @@ Weights are never committed; manifests point at them. A licence is recorded only
 own card or repository. When that was not possible the manifest says `UNVERIFIED` in `model.licence` and
 `bin/pw validate` warns.
 
-**Status of this list: huggingface.co was not reachable from the machine that wrote it (the proxy answered
-403 to CONNECT), so no model card could be read, no file downloaded or hashed, and no revision pinned.**
-GitHub was reachable, which is how llama.cpp's MIT licence was read.
+**Status of this list (updated 2026-10-08):** the first real-GPU run (an AWS g5.2xlarge with an NVIDIA A10G; `docs/first-gpu-run-a10g.md`)
+had open internet, so the models that were blocked before are now resolved: model cards and LICENSE files were read from the
+repositories, revisions pinned to commit hashes, weights checksummed (sha256 in each workload's `model.sha256` or manifest), and the
+references recorded **on that GPU** (not the CPU; each commit message says so). Resolved: `gpt2-small-pytorch`
+(MIT), `bert-base-uncased-pytorch` (Apache-2.0), `whisper-cpp-tiny-en` and its bench twin (MIT), `smollm2-135m-ollama`,
+`vllm-greedy-smollm2-135m`, `vllm-bench-throughput`, `llamacpp-smollm2-135m` and its bench twin (all Apache-2.0). Still open:
+Mistral-7B-v0.3 (`llamacpp-bench-mistral-7b-v03`, you supply the GGUF), the sections below that still say "unverified" for text
+older than this note, and everything on the simulator or AMD. GitHub and PyPI were always reachable; Hugging Face was not from the host that wrote the first version.
 
 Each section below is self-contained and covers one workload family.
 
@@ -14,7 +19,7 @@ Each section below is self-contained and covers one workload family.
 
 | Model | Workload | Licence | State |
 | --- | --- | --- | --- |
-| SmolLM2-135M-Instruct (GGUF) | `llamacpp-smollm2-135m`, `llamacpp-bench-smollm2-135m` | UNVERIFIED (expected Apache-2.0) | file name and URL are from memory; revision and sha256 not pinned |
+| SmolLM2-135M-Instruct (GGUF, `bartowski/SmolLM2-135M-Instruct-GGUF` Q8_0) | `llamacpp-smollm2-135m`, `llamacpp-bench-smollm2-135m` | Apache-2.0 (GGUF repo card and base model card, 2026-10-08) | pinned: HF commit `09816acd...`, file sha256 `5a139571...`; reference recorded on an A10G. A third-party conversion: no official GGUF repo of that name exists |
 | Mistral-7B-v0.3 | `llamacpp-bench-mistral-7b-v03` (benchmark only, real GPU) | UNVERIFIED (believed Apache-2.0; the original repo may also require accepting terms on Hugging Face) | no default download; you supply the GGUF |
 | Qwen2.5-0.5B-Instruct, TinyLlama-1.1B, SmolLM2-360M | not added | not read | candidates (expected Apache-2.0); add after the cards are read |
 | Llama family (Meta) | not included: needs the user to accept the licence | Llama community licence (gated) | not fetched; bring your own GGUF with `PW_MODEL_FILE` and add a manifest that cites the licence you accepted |
@@ -24,7 +29,7 @@ To pin a model: read its card, put the licence and the commit hash in the manife
 
 ## PyTorch workloads (`pytorch-microsuite`, `gpt2-small-pytorch`, `bert-base-uncased-pytorch`, `resnet18-randinit-pytorch`)
 
-Status: **written, not run.** The machine they were written on could reach PyPI but not
+Status (2026-10-08): **run on an NVIDIA A10G**; references for GPT-2 and BERT were recorded there with pinned revisions and licences read from the repositories (see `docs/first-gpu-run-a10g.md`). The paragraph below describes the state before that run. The machine they were written on could reach PyPI but not
 `download.pytorch.org` or `huggingface.co` (the egress proxy answered 403), and PyPI's Linux torch is the
 ~870 MB CUDA build with several GB of NVIDIA dependencies, so PyTorch was not installed, nothing was
 executed, no `reference.json` exists, and every run reports SKIP until one is recorded on a trusted target
@@ -34,8 +39,8 @@ floating-point behaviour, not measured: check them against the first cpu-versus-
 | Workload | What it runs | Model, licence, revision |
 | --- | --- | --- |
 | `pytorch-microsuite` | 13 ops (fp32/fp16/bf16 matmul, bmm, linear+GELU, conv2d x2, SDPA, hand-written attention, softmax, layernorm, reductions, cumsum) plus topk/argsort/argmax ids, on seeded CPU-generated inputs | none |
-| `gpt2-small-pytorch` | GPT-2 124M, 5 greedy tokens, fp32, eager attention, KV cache | `openai-community/gpt2`; licence **not verified**; revision **unpinned** |
-| `bert-base-uncased-pytorch` | BERT-base forward, top-5 masked-word prediction, SDPA attention | `google-bert/bert-base-uncased`; licence **not verified**; revision **unpinned** |
+| `gpt2-small-pytorch` | GPT-2 124M, 5 greedy tokens, fp32, eager attention, KV cache | `openai-community/gpt2` @ `607a30d7...`; MIT (card); `model.safetensors` sha256 pinned |
+| `bert-base-uncased-pytorch` | BERT-base forward, top-5 masked-word prediction, SDPA attention | `google-bert/bert-base-uncased` @ `86b5e093...`; Apache-2.0 (LICENSE file); `model.safetensors` sha256 pinned |
 | `resnet18-randinit-pytorch` | torchvision ResNet-18 with seeded random weights, 4 images 64x64 | no weights; code BSD-3-Clause |
 
 Licences:
@@ -87,7 +92,8 @@ How they run (shared code in `workloads/_pytorch/`, which has no manifest so `pw
 
 ### What has and has not run
 
-- **Ran:** `gpt-train-fp32` and `gpt-train-bf16` on the `cpu` target (CPU-only PyTorch 2.13.0 from
+- **Ran on a GPU (2026-10-08, A10G):** `gpt-train-fp32`, `gpt-train-bf16` (CPU references passed at their tolerances), `gpt-train-bench`, `vllm-greedy-smollm2-135m` (reference recorded there, vLLM 0.30.0, `VLLM_USE_FLASHINFER_SAMPLER=0`), `vllm-bench-throughput`. The remark below about vLLM not having run is out of date.
+- **Ran earlier:** `gpt-train-fp32` and `gpt-train-bf16` on the `cpu` target (CPU-only PyTorch 2.13.0 from
   conda-forge, 4 shared cores). Their `reference.json` files were recorded there, with `bin/pw record
   --target cpu`; they have not been checked on any GPU or simulator. `gpt-train-bench` ran on `cpu` as a
   smoke test only (6 steps; nothing recorded: CPU numbers from a shared machine mean nothing).
@@ -159,7 +165,7 @@ time by `tools/whisper-assets.sh` and checked against pinned checksums.
 | Item | Version pinned | Licence and where it was verified | Checksum |
 | --- | --- | --- | --- |
 | whisper.cpp (runtime) | tag `v1.9.5`, commit `d1be6fde11ac6e0407606b4e42fe72d34add8037` | MIT, `LICENSE` at that commit ("Copyright (c) 2023-2026 The ggml authors") | commit hash checked by `tools/build-whisper-cpp.sh` |
-| Whisper tiny.en weights, ggml format (`ggml-tiny.en.bin`, 75 MiB) | `ggerganov/whisper.cpp` on Hugging Face (HF commit not pinned) | The model is OpenAI's: openai/whisper `README.md` at `86098128c0b4f24f0e2aa2994de830614b474227` says "Whisper's code and model weights are released under the MIT License". The ggml conversion's own model card was **not read** (Hugging Face was unreachable where this was written) | sha1 `c78c86eb1a8faa21b369bcd33207cc90d64ae9df` from whisper.cpp `models/README.md` at v1.9.5. **No sha256 recorded yet**: the file could not be downloaded to compute it |
+| Whisper tiny.en weights, ggml format (`ggml-tiny.en.bin`, 75 MiB) | `ggerganov/whisper.cpp` on Hugging Face, commit `5359861c739e955e79d9a303bcbc70fb988958b1` (pinned 2026-10-08; card says `license: mit`; sha256 `921e4cf8...`) | The model is OpenAI's: openai/whisper `README.md` at `86098128c0b4f24f0e2aa2994de830614b474227` says "Whisper's code and model weights are released under the MIT License". The ggml conversion's own model card was **not read** (Hugging Face was unreachable where this was written) | sha1 `c78c86eb1a8faa21b369bcd33207cc90d64ae9df` from whisper.cpp `models/README.md` at v1.9.5. **No sha256 recorded yet**: the file could not be downloaded to compute it |
 | Test clip `jfk.wav` (11 s, 16 kHz mono, 352078 bytes) | `samples/jfk.wav` at the same commit, fetched from raw.githubusercontent.com | **Not verified.** The whisper.cpp repo states no provenance or licence for the recording (`samples/README.md` only says the folder holds "audio files used for testing"). The words are from a 1961 US presidential address, but the recording's copyright status is unknown to this repo. Therefore it is fetched, not committed | sha256 `59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e` |
 | `mlcommons-loadgen` (pip) | `6.0.17` | Apache-2.0: `LICENSE.md` of github.com/mlcommons/inference at `3fbc329939999c13d0a7b5e67fb2092287e06047` (the wheel's own metadata licence field is empty) | cp313 manylinux x86_64 wheel sha256 `79090cf79054bad8142d00b59aa81f40dc6e19cc5ef83ccafca9fce6d8ddaabb` (informational; installs are not hash-pinned because wheels differ per platform) |
 
