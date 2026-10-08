@@ -74,6 +74,10 @@ def session(path, log_level=None):
     if prov == "CPUExecutionProvider":   # fixed thread count: stable results and a polite use of shared hosts
         opts.intra_op_num_threads = opts.inter_op_num_threads = int(os.environ.get("PW_ORT_THREADS", "1"))
     providers = [prov] if prov == "CPUExecutionProvider" else [prov, "CPUExecutionProvider"]
+    if prov == "CUDAExecutionProvider" and os.environ.get("PW_ORT_TF32", "0") != "1":
+        # The CUDA EP defaults to TF32 matmul/conv on Ampere and later (10-bit mantissa), which moved fp32 logits by
+        # ~1e-2 on the first A10G run. Keep fp32 honest, as the PyTorch workloads do; PW_ORT_TF32=1 restores the default.
+        providers[0] = (prov, {"use_tf32": "0"})
     model = bytes(path) if isinstance(path, (bytes, bytearray)) else str(path)   # a serialized graph or a file name
     s = ort.InferenceSession(model, sess_options=opts, providers=providers)
     if s.get_providers()[0] != prov:
