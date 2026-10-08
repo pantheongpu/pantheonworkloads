@@ -139,6 +139,49 @@ print(json.dumps({"output": output, "failures": failures}))''')
         names = sorted(f.split(":")[0] for f in r["failures"])
         self.assertEqual(names, ["check_fails", "crash", "ints_wrong", "wrong"])    # unsupported is not a failure
 
+    def test_informational_ops_never_decide_pass_or_fail(self):
+        out = in_torch('''
+import torch, libkernels as lk, json
+S = lk.Suite("t")
+@S.op("differs", kind="info")
+def _(c): return torch.tensor([0, 1]) if not c.is_ref else torch.tensor([0, 0])      # device and CPU disagree
+_.labels = ("saturates", "nan"); _.inputs = [480.0, 500.0]
+@S.op("crashes", kind="info")
+def _(c): raise RuntimeError("No available kernel")                                  # even "unsupported" is not reported as such
+@S.op("ok", bound=1e-6)
+def _(c): return c(torch.arange(6.)) * 2
+output, detail, failures = lk.run_suite(S)
+print(json.dumps({"output": output, "failures": failures, "info": S.info, "detail": detail}))''')
+        r = json.loads(out)
+        self.assertEqual(r["failures"], [])
+        self.assertEqual(r["output"]["differs"], "informational")
+        self.assertEqual(r["output"]["crashes"], "informational")
+        self.assertEqual(r["info"]["differs"], {"inputs": ["480.0", "500.0"], "device": ["saturates", "nan"], "cpu": ["saturates", "saturates"]})
+        self.assertIn("error", r["info"]["crashes"])
+        self.assertIn("2 informational", r["detail"])
+        self.assertIn("1 checked", r["detail"])
+
+    def test_fp8_cast_ops_are_stable_across_pytorch_versions(self):
+        # PyTorch 2.10 casts out-of-range values to e4m3fn as NaN, 2.13 and newer saturate (docs/fp8-cast-semantics.md):
+        # the numerics op must only see in-range values, and the overflow ops must be informational.
+        out = in_torch('''
+import torch, json, math, libkernels as lk
+g = lk.load_group("lib-attention-precision")
+ops = g.SUITE.ops
+cls = g.overflow_classes(torch.tensor([480.0, -480.0, 5e4, math.inf, math.nan, 1.0]),
+                         torch.tensor([448.0, -448.0, math.nan, math.inf, math.nan, 2.0]), 448.0)
+x = g.CASTV.clamp(-448.0, 448.0)
+print(json.dumps({"kinds": {k: o.kind for k, o in ops.items() if k.startswith("cast_overflow")}, "cls": cls, "max": float(x.abs().max()),
+                  "e5m2_has_57344": bool((g.CASTV == 57344.0).any())}))''')
+        r = json.loads(out)
+        self.assertEqual(r["kinds"], {"cast_overflow_class_fp8_e4m3fn": "info", "cast_overflow_class_fp8_e5m2": "info"})
+        self.assertEqual(r["cls"], ["saturates", "saturates", "nan", "inf", "nan", "other"])
+        self.assertEqual(r["max"], 448.0)
+        self.assertTrue(r["e5m2_has_57344"])
+        ref = json.loads((ROOT / "workloads" / "lib-attention-precision" / "reference.json").read_text())["output"]
+        self.assertEqual(ref["cast_overflow_class_fp8_e4m3fn"], "informational")
+        self.assertEqual(ref["cast_overflow_class_fp8_e5m2"], "informational")
+
     def test_reference_context_rounds_inputs_like_the_run(self):
         out = in_torch('''
 import torch, libkernels as lk

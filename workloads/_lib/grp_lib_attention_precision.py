@@ -1,6 +1,7 @@
 """lib-attention-precision: scaled-dot-product attention through each backend (math, memory-efficient, flash,
 cuDNN), int8 / fp8 / quantised matmul, fp16 / bf16 / TF32 behaviour and autocast."""
 import contextlib
+import math
 
 import torch
 import torch.nn as nn
@@ -184,17 +185,61 @@ def _(c):
 CASTV = torch.cat([D.randn(300) * 3, torch.tensor([1 + 2.0 ** -11, 1 + 3 * 2.0 ** -11, 2.0 ** -24, 2.0 ** -25 * 1.5, 448.0, 449.0, 57344.0])])
 
 
-def cast_roundtrip(name, dtype, bound):
+def cast_roundtrip(name, dtype, bound, values=CASTV):
     @op(f"cast_roundtrip_{name}", bound=bound, note="the cast runs on the device: rounding mode and ties")
     def _(c):
-        x = c.raw(CASTV.double() if c.is_ref else CASTV)
+        x = c.raw(values.double() if c.is_ref else values)
         return x.to(dtype).to(torch.float64 if c.is_ref else torch.float32)
 
 
 cast_roundtrip("fp16", torch.float16, 1e-9)
 cast_roundtrip("bf16", torch.bfloat16, 1e-9)
-cast_roundtrip("fp8_e4m3fn", torch.float8_e4m3fn, 1e-9)
+# e4m3fn holds at most 448 and has no infinity. What a cast does above that is not fixed by the format: PyTorch 2.10 gives NaN
+# (CPU and CUDA alike), 2.13 and newer saturate to 448 (docs/fp8-cast-semantics.md). So the numerics op sees in-range values
+# only (CASTV capped at +-448; 449 would round to 448 anyway), and the overflow behaviour is recorded as a class below.
+# e5m2 reaches 57344, which CASTV contains, so it keeps the full CASTV.
+cast_roundtrip("fp8_e4m3fn", torch.float8_e4m3fn, 1e-9, values=CASTV.clamp(-448.0, 448.0))
 cast_roundtrip("fp8_e5m2", torch.float8_e5m2, 1e-9)
+
+OVERFLOW_IN = {"e4m3fn": (torch.float8_e4m3fn, 448.0, [480.0, 500.0, 57344.0, -480.0, -57344.0, 1e30, math.inf, -math.inf, math.nan]),
+               "e5m2": (torch.float8_e5m2, 57344.0, [61440.0, 65536.0, 1e6, -1e6, 1e30, math.inf, -math.inf, math.nan])}
+OVERFLOW_CLASSES = ("saturates", "nan", "inf", "other")
+
+
+def overflow_classes(x, back, fmax):
+    """Per input, how the fp8 cast treated it: 'saturates' (+-fmax, the sign of the input), 'nan', 'inf' (an infinity of
+    the input's sign), or 'other' (anything else, e.g. a rounded finite value or the wrong sign)."""
+    out = []
+    for xi, yi in zip(x.tolist(), back.tolist()):
+        if math.isnan(yi):
+            out.append("nan")
+        elif math.isinf(yi) and math.copysign(1, yi) == math.copysign(1, xi):
+            out.append("inf")
+        elif yi == math.copysign(fmax, xi):
+            out.append("saturates")
+        else:
+            out.append("other")
+    return out
+
+
+def cast_overflow(name):
+    dtype, fmax, values = OVERFLOW_IN[name]
+    xs = torch.tensor(values, dtype=torch.float64)
+
+    @op(f"cast_overflow_class_fp8_{name}", kind="info",
+        note="INFORMATIONAL: out-of-range fp8 conversion class per input (saturates / nan / inf); depends on the PyTorch version, never compared")
+    def _(c):
+        x = c.raw(xs if c.is_ref else xs.float())
+        back = x.to(dtype).to(torch.float64)
+        # an info op returns one tensor; the class names are decoded from it by index
+        cls = overflow_classes(x.double().cpu(), back.cpu(), fmax)
+        return torch.tensor([OVERFLOW_CLASSES.index(k) for k in cls])
+    _.labels = OVERFLOW_CLASSES        # run_suite prints the class names, not the indices
+    _.inputs = values
+
+
+cast_overflow("e4m3fn")
+cast_overflow("e5m2")
 
 # ---------------------------------------------------------------------------------------------- int8 / fp8 / quantised
 QA = D.randint(-127, 128, (32, 64)).to(torch.int8)

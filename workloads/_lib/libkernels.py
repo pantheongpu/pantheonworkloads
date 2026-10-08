@@ -19,6 +19,9 @@ Per op the run
   * reports `"unsupported"` instead of numbers when the backend has no kernel for it (a NotImplementedError or a
     RuntimeError saying so), so a limited backend is described op by op instead of crashing, and the op is never
     silently dropped; the manifest's reference comparison then fails on exactly that key;
+  * kind="info" ops record behaviour that may legitimately differ between library versions or architectures (the
+    class of an out-of-range conversion: saturates / nan / inf). Their output is always the string "informational",
+    so they can never decide pass or fail; the device and CPU results go to the record's `info` field and stderr;
   * reports a checksum: for float results [mean |y|, rms, y at three fixed positions], for integer results the
     count, the sum, a position-weighted checksum and the first 8 values.
 
@@ -177,6 +180,7 @@ class Suite:
 
     def __init__(self, group):
         self.group, self.ops = group, {}
+        self.info = {}      # kind="info" ops: name -> {"device": [...], "cpu": [...]}, filled by run_suite
 
     def op(self, name, dtype=torch.float32, bound=1e-4, kind="float", ref=None, note="", prec=None):
         def deco(fn):
@@ -184,6 +188,9 @@ class Suite:
             self.ops[name] = Op(name, fn, dtype, bound, kind, ref, note, prec)
             return fn
         return deco
+
+
+INFORMATIONAL = "informational"
 
 
 def is_unsupported(e):
@@ -217,6 +224,18 @@ def run_suite(suite):
     """Run every op. Returns (output dict, detail, failures)."""
     output, failures, worst, unsupported = {}, [], 0.0, []
     for name, op in suite.ops.items():
+        if op.kind == "info":
+            output[name] = INFORMATIONAL
+            try:
+                y, r = evaluate(op, DEVICE)
+                labels = getattr(op.fn, "labels", None)
+                name_of = (lambda v: labels[v]) if labels else str
+                suite.info[name] = {"inputs": [str(v) for v in getattr(op.fn, "inputs", [])],
+                                    "device": [name_of(v) for v in flat(y).tolist()], "cpu": [name_of(v) for v in flat(r).tolist()]}
+            except Exception as e:                               # noqa: BLE001: informational, whatever happens
+                suite.info[name] = {"error": f"{type(e).__name__}: {str(e).splitlines()[0][:120] if str(e) else ''}"}
+            print(f"info {name}: {suite.info[name]}", file=sys.stderr, flush=True)
+            continue
         try:
             y, r = evaluate(op, DEVICE)
             err = error(op, y, r)
@@ -237,13 +256,15 @@ def run_suite(suite):
                 output[name] = "error"
                 failures.append(f"{name}: {type(e).__name__}: {str(e).splitlines()[0][:200] if str(e) else ''}")
     n = len(suite.ops)
-    detail = (f"{n} {suite.group} ops on {device_name()}: {n - len(unsupported) - len(failures)} checked, "
-              f"{len(unsupported)} unsupported, worst error {worst:.2e} of rms vs the float64 CPU result, torch {torch.__version__}")
+    detail = (f"{n} {suite.group} ops on {device_name()}: {n - len(suite.info) - len(unsupported) - len(failures)} checked, "
+              f"{len(unsupported)} unsupported, {len(suite.info)} informational, worst error {worst:.2e} of rms vs the float64 CPU result, torch {torch.__version__}")
     return output, detail, failures
 
 
-def finish(output, detail, metrics=None):
+def finish(output, detail, metrics=None, info=None):
     rec = {"output": output, "detail": detail, "metrics": (metrics or {}) if REAL else {}}
+    if info:
+        rec["info"] = info          # informational ops: never compared (see the module docstring)
     print(json.dumps(rec), flush=True)
 
 
@@ -259,7 +280,7 @@ def calibrate(suite):
     repeat, plus the max error against float64 (as a fraction of rms). Rows for `suggest`."""
     rows = []
     for name, op in suite.ops.items():
-        if op.kind == "int":
+        if op.kind in ("int", "info"):
             continue
         try:
             y, r = evaluate(op, DEVICE)
@@ -371,7 +392,7 @@ def main(argv=None):
     if failures:
         print("\n".join("FAIL " + f for f in failures), file=sys.stderr)
         sys.exit(f"{len(failures)} op(s) failed: " + "; ".join(f.split(":")[0] for f in failures))
-    finish(output, detail)
+    finish(output, detail, info=suite.info)
     return 0
 
 
