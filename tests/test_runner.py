@@ -186,6 +186,18 @@ class Bench(unittest.TestCase):
             records = [json.loads(f.read_text()) for f in files]
             return code, records, out.getvalue() + err.getvalue(), files
 
+    def test_library_versions_reported_by_the_workload_are_recorded(self):
+        code, records, _, _ = self.run_bench(["--target", "gpu", "--bench", "--repeat", "2", "--device", "X"],
+                                             PW_SELFTEST_VERSIONS='{"torch": "2.14.1+cu130", "numpy": "2.5.3"}')
+        self.assertEqual(code, 0)
+        env = records[0]["environment"]
+        self.assertEqual(env["runtime_versions"], {"torch": "2.14.1+cu130", "numpy": "2.5.3"})
+        self.assertEqual(env["runtime_version"], "numpy 2.5.3, torch 2.14.1+cu130")
+
+    def test_no_reported_versions_leaves_the_manifest_runtime_version(self):
+        _, records, _, _ = self.run_bench(["--target", "gpu", "--bench", "--repeat", "1", "--device", "X"])
+        self.assertNotIn("runtime_versions", records[0]["environment"])
+
     def test_records_median_of_repeats_with_environment(self):
         code, records, _, files = self.run_bench(["--target", "gpu", "--bench", "--repeat", "3", "--device", "Test GPU 80GB"])
         self.assertEqual(code, 0)

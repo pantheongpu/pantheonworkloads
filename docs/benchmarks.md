@@ -25,6 +25,7 @@ A number from a run that produced the wrong answer is never recorded.
     "driver": "…",
     "runtime": "ollama",
     "runtime_version": "ollama version is …",
+    "runtime_versions": {"torch": "2.14.1+cu130"},
     "model": {"id": "smollm2:135m", "revision": "…", "licence": "…", "source_url": "…"},
     "host_os": "Linux-…",
     "repo_commit": "…",
@@ -36,6 +37,12 @@ A number from a run that produced the wrong answer is never recorded.
 ```
 
 (The numbers above are placeholders, not measurements.)
+
+`runtime_versions` is optional: a workload may add a `versions` object to its result line (the PyTorch workloads
+do, for torch, torchvision, transformers, diffusers and numpy, read from the installed packages by
+`workloads/_pytorch/env.sh`). When present, `bin/pw` copies it into the record and sets `runtime_version` from it,
+and refuses to record repeats that ran with different versions. Records made before this field existed carry the
+manifest's free-text `runtime_version` only; the A10G records of 2026-10-08 used torch 2.10.0, not 2.14.1.
 
 ## Rules for numbers worth keeping
 

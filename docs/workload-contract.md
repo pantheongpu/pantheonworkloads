@@ -16,11 +16,11 @@ records SKIP), anything else is a failure.
 The **last line of stdout** must be one JSON object:
 
 ```json
-{"output": "<what is compared to reference.json>", "detail": "<short human text>", "metrics": {}}
+{"output": "<what is compared to reference.json>", "detail": "<short human text>", "metrics": {}, "versions": {}}
 ```
 
 `metrics` is for benchmark numbers (real targets only; the runner drops it, and fails the run,
-for `sim:` targets). `output` is compared with `reference.json` according to the manifest's `compare`.
+for `sim:` targets). `versions` is optional ({package: version}); benchmark records keep it. `output` is compared with `reference.json` according to the manifest's `compare`.
 
 `bin/pw record <workload> --target T` runs the workload once and writes the result as
 `reference.json`. Record references only on a target you trust (a real GPU or the CPU backend),

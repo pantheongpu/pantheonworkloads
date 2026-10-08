@@ -1,6 +1,8 @@
 # torch/torchvision pins shared by the pytorch-* workloads. Installed from the flavour's
 # PyTorch index (cpu, cu130, rocm: see env.sh), with PyPI as the fallback for dependencies.
-# torchvision 0.25.0 is the release paired with torch 2.10.0. A local version such as 2.10.0+cpu
-# satisfies "==2.10.0". NOT verified against download.pytorch.org (unreachable when written).
-torch==2.10.0
-torchvision==0.25.0
+# 2.14.1 is PyPI's default Linux CUDA 13 wheel and the version pantheonsim's sim validation and the nightly
+# sim workflow use; torchvision 0.29.1 is the release paired with it. A local version such as 2.14.1+cpu
+# satisfies "==2.14.1". Why one version matters: fp8 overflow casts differ between 2.10.0 (NaN) and
+# 2.13.0 / 2.14.1 (saturate), see docs/fp8-cast-semantics.md.
+torch==2.14.1
+torchvision==0.29.1

@@ -258,7 +258,7 @@ def cmd_run(a):
             tsv.write(f"{n}\t{result}\t{total:.1f}\t{detail}\n")
             (out / f"{n}.json").write_text(json.dumps(
                 {"workload": n, "target": a.target, "result": result, "seconds": round(total, 3),
-                 "detail": detail, **{k: rec[k] for k in ("output", "metrics") if k in rec}}, indent=2) + "\n")
+                 "detail": detail, **{k: rec[k] for k in ("output", "metrics", "versions") if k in rec}}, indent=2) + "\n")
             print(f"{result:7} {n}  ({total:.1f}s)  {detail}")
             failed = failed or result in ("FAIL", "TIMEOUT")
     print(f"results in {out}")
@@ -277,6 +277,13 @@ def write_bench(name, a, runs, out):
             series.setdefault(key, []).append(value)
     if not series:
         return "the workload reported no metrics, so there is nothing to record"
+    seen = {json.dumps(r["versions"], sort_keys=True) for r in runs if r.get("versions")}
+    if len(seen) > 1:
+        return "the repeats ran with different library versions: " + " vs ".join(sorted(seen))
+    if seen:
+        versions = json.loads(seen.pop())
+        env["runtime_versions"] = versions
+        env["runtime_version"] = ", ".join(f"{k} {v}" for k, v in versions.items())
     record = {
         "schema": "pw-bench/0",
         "workload": name,

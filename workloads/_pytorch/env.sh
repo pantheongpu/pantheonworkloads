@@ -152,5 +152,20 @@ pw_torch_run() {
   fi
   if [[ $status != 0 ]]; then echo "exit $status; end of $log:" >&2; tail -8 "$log" >&2; exit 1; fi
   [[ -s "$PW_RESULT_FILE" ]] || { echo "the script wrote no result; end of $log:" >&2; tail -8 "$log" >&2; exit 1; }
+  # Record the library versions that produced the result (bin/pw copies them into bench records).
+  "$PW_PY" -I - "$PW_RESULT_FILE" <<'PY' || true
+import json, sys
+from importlib import metadata
+path = sys.argv[1]
+rec = json.load(open(path))
+versions = {}
+for pkg in ("torch", "torchvision", "transformers", "diffusers", "numpy"):
+    try:
+        versions[pkg] = metadata.version(pkg)
+    except metadata.PackageNotFoundError:
+        pass
+rec["versions"] = versions
+json.dump(rec, open(path, "w")); open(path, "a").write("\n")
+PY
   cat "$PW_RESULT_FILE"
 }
