@@ -1,0 +1,579 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "lib-kernels-bench",
+  "date": "2026-10-08T15:25:26Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": null,
+    "model": null,
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "autocast_bf16_linear_tflops": {
+      "median": 61.79,
+      "values": [
+        61.78,
+        61.8,
+        61.78,
+        61.79,
+        61.79
+      ]
+    },
+    "autocast_fp16_linear_tflops": {
+      "median": 61.86,
+      "values": [
+        61.86,
+        61.87,
+        61.86,
+        61.87,
+        61.86
+      ]
+    },
+    "batch_norm_train_fp32_gb_s": {
+      "median": 309.8,
+      "values": [
+        309.6,
+        309.6,
+        309.8,
+        309.8,
+        310.0
+      ]
+    },
+    "cholesky_n4096_gflops": {
+      "median": 4852.0,
+      "values": [
+        4854.0,
+        4852.0,
+        4841.0,
+        4846.0,
+        4856.0
+      ]
+    },
+    "conv2d_dilated2_fp16_tflops": {
+      "median": 64.14,
+      "values": [
+        64.15,
+        64.17,
+        64.12,
+        64.14,
+        64.14
+      ]
+    },
+    "conv2d_fp16_channels_last_tflops": {
+      "median": 64.25,
+      "values": [
+        64.25,
+        64.25,
+        64.24,
+        64.25,
+        64.13
+      ]
+    },
+    "conv3d_fp16_tflops": {
+      "median": 47.41,
+      "values": [
+        47.42,
+        47.41,
+        47.36,
+        47.64,
+        47.31
+      ]
+    },
+    "conv_transpose2d_s2_fp16_tflops": {
+      "median": 53.22,
+      "values": [
+        53.23,
+        53.25,
+        53.21,
+        53.22,
+        53.15
+      ]
+    },
+    "cumsum_gb_s": {
+      "median": 475.6,
+      "values": [
+        475.8,
+        475.1,
+        475.6,
+        476.2,
+        474.8
+      ]
+    },
+    "depthwise_conv2d_fp16_gb_s": {
+      "median": 368.5,
+      "values": [
+        368.2,
+        367.7,
+        368.5,
+        368.6,
+        369.1
+      ]
+    },
+    "dlrm_forward_fp32_samples_s": {
+      "median": 7529000.0,
+      "values": [
+        7513000.0,
+        7544000.0,
+        7529000.0,
+        7572000.0,
+        7418000.0
+      ]
+    },
+    "eigh_n4096_ops_s": {
+      "median": 3.561,
+      "values": [
+        3.561,
+        3.561,
+        3.56,
+        3.561,
+        3.561
+      ]
+    },
+    "embedding_bag_sum_gb_s": {
+      "median": 412.1,
+      "values": [
+        412.1,
+        413.8,
+        412.3,
+        411.9,
+        411.4
+      ]
+    },
+    "embedding_lookup_gb_s": {
+      "median": 239.3,
+      "values": [
+        239.2,
+        239.3,
+        239.3,
+        239.3,
+        239.2
+      ]
+    },
+    "fft2_c2c_gflops": {
+      "median": 1294.0,
+      "values": [
+        1294.0,
+        1294.0,
+        1294.0,
+        1294.0,
+        1293.0
+      ]
+    },
+    "fft_c2c_1d_pow2_gflops": {
+      "median": 1036.0,
+      "values": [
+        1036.0,
+        1035.0,
+        1035.0,
+        1036.0,
+        1036.0
+      ]
+    },
+    "fft_c2c_1d_prime_gflops": {
+      "median": 159.2,
+      "values": [
+        159.2,
+        159.2,
+        159.1,
+        159.3,
+        159.3
+      ]
+    },
+    "gelu_fp16_gb_s": {
+      "median": 479.2,
+      "values": [
+        479.2,
+        479.2,
+        479.8,
+        479.5,
+        479.0
+      ]
+    },
+    "group_norm_fp32_gb_s": {
+      "median": 281.2,
+      "values": [
+        281.2,
+        281.2,
+        281.2,
+        281.5,
+        281.2
+      ]
+    },
+    "gru_2layer_fp16_sequences_s": {
+      "median": 19840.0,
+      "values": [
+        19810.0,
+        20010.0,
+        19870.0,
+        19840.0,
+        19790.0
+      ]
+    },
+    "index_add_gb_s": {
+      "median": 148.9,
+      "values": [
+        149.1,
+        148.9,
+        149.0,
+        148.9,
+        148.7
+      ]
+    },
+    "int8_mm_tops": {
+      "median": 34.01,
+      "values": [
+        34.01,
+        34.01,
+        34.01,
+        34.01,
+        34.01
+      ]
+    },
+    "layer_norm_fp16_gb_s": {
+      "median": 372.7,
+      "values": [
+        372.7,
+        371.8,
+        372.3,
+        375.7,
+        374.2
+      ]
+    },
+    "lstm_2layer_bidir_fp16_tflops": {
+      "median": 26.89,
+      "values": [
+        26.75,
+        26.89,
+        26.79,
+        26.95,
+        26.95
+      ]
+    },
+    "lstm_2layer_bidir_fp32_tflops": {
+      "median": 10.98,
+      "values": [
+        11.01,
+        10.98,
+        10.96,
+        11.0,
+        10.96
+      ]
+    },
+    "lu_factor_n4096_gflops": {
+      "median": 2707.0,
+      "values": [
+        2708.0,
+        2707.0,
+        2706.0,
+        2708.0,
+        2706.0
+      ]
+    },
+    "lu_solve_batched_32x32_systems_s": {
+      "median": 7200000.0,
+      "values": [
+        7181000.0,
+        7200000.0,
+        7243000.0,
+        7192000.0,
+        7205000.0
+      ]
+    },
+    "matmul_bf16_tflops": {
+      "median": 67.13,
+      "values": [
+        67.68,
+        66.58,
+        67.13,
+        67.16,
+        67.08
+      ]
+    },
+    "matmul_fp16_tflops": {
+      "median": 65.91,
+      "values": [
+        66.51,
+        65.35,
+        65.91,
+        65.91,
+        65.93
+      ]
+    },
+    "matmul_fp32_highest_tflops": {
+      "median": 23.09,
+      "values": [
+        23.46,
+        23.04,
+        23.04,
+        23.09,
+        23.13
+      ]
+    },
+    "matmul_tf32_tflops": {
+      "median": 34.08,
+      "values": [
+        34.08,
+        34.08,
+        34.08,
+        34.08,
+        34.08
+      ]
+    },
+    "matrix_exp_batched_32x32_ops_s": {
+      "median": 993000.0,
+      "values": [
+        992600.0,
+        993600.0,
+        993000.0,
+        993700.0,
+        992900.0
+      ]
+    },
+    "qr_n4096_gflops": {
+      "median": 2174.0,
+      "values": [
+        2173.0,
+        2174.0,
+        2174.0,
+        2178.0,
+        2177.0
+      ]
+    },
+    "rfft_1d_pow2_gflops": {
+      "median": 822.6,
+      "values": [
+        822.6,
+        823.5,
+        822.3,
+        822.5,
+        822.7
+      ]
+    },
+    "scatter_reduce_amax_gb_s": {
+      "median": 153.9,
+      "values": [
+        153.9,
+        154.0,
+        153.9,
+        153.9,
+        153.9
+      ]
+    },
+    "sdpa_cudnn_bf16_causal_tflops": {
+      "median": 47.16,
+      "values": [
+        47.42,
+        47.16,
+        47.12,
+        47.17,
+        47.14
+      ]
+    },
+    "sdpa_cudnn_fp16_causal_tflops": {
+      "median": 47.18,
+      "values": [
+        47.57,
+        47.17,
+        47.15,
+        47.18,
+        47.19
+      ]
+    },
+    "sdpa_efficient_bf16_causal_tflops": {
+      "median": 46.78,
+      "values": [
+        46.78,
+        46.76,
+        47.09,
+        46.38,
+        46.79
+      ]
+    },
+    "sdpa_efficient_fp16_causal_tflops": {
+      "median": 45.77,
+      "values": [
+        46.78,
+        46.31,
+        45.74,
+        45.77,
+        45.49
+      ]
+    },
+    "sdpa_efficient_fp32_causal_tflops": {
+      "median": 6.697,
+      "values": [
+        6.702,
+        6.698,
+        6.697,
+        6.696,
+        6.694
+      ]
+    },
+    "sdpa_flash_bf16_causal_tflops": {
+      "median": 53.58,
+      "values": [
+        53.38,
+        53.83,
+        53.58,
+        53.53,
+        53.65
+      ]
+    },
+    "sdpa_flash_fp16_causal_tflops": {
+      "median": 53.64,
+      "values": [
+        53.51,
+        53.64,
+        53.53,
+        53.66,
+        53.87
+      ]
+    },
+    "sdpa_gqa_flash_fp16_causal_tflops": {
+      "median": 58.88,
+      "values": [
+        58.84,
+        58.88,
+        58.89,
+        58.89,
+        58.87
+      ]
+    },
+    "sdpa_math_bf16_causal_tflops": {
+      "median": 1.191,
+      "values": [
+        1.192,
+        1.191,
+        1.191,
+        1.191,
+        1.191
+      ]
+    },
+    "sdpa_math_fp16_causal_tflops": {
+      "median": 1.191,
+      "values": [
+        1.192,
+        1.191,
+        1.191,
+        1.191,
+        1.191
+      ]
+    },
+    "sdpa_math_fp32_causal_tflops": {
+      "median": 1.367,
+      "values": [
+        1.368,
+        1.367,
+        1.367,
+        1.366,
+        1.367
+      ]
+    },
+    "softmax_fp16_gb_s": {
+      "median": 463.3,
+      "values": [
+        463.4,
+        463.3,
+        463.3,
+        463.1,
+        462.8
+      ]
+    },
+    "sort_mkeys_s": {
+      "median": 3302.0,
+      "values": [
+        3302.0,
+        3303.0,
+        3303.0,
+        3300.0,
+        3300.0
+      ]
+    },
+    "sparse_softmax_coo_gb_s": {
+      "median": 9.041,
+      "values": [
+        9.045,
+        9.041,
+        9.031,
+        9.043,
+        9.028
+      ]
+    },
+    "spmm_coo_gflops": {
+      "median": 199.6,
+      "values": [
+        199.6,
+        199.6,
+        199.6,
+        199.6,
+        199.6
+      ]
+    },
+    "spmm_csr_gflops": {
+      "median": 672.6,
+      "values": [
+        672.4,
+        673.2,
+        672.6,
+        672.4,
+        672.9
+      ]
+    },
+    "svd_n4096_ops_s": {
+      "median": 0.2464,
+      "values": [
+        0.2464,
+        0.2464,
+        0.2464,
+        0.2465,
+        0.2464
+      ]
+    },
+    "topk_k100_mkeys_s": {
+      "median": 17570.0,
+      "values": [
+        17600.0,
+        17570.0,
+        17550.0,
+        17590.0,
+        17570.0
+      ]
+    },
+    "unet_denoise_step_fp16_images_s": {
+      "median": 135.6,
+      "values": [
+        135.6,
+        135.5,
+        135.4,
+        135.9,
+        135.7
+      ]
+    },
+    "unique_mkeys_s": {
+      "median": 3070.0,
+      "values": [
+        3072.0,
+        3070.0,
+        3069.0,
+        3071.0,
+        3069.0
+      ]
+    },
+    "vit_base_forward_fp16_images_s": {
+      "median": 1373.0,
+      "values": [
+        1373.0,
+        1372.0,
+        1373.0,
+        1372.0,
+        1373.0
+      ]
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "pytorch-microsuite",
+  "date": "2026-10-08T15:45:55Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": null,
+    "model": null,
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "conv2d_fp16_tflops": {
+      "median": 43.285,
+      "values": [
+        43.276,
+        43.285,
+        43.263,
+        43.289,
+        43.287
+      ]
+    },
+    "copy_gb_s": {
+      "median": 482.2,
+      "values": [
+        482.2,
+        482.2,
+        482.2,
+        482.1,
+        482.1
+      ]
+    },
+    "matmul_bf16_tflops": {
+      "median": 62.318,
+      "values": [
+        62.302,
+        62.319,
+        62.31,
+        62.318,
+        62.34
+      ]
+    },
+    "matmul_fp16_tflops": {
+      "median": 62.321,
+      "values": [
+        62.305,
+        62.321,
+        62.294,
+        62.331,
+        62.322
+      ]
+    },
+    "matmul_fp32_tflops": {
+      "median": 23.114,
+      "values": [
+        23.114,
+        23.053,
+        23.121,
+        23.137,
+        23.114
+      ]
+    },
+    "matmul_tf32_tflops": {
+      "median": 30.911,
+      "values": [
+        30.914,
+        30.917,
+        30.911,
+        30.897,
+        30.905
+      ]
+    },
+    "sdpa_causal_fp16_tflops": {
+      "median": 54.959,
+      "values": [
+        54.943,
+        54.94,
+        54.99,
+        54.959,
+        54.982
+      ]
+    }
+  }
+}

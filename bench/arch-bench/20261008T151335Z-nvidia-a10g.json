@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "arch-bench",
+  "date": "2026-10-08T15:13:35Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": null,
+    "model": {
+      "id": "random-weight architecture benchmark built from transformers config classes (no pretrained weights)",
+      "revision": "transformers modelling code (version recorded in each run's detail); random weights",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/huggingface/transformers"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "7efdb83024282fda0e5d52647add7549dfd05ffe",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "llama_small_decode_tokens_per_s": {
+      "median": 1380.7,
+      "values": [
+        1377.5,
+        1358.2,
+        1380.7,
+        1389.2,
+        1398.2
+      ]
+    },
+    "llama_small_prefill_tokens_per_s": {
+      "median": 288549.6,
+      "values": [
+        286781.0,
+        284501.7,
+        288549.6,
+        288825.4,
+        291026.6
+      ]
+    }
+  }
+}
