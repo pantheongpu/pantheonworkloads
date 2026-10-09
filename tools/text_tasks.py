@@ -117,6 +117,7 @@ SQUAD_ITEMS = [   # (context, question): written for this repo
      "Barges carry grain along its lower reaches.", "What do barges carry?"),
 ]
 BERT_SEQ = 256
+BERT_ZOO_ERR_MAX = 0.1   # worst measured 0.047 (A10G host, 7-bit int8 mode), 2.2 without it: docs/int8-and-nondeterminism.md
 
 
 def squad_features(tok, context, question):
@@ -144,6 +145,18 @@ def best_span(start, end, first, last, max_len=30):
     return best
 
 
+def runner_up_score(start, end, first, last, best, max_len=30):
+    """Highest start+end logit among the spans other than `best` (same window and length rules as best_span)."""
+    top = None
+    for s in range(first, last + 1):
+        for e in range(s, min(last, s + max_len - 1) + 1):
+            if (s, e) != best:
+                score = float(start[s]) + float(end[e])
+                if top is None or score > top:
+                    top = score
+    return top
+
+
 def squad_session():
     root = unpacked("bertsquad-12-int8.tar.gz", ["bertsquad-12-int8/bertsquad-12-int8.onnx", "bertsquad-12-int8/test_data_set_0"]) / "bertsquad-12-int8"
     vocab = unpacked("genesis-memory-model-0.1.0-alpha.1.tgz", ["package/tokenizer.json", "package/README.md"]) / "package" / "tokenizer.json"
@@ -168,17 +181,22 @@ def task_bertsquad(bench):
     feed = {i.name: x for i, x in zip(sess.get_inputs(), ins)}
     got = dict(zip([o.name for o in sess.get_outputs()], sess.run(None, feed)))
     err = max(float(np.abs(got[n] - read_tensor(d / f"output_{k}.pb")).max()) for k, n in enumerate(["unstack:1", "unstack:0"]))
-    if err > 0.25:
-        raise RuntimeError(f"logits differ from the zoo's expected output by {err:.3g} (int8 noise is about 0.03)")
-    answers, spans, scores = [], [], []
+    err_max = float(os.environ.get("PW_BERT_ZOO_ERR_MAX", str(BERT_ZOO_ERR_MAX)))
+    if err > err_max:
+        raise RuntimeError(f"logits differ from the zoo's expected output by {err:.3g} (bound {err_max}; docs/int8-and-nondeterminism.md)")
+    answers, spans, scores, margins = [], [], [], []
     for context, question in SQUAD_ITEMS:
         toks, ids, mask, seg, first, last = squad_features(tok, context, question)
         start, end = squad_run(sess, ids, mask, seg)
         score, s, e = best_span(start, end, first, last)
+        margins.append(round(score - runner_up_score(start, end, first, last, (s, e)), 4))
         answers.append(WORDPIECE.WordPiece.detokenize(toks[s:e + 1]))
         spans.append(f"{s}-{e}")
         scores.append(round(score, 4))
-    output = {"answers": " | ".join(answers), "spans": " ".join(spans), "span_scores": scores}
+    # answers and spans are compared exactly, span_scores within the manifest's measured bound; the zoo vector's
+    # deviation and the margin of each best span over the runner-up are recorded as informational
+    output = {"answers": " | ".join(answers), "spans": " ".join(spans), "span_scores": scores,
+              "zoo_logit_err": round(err, 3), "span_margins": margins}
     metrics = {}
     if bench:
         toks, ids, mask, seg, first, last = squad_features(tok, *SQUAD_ITEMS[0])
@@ -190,7 +208,7 @@ def task_bertsquad(bench):
             squad_run(sess, ids, mask, seg)
             times.append(time.perf_counter() - t)
         metrics = {"questions_per_s": 1 / med(times), "latency_ms": med(times) * 1000}
-    return output, f"answers {answers}; max |logit - zoo's expected| {err:.3f}; {prov}", metrics
+    return output, f"answers {answers}; max |logit - zoo's expected| {err:.3f}; smallest span margin {min(margins):.2f}; {prov}", metrics
 
 
 # ---------------------------------------------------------------- all-MiniLM-L6-v2 sentence embeddings (npm redistribution, Apache-2.0)

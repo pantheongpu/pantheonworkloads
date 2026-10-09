@@ -5,7 +5,8 @@ runtime: onnxruntime
 runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
 targets: [cpu, gpu]
 compare: tolerance
-tolerance: {abs: 0.0, rel: 0.0, fields: {span_scores: {abs: 0.1, rel: 0.005}}}
+tolerance: {abs: 0.0, rel: 0.0, fields: {span_scores: {abs: 0.75, rel: 0.0}}}
+informational: [zoo_logit_err, span_margins]
 timeout_s: 900
 model:
   id: onnx/models validated/text/machine_comprehension/bert-squad/model/bertsquad-12-int8.tar.gz
@@ -22,8 +23,15 @@ notes: >
   BERT-uncased tokenizer) and says it is Apache-2.0; tools/wordpiece.py is a WordPiece tokenizer written for
   this repo. The answers it gives (checked by eye: helen marsh, 1887, port of sedgwick, grain) show the
   vocabulary and the zoo's model agree. Four questions over two paragraphs written for this repo, one 256-token
-  window each. Output: answer text (exact), token spans (exact), start+end logit sum (abs 0.1 + rel 0.5 %: int8
-  kernels differ in the last bits between onnxruntime versions; the zoo's own stored output differs from this
-  run's by 0.03). Each run also fails if the zoo's own test vector (whose inputs are random numbers, not text)
-  differs from its expected logits by more than 0.25. int8 ops (DynamicQuantizeLinear, MatMulInteger) may be
-  placed on the CPU even under the CUDA provider; not run on a GPU here. No sim: targets.
+  window each. Output: answer text (exact), token spans (exact), start+end logit sum (abs 0.75, no relative part; was abs 0.1 + rel 0.5 %).
+  Task output decides, raw numbers inform: the zoo test vector's logit error (`zoo_logit_err`) and each best span's margin over
+  the runner-up (`span_margins`) are informational. The run itself fails if the zoo vector deviates by more than 0.1.
+  Evidence (docs/int8-and-nondeterminism.md): on an AMD EPYC 7R32 (AVX2, no VNNI; AWS g5) onnxruntime 1.30.0's u8s8 int8
+  MatMulInteger saturates and BERT-Squad gives WRONG answers (zoo error 2.225 on the CPU provider and 2.226 under the CUDA EP,
+  whose int8 nodes run on the CPU anyway; span margins 0.0002 to 0.004). `tools/ort_tasks.py` therefore sets
+  `session.x64quantprecision=1` (7-bit activations on AVX2; PW_ORT_X64QUANT=0 removes it): with it the same host gives
+  the reference answers with zoo error 0.032 (CPU) and 0.047 (A10G), span scores within 0.513 (CPU) and 0.444 (A10G) of the
+  reference, which was recorded on another CPU. 0.75 is the smallest round value above 0.513 with a margin; the saturated
+  result misses by 17.7 to 18.0 and still fails. Each run also fails if the zoo's own test vector (whose inputs are random numbers, not text)
+  differs from its expected logits by more than 0.1. int8 ops (DynamicQuantizeLinear, MatMulInteger) have no CUDA kernel and run on the host CPU
+  inside the CUDA session, so a GPU run of this model is partly a CPU run. No sim: targets.

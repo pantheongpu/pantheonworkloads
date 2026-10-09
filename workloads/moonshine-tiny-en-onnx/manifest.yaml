@@ -4,7 +4,9 @@ kind: functional
 runtime: onnxruntime
 runtime_version: "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)"
 targets: [cpu, gpu]
-compare: exact
+compare: tolerance
+tolerance: {abs: 0.0, rel: 0.0, fields: {text: {wer: 0.03}}}
+informational: [token_ids, min_logit_gap]
 timeout_s: 1800
 model:
   id: usefulsensors/moonshine tiny English (v1), int8 ONNX export by k2-fsa/sherpa-onnx (sherpa-onnx-moonshine-tiny-en-int8.tar.bz2)
@@ -19,11 +21,18 @@ notes: >
   development machine the two transcripts and token counts were identical to sherpa-onnx 1.13.8's
   OfflineRecognizer.from_moonshine. Input: test_wavs/0.wav and 1.wav from the same archive (LibriSpeech-style
   read English, 6.6 s and 16.7 s; the archive does not state the recordings' provenance or licence, so they
-  are fetched, never committed). Output: the transcripts and the token ids, compared exactly; the run also
+  are fetched, never committed). Output: the transcripts, compared by word error rate against the reference text
+  (case and punctuation ignored) with a maximum of 0.03; the token ids and the smallest top-1/top-2 logit gap of the greedy decode
+  (`min_logit_gap`) are informational. The run also
   fails when the word error rate against the archive's own trans.txt exceeds PW_ASR_WER_MAX (0.15; it is
-  0.021 on the cpu recording, case and punctuation ignored). The model is int8 only (dynamically
+  0.021 on the cpu recording, case and punctuation ignored).
+  Evidence (docs/int8-and-nondeterminism.md): greedy decoding has near ties (smallest top1-top2 logit gap 0.002 to 0.13 in logit units) and
+  the int8 CPU kernels and the CUDA fp32 kernels do not round identically, so the transcript flips. Over 11 consecutive runs on an A10G
+  (g5, AMD EPYC 7R32, 7-bit int8 mode) the text equalled the reference in 2, added a comma after "parent" in 9 (WER 0, token 29892) and
+  once also wrote "dishonored" for "dishonoured" (WER 0.0154, one word of 65); without 7-bit mode, 6 runs: the same two kinds, worst 0.0154. The CPU provider
+  is stable run to run (the EPYC adds the comma, an Ice Lake Xeon reproduces the reference tokens exactly). 0.03 is the smallest round value above 0.0154 with a margin
+  (two changed words fail). The model is int8 only (dynamically
   quantised): on the gpu target the CUDA/ROCm execution providers have no kernels for some integer ops,
-  so onnxruntime may keep those nodes on its CPU provider inside the same session. The provider check
+  so onnxruntime keeps those nodes on its CPU provider inside the same session. The provider check
   (the session must report the GPU provider first) passes, but a GPU benchmark of this model would
-  measure a mixed placement. A transcript that flips one token on a GPU is a real difference to
-  investigate. No sim: targets.
+  measure a mixed placement. No sim: targets.
