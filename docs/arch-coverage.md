@@ -98,10 +98,12 @@ PW_PYTHON=$(tools/torch-cpu-env.sh) bin/pw run arch-llama-family arch-moe arch-s
 PW_ARCH_BENCH_ARCH=mixtral PW_ARCH_BENCH_SIZE=medium bin/pw run arch-bench --target gpu --bench --device "<GPU name>"
 ```
 
-`tools/torch-cpu-env.sh` is the route to a CPU PyTorch when `download.pytorch.org` is blocked and PyPI's torch wheel is the
-CUDA build: it downloads the static `micromamba` binary from conda-forge (sha256 checked), then creates an environment
-from conda-forge only (`pytorch=2.13.0=cpu_*`, `transformers`, `numpy`, `pyyaml`; about 1 GB, 2 minutes). `PW_TORCH_CPU_PREFIX`,
-`PW_MAMBA_ROOT` and `PW_TORCH_SPEC` override its prefix, package cache and specs; it exits 77 when it cannot build.
+`tools/torch-cpu-env.sh` makes a CPU PyTorch environment (PyPI's torch wheel is the CUDA build). Since 2026-10-09 the default is a venv with
+torch 2.14.1+cpu from `download.pytorch.org/whl/cpu` plus the pinned `transformers`, `numpy` and `pyyaml` (`tools/cpu-torch-pip.sh`, about 300 MB).
+`PW_TORCH_ROUTE=conda` is the old route for hosts where only conda-forge is reachable (static `micromamba` from conda-forge, sha256 checked;
+`pytorch=2.13.0=cpu_*`, which is all conda-forge has: a different torch, and it warns). `PW_TORCH_CPU_PREFIX`, `PW_MAMBA_ROOT` and
+`PW_TORCH_SPEC` override its prefix, conda package cache and conda specs; it exits 77 when it cannot build. The recordings in this file were
+made with 2.13.0; `.github/workflows/cpu-references.yml` checks them against 2.14.1.
 
 Knobs: `PW_ARCH_ATTN=eager` (default `sdpa`), `PW_ARCH_EXPERTS=eager|batched_mm|grouped_mm` (MoE; transformers' default is
 `grouped_mm`, which may lack a kernel on a simulated GPU), `PW_ARCH_ONLY=<case,case>`. Simulated targets use the

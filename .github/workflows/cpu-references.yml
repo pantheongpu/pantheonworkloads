@@ -1,0 +1,49 @@
+name: CPU references on torch 2.14.1
+
+# The CPU references of the PyTorch workloads were recorded with conda-forge torch 2.13.0; the workloads are now
+# standardised on torch 2.14.1 (workloads/_pytorch/requirements-torch.txt). This runs the CPU target of the
+# arch-*, lib-* and gpt-train-fp32 workloads on a hosted runner with torch 2.14.1+cpu (tools/torch-cpu-env.sh)
+# and checks each against its reference with bin/pw. A failure here is a real difference between torch versions.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 6 * * 1'
+  pull_request:
+    paths:
+      - .github/workflows/cpu-references.yml
+      - tools/torch-cpu-env.sh
+      - tools/pw-conda-torch.sh
+      - tools/cpu-torch-pip.sh
+      - workloads/_pytorch/requirements-*.txt
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PyYAML for the runner
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq python3-yaml
+      - name: CPU PyTorch 2.14.1
+        run: |
+          PY=$(tools/torch-cpu-env.sh)
+          echo "PW_PYTHON=$PY" >> "$GITHUB_ENV"
+          "$PY" -c 'import torch, transformers; print("torch", torch.__version__, "transformers", transformers.__version__)'
+      - name: Run the CPU workloads against their references
+        run: |
+          bin/pw run arch-llama-family arch-moe arch-ssm arch-vision arch-encdec \
+                     lib-fft-linalg lib-sparse-embedding lib-rnn-conv lib-composite-blocks lib-attention-precision \
+                     gpt-train-fp32 --target cpu --out "$RUNNER_TEMP/results" | tee "$RUNNER_TEMP/run.txt"
+          bin/pw matrix "$RUNNER_TEMP/results" >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cpu-results
+          path: ${{ runner.temp }}/results
