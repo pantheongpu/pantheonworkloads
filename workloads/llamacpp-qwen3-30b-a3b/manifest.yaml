@@ -1,0 +1,14 @@
+name: llamacpp-qwen3-30b-a3b
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Qwen3-30B-A3B (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 3600
+model:
+  id: "Qwen/Qwen3-30B-A3B-GGUF (Qwen3-30B-A3B-Q4_K_M.gguf; official Qwen GGUF, Q4_K_M of Qwen/Qwen3-30B-A3B)"
+  revision: "e4d4bafdfb96a411a163846265362aceb0b9c63a (HF commit of the GGUF repo); file sha256 0d003f6662faee786ed5da3e31b29c978de5ae5d275c8794c606a7f3c01aa8f5; base model Qwen/Qwen3-30B-A3B @ ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+  licence: Apache-2.0   # read 2026-10-09: GGUF repo Qwen/Qwen3-30B-A3B-GGUF @ e4d4bafd LICENSE file (Apache License 2.0 text) and card front matter (license: apache-2.0), and the base Qwen/Qwen3-30B-A3B @ ad44e777 LICENSE file and front matter; neither gated
+  source_url: https://huggingface.co/Qwen/Qwen3-30B-A3B-GGUF
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-09, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template. Keep it short: longer decodes diverge on floating-point differences between backends. Reference recorded on an NVIDIA A10G (24 GB, -ngl 99; the 18.6 GB file fits with all layers offloaded) and identical in 3 further consecutive GPU runs. Real GPU only."

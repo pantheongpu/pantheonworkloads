@@ -1,0 +1,13 @@
+name: llamacpp-bench-phi4-14b
+description: "llama-bench prompt-processing and token-generation tokens/s for Phi-4 (14B) (Q4_K GGUF)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7200
+model:
+  id: "microsoft/phi-4-gguf (phi-4-Q4_K.gguf; Microsoft's own GGUF repo, Q4_K of microsoft/phi-4)"
+  revision: "6edc2ef6664b739a8e11e62f2672ff6afe0c15ac (HF commit of the GGUF repo); file sha256 5652b9be0ea4ae2842130d04fe31bc869fcb99a2b7106c53b4e754a343fd688f; base model microsoft/phi-4 @ 2db69c1c3e91a05d2c64a3185acfbaf36f744e25"
+  licence: MIT   # read 2026-10-09: GGUF repo microsoft/phi-4-gguf @ 6edc2ef6 LICENSE file (MIT License, Copyright (c) Microsoft Corporation) and card front matter (license: mit), and the base microsoft/phi-4 @ 2db69c1c LICENSE file and front matter; neither gated
+  source_url: https://huggingface.co/microsoft/phi-4-gguf
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-09, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp512_tokens_per_s and tg128_tokens_per_s from llama-bench -o json (mean of PW_BENCH_REPS=3 inside llama-bench; bin/pw's --repeat adds outer repeats), -ngl 99, one NVIDIA A10G. AMD devices are not auto-detected: pass --device. The file is 9.1 GB."

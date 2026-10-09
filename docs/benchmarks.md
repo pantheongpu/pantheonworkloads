@@ -183,3 +183,24 @@ Reading it: these decode rates are far below the memory-bandwidth bound of the c
 decode limited by the host launching many small kernels, the same effect as in the torch 2.14.1 section above. That explanation was not verified with a profile. The SmolVLM2 prefill is
 the slowest of the three because its image processor splits the image into tiles (1439 prompt tokens against 273 and 352); its decode spread (6%) is the widest. Do not
 compare these with the llama.cpp numbers (different runtime, quantised weights) or with the BLIP-2 captions/s (different task and batch).
+
+## More llama.cpp models (2026-10-09, sixth g5.2xlarge, NVIDIA A10G)
+
+One on-demand g5.2xlarge (us-east-1a), driver 595.91.07, llama.cpp b11447 CUDA sm_86 (built with `PW_CUDA_ARCHS=86`, plus `llama-embedding`), `-ngl 99`, `llama-bench`
+pp512/tg128 with `-r 3` inside each repeat, 5 repeats per workload through `bin/pw run --bench --repeat 5`, `PW_BENCH_DIR` outside the checkout. The records under `bench/`
+carry `repo_commit` of the commit that added the workloads (the rig had no `.git`; the tree was identical). Medians of the 5 repeats (range of the 5 in brackets):
+
+| Workload | Quantisation | pp512 tokens/s | tg128 tokens/s |
+| --- | --- | ---: | ---: |
+| `llamacpp-bench-qwen3-30b-a3b` (MoE, 18.6 GB) | Q4_K_M | 3429.22 (3417.76 to 3429.97) | 155.85 (155.65 to 155.88) |
+| `llamacpp-bench-qwen3-8b` | Q6_K | 3555.48 (3496.55 to 3561.72) | 69.15 (69.07 to 69.17) |
+| `llamacpp-bench-phi4-14b` | Q4_K | 2412.72 (2405.73 to 2413.73) | 51.23 (51.22 to 51.23) |
+| `llamacpp-bench-granite40-h-small` (hybrid Mamba-2 MoE, 19.5 GB) | Q4_K_M | 1754.60 (1754.00 to 1754.93) | 66.46 (66.44 to 66.48) |
+| `llamacpp-bench-mistral-small-32-24b` (24B, 14.3 GB) | Q4_K_M | 1513.79 (1513.29 to 1516.21) | 32.83 (32.82 to 32.83) |
+| `llamacpp-bench-olmo2-7b-instruct` | Q8_0 | 3910.10 (3899.31 to 3911.22) | 61.59 (61.57 to 61.59) |
+| `llamacpp-bench-qwen3-embedding-4b` | Q8_0 | 6427.55 (6417.91 to 6433.08) | 96.52 (96.48 to 96.53) |
+
+Reading it: the MoE with about 3B active parameters decodes 2.25x faster than the dense 8B Q6_K (it reads far fewer weight bytes per token), and the 24B dense model at 14.3 GB
+decodes at 32.8 tokens/s, close to what the card's memory bandwidth allows for that file size (roughly 600 GB/s over 14.3 GB, an upper bound of about 42 tokens/s; not profiled). The tg128 of the Qwen3-Embedding-4B
+is a generation benchmark of an embedding model and says nothing about embedding throughput (the functional workload does not time anything). Do not compare these with the
+Q8_0 rows of the Tier 1 table without the quantisation in mind. All five repeats ran on one card in one session: they bound run-to-run noise on this host, not card-to-card variation.
