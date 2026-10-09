@@ -51,6 +51,74 @@ manifest records the model's licence. Models are fetched by the workload's own s
 Check a model's licence before adding it: the terms differ a lot between model families and
 change between versions.
 
+## Benchmark results
+
+Real-GPU numbers only (the simulator never carries performance numbers). Generated from `bench/`; do not edit by hand.
+
+<!-- bench:start -->
+
+55 records from real GPUs (newest per workload and device; all metrics, every record and the software versions: [`docs/results.md`](docs/results.md)).
+
+| Workload | Device | Metrics (median of N runs) | Software | Date |
+| --- | --- | --- | --- | --- |
+| arch-bench | NVIDIA A10G | llama_small_decode_tokens_per_s 2,086; llama_small_prefill_tokens_per_s 390,386 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
+| bert-base-uncased-pytorch | NVIDIA A10G | forward_sequences_per_s_b32_s128 640.5 (n=5) | not recorded | 2026-10-08 |
+| blip2-opt-2p7b-bench | NVIDIA A10G | captions_per_s_b8 18.07; decode_tokens_per_s_b1 57.62 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
+| crnn-text-recognition-bench | NVIDIA A10G | images_per_s 658.5; latency_ms 1.519 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| glove-wiki-gigaword-50-knn-bench | NVIDIA A10G | batch_latency_ms 2.716; queries_per_s 94,256 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| gpt-train-bench | NVIDIA A10G | bf16_steps_per_s 35.29; bf16_tokens_per_s 289,064; fp32_steps_per_s 19.3; +1 more (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
+| gpt2-small-pytorch | NVIDIA A10G | decode_tokens_per_s 104.6 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
+| gtcrn-enhance-onnx-bench | NVIDIA A10G | frames_per_s 152.7; realtime_factor 2.442 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| kokoro-tts-int8-onnx-bench | NVIDIA A10G | latency_ms_per_sentence 4,661; realtime_factor 0.7374 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| kws-zipformer-gigaspeech-onnx-bench | NVIDIA A10G | latency_ms_per_clip 608.9; realtime_factor 19.17 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| lib-kernels-bench | NVIDIA A10G | autocast_bf16_linear_tflops 61.8; autocast_fp16_linear_tflops 61.55; batch_norm_train_fp32_gb_s 306.7; +53 more (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
+| llamacpp-bench-deepseek-r1-distill-qwen-1p5b | NVIDIA A10G | pp512_tokens_per_s 12,805; tg128_tokens_per_s 219.1 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-deepseek-r1-distill-qwen-7b | NVIDIA A10G | pp512_tokens_per_s 4,230; tg128_tokens_per_s 60.37 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-gemma4-e4b-it | NVIDIA A10G | pp512_tokens_per_s 5,459; tg128_tokens_per_s 114.5 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-gpt-oss-20b | NVIDIA A10G | pp512_tokens_per_s 4,388; tg128_tokens_per_s 143.4 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-llama32-1b-instruct | NVIDIA A10G | pp512_tokens_per_s 18,392; tg128_tokens_per_s 299.6 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-llama32-3b-instruct | NVIDIA A10G | pp512_tokens_per_s 7,646; tg128_tokens_per_s 123.3 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-mistral-7b-v03 | NVIDIA A10G | pp512_tokens_per_s 4,014; tg128_tokens_per_s 61.02 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-qwen25-0p5b | NVIDIA A10G | pp512_tokens_per_s 27,160; tg128_tokens_per_s 455.4 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-smollm2-135m | NVIDIA A10G | pp512_tokens_per_s 36,022; tg128_tokens_per_s 654.9 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-synth-bench-gemma | NVIDIA A10G | pp512_tokens_per_s 48,279; tg128_tokens_per_s 1,182 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-synth-bench-llama | NVIDIA A10G | pp512_tokens_per_s 47,737; tg128_tokens_per_s 1,164 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-synth-bench-mistral | NVIDIA A10G | pp512_tokens_per_s 51,574; tg128_tokens_per_s 1,195 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-synth-bench-mixtral | NVIDIA A10G | pp512_tokens_per_s 40,886; tg128_tokens_per_s 1,053 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-synth-bench-phi3 | NVIDIA A10G | pp512_tokens_per_s 54,902; tg128_tokens_per_s 1,280 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-synth-bench-qwen2 | NVIDIA A10G | pp512_tokens_per_s 50,341; tg128_tokens_per_s 1,178 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| minilm-l6-v2-onnx-bench | NVIDIA A10G | batch_latency_ms 3.968; sentences_per_s 9,073 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| moonshine-tiny-en-onnx-bench | NVIDIA A10G | latency_ms_per_clip 515.7; realtime_factor 22.63 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| nanodet-object-detection-bench | NVIDIA A10G | images_per_s 117.3; latency_ms 8.528 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| onnx-zoo-bertsquad-int8-bench | NVIDIA A10G | latency_ms 243; questions_per_s 4.115 (n=5) | onnxruntime 1.30.0 | 2026-10-09 |
+| onnx-zoo-efficientnet-lite4-bench | NVIDIA A10G | batch_latency_ms 2.882; images_per_s 347 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| onnx-zoo-mobilenetv2-bench | NVIDIA A10G | batch_latency_ms 13.81; images_per_s 2,318 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| onnx-zoo-shufflenet-v2-bench | NVIDIA A10G | batch_latency_ms 1.35; images_per_s 740.8 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| onnx-zoo-ssd-mobilenetv1-bench | NVIDIA A10G | images_per_s 86.5; latency_ms 11.56 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| pphumanseg-person-segmentation-bench | NVIDIA A10G | images_per_s 319.4; latency_ms 3.131 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| ppocr-rapidocr-bench | NVIDIA A10G | images_per_s 6.742; latency_ms 148.3 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| pytorch-microsuite | NVIDIA A10G | conv2d_fp16_tflops 43.49; copy_gb_s 482.1; matmul_bf16_tflops 62.39; +4 more (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
+| qwen25-vl-7b-bench | NVIDIA A10G | decode_tokens_per_s_b1 28.76; peak_gpu_memory_gb 16.72; prefill_images_per_s_b1 4.699 (n=5) | torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-09 |
+| qwen3-vl-4b-bench | NVIDIA A10G | decode_tokens_per_s_b1 23.64; peak_gpu_memory_gb 9.03; prefill_images_per_s_b1 9.828 (n=5) | torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-09 |
+| resnet18-randinit-pytorch | NVIDIA A10G | images_per_s_b64_224 3,175 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
+| sdxl-base-bench | NVIDIA A10G | images_per_s_1024_25steps 0.1273; unet_steps_per_s 3.183 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
+| sface-face-embedding-bench | NVIDIA A10G | images_per_s 1,194; latency_ms 0.8375 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| silero-vad-onnx-bench | NVIDIA A10G | realtime_factor 61.76; windows_per_s 1,930 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| smollm2-135m-ollama | NVIDIA A10G | decode_tokens_per_s 399.7 (n=5) | Warning: could not connect to a running Ollama instance | 2026-10-08 |
+| smolvlm2-2p2b-bench | NVIDIA A10G | decode_tokens_per_s_b1 47.99; peak_gpu_memory_gb 5.24; prefill_images_per_s_b1 2.727 (n=5) | torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-09 |
+| spacy-en-core-web-md-bench | NVIDIA A10G | docs_per_s 1,030; words_per_s 15,796 (n=5) | spacy 3.8.16 | 2026-10-08 |
+| spacy-en-core-web-sm-bench | NVIDIA A10G | docs_per_s 985.2; words_per_s 16,748 (n=5) | spacy 3.8.16 | 2026-10-08 |
+| spacy-multilingual-sm-bench | NVIDIA A10G | nb_core_news_sm_words_per_s 13,361; ru_core_news_sm_words_per_s 13,411; uk_core_news_sm_words_per_s 12,046; +1 more (n=5) | spacy 3.8.16 | 2026-10-08 |
+| vllm-bench-throughput | NVIDIA A10G | output_tokens_per_s 32,545; requests_per_s 254.3; total_tokens_per_s 65,090 (n=5) | not recorded | 2026-10-08 |
+| wespeaker-resnet34-onnx-bench | NVIDIA A10G | embeddings_per_s 14.11; realtime_factor 140 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| whisper-cpp-bench-large-v3 | NVIDIA A10G | decode_ms_per_run 7.72; encode_ms_per_run 96.46 (n=5) | not recorded | 2026-10-08 |
+| whisper-cpp-bench-tiny-en | NVIDIA A10G | decode_ms_per_run 0.82; encode_ms_per_run 3.07 (n=5) | not recorded | 2026-10-08 |
+| yolox-object-detection-bench | NVIDIA A10G | images_per_s 70.7; latency_ms 14.14 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| yunet-face-detection-bench | NVIDIA A10G | images_per_s 216.4; latency_ms 4.62 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+| zipformer-audio-tagging-onnx-bench | NVIDIA A10G | clips_per_s 21.02; realtime_factor 173 (n=5) | onnxruntime 1.30.0 | 2026-10-08 |
+
+<!-- bench:end -->
+
 ## Coverage
 
 The table below is generated by `bin/pw coverage` from the manifests, `reference.json` files, `model.sha256`
