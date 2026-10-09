@@ -12,7 +12,7 @@ from importlib import metadata
 # distributions are listed because both can be installed (rapidocr_onnxruntime pulls in the CPU one), so a record
 # shows both rather than guess which was imported.
 ORT = ("onnxruntime", "onnxruntime-gpu", "numpy", "onnx", "rapidocr_onnxruntime", "opencv-python", "pillow",
-       "pyclipper", "shapely", "sentencepiece", "spacy", "py3langid")
+       "pyclipper", "shapely", "sentencepiece", "spacy", "thinc", "cupy-cuda12x", "py3langid")
 SPACY = ("spacy", "cupy-cuda12x", "numpy", "thinc", "en_core_web_sm")
 
 
