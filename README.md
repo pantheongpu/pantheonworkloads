@@ -57,7 +57,7 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 
 <!-- bench:start -->
 
-55 records from real GPUs (newest per workload and device; all metrics, every record and the software versions: [`docs/results.md`](docs/results.md)).
+62 records from real GPUs (newest per workload and device; all metrics, every record and the software versions: [`docs/results.md`](docs/results.md)).
 
 | Workload | Device | Metrics (median of N runs) | Software | Date |
 | --- | --- | --- | --- | --- |
@@ -76,10 +76,17 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 | llamacpp-bench-deepseek-r1-distill-qwen-7b | NVIDIA A10G | pp512_tokens_per_s 4,230; tg128_tokens_per_s 60.37 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-bench-gemma4-e4b-it | NVIDIA A10G | pp512_tokens_per_s 5,459; tg128_tokens_per_s 114.5 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-bench-gpt-oss-20b | NVIDIA A10G | pp512_tokens_per_s 4,388; tg128_tokens_per_s 143.4 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-granite40-h-small | NVIDIA A10G | pp512_tokens_per_s 1,755; tg128_tokens_per_s 66.46 (n=5) | llama.cpp b11447 | 2026-10-09 |
 | llamacpp-bench-llama32-1b-instruct | NVIDIA A10G | pp512_tokens_per_s 18,392; tg128_tokens_per_s 299.6 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-bench-llama32-3b-instruct | NVIDIA A10G | pp512_tokens_per_s 7,646; tg128_tokens_per_s 123.3 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-bench-mistral-7b-v03 | NVIDIA A10G | pp512_tokens_per_s 4,014; tg128_tokens_per_s 61.02 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-mistral-small-32-24b | NVIDIA A10G | pp512_tokens_per_s 1,514; tg128_tokens_per_s 32.83 (n=5) | llama.cpp b11447 | 2026-10-09 |
+| llamacpp-bench-olmo2-7b-instruct | NVIDIA A10G | pp512_tokens_per_s 3,910; tg128_tokens_per_s 61.59 (n=5) | llama.cpp b11447 | 2026-10-09 |
+| llamacpp-bench-phi4-14b | NVIDIA A10G | pp512_tokens_per_s 2,413; tg128_tokens_per_s 51.23 (n=5) | llama.cpp b11447 | 2026-10-09 |
 | llamacpp-bench-qwen25-0p5b | NVIDIA A10G | pp512_tokens_per_s 27,160; tg128_tokens_per_s 455.4 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-qwen3-30b-a3b | NVIDIA A10G | pp512_tokens_per_s 3,429; tg128_tokens_per_s 155.8 (n=5) | llama.cpp b11447 | 2026-10-09 |
+| llamacpp-bench-qwen3-8b | NVIDIA A10G | pp512_tokens_per_s 3,555; tg128_tokens_per_s 69.15 (n=5) | llama.cpp b11447 | 2026-10-09 |
+| llamacpp-bench-qwen3-embedding-4b | NVIDIA A10G | pp512_tokens_per_s 6,428; tg128_tokens_per_s 96.52 (n=5) | llama.cpp b11447 | 2026-10-09 |
 | llamacpp-bench-smollm2-135m | NVIDIA A10G | pp512_tokens_per_s 36,022; tg128_tokens_per_s 654.9 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-synth-bench-gemma | NVIDIA A10G | pp512_tokens_per_s 48,279; tg128_tokens_per_s 1,182 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-synth-bench-llama | NVIDIA A10G | pp512_tokens_per_s 47,737; tg128_tokens_per_s 1,164 (n=5) | llama.cpp b11447 | 2026-10-08 |

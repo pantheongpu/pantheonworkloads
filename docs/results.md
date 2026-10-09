@@ -193,6 +193,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 4,388 | 4,381 | 4,392 |
 | tg128_tokens_per_s | 143.4 | 143.4 | 143.5 |
 
+## llamacpp-bench-granite40-h-small on NVIDIA A10G
+
+2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,755 | 1,754 | 1,755 |
+| tg128_tokens_per_s | 66.46 | 66.44 | 66.48 |
+
 ## llamacpp-bench-llama32-1b-instruct on NVIDIA A10G
 
 2026-10-08, 5 runs, llama.cpp b11447, driver 595.91.07, commit `978153e7`
@@ -220,6 +229,33 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 4,014 | 4,012 | 4,016 |
 | tg128_tokens_per_s | 61.02 | 61.01 | 61.02 |
 
+## llamacpp-bench-mistral-small-32-24b on NVIDIA A10G
+
+2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,514 | 1,513 | 1,516 |
+| tg128_tokens_per_s | 32.83 | 32.82 | 32.83 |
+
+## llamacpp-bench-olmo2-7b-instruct on NVIDIA A10G
+
+2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,910 | 3,899 | 3,911 |
+| tg128_tokens_per_s | 61.59 | 61.57 | 61.59 |
+
+## llamacpp-bench-phi4-14b on NVIDIA A10G
+
+2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 2,413 | 2,406 | 2,414 |
+| tg128_tokens_per_s | 51.23 | 51.22 | 51.23 |
+
 ## llamacpp-bench-qwen25-0p5b on NVIDIA A10G
 
 2026-10-08, 5 runs, llama.cpp b11447, driver 595.91.07, commit `af936207`
@@ -228,6 +264,33 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | pp512_tokens_per_s | 27,160 | 27,137 | 27,234 |
 | tg128_tokens_per_s | 455.4 | 455.4 | 455.7 |
+
+## llamacpp-bench-qwen3-30b-a3b on NVIDIA A10G
+
+2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,429 | 3,418 | 3,430 |
+| tg128_tokens_per_s | 155.8 | 155.7 | 155.9 |
+
+## llamacpp-bench-qwen3-8b on NVIDIA A10G
+
+2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,555 | 3,497 | 3,562 |
+| tg128_tokens_per_s | 69.15 | 69.07 | 69.17 |
+
+## llamacpp-bench-qwen3-embedding-4b on NVIDIA A10G
+
+2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 6,428 | 6,418 | 6,433 |
+| tg128_tokens_per_s | 96.52 | 96.48 | 96.53 |
 
 ## llamacpp-bench-smollm2-135m on NVIDIA A10G
 
