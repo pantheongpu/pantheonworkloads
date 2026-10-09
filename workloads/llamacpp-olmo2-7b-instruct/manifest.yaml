@@ -1,0 +1,14 @@
+name: llamacpp-olmo2-7b-instruct
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from OLMo-2-1124-7B-Instruct (Q8_0 GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 3600
+model:
+  id: "allenai/OLMo-2-1124-7B-Instruct-GGUF (olmo-2-1124-7B-instruct-Q8_0.gguf; Ai2's own GGUF repo, Q8_0 of allenai/OLMo-2-1124-7B-Instruct)"
+  revision: "410e0069f64869e4b1d17d8de04810b881fd824b (HF commit of the GGUF repo); file sha256 fc410f17c151bed25e91e999eda63867e031e1def86cd4d5c854abebdf442f97; base model allenai/OLMo-2-1124-7B-Instruct @ 470b1fba1ae01581f270116362ee4aa1b97f4c84"
+  licence: Apache-2.0   # read 2026-10-09: GGUF repo allenai/OLMo-2-1124-7B-Instruct-GGUF @ 410e0069 card front matter (license: apache-2.0) and the base allenai/OLMo-2-1124-7B-Instruct @ 470b1fba card (front matter license: apache-2.0 and the sentence 'OLMo 2 is licensed under the Apache 2.0 license'); neither repo has a LICENSE file; neither gated
+  source_url: https://huggingface.co/allenai/OLMo-2-1124-7B-Instruct-GGUF
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-09, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template. Keep it short: longer decodes diverge on floating-point differences between backends. Reference recorded on an NVIDIA A10G (24 GB, -ngl 99; the 7.8 GB file fits with all layers offloaded) and identical in 3 further consecutive GPU runs. Real GPU only."

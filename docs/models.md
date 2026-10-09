@@ -12,7 +12,7 @@ references recorded **on that GPU** (not the CPU; each commit message says so). 
 `vllm-greedy-smollm2-135m`, `vllm-bench-throughput`, `llamacpp-smollm2-135m` and its bench twin (all Apache-2.0). Added later the same day on a second g5.2xlarge (A10G): `llamacpp-qwen25-0p5b` (+ bench) and `llamacpp-mistral-7b-v03` (+ bench), all Apache-2.0 as read from the cards. Still open: the sections below that still say "unverified" for text
 older than this note, and everything on the simulator or AMD. GitHub and PyPI were always reachable; Hugging Face was not from the host that wrote the first version.
 
-The Tier 1 models added on a third g5.2xlarge (Llama 3.2 1B/3B, Gemma 4 E4B, gpt-oss-20b, DeepSeek-R1-Distill-Qwen 1.5B/7B, Whisper large-v3, SDXL base, BLIP-2) are in "Tier 1 models" below, followed by the vision-language models added on 2026-10-09 (Qwen2.5-VL-7B, Qwen3-VL-4B, SmolVLM2-2.2B), with the ones that are blocked or too big for one A10G.
+The Tier 1 models added on a third g5.2xlarge (Llama 3.2 1B/3B, Gemma 4 E4B, gpt-oss-20b, DeepSeek-R1-Distill-Qwen 1.5B/7B, Whisper large-v3, SDXL base, BLIP-2) are in "Tier 1 models" below, followed by the vision-language models added on 2026-10-09 (Qwen2.5-VL-7B, Qwen3-VL-4B, SmolVLM2-2.2B), with the ones that are blocked or too big for one A10G. Seven more llama.cpp models (Qwen3-30B-A3B, Qwen3-8B, Phi-4, Granite 4.0 H-Small, Mistral-Small-3.2-24B, OLMo-2-7B, Qwen3-Embedding-4B) were added on 2026-10-09 in "More llama.cpp architectures" below.
 
 Each section below is self-contained and covers one workload family.
 
@@ -237,6 +237,50 @@ Notes on the results (details and bench numbers: `docs/benchmarks.md`):
   tolerance of `bin/pw` was not needed. Memory (torch peak allocated, batch 1, this image): 16.7 GB for the 7B, 9.0 GB for the 4B, 5.0 GB for SmolVLM2; the 7B in fp16 fits one
   24 GB A10G with room for the activations of one image, a larger image or batch would not be checked. Qwen3-VL-8B (apache-2.0 on its card, 4 shards, about 17 GB) was not added:
   it would be a second Qwen3-VL point beside the 4B. The CPU target is a documented SKIP (`targets: [gpu]`); the simulator targets are not listed either, nothing was run on pantheonsim.
+
+## More llama.cpp architectures: one 24 GB card (added 2026-10-09, g5.2xlarge, NVIDIA A10G)
+
+Scope agreed with the user: open LLMs that fit one A10G, as llama.cpp functional and `llama-bench` workloads, to widen the architecture and quantisation
+coverage for the simulator and GPU comparisons (the llama.cpp pin did not move: b11447 supports all of them). Everything was read on 2026-10-09 with no Hugging Face
+credentials: API metadata (`gated` is false for every repo below), card front matter, and LICENSE files where a repo has one. Weights are never committed; every file's
+sha256 is the Hub's LFS oid at the pinned commit and is verified on every run. References were recorded on the A10G (llama.cpp b11447, CUDA sm_86, `-ngl 99`, 3 greedy
+tokens of "The capital of France is", no chat template) and reproduced by 3 further consecutive runs, all PASS (exact compare); bench medians of 5 repeats are in
+`docs/benchmarks.md`. None is `restricted`: all seven are Apache-2.0 or MIT.
+
+| Model, quantisation (file size) | Workloads | Licence as read | Pin | Architecture / what it adds | Peak GPU memory of a decode |
+| --- | --- | --- | --- | --- | ---: |
+| Qwen3-30B-A3B, Q4_K_M (18.6 GB) | `llamacpp-qwen3-30b-a3b`, `llamacpp-bench-qwen3-30b-a3b` | Apache-2.0: LICENSE file (Apache License 2.0 text) and front matter of the official GGUF repo `Qwen/Qwen3-30B-A3B-GGUF` and of the base `Qwen/Qwen3-30B-A3B` | GGUF repo `e4d4bafd...`, file sha256 `0d003f66...`; base `ad44e777...`; Qwen's own GGUF | mixture of experts (Qwen3-MoE), K-quant | 17.4 GiB |
+| Qwen3-8B, Q6_K (6.7 GB) | `llamacpp-qwen3-8b`, `llamacpp-bench-qwen3-8b` | Apache-2.0: LICENSE file and front matter of `Qwen/Qwen3-8B-GGUF` and `Qwen/Qwen3-8B` | GGUF repo `7c41481f...`, file sha256 `cb042ccd...`; base `b968826d...`; Qwen's own GGUF | dense Qwen3 (QK-norm), Q6_K | 6.0 GiB |
+| Phi-4 (14B), Q4_K (9.1 GB) | `llamacpp-phi4-14b`, `llamacpp-bench-phi4-14b` | MIT: LICENSE file (MIT License, Copyright (c) Microsoft Corporation) and front matter of `microsoft/phi-4-gguf` and of `microsoft/phi-4` | GGUF repo `6edc2ef6...`, file sha256 `5652b9be...`; base `2db69c1c...`; Microsoft's own GGUF | Phi-3-family dense model, K-quant | 8.6 GiB |
+| Granite 4.0 H-Small, Q4_K_M (19.5 GB) | `llamacpp-granite40-h-small`, `llamacpp-bench-granite40-h-small` | Apache-2.0: front matter of `ibm-granite/granite-4.0-h-small-GGUF` and of the base `ibm-granite/granite-4.0-h-small` (card line "License: Apache 2.0"); neither repo has a LICENSE file | GGUF repo `65220950...`, file sha256 `23c6019f...`; base `b8c0982b...`; IBM's own GGUF | hybrid: Mamba-2 state-space layers + attention + mixture of experts (32B total) | 18.7 GiB |
+| Mistral-Small-3.2-24B-Instruct-2506 (text part), Q4_K_M (14.3 GB) | `llamacpp-mistral-small-32-24b`, `llamacpp-bench-mistral-small-32-24b` | Apache-2.0: front matter of `bartowski/mistralai_Mistral-Small-3.2-24B-Instruct-2506-GGUF` (`license: apache-2.0`, `base_model_relation: quantized`) and of the official `mistralai/Mistral-Small-3.2-24B-Instruct-2506`; no LICENSE file in either; both have an `extra_gated_description` but anonymous access works | GGUF repo `b3592d09...`, file sha256 `80f5bda6...`; base `95a6d26c...`; **third-party conversion** (bartowski, imatrix): the official `mistralai/...-GGUF` repo answers 401 without credentials | dense 24B (Mistral-Small architecture), imatrix K-quant | 13.5 GiB |
+| OLMo-2-1124-7B-Instruct, Q8_0 (7.8 GB) | `llamacpp-olmo2-7b-instruct`, `llamacpp-bench-olmo2-7b-instruct` | Apache-2.0: front matter of Ai2's own `allenai/OLMo-2-1124-7B-Instruct-GGUF` and of `allenai/OLMo-2-1124-7B-Instruct` (card: "OLMo 2 is licensed under the Apache 2.0 license"); no LICENSE file | GGUF repo `410e0069...`, file sha256 `fc410f17...`; base `470b1fba...`; Ai2's own GGUF | OLMo-2 (post-norm blocks, QK-norm) | 7.3 GiB |
+| Qwen3-Embedding-4B, Q8_0 (4.3 GB) | `llamacpp-qwen3-embedding-4b`, `llamacpp-bench-qwen3-embedding-4b` | Apache-2.0: front matter of `Qwen/Qwen3-Embedding-4B-GGUF` (no LICENSE file) and of `Qwen/Qwen3-Embedding-4B` | GGUF repo `f4602530...`, file sha256 `b60ae5ce...`; base `5cf2132a...`; Qwen's own GGUF | embedding model: last-token pooling, no sampling | not measured |
+
+Notes:
+
+- Memory is the peak of `nvidia-smi` sampled every 0.5 s during one `-c 256` decode with all layers offloaded (a lower bound of the true peak). The two biggest files (Granite
+  19.5 GB, Qwen3-30B-A3B 18.6 GB) fit with 3 to 5 GiB to spare.
+- **Near ties and short outputs.** All references are the 3-token greedy decode used by the other llama.cpp workloads: Qwen3-30B-A3B and Qwen3-8B " Paris. The", Phi-4,
+  OLMo-2 and Mistral-Small " Paris. It", and Granite 4.0 H-Small " Paris. [end of text]" (it stops after two tokens, like Gemma 4 in the table above, so the reference is shorter
+  than 3 tokens of text). Longer decodes were not used: the existing rule is that long greedy decodes diverge on floating-point differences between backends.
+- **The embedding workload** (`llamacpp-qwen3-embedding-4b`) runs `llama-embedding` (an example program in llama.cpp, so `tools/llamacpp/build.sh` needs
+  `LLAMACPP_BUILD_EXAMPLES=1 LLAMACPP_EXTRA_TARGETS=llama-embedding`; the workload sets both for a first build, and SKIPs on a prefix built without them) on four fixed texts
+  (an instruction-format query, "What is the capital of France?", and three passages) with last-token pooling and L2 normalisation. Reference (2560 dimensions): cosine of the query
+  with the Paris passage 0.6436, with the Berlin passage 0.4316, with the mitochondria passage 0.1699; passage ranking "1 3 2" (Paris, Berlin, mitochondria), compared exactly.
+  The 2560-value vectors were **bit-identical in all 4 runs** on the A10G (maximum element difference 0.0); the compare tolerance (abs 0.005 on cosines rounded to 4 decimals) is
+  therefore a reasoned allowance for other cards or simulators, not a measured spread. `llama-bench` also runs on this model (pp512/tg128, benchmarks.md).
+- `bin/pw` reports `repo_commit` in the bench records from the checkout it runs in; these records were produced on a rig without a `.git`, so `repo_commit` was filled in afterwards
+  with the commit that added the workloads (the tree was identical).
+- Not added, with the reason:
+
+| Model | Why not |
+| --- | --- |
+| Falcon-H1 (7B, 34B; hybrid attention + Mamba-2) | `tiiuae/Falcon-H1-7B-Instruct-GGUF` is not gated but its licence is `license: other` (TII Falcon-LLM licence, not OSI): would be `restricted: true`. Not added because Granite 4.0 H-Small already covers the hybrid state-space design; available if wanted |
+| Mistral-Small-3.2-24B official GGUF | `mistralai/Mistral-Small-3.2-24B-Instruct-2506-GGUF` answers 401 without Hugging Face credentials (gated or private); the bartowski conversion above is used instead and labelled third-party |
+| Phi-4-mini | `microsoft/Phi-4-mini-instruct-gguf` answers "Invalid username or password" on the API without credentials (gated or absent); the 14B Phi-4 has an ungated official GGUF and was used instead |
+| OLMo-2 32B | does not fit one A10G at a useful quantisation (not sized); 7B added |
+| Qwen3-Embedding-8B / BGE-M3 | a second embedding point beside the 4B; BGE-M3 has no GGUF in its official repo |
 
 ## Other model groups, documented in their own files
 

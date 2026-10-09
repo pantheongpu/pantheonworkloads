@@ -1,0 +1,14 @@
+name: llamacpp-qwen3-8b
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Qwen3-8B (Q6_K GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 3600
+model:
+  id: "Qwen/Qwen3-8B-GGUF (Qwen3-8B-Q6_K.gguf; official Qwen GGUF, Q6_K of Qwen/Qwen3-8B)"
+  revision: "7c41481f57cb95916b40956ab2f0b139b296d974 (HF commit of the GGUF repo); file sha256 cb042ccd76795a8830d6be6bd4165245847cc68e41797b13bd61aed4c2cfbce6; base model Qwen/Qwen3-8B @ b968826d9c46dd6066d109eabc6255188de91218"
+  licence: Apache-2.0   # read 2026-10-09: GGUF repo Qwen/Qwen3-8B-GGUF @ 7c41481f LICENSE file (Apache License 2.0 text) and card front matter (license: apache-2.0), and the base Qwen/Qwen3-8B @ b968826d LICENSE file and front matter; neither gated
+  source_url: https://huggingface.co/Qwen/Qwen3-8B-GGUF
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-09, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template. Keep it short: longer decodes diverge on floating-point differences between backends. Reference recorded on an NVIDIA A10G (24 GB, -ngl 99; the 6.7 GB file fits with all layers offloaded) and identical in 3 further consecutive GPU runs. Real GPU only."

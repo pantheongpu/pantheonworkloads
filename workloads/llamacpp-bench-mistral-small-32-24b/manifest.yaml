@@ -1,0 +1,13 @@
+name: llamacpp-bench-mistral-small-32-24b
+description: "llama-bench prompt-processing and token-generation tokens/s for Mistral-Small-3.2-24B-Instruct-2506 (text part) (Q4_K_M GGUF)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7200
+model:
+  id: "bartowski/mistralai_Mistral-Small-3.2-24B-Instruct-2506-GGUF (mistralai_Mistral-Small-3.2-24B-Instruct-2506-Q4_K_M.gguf; bartowski's imatrix conversion (no official Mistral GGUF repo is readable: mistralai/Mistral-Small-3.2-24B-Instruct-2506-GGUF answers 401 without credentials), Q4_K_M of mistralai/Mistral-Small-3.2-24B-Instruct-2506)"
+  revision: "b3592d09be469bedab6be51f577824b3b6b76ba1 (HF commit of the GGUF repo); file sha256 80f5bda68f156f12650ca03a0a2dbfae06a215ac41caa773b8631a479f82415e; base model mistralai/Mistral-Small-3.2-24B-Instruct-2506 @ 95a6d26c4bfb886c58daf9d3f7332c857cb27b43"
+  licence: Apache-2.0   # read 2026-10-09: card front matter of the conversion bartowski/mistralai_Mistral-Small-3.2-24B-Instruct-2506-GGUF @ b3592d09 (license: apache-2.0, base_model_relation: quantized) and of the official base mistralai/Mistral-Small-3.2-24B-Instruct-2506 @ 95a6d26c (license: apache-2.0); neither repo has a LICENSE file; both carry an extra_gated_description but are not gated (anonymous API access works). Third-party conversion
+  source_url: https://huggingface.co/bartowski/mistralai_Mistral-Small-3.2-24B-Instruct-2506-GGUF
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-09, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp512_tokens_per_s and tg128_tokens_per_s from llama-bench -o json (mean of PW_BENCH_REPS=3 inside llama-bench; bin/pw's --repeat adds outer repeats), -ngl 99, one NVIDIA A10G. AMD devices are not auto-detected: pass --device. The file is 14.3 GB."

@@ -1,0 +1,13 @@
+name: llamacpp-bench-qwen3-8b
+description: "llama-bench prompt-processing and token-generation tokens/s for Qwen3-8B (Q6_K GGUF)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7200
+model:
+  id: "Qwen/Qwen3-8B-GGUF (Qwen3-8B-Q6_K.gguf; official Qwen GGUF, Q6_K of Qwen/Qwen3-8B)"
+  revision: "7c41481f57cb95916b40956ab2f0b139b296d974 (HF commit of the GGUF repo); file sha256 cb042ccd76795a8830d6be6bd4165245847cc68e41797b13bd61aed4c2cfbce6; base model Qwen/Qwen3-8B @ b968826d9c46dd6066d109eabc6255188de91218"
+  licence: Apache-2.0   # read 2026-10-09: GGUF repo Qwen/Qwen3-8B-GGUF @ 7c41481f LICENSE file (Apache License 2.0 text) and card front matter (license: apache-2.0), and the base Qwen/Qwen3-8B @ b968826d LICENSE file and front matter; neither gated
+  source_url: https://huggingface.co/Qwen/Qwen3-8B-GGUF
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-09, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Real targets only: bin/pw refuses --bench for sim: targets. Metrics: pp512_tokens_per_s and tg128_tokens_per_s from llama-bench -o json (mean of PW_BENCH_REPS=3 inside llama-bench; bin/pw's --repeat adds outer repeats), -ngl 99, one NVIDIA A10G. AMD devices are not auto-detected: pass --device. The file is 6.7 GB."

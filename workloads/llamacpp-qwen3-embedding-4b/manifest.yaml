@@ -1,0 +1,15 @@
+name: llamacpp-qwen3-embedding-4b
+description: "llama.cpp (llama-embedding) embeds a query and three passages with Qwen3-Embedding-4B (Q8_0 GGUF) and checks their cosine similarities and the passage ranking."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: tolerance
+tolerance: {abs: 0.005, rel: 0}
+timeout_s: 3600
+model:
+  id: "Qwen/Qwen3-Embedding-4B-GGUF (Qwen3-Embedding-4B-Q8_0.gguf; official Qwen GGUF, Q8_0 of Qwen/Qwen3-Embedding-4B (the GGUF card names Qwen/Qwen3-4B-Base as base_model))"
+  revision: "f4602530db1d980e16da9d7d3a70294cf5c190be (HF commit of the GGUF repo); file sha256 b60ae5ce2dd6a0b77f82cadf21def1f310a3e10cde380ad0081b07a9d416949d; base model Qwen/Qwen3-Embedding-4B (the GGUF card names Qwen/Qwen3-4B-Base as base_model)"
+  licence: Apache-2.0   # read 2026-10-09: GGUF repo Qwen/Qwen3-Embedding-4B-GGUF @ f4602530 card front matter (license: apache-2.0; no LICENSE file in that repo) and the base Qwen/Qwen3-Embedding-4B @ 5cf2132a card front matter (license: apache-2.0); neither gated
+  source_url: https://huggingface.co/Qwen/Qwen3-Embedding-4B-GGUF
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-09, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Embedding workload: llama-embedding (an example program; tools/llamacpp/build.sh builds it with LLAMACPP_BUILD_EXAMPLES=1 LLAMACPP_EXTRA_TARGETS=llama-embedding, which run.sh sets for a first build; a prefix built without it SKIPs). Four fixed texts (an instruction-format query and three passages, each ended with <|endoftext|>), last-token pooling, L2 normalised; the output is the 2560-dim check, the six pairwise cosine similarities rounded to 4 decimals (compared within abs 0.005; the four A10G runs were bit-identical, so the bound is an allowance for other cards, see docs/models.md) and the ranking of the passages for the query (compared exactly). Reference recorded on an NVIDIA A10G (24 GB, -ngl 99) and identical in 3 further consecutive GPU runs. Real GPU only."

@@ -1,0 +1,14 @@
+name: llamacpp-phi4-14b
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Phi-4 (14B) (Q4_K GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 3600
+model:
+  id: "microsoft/phi-4-gguf (phi-4-Q4_K.gguf; Microsoft's own GGUF repo, Q4_K of microsoft/phi-4)"
+  revision: "6edc2ef6664b739a8e11e62f2672ff6afe0c15ac (HF commit of the GGUF repo); file sha256 5652b9be0ea4ae2842130d04fe31bc869fcb99a2b7106c53b4e754a343fd688f; base model microsoft/phi-4 @ 2db69c1c3e91a05d2c64a3185acfbaf36f744e25"
+  licence: MIT   # read 2026-10-09: GGUF repo microsoft/phi-4-gguf @ 6edc2ef6 LICENSE file (MIT License, Copyright (c) Microsoft Corporation) and card front matter (license: mit), and the base microsoft/phi-4 @ 2db69c1c LICENSE file and front matter; neither gated
+  source_url: https://huggingface.co/microsoft/phi-4-gguf
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-09, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template. Keep it short: longer decodes diverge on floating-point differences between backends. Reference recorded on an NVIDIA A10G (24 GB, -ngl 99; the 9.1 GB file fits with all layers offloaded) and identical in 3 further consecutive GPU runs. Real GPU only."

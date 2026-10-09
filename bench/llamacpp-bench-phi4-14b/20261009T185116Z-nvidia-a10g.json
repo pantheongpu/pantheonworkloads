@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-phi4-14b",
+  "date": "2026-10-09T18:51:16Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "microsoft/phi-4-gguf (phi-4-Q4_K.gguf; Microsoft's own GGUF repo, Q4_K of microsoft/phi-4)",
+      "revision": "6edc2ef6664b739a8e11e62f2672ff6afe0c15ac (HF commit of the GGUF repo); file sha256 5652b9be0ea4ae2842130d04fe31bc869fcb99a2b7106c53b4e754a343fd688f; base model microsoft/phi-4 @ 2db69c1c3e91a05d2c64a3185acfbaf36f744e25",
+      "licence": "MIT",
+      "source_url": "https://huggingface.co/microsoft/phi-4-gguf"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "1b32fe1cdb2e3d4a06949d9304f47763829dd654",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 2412.72,
+      "values": [
+        2413.2,
+        2405.73,
+        2412.72,
+        2406.79,
+        2413.73
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 51.23,
+      "values": [
+        51.22,
+        51.22,
+        51.23,
+        51.23,
+        51.23
+      ]
+    }
+  }
+}

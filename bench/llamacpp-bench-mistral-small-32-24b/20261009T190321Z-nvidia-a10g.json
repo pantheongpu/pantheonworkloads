@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-mistral-small-32-24b",
+  "date": "2026-10-09T19:03:21Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "bartowski/mistralai_Mistral-Small-3.2-24B-Instruct-2506-GGUF (mistralai_Mistral-Small-3.2-24B-Instruct-2506-Q4_K_M.gguf; bartowski's imatrix conversion (no official Mistral GGUF repo is readable: mistralai/Mistral-Small-3.2-24B-Instruct-2506-GGUF answers 401 without credentials), Q4_K_M of mistralai/Mistral-Small-3.2-24B-Instruct-2506)",
+      "revision": "b3592d09be469bedab6be51f577824b3b6b76ba1 (HF commit of the GGUF repo); file sha256 80f5bda68f156f12650ca03a0a2dbfae06a215ac41caa773b8631a479f82415e; base model mistralai/Mistral-Small-3.2-24B-Instruct-2506 @ 95a6d26c4bfb886c58daf9d3f7332c857cb27b43",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/bartowski/mistralai_Mistral-Small-3.2-24B-Instruct-2506-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "1b32fe1cdb2e3d4a06949d9304f47763829dd654",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 1513.79,
+      "values": [
+        1513.29,
+        1516.01,
+        1516.21,
+        1513.79,
+        1513.45
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 32.83,
+      "values": [
+        32.83,
+        32.83,
+        32.83,
+        32.82,
+        32.83
+      ]
+    }
+  }
+}

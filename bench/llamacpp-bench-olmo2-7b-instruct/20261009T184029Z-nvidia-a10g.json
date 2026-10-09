@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-olmo2-7b-instruct",
+  "date": "2026-10-09T18:40:29Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "allenai/OLMo-2-1124-7B-Instruct-GGUF (olmo-2-1124-7B-instruct-Q8_0.gguf; Ai2's own GGUF repo, Q8_0 of allenai/OLMo-2-1124-7B-Instruct)",
+      "revision": "410e0069f64869e4b1d17d8de04810b881fd824b (HF commit of the GGUF repo); file sha256 fc410f17c151bed25e91e999eda63867e031e1def86cd4d5c854abebdf442f97; base model allenai/OLMo-2-1124-7B-Instruct @ 470b1fba1ae01581f270116362ee4aa1b97f4c84",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/allenai/OLMo-2-1124-7B-Instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "1b32fe1cdb2e3d4a06949d9304f47763829dd654",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 3910.1,
+      "values": [
+        3908.98,
+        3899.31,
+        3910.1,
+        3911.22,
+        3910.22
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 61.59,
+      "values": [
+        61.58,
+        61.59,
+        61.57,
+        61.59,
+        61.59
+      ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+name: llamacpp-granite40-h-small
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Granite 4.0 H-Small (hybrid Mamba-2 / attention MoE, 32B total) (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 3600
+model:
+  id: "ibm-granite/granite-4.0-h-small-GGUF (granite-4.0-h-small-Q4_K_M.gguf; official IBM GGUF, Q4_K_M of ibm-granite/granite-4.0-h-small)"
+  revision: "6522095069a86fc3186b8632850e4373dd850cac (HF commit of the GGUF repo); file sha256 23c6019f2e6fa56eb8872ecf8d9d1e4b2ebf3c087fb5275257ea07602d2a38b6; base model ibm-granite/granite-4.0-h-small @ b8c0982bab7fde4eb48110f5a069527c008fab39"
+  licence: Apache-2.0   # read 2026-10-09: GGUF repo ibm-granite/granite-4.0-h-small-GGUF @ 65220950 card front matter (license: apache-2.0), and the base ibm-granite/granite-4.0-h-small @ b8c0982b card (front matter license: apache-2.0, line '**License:** Apache 2.0'); neither repo has a LICENSE file; neither gated
+  source_url: https://huggingface.co/ibm-granite/granite-4.0-h-small-GGUF
+notes: "llama.cpp itself is MIT (LICENSE read at the pinned commit). Repo and file pinned on 2026-10-09, sha256 = the LFS oid listed by the Hub for that commit, verified on every run. Build and knobs: docs/llamacpp.md. Prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template. Keep it short: longer decodes diverge on floating-point differences between backends. Reference recorded on an NVIDIA A10G (24 GB, -ngl 99; the 19.5 GB file fits with all layers offloaded) and identical in 3 further consecutive GPU runs. Real GPU only."

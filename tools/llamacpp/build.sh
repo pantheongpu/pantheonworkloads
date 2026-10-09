@@ -13,6 +13,8 @@
 #   LLAMACPP_COMMIT   commit to build (default: the pin in tools/llamacpp/pin.env)
 #   LLAMACPP_EXTRA_TARGETS  more cmake targets to build and install beside the two (space separated,
 #                     e.g. "llama-quantize llama-perplexity llama-debug"; the synthetic-GGUF workloads use these)
+#   LLAMACPP_BUILD_EXAMPLES  1: configure with -DLLAMA_BUILD_EXAMPLES=ON, needed for LLAMACPP_EXTRA_TARGETS="llama-embedding"
+#                     (an example, not a tool); default off, so the other workloads' builds are unchanged
 #   LLAMACPP_BUILD_PROBE  1: also compile probe/pw-probe.cpp (token ids + logit statistics; used by the
 #                     llamacpp-synth-* workloads) against the build and install it as bin/pw-probe
 #   LLAMACPP_BUILD_TESTS  1: configure with -DLLAMA_BUILD_TESTS=ON (for LLAMACPP_EXTRA_TARGETS="test-backend-ops", which
@@ -36,7 +38,8 @@ backend="${1:-}"; prefix="${2:-}"
 skip() { echo "SKIP: $*"; exit 77; }
 for t in git cmake; do command -v "$t" >/dev/null || skip "$t is not installed"; done
 command -v c++ >/dev/null || skip "no C++ compiler"
-flags=(-DCMAKE_BUILD_TYPE=Release -DLLAMA_BUILD_TESTS=${LLAMACPP_BUILD_TESTS:-0} -DLLAMA_BUILD_EXAMPLES=OFF
+examples=OFF; [[ "${LLAMACPP_BUILD_EXAMPLES:-0}" != 1 ]] || examples=ON
+flags=(-DCMAKE_BUILD_TYPE=Release -DLLAMA_BUILD_TESTS=${LLAMACPP_BUILD_TESTS:-0} -DLLAMA_BUILD_EXAMPLES=$examples
        -DLLAMA_BUILD_SERVER=OFF -DLLAMA_BUILD_APP=OFF -DLLAMA_OPENSSL=OFF)
 case "$backend" in
   cpu)  flags+=(-DGGML_NATIVE=OFF) ;;   # portable x86-64 build; reproducible across hosts

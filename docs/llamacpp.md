@@ -16,11 +16,18 @@ pinned commit). The pin is in `tools/llamacpp/pin.env`: tag `b11447`, commit
 | `llamacpp-gemma4-e4b-it` (+ bench) | functional, benchmark | `gpu` | Gemma 4 E4B-it, Google's own QAT Q4_0 GGUF (5.2 GB). Apache-2.0, not restricted |
 | `llamacpp-gpt-oss-20b` (+ bench) | functional, benchmark | `gpu` | gpt-oss-20b MXFP4 GGUF from ggml-org (12.1 GB, fits one 24 GB card with `-ngl 99`). Apache-2.0 |
 | `llamacpp-deepseek-r1-distill-qwen-7b`, `llamacpp-deepseek-r1-distill-qwen-1p5b` (+ bench) | functional, benchmark | `gpu` | DeepSeek-R1-Distill-Qwen Q8_0 (bartowski conversions). MIT |
+| `llamacpp-qwen3-30b-a3b` (+ bench) | functional, benchmark | `gpu` | Qwen3-30B-A3B (mixture of experts, 128 experts) Q4_K_M, Qwen's own GGUF (18.6 GB, fits one 24 GB card). Apache-2.0 |
+| `llamacpp-qwen3-8b` (+ bench) | functional, benchmark | `gpu` | Qwen3-8B (dense) Q6_K, Qwen's own GGUF (6.7 GB). Apache-2.0 |
+| `llamacpp-phi4-14b` (+ bench) | functional, benchmark | `gpu` | Phi-4 14B Q4_K, Microsoft's own GGUF (9.1 GB). MIT |
+| `llamacpp-granite40-h-small` (+ bench) | functional, benchmark | `gpu` | Granite 4.0 H-Small, IBM's own Q4_K_M GGUF (19.5 GB): a hybrid of Mamba-2 state-space layers, attention and a mixture of experts. Apache-2.0 |
+| `llamacpp-mistral-small-32-24b` (+ bench) | functional, benchmark | `gpu` | Mistral-Small-3.2-24B-Instruct-2506 (text part) Q4_K_M, bartowski's conversion (14.3 GB). Apache-2.0 |
+| `llamacpp-olmo2-7b-instruct` (+ bench) | functional, benchmark | `gpu` | OLMo-2-1124-7B-Instruct Q8_0, Ai2's own GGUF (7.8 GB). Apache-2.0 |
+| `llamacpp-qwen3-embedding-4b` (+ bench) | functional, benchmark | `gpu` | Qwen3-Embedding-4B Q8_0, Qwen's own GGUF (4.3 GB). The functional workload runs `llama-embedding` (last-token pooling) on a query and three passages and compares cosine similarities and the passage ranking; the bench twin is the same `llama-bench` pp512/tg128. Apache-2.0 |
 
 ## Backends and building
 
 `tools/llamacpp/build.sh <cpu|cuda|hip> <prefix>` fetches the pinned commit (shallow, by hash), builds
-`llama-completion` and `llama-bench` with cmake and installs them under `<prefix>`. A workload calls it when
+`llama-completion` and `llama-bench` with cmake and installs them under `<prefix>`. `LLAMACPP_EXTRA_TARGETS` adds more programs; `llama-embedding` is an example, not a tool, so it also needs `LLAMACPP_BUILD_EXAMPLES=1` (the embedding workload sets both for a first build; a prefix built earlier without it makes that workload SKIP, so delete the prefix or build into a new one). A workload calls it when
 `$PW_CACHE/llama.cpp-<tag>-<backend>/bin` has no binaries (`PW_CACHE` defaults to
 `~/.cache/pantheonworkloads`) and reports SKIP (exit 77) when the machine cannot build: no git/cmake/compiler,
 no network, no `nvcc` for `cuda`, no `hipcc` for `hip`.

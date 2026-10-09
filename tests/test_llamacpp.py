@@ -58,6 +58,11 @@ class BenchParse(unittest.TestCase):
 
 PINNED = {"llamacpp-qwen25-0p5b": True, "llamacpp-bench-qwen25-0p5b": False,
           "llamacpp-mistral-7b-v03": True, "llamacpp-bench-mistral-7b-v03": False}   # name -> functional
+# The 2026-10-09 additions (docs/models.md, "More llama.cpp architectures"): same checks as PINNED.
+for _slug in ("qwen3-30b-a3b", "qwen3-8b", "phi4-14b", "granite40-h-small", "mistral-small-32-24b",
+              "olmo2-7b-instruct", "qwen3-embedding-4b"):
+    PINNED["llamacpp-" + _slug] = True
+    PINNED["llamacpp-bench-" + _slug] = False
 
 
 class PinnedModels(unittest.TestCase):
@@ -124,7 +129,7 @@ class Manifests(unittest.TestCase):
 
 class Scripts(unittest.TestCase):
     def test_shell_syntax(self):
-        files = [LC / "build.sh", LC / "common.sh", LC / "bench.sh"] + [ROOT / "workloads" / n / "run.sh" for n in WORKLOADS]
+        files = [LC / "build.sh", LC / "common.sh", LC / "bench.sh"] + [ROOT / "workloads" / n / "run.sh" for n in WORKLOADS + ["llamacpp-qwen3-embedding-4b"]]
         for f in files:
             p = subprocess.run(["bash", "-n", str(f)], capture_output=True, text=True)
             self.assertEqual(p.returncode, 0, f"{f}: {p.stderr}")
@@ -153,6 +158,33 @@ class Scripts(unittest.TestCase):
     def test_gpu_target_without_a_gpu_skips(self):
         p = self.run_workload(WORKLOADS[1], "gpu", PATH="/usr/bin:/bin")
         self.assertEqual(p.returncode, 77, (p.stdout, p.stderr))
+
+    def test_embedding_workload_with_a_fake_llama_embedding(self):
+        """The embedding check: four unit vectors in, cosines and the passage ranking out; a build without the tool skips."""
+        name = "llamacpp-qwen3-embedding-4b"
+        vecs = [[1.0, 0.0], [0.8, 0.6], [0.0, 1.0], [0.6, 0.8]]    # query 0: passage 1 is nearest, then 3, then 2
+        with tempfile.TemporaryDirectory() as tmp:
+            bindir = pathlib.Path(tmp) / "prefix" / "bin"
+            bindir.mkdir(parents=True)
+            (bindir / "llama-completion").write_text("#!/bin/sh\n")
+            (bindir / "llama-bench").write_text("#!/bin/sh\n")
+            for f in bindir.iterdir():
+                f.chmod(0o755)
+            model = pathlib.Path(tmp) / "m.gguf"
+            model.write_bytes(b"not a model")
+            env = {"PW_LLAMACPP_BIN_DIR": str(bindir), "PW_MODEL_FILE": str(model)}
+            p = self.run_workload(name, "cpu", **env)
+            self.assertEqual(p.returncode, 77, (p.stdout, p.stderr))
+            self.assertIn("llama-embedding", p.stdout)
+            (bindir / "llama-embedding").write_text("#!/bin/sh\nprintf 'log line\\n%s\\n' '" + json.dumps(vecs) + "'\n")
+            (bindir / "llama-embedding").chmod(0o755)
+            p = self.run_workload(name, "cpu", **env)
+            self.assertEqual(p.returncode, 0, (p.stdout, p.stderr))
+            out = json.loads(p.stdout.splitlines()[-1])["output"]
+            self.assertEqual(out["dim"], 2)
+            self.assertEqual(out["query_ranking"], "1 3 2")
+            self.assertEqual(out["cosine"]["0-1"], 0.8)
+            self.assertTrue(out["finite"])
 
     def test_unsupported_target_skips(self):
         self.assertEqual(self.run_workload(WORKLOADS[0], "tpu").returncode, 77)

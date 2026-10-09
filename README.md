@@ -57,7 +57,7 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 
 <!-- bench:start -->
 
-55 records from real GPUs (newest per workload and device; all metrics, every record and the software versions: [`docs/results.md`](docs/results.md)).
+62 records from real GPUs (newest per workload and device; all metrics, every record and the software versions: [`docs/results.md`](docs/results.md)).
 
 | Workload | Device | Metrics (median of N runs) | Software | Date |
 | --- | --- | --- | --- | --- |
@@ -76,10 +76,17 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 | llamacpp-bench-deepseek-r1-distill-qwen-7b | NVIDIA A10G | pp512_tokens_per_s 4,230; tg128_tokens_per_s 60.37 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-bench-gemma4-e4b-it | NVIDIA A10G | pp512_tokens_per_s 5,459; tg128_tokens_per_s 114.5 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-bench-gpt-oss-20b | NVIDIA A10G | pp512_tokens_per_s 4,388; tg128_tokens_per_s 143.4 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-granite40-h-small | NVIDIA A10G | pp512_tokens_per_s 1,755; tg128_tokens_per_s 66.46 (n=5) | llama.cpp b11447 | 2026-10-09 |
 | llamacpp-bench-llama32-1b-instruct | NVIDIA A10G | pp512_tokens_per_s 18,392; tg128_tokens_per_s 299.6 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-bench-llama32-3b-instruct | NVIDIA A10G | pp512_tokens_per_s 7,646; tg128_tokens_per_s 123.3 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-bench-mistral-7b-v03 | NVIDIA A10G | pp512_tokens_per_s 4,014; tg128_tokens_per_s 61.02 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-mistral-small-32-24b | NVIDIA A10G | pp512_tokens_per_s 1,514; tg128_tokens_per_s 32.83 (n=5) | llama.cpp b11447 | 2026-10-09 |
+| llamacpp-bench-olmo2-7b-instruct | NVIDIA A10G | pp512_tokens_per_s 3,910; tg128_tokens_per_s 61.59 (n=5) | llama.cpp b11447 | 2026-10-09 |
+| llamacpp-bench-phi4-14b | NVIDIA A10G | pp512_tokens_per_s 2,413; tg128_tokens_per_s 51.23 (n=5) | llama.cpp b11447 | 2026-10-09 |
 | llamacpp-bench-qwen25-0p5b | NVIDIA A10G | pp512_tokens_per_s 27,160; tg128_tokens_per_s 455.4 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| llamacpp-bench-qwen3-30b-a3b | NVIDIA A10G | pp512_tokens_per_s 3,429; tg128_tokens_per_s 155.8 (n=5) | llama.cpp b11447 | 2026-10-09 |
+| llamacpp-bench-qwen3-8b | NVIDIA A10G | pp512_tokens_per_s 3,555; tg128_tokens_per_s 69.15 (n=5) | llama.cpp b11447 | 2026-10-09 |
+| llamacpp-bench-qwen3-embedding-4b | NVIDIA A10G | pp512_tokens_per_s 6,428; tg128_tokens_per_s 96.52 (n=5) | llama.cpp b11447 | 2026-10-09 |
 | llamacpp-bench-smollm2-135m | NVIDIA A10G | pp512_tokens_per_s 36,022; tg128_tokens_per_s 654.9 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-synth-bench-gemma | NVIDIA A10G | pp512_tokens_per_s 48,279; tg128_tokens_per_s 1,182 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-synth-bench-llama | NVIDIA A10G | pp512_tokens_per_s 47,737; tg128_tokens_per_s 1,164 (n=5) | llama.cpp b11447 | 2026-10-08 |
@@ -169,7 +176,7 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 
 <!-- coverage:start -->
 
-#### llama.cpp (synthetic GGUF, pretrained GGUF and llama-bench): 37
+#### llama.cpp (synthetic GGUF, pretrained GGUF and llama-bench): 51
 
 | Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -177,19 +184,33 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | llamacpp-bench-deepseek-r1-distill-qwen-7b | benchmark | llama.cpp | gpu | n/a | MIT | yes | no | bench |
 | llamacpp-bench-gemma4-e4b-it | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | bench |
 | llamacpp-bench-gpt-oss-20b | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | bench |
+| llamacpp-bench-granite40-h-small | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | bench |
 | llamacpp-bench-llama32-1b-instruct | benchmark | llama.cpp | gpu | n/a | Llama 3.2 Community Licence (restricted) | yes | no | bench |
 | llamacpp-bench-llama32-3b-instruct | benchmark | llama.cpp | gpu | n/a | Llama 3.2 Community Licence (restricted) | yes | no | bench |
 | llamacpp-bench-mistral-7b-v03 | benchmark | llama.cpp | gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
+| llamacpp-bench-mistral-small-32-24b | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | bench |
+| llamacpp-bench-olmo2-7b-instruct | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | bench |
+| llamacpp-bench-phi4-14b | benchmark | llama.cpp | gpu | n/a | MIT | yes | no | bench |
 | llamacpp-bench-qwen25-0p5b | benchmark | llama.cpp | cpu, gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
+| llamacpp-bench-qwen3-30b-a3b | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | bench |
+| llamacpp-bench-qwen3-8b | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | bench |
+| llamacpp-bench-qwen3-embedding-4b | benchmark | llama.cpp | gpu | n/a | Apache-2.0 | yes | no | bench |
 | llamacpp-bench-smollm2-135m | benchmark | llama.cpp | cpu, gpu | n/a | Apache-2.0 | yes | no | bench |
 | llamacpp-deepseek-r1-distill-qwen-1p5b | functional | llama.cpp | gpu | yes (gpu) | MIT | yes | no | no |
 | llamacpp-deepseek-r1-distill-qwen-7b | functional | llama.cpp | gpu | yes (gpu) | MIT | yes | no | no |
 | llamacpp-gemma4-e4b-it | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
 | llamacpp-gpt-oss-20b | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
+| llamacpp-granite40-h-small | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
 | llamacpp-llama32-1b-instruct | functional | llama.cpp | gpu | yes (gpu) | Llama 3.2 Community Licence (restricted) | yes | no | no |
 | llamacpp-llama32-3b-instruct | functional | llama.cpp | gpu | yes (gpu) | Llama 3.2 Community Licence (restricted) | yes | no | no |
 | llamacpp-mistral-7b-v03 | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 (per card) | yes | no | no |
+| llamacpp-mistral-small-32-24b | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
+| llamacpp-olmo2-7b-instruct | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
+| llamacpp-phi4-14b | functional | llama.cpp | gpu | yes (gpu) | MIT | yes | no | no |
 | llamacpp-qwen25-0p5b | functional | llama.cpp | cpu, gpu, sim:nvidia, sim:amd | yes (gpu) | Apache-2.0 (per card) | yes | no | no |
+| llamacpp-qwen3-30b-a3b | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
+| llamacpp-qwen3-8b | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
+| llamacpp-qwen3-embedding-4b | functional | llama.cpp | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
 | llamacpp-smollm2-135m | functional | llama.cpp | cpu, gpu, sim:nvidia, sim:amd | yes (gpu) | Apache-2.0 | yes | no | no |
 | llamacpp-synth-bench-gemma | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | bench |
 | llamacpp-synth-bench-llama | benchmark | llama.cpp | cpu, gpu | n/a | n/a (no weights) | n/a | no | bench |
@@ -330,13 +351,13 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 
 | Family | Workloads | Functional | Benchmark | Reference recorded | Model sha256-pinned | Sim-validated | GPU-validated |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| llamacpp | 37 | 22 | 15 | 22 | 31 | 0 | 15 |
+| llamacpp | 51 | 29 | 22 | 29 | 45 | 0 | 22 |
 | pretrained | 52 | 28 | 24 | 28 | 52 | 0 | 24 |
 | arch | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | lib | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | train | 3 | 2 | 1 | 2 | 0 | 2 | 1 |
 | other | 23 | 15 | 8 | 15 | 19 | 3 | 13 |
-| **all** | 127 | 77 | 50 | 77 | 102 | 15 | 55 |
+| **all** | 141 | 84 | 57 | 84 | 116 | 15 | 62 |
 
 <!-- coverage:end -->
 
