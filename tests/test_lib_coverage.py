@@ -277,10 +277,28 @@ class UncheckedOps(unittest.TestCase):
 
 class CondaHelper(unittest.TestCase):
     def sh(self, **env):
+        env = dict({"PW_TORCH_ROUTE": "conda"}, **env)   # these tests are about the conda route; pip is the default
         return subprocess.run(["bash", str(CONDA)], capture_output=True, text=True, env=dict(os.environ, **env))
 
     def test_syntax(self):
         self.assertEqual(subprocess.run(["bash", "-n", str(CONDA)]).returncode, 0)
+        self.assertEqual(subprocess.run(["bash", "-n", str(ROOT / "tools" / "cpu-torch-pip.sh")]).returncode, 0)
+
+    def test_default_route_is_pip_with_torch_2_14_1_cpu(self):
+        for script in (CONDA, ROOT / "tools" / "torch-cpu-env.sh"):
+            with tempfile.TemporaryDirectory() as tmp:
+                env = dict(os.environ, PW_CPU_TORCH_DRY_RUN="1", PW_CONDA_PREFIX=tmp, PW_TORCH_CPU_PREFIX=tmp + "/x")
+                env.pop("PW_TORCH_ROUTE", None)
+                p = subprocess.run(["bash", str(script)], capture_output=True, text=True, env=env)
+                self.assertEqual(p.returncode, 0, p.stderr)
+                self.assertIn("torch==2.14.1", p.stdout)
+                self.assertIn("download.pytorch.org/whl/cpu", p.stdout)
+                self.assertNotIn("micromamba", p.stdout + p.stderr)
+
+    def test_conda_route_warns_that_it_is_not_2_14_1(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = self.sh(PW_CONDA_PREFIX=tmp, PW_CONDA_DRY_RUN="1", PW_MICROMAMBA="/bin/true")
+            self.assertIn("2.13.0", p.stderr)
 
     def test_existing_environment_is_reused_without_a_download(self):
         with tempfile.TemporaryDirectory() as tmp:

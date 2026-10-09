@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-# pw-conda-torch.sh: get a CPU-only PyTorch without download.pytorch.org, for hosts where only conda-forge
-# (conda.anaconda.org) and PyPI are reachable. PyPI's default Linux torch wheel is the multi-GB CUDA build.
+# pw-conda-torch.sh: get a CPU-only PyTorch. By default a venv with torch 2.14.1+cpu from
+# download.pytorch.org/whl/cpu (tools/cpu-torch-pip.sh), the version the workloads are standardised on.
+# PW_TORCH_ROUTE=conda is the old route for hosts where only conda-forge (conda.anaconda.org) and PyPI are
+# reachable: conda-forge stops at pytorch 2.13.0, so it gives a DIFFERENT version and warns.
+# (PyPI's default Linux torch wheel is the multi-GB CUDA build.)
 #
 #   tools/pw-conda-torch.sh            prints the path of a Python that imports torch, making one first if needed
 #   PW_PYTHON=$(tools/pw-conda-torch.sh) bin/pw run lib-fft-linalg --target cpu
 #
-# What it does when no environment exists yet: downloads micromamba 2.0.5 from conda-forge (sha256 checked),
+# What the conda route does when no environment exists yet: downloads micromamba 2.0.5 from conda-forge (sha256 checked),
 # then creates an environment with python 3.12, numpy and pytorch 2.13.0 (the cpu_mkl build) from conda-forge.
 # Progress goes to stderr, stdout carries only the Python path.
 #
@@ -22,6 +25,11 @@ MM_SHA256="bfc2e3a414d651af7508c49998a12b5cf3c7029d56c5ef37c9a3248cd7faef78"
 SPECS=("python=3.12" "numpy" "pytorch=2.13.0=cpu*")
 
 say() { echo "pw-conda-torch: $*" >&2; }
+
+if [[ "${PW_TORCH_ROUTE:-pip}" != conda ]]; then
+  exec "$(dirname "${BASH_SOURCE[0]}")/cpu-torch-pip.sh" "${PW_CPU_TORCH_VENV:-$PREFIX/venv}"
+fi
+say "WARNING: PW_TORCH_ROUTE=conda gives torch 2.13.0, not the standard 2.14.1"
 
 if [[ -x "$ENV_DIR/bin/python" ]] && "$ENV_DIR/bin/python" -c 'import torch' 2>/dev/null; then
   echo "$ENV_DIR/bin/python"

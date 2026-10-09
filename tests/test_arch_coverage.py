@@ -160,12 +160,19 @@ class EnvHelper(unittest.TestCase):
             mm = pathlib.Path(tmp) / "micromamba"
             mm.write_text("#!/bin/sh\necho solver failed >&2\nexit 1\n")
             mm.chmod(0o755)
-            p = self.helper(pathlib.Path(tmp) / "env", PW_MICROMAMBA=str(mm), PW_MAMBA_ROOT=str(pathlib.Path(tmp) / "root"))
+            p = self.helper(pathlib.Path(tmp) / "env", PW_TORCH_ROUTE="conda", PW_MICROMAMBA=str(mm), PW_MAMBA_ROOT=str(pathlib.Path(tmp) / "root"))
             self.assertEqual(p.returncode, 77)
             self.assertEqual(p.stdout, "")
             self.assertIn("SKIP", p.stderr)
 
-    def test_helper_pins_conda_forge_only(self):
+    def test_unreachable_pip_index_exits_77_and_names_the_conda_escape_hatch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = self.helper(pathlib.Path(tmp) / "env", PW_CPU_TORCH_INDEX="http://127.0.0.1:9/whl/cpu", PIP_RETRIES="0")
+            self.assertEqual(p.returncode, 77)
+            self.assertEqual(p.stdout, "")
+            self.assertIn("PW_TORCH_ROUTE=conda", p.stderr)
+
+    def test_conda_route_pins_conda_forge_only(self):
         text = ENV_SH.read_text()
         self.assertIn("--override-channels -c conda-forge", text)
         self.assertIn("https://conda.anaconda.org/conda-forge/", text)

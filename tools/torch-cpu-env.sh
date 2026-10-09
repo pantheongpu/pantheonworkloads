@@ -4,11 +4,13 @@
 #   PW_PYTHON=$(tools/torch-cpu-env.sh) bin/pw run arch-llama-family --target cpu
 #
 # Why: PyPI's Linux torch wheel is the CUDA build (about 900 MB plus several GB of NVIDIA
-# libraries) and download.pytorch.org may be blocked. conda-forge (conda.anaconda.org) carries a
-# CPU build. This downloads micromamba from conda-forge (a static binary), then creates an
-# environment with `pytorch=*=cpu_*`, `transformers`, `numpy`, `pyyaml` from conda-forge only.
+# libraries). By default this makes a venv with torch 2.14.1+cpu from download.pytorch.org/whl/cpu
+# (tools/cpu-torch-pip.sh), the version the workloads are standardised on. conda-forge stops at pytorch
+# 2.13.0, so PW_TORCH_ROUTE=conda (for hosts where only conda.anaconda.org is reachable) builds a 2.13.0
+# environment instead and warns: results can differ from 2.14.1 (docs/fp8-cast-semantics.md).
 #
-# Env: PW_TORCH_CPU_PREFIX  where the environment goes (default ~/.cache/pantheonworkloads/torch-cpu)
+# Env: PW_TORCH_ROUTE      pip (default) | conda
+#      PW_TORCH_CPU_PREFIX  where the environment goes (default ~/.cache/pantheonworkloads/torch-cpu)
 #      PW_MAMBA_ROOT        micromamba's package cache (default <prefix>/../mamba-root); share it to save downloads
 #      PW_TORCH_SPEC        extra/override package specs, space separated (default below)
 #      PW_MICROMAMBA        path of an existing micromamba binary
@@ -16,11 +18,19 @@
 set -eo pipefail
 PREFIX="${PW_TORCH_CPU_PREFIX:-$HOME/.cache/pantheonworkloads/torch-cpu}"
 ROOT="${PW_MAMBA_ROOT:-$(dirname "$PREFIX")/mamba-root}"
-SPEC="${PW_TORCH_SPEC:-pytorch=2.13.0=cpu_* transformers numpy pyyaml}"
+SPEC="${PW_TORCH_SPEC:-pytorch=2.13.0=cpu_* transformers numpy pyyaml}"   # the conda route only
 MM_URL="https://conda.anaconda.org/conda-forge/linux-64/micromamba-2.0.5-0.tar.bz2"
 MM_SHA256="bfc2e3a414d651af7508c49998a12b5cf3c7029d56c5ef37c9a3248cd7faef78"
 PY="$PREFIX/bin/python"
 
+if [[ "${PW_TORCH_ROUTE:-pip}" != conda ]]; then
+  if [[ "${1:-}" == --check ]]; then
+    [[ -x "$PREFIX/bin/python" ]] && "$PREFIX/bin/python" -c 'import torch, transformers' 2>/dev/null && { echo "$PREFIX/bin/python"; exit 0; }
+    exit 1
+  fi
+  exec "$(dirname "${BASH_SOURCE[0]}")/cpu-torch-pip.sh" "$PREFIX"
+fi
+echo "WARNING: PW_TORCH_ROUTE=conda gives torch 2.13.0, not the standard 2.14.1" >&2
 if [[ -x "$PY" ]] && "$PY" -c 'import torch, transformers' 2>/dev/null; then echo "$PY"; exit 0; fi
 if [[ "${1:-}" == --check ]]; then exit 1; fi
 

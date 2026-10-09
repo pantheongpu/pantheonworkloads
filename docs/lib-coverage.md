@@ -132,10 +132,12 @@ PW_LIB_SIZE=tiny ...                                                # smoke-test
 - Target handling (cpu / gpu / `sim:nvidia/*` / `sim:amd/*`, pantheonsim launch, `PW_PYTHON`, `VGPU_TORCH_*`) is `workloads/_shared/torch_env.sh`,
   as for the `gpt-train-*` workloads; `workloads/_lib/env.sh` adds the discovery of the conda environment below. The run exits 77 when
   there is no PyTorch, no GPU, or no pantheonsim build.
-- `tools/pw-conda-torch.sh` makes a CPU-only PyTorch 2.13.0 from conda-forge (micromamba 2.0.5, sha256-checked) for hosts that can reach
-  `conda.anaconda.org` but not `download.pytorch.org`; the CPU target of every `lib-*` workload finds its environment
-  automatically. Not run end to end here (the existing environment was reused); its dry run, the micromamba download and checksum, and its
-  argument handling were run or are unit tested (`tests/test_lib_coverage.py`).
+- `tools/pw-conda-torch.sh` makes a CPU-only PyTorch for the CPU target of every `lib-*` workload. Since 2026-10-09 the default is a venv with
+  torch 2.14.1+cpu from `download.pytorch.org/whl/cpu` (`tools/cpu-torch-pip.sh`, the CPU index only: PyPI's Linux wheel is the CUDA build).
+  `PW_TORCH_ROUTE=conda` keeps the old conda-forge route (micromamba 2.0.5, sha256-checked) for hosts that can reach `conda.anaconda.org`
+  but not `download.pytorch.org`; conda-forge stops at pytorch 2.13.0, so that route gives a different torch and warns. The recordings
+  below were made with 2.13.0; `.github/workflows/cpu-references.yml` checks them against 2.14.1 on a hosted runner. Unit tests:
+  `tests/test_lib_coverage.py`.
 - Benchmark metrics (`lib-kernels-bench`): `*_tflops`, `*_gflops`, `*_gb_s`, `*_mkeys_s`, `*_ops_s`, `*_samples_s`. The flop and byte
   counts are in each group file's `bench()`. An op that cannot be measured is left out and named on stderr, never faked, so a
   record's keys say what ran. Real sizes target a 16 GB or larger GPU; none has been tried.
