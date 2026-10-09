@@ -1,0 +1,50 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "spacy-en-core-web-md-bench",
+  "date": "2026-10-09T18:05:35Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "spacy",
+    "runtime_version": "cupy-cuda12x 14.2.0, numpy 2.5.3, spacy 3.8.16, thinc 8.3.13",
+    "model": {
+      "id": "explosion/spacy-models en_core_web_md",
+      "revision": "release en_core_web_md-3.8.0 (explosion/spacy-models commit ca6f473afda3c4943d3919d3e39406c1b3f48b85 has meta/en_core_web_md-3.8.0.json); wheel sha256 5e6329fe3fecedb1d1a02c3ea2172ee0fede6cea6e4aefb6a02d832dba78a310 (model.sha256)",
+      "licence": "MIT",
+      "source_url": "https://github.com/explosion/spacy-models/releases/tag/en_core_web_md-3.8.0"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "cupy-cuda12x": "14.2.0",
+      "numpy": "2.5.3",
+      "spacy": "3.8.16",
+      "thinc": "8.3.13"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "docs_per_s": {
+      "median": 998.0399690266061,
+      "values": [
+        1006.5886885448045,
+        997.927000863105,
+        1005.3099175584654,
+        998.0399690266061,
+        989.7411942346744
+      ]
+    },
+    "words_per_s": {
+      "median": 15303.279525074628,
+      "values": [
+        15434.359891020336,
+        15301.547346567611,
+        15414.752069229802,
+        15303.279525074628,
+        15176.031644931672
+      ]
+    }
+  }
+}

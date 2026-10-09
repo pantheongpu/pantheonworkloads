@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "onnx-zoo-mobilenetv2-bench",
+  "date": "2026-10-09T18:00:42Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "onnx/models validated/vision/classification/mobilenet/model/mobilenetv2-12.onnx",
+      "revision": "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; mobilenetv2-12.onnx sha256 c0c3f76d93fa3fd6580652a45618618a220fced18babf65774ed169de0432ad5 (= its git-LFS oid)",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/onnx/models/tree/main/validated/vision/classification/mobilenet"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "batch_latency_ms": {
+      "median": 13.803318000043419,
+      "values": [
+        13.806268499990892,
+        13.803318000043419,
+        13.797688000011021,
+        13.804952999976194,
+        13.797887999999148
+      ]
+    },
+    "images_per_s": {
+      "median": 2318.283183789531,
+      "values": [
+        2317.787749819664,
+        2318.283183789531,
+        2319.2291346183824,
+        2318.008616186899,
+        2319.195517459047
+      ]
+    }
+  }
+}

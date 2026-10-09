@@ -64,7 +64,7 @@ Deep Learning AMI, driver 595.91.07. 40 records under `bench/`, 5 repeats each, 
 off), spaCy 3.8.16 with cupy-cuda12x, llama.cpp b11447 (CUDA, sm_86, `-ngl 99`), whisper.cpp v1.9.5 (CUDA, sm_86), Ollama 0.40.1,
 vLLM 0.30.0 (torch 2.13.0+cu130, `VLLM_USE_FLASHINFER_SAMPLER=0`). Full account, setup traps and every failure: `docs/first-gpu-run-a10g.md`.
 
-`onnx-zoo-bertsquad-int8-bench` was recorded on 2026-10-09 (g5.xlarge, A10G, driver 595.91.07, 5 repeats, 242.99 ms per question, onnxruntime-gpu 1.30.0 with `session.x64quantprecision=1`; `docs/int8-and-nondeterminism.md`); its check failed on 2026-10-08 on the AVX2 host. The kokoro and moonshine records of 2026-10-08 predate that session option (which can change the CPU-side int8 kernels) and were not re-recorded. `llamacpp-smollm2-135m` and `whisper-cpp-tiny-en` print no metrics, so `--bench`
+`onnx-zoo-bertsquad-int8-bench` was recorded on 2026-10-09 (g5.xlarge, A10G, driver 595.91.07, 5 repeats, 242.99 ms per question, onnxruntime-gpu 1.30.0 with `session.x64quantprecision=1`; `docs/int8-and-nondeterminism.md`); its check failed on 2026-10-08 on the AVX2 host. The kokoro and moonshine records of 2026-10-08 predate that session option (which can change the CPU-side int8 kernels); they were re-recorded on 2026-10-09, see the ONNX Runtime re-record section below. `llamacpp-smollm2-135m` and `whisper-cpp-tiny-en` print no metrics, so `--bench`
 refuses them; the benchmark twins carry the numbers. `pytorch-microsuite`, `gpt2-small-pytorch`, `bert-base-uncased-pytorch`,
 `resnet18-randinit-pytorch` and `smollm2-135m-ollama` are functional workloads that also report metrics, and were recorded with `--bench`.
 
@@ -183,3 +183,89 @@ Reading it: these decode rates are far below the memory-bandwidth bound of the c
 decode limited by the host launching many small kernels, the same effect as in the torch 2.14.1 section above. That explanation was not verified with a profile. The SmolVLM2 prefill is
 the slowest of the three because its image processor splits the image into tiles (1439 prompt tokens against 273 and 352); its decode spread (6%) is the widest. Do not
 compare these with the llama.cpp numbers (different runtime, quantised weights) or with the BLIP-2 captions/s (different task and batch).
+
+## ONNX Runtime and spaCy re-record (2026-10-09, one g5.xlarge, NVIDIA A10G)
+
+All 24 ONNX Runtime and spaCy bench twins were re-recorded on **one on-demand g5.xlarge** (4 vCPU AMD EPYC 7R32, A10G, driver 595.91.07, us-east-1f,
+Ubuntu 22.04 Deep Learning AMI, Python 3.12 venvs from `uv`). The g5.xlarge was chosen because it is the instance class of the only existing record with the
+7-bit option, `onnx-zoo-bertsquad-int8-bench` (2026-10-09), and every ORT record in this task uses it: one class, so the new records are comparable with each other.
+The 2026-10-08 records came from g5.2xlarge (8 vCPU), so every comparison below mixes in the instance class. Each record is 5 repeats from a clean checkout of
+commit `0ae5a6b` (`repo_dirty: false`, `PW_BENCH_DIR` outside the checkout) and carries `environment.runtime_versions`; the previous records stay in `bench/` beside them.
+
+What changed in the tools: `tools/versions.py` reads the installed distributions with `importlib.metadata`; `ort_tasks.py` (and so `ort_vision.py` and `speech_tasks.py`),
+`text_tasks.py`, `spacy_task.py` and `whisper_transcript.py` add a `versions` object to their result line, which `bin/pw` copies as above (tests: `tests/test_versions.py`).
+Recorded: onnxruntime-gpu 1.30.0 (the CPU `onnxruntime` wheel was uninstalled from the rig so the metadata is unambiguous), numpy 2.5.3, onnx 1.23.2, rapidocr_onnxruntime 1.2.3,
+opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, shapely 2.1.2; spaCy records: spacy 3.8.16, thinc 8.3.13, cupy-cuda12x 14.2.0, numpy 2.5.3. The whisper.cpp functional workloads report
+`whisper.cpp` and its tag; they print no metrics, so there is no record for them. Every functional gate passed; nothing was skipped and nothing loosened.
+
+Differences that are not noise:
+
+- **Instance class (g5.xlarge against g5.2xlarge) is the only difference for the pure-GPU twins**, and it moved none of them beyond their spread. `onnx-zoo-bertsquad-int8-bench` is the
+  control that shares both instance class and session options with the old record (243.0 against 242.5 ms).
+- **TF32 off is not a difference here**: the 2026-10-08 records already ran with `use_tf32=0` (commit `7516963` is an ancestor of the commit they were recorded from).
+- **The 7-bit option** (`session.x64quantprecision=1`, commit `ef16ba5`) is new relative to the 2026-10-08 records. It affects only int8 nodes on the host CPU: Kokoro, Moonshine and BERT-Squad.
+  Kokoro is 9.7% slower than its old record. A control run on the same rig with `PW_ORT_X64QUANT=0` (5 repeats, not committed) gave 5088 ms per sentence (realtime factor 0.6755) against 5112 ms
+  (0.6749) with the option, so the option explains under 0.5% of it and **the slowdown belongs to the instance class**: Kokoro's int8 nodes run on the host CPU, and the same CPU model is
+  split over 4 vCPUs here instead of 8. (Why a 1-thread CPU provider notices is not established; the Python-side audio work and other threads sharing the 4 vCPUs are the likeliest reason.)
+  Moonshine: 530.3 ms new, 525.6 ms with the option off, 515.7 ms old (+2.8%, new spread 2.3%): the same small instance-class shift, below 5%.
+- **spaCy** is 2.3% to 3.8% slower in all 8 metrics of the 3 twins, consistently, with spreads of 0.7% to 3.6%. Same pattern, probably the same cause (spaCy's GPU pipeline still spends
+  host CPU time); not tested.
+- Noise, not changes: `nanodet` (-5.0% / +5.2% around a 6.5% spread in the old record, 1.3% in the new), `ppocr-rapidocr` (+7.7% / -7.1% with 20% spread in both records, the pipeline's variable
+  detection and recognition time per image) and `yolox` (spread 45% in both records; its 0.8% change is meaningless).
+
+Medians of 5 repeats; `**` marks a change above 5%. Spread is (max - min) / median over the 5 values.
+
+| Workload | Metric | Previous (2026-10-08, g5.2xlarge) | New (g5.xlarge) | Change | Spread old / new | Note |
+| --- | --- | ---: | ---: | ---: | --- | --- |
+| `crnn-text-recognition-bench` | `images_per_s` | 658.5 | 659.8 | +0.2% | 1.4% / 4.4% |  |
+| `crnn-text-recognition-bench` | `latency_ms` | 1.519 | 1.516 | -0.2% | 1.4% / 4.5% |  |
+| `glove-wiki-gigaword-50-knn-bench` | `batch_latency_ms` | 2.716 | 2.725 | +0.3% | 0.6% / 1.2% |  |
+| `glove-wiki-gigaword-50-knn-bench` | `queries_per_s` | 9.426e+04 | 9.396e+04 | -0.3% | 0.6% / 1.2% |  |
+| `gtcrn-enhance-onnx-bench` | `frames_per_s` | 152.7 | 152.3 | -0.3% | 3.0% / 1.1% |  |
+| `gtcrn-enhance-onnx-bench` | `realtime_factor` | 2.442 | 2.435 | -0.3% | 3.0% / 1.1% |  |
+| `kokoro-tts-int8-onnx-bench` | `latency_ms_per_sentence` | 4661 | 5112 | +9.7% ** | 1.9% / 0.5% | instance class, not the 7-bit option (control below) |
+| `kokoro-tts-int8-onnx-bench` | `realtime_factor` | 0.7374 | 0.6749 | -8.5% ** | 1.8% / 0.5% | instance class, not the 7-bit option (control below) |
+| `kws-zipformer-gigaspeech-onnx-bench` | `latency_ms_per_clip` | 608.9 | 617.1 | +1.3% | 2.5% / 1.4% |  |
+| `kws-zipformer-gigaspeech-onnx-bench` | `realtime_factor` | 19.17 | 18.91 | -1.3% | 2.4% / 1.4% |  |
+| `minilm-l6-v2-onnx-bench` | `batch_latency_ms` | 3.968 | 4.003 | +0.9% | 1.4% / 1.2% |  |
+| `minilm-l6-v2-onnx-bench` | `sentences_per_s` | 9073 | 8994 | -0.9% | 1.4% / 1.2% |  |
+| `moonshine-tiny-en-onnx-bench` | `latency_ms_per_clip` | 515.7 | 530.3 | +2.8% | 0.9% / 2.3% |  |
+| `moonshine-tiny-en-onnx-bench` | `realtime_factor` | 22.63 | 22.01 | -2.8% | 0.9% / 2.3% |  |
+| `nanodet-object-detection-bench` | `images_per_s` | 117.3 | 111.4 | -5.0% | 6.5% / 1.3% | noise: the old record's own spread is 6.5% |
+| `nanodet-object-detection-bench` | `latency_ms` | 8.528 | 8.974 | +5.2% ** | 6.6% / 1.3% | noise: the old record's own spread is 6.6% |
+| `onnx-zoo-bertsquad-int8-bench` (previous: 2026-10-09, g5.xlarge) | `latency_ms` | 243 | 242.5 | -0.2% | 0.3% / 0.2% |  |
+| `onnx-zoo-bertsquad-int8-bench` | `questions_per_s` | 4.115 | 4.124 | +0.2% | 0.3% / 0.2% |  |
+| `onnx-zoo-efficientnet-lite4-bench` | `batch_latency_ms` | 2.882 | 2.877 | -0.2% | 0.4% / 0.3% |  |
+| `onnx-zoo-efficientnet-lite4-bench` | `images_per_s` | 347 | 347.6 | +0.2% | 0.4% / 0.3% |  |
+| `onnx-zoo-mobilenetv2-bench` | `batch_latency_ms` | 13.81 | 13.8 | -0.0% | 0.1% / 0.1% |  |
+| `onnx-zoo-mobilenetv2-bench` | `images_per_s` | 2318 | 2318 | +0.0% | 0.1% / 0.1% |  |
+| `onnx-zoo-shufflenet-v2-bench` | `batch_latency_ms` | 1.35 | 1.35 | +0.0% | 3.5% / 4.9% |  |
+| `onnx-zoo-shufflenet-v2-bench` | `images_per_s` | 740.8 | 740.5 | -0.0% | 3.6% / 5.0% |  |
+| `onnx-zoo-ssd-mobilenetv1-bench` | `images_per_s` | 86.5 | 86.16 | -0.4% | 3.0% / 1.6% |  |
+| `onnx-zoo-ssd-mobilenetv1-bench` | `latency_ms` | 11.56 | 11.61 | +0.4% | 3.0% / 1.6% |  |
+| `pphumanseg-person-segmentation-bench` | `images_per_s` | 319.4 | 319.2 | -0.0% | 2.5% / 1.1% |  |
+| `pphumanseg-person-segmentation-bench` | `latency_ms` | 3.131 | 3.132 | +0.0% | 2.4% / 1.1% |  |
+| `ppocr-rapidocr-bench` | `images_per_s` | 6.742 | 7.259 | +7.7% ** | 19.9% / 20.5% | noise: spread about 20% in both records |
+| `ppocr-rapidocr-bench` | `latency_ms` | 148.3 | 137.8 | -7.1% ** | 20.0% / 23.5% | noise: spread about 20% in both records |
+| `sface-face-embedding-bench` | `images_per_s` | 1194 | 1194 | -0.0% | 2.0% / 2.6% |  |
+| `sface-face-embedding-bench` | `latency_ms` | 0.8375 | 0.8377 | +0.0% | 2.0% / 2.6% |  |
+| `silero-vad-onnx-bench` | `realtime_factor` | 61.76 | 59.61 | -3.5% | 4.0% / 3.0% |  |
+| `silero-vad-onnx-bench` | `windows_per_s` | 1930 | 1863 | -3.5% | 4.0% / 3.0% |  |
+| `spacy-en-core-web-md-bench` | `docs_per_s` | 1030 | 998 | -3.1% | 3.2% / 1.7% |  |
+| `spacy-en-core-web-md-bench` | `words_per_s` | 1.58e+04 | 1.53e+04 | -3.1% | 3.2% / 1.7% |  |
+| `spacy-en-core-web-sm-bench` | `docs_per_s` | 985.2 | 962.4 | -2.3% | 3.6% / 1.4% |  |
+| `spacy-en-core-web-sm-bench` | `words_per_s` | 1.675e+04 | 1.636e+04 | -2.3% | 3.6% / 1.4% |  |
+| `spacy-multilingual-sm-bench` | `nb_core_news_sm_words_per_s` | 1.336e+04 | 1.304e+04 | -2.4% | 2.9% / 2.1% |  |
+| `spacy-multilingual-sm-bench` | `ru_core_news_sm_words_per_s` | 1.341e+04 | 1.304e+04 | -2.7% | 3.3% / 1.3% |  |
+| `spacy-multilingual-sm-bench` | `uk_core_news_sm_words_per_s` | 1.205e+04 | 1.167e+04 | -3.1% | 3.0% / 0.7% |  |
+| `spacy-multilingual-sm-bench` | `xx_ent_wiki_sm_words_per_s` | 2.718e+04 | 2.615e+04 | -3.8% | 1.5% / 1.7% |  |
+| `wespeaker-resnet34-onnx-bench` | `embeddings_per_s` | 14.11 | 14.22 | +0.8% | 0.8% / 0.6% |  |
+| `wespeaker-resnet34-onnx-bench` | `realtime_factor` | 140 | 141.1 | +0.8% | 0.8% / 0.6% |  |
+| `yolox-object-detection-bench` | `images_per_s` | 70.7 | 71.29 | +0.8% | 47.4% / 44.5% |  |
+| `yolox-object-detection-bench` | `latency_ms` | 14.14 | 14.03 | -0.8% | 32.2% / 31.0% |  |
+| `yunet-face-detection-bench` | `images_per_s` | 216.4 | 212.4 | -1.9% | 0.9% / 3.8% |  |
+| `yunet-face-detection-bench` | `latency_ms` | 4.62 | 4.707 | +1.9% | 0.9% / 3.8% |  |
+| `zipformer-audio-tagging-onnx-bench` | `clips_per_s` | 21.02 | 21.17 | +0.7% | 0.6% / 0.4% |  |
+| `zipformer-audio-tagging-onnx-bench` | `realtime_factor` | 173 | 174.3 | +0.7% | 0.6% / 0.4% |  |
+
+`onnx-zoo-bertsquad-int8-bench` already had the 7-bit option and the same instance class, so its re-record only adds the versions (and agrees with the previous record within 0.2%).

@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "kokoro-tts-int8-onnx-bench",
+  "date": "2026-10-09T17:53:47Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "hexgrad/Kokoro-82M v0.19 (the \"kLegacy\" release), int8 ONNX export by k2-fsa/sherpa-onnx (kokoro-int8-en-v0_19.tar.bz2)",
+      "revision": "k2-fsa/sherpa-onnx release tag tts-models (a rolling tag), archive sha256 c9f0dd393615805b0bab050c340834d5e684e732aec91c0e860cd30e982c08bd (files dated 2025-08-10 inside); each file used is pinned by its own sha256 in model.sha256",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "latency_ms_per_sentence": {
+      "median": 5112.034943999987,
+      "values": [
+        5124.728738500011,
+        5112.034943999987,
+        5116.504921499995,
+        5106.382037499998,
+        5097.783430499987
+      ]
+    },
+    "realtime_factor": {
+      "median": 0.6748780158573205,
+      "values": [
+        0.6732063638962094,
+        0.6748780158573205,
+        0.6742884162004423,
+        0.6756251245331939,
+        0.6767647247151938
+      ]
+    }
+  }
+}

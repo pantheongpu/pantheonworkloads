@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "kws-zipformer-gigaspeech-onnx-bench",
+  "date": "2026-10-09T17:58:07Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "pkufool/sherpa-onnx-kws-zipformer-gigaspeech-3.3M-2024-01-01 (icefall streaming Zipformer2 transducer, trained on GigaSpeech XL), as released by k2-fsa/sherpa-onnx",
+      "revision": "k2-fsa/sherpa-onnx release tag kws-models (a rolling tag), archive sha256 f170013b4716e41b62b9bfd809687c207cef798ef9bc6534d524e17af9b6561a (files dated 2024-01-23 inside); each file used is pinned by its own sha256 in model.sha256",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/k2-fsa/sherpa-onnx/releases/tag/kws-models"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "latency_ms_per_clip": {
+      "median": 617.0808910000005,
+      "values": [
+        619.6047674999932,
+        611.7844824999565,
+        617.0808910000005,
+        620.1378239999826,
+        612.4100244999795
+      ]
+    },
+    "realtime_factor": {
+      "median": 18.91162110220002,
+      "values": [
+        18.83458716285641,
+        19.075344886670656,
+        18.91162110220002,
+        18.81839737612961,
+        19.055860507065216
+      ]
+    }
+  }
+}
