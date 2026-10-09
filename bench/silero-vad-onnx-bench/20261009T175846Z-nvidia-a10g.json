@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "silero-vad-onnx-bench",
+  "date": "2026-10-09T17:58:46Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "snakers4/silero-vad silero_vad.onnx",
+      "revision": "snakers4/silero-vad v6.2.3 = commit 5cd7945676eb32225748052e2e6a0580e4686a08; silero_vad.onnx sha256 1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3 (identical in the PyPI wheel silero-vad 6.2.3)",
+      "licence": "MIT",
+      "source_url": "https://github.com/snakers4/silero-vad"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "realtime_factor": {
+      "median": 59.607912444506816,
+      "values": [
+        59.98584603969808,
+        59.607912444506816,
+        58.840059949743,
+        60.60769719753876,
+        59.064825088685645
+      ]
+    },
+    "windows_per_s": {
+      "median": 1862.747263890838,
+      "values": [
+        1874.557688740565,
+        1862.747263890838,
+        1838.7518734294688,
+        1893.9905374230864,
+        1845.7757840214263
+      ]
+    }
+  }
+}

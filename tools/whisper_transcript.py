@@ -3,11 +3,18 @@
 known words of the test clip and prints the pw contract JSON. Exits non-zero over the limit.
 
     PW_WHISPER_WER_MAX   limit (default 0.15)    PW_BACKEND   label for the detail line
+    PW_WHISPER_CPP_TAG   whisper.cpp release the binary was built from (reported under `versions`)
 """
+import importlib.util
 import json
 import os
+import pathlib
 import re
 import sys
+
+spec = importlib.util.spec_from_file_location("versions", pathlib.Path(__file__).resolve().parent / "versions.py")
+VERSIONS = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(VERSIONS)
 
 # The words of President Kennedy's 1961 inaugural address that are in whisper.cpp's samples/jfk.wav.
 TRUTH = "and so my fellow americans ask not what your country can do for you ask what you can do for your country"
@@ -35,7 +42,8 @@ def main():
     if w > limit:
         sys.exit(f"word error rate {w:.3f} exceeds {limit}: {out!r}")
     print(json.dumps({"output": out, "detail": f"backend {os.environ.get('PW_BACKEND', '?')}, WER {w:.3f} vs known text",
-                      "metrics": {}}))
+                      "metrics": {},
+                      "versions": VERSIONS.collect((), {"whisper.cpp": os.environ.get("PW_WHISPER_CPP_TAG")})}))
 
 
 if __name__ == "__main__":

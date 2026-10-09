@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "onnx-zoo-efficientnet-lite4-bench",
+  "date": "2026-10-09T18:00:19Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "onnx/models validated/vision/classification/efficientnet-lite4/model/efficientnet-lite4-11.onnx",
+      "revision": "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; efficientnet-lite4-11.onnx sha256 d111689907c06eea7c82e4833ddef758da6453b9d4cf60b7e99ca05c7cbd9c12 (= its git-LFS oid)",
+      "licence": "MIT",
+      "source_url": "https://github.com/onnx/models/tree/main/validated/vision/classification/efficientnet-lite4"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "batch_latency_ms": {
+      "median": 2.8768949999857796,
+      "values": [
+        2.870739000059075,
+        2.8768949999857796,
+        2.878979500053447,
+        2.880514500020581,
+        2.8721490000407357
+      ]
+    },
+    "images_per_s": {
+      "median": 347.5969752128399,
+      "values": [
+        348.34236061844064,
+        347.5969752128399,
+        347.34530064609197,
+        347.16020349588763,
+        348.1713518295245
+      ]
+    }
+  }
+}

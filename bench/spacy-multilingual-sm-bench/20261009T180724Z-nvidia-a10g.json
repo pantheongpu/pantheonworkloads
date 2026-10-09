@@ -1,0 +1,70 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "spacy-multilingual-sm-bench",
+  "date": "2026-10-09T18:07:24Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "spacy",
+    "runtime_version": "cupy-cuda12x 14.2.0, numpy 2.5.3, spacy 3.8.16, thinc 8.3.13",
+    "model": {
+      "id": "explosion/spacy-models ru_core_news_sm, uk_core_news_sm, nb_core_news_sm, xx_ent_wiki_sm",
+      "revision": "release *-3.8.0 of each (explosion/spacy-models commit ca6f473afda3c4943d3919d3e39406c1b3f48b85); wheel sha256 ru 69978d47b43e2c4f..., uk d20adb50b42c0dcf..., nb 086f2cfcc1568b2e..., xx 6f3c4b853852ea9e... (full values in model.sha256)",
+      "licence": "MIT",
+      "source_url": "https://github.com/explosion/spacy-models/releases/tag/ru_core_news_sm-3.8.0"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "cupy-cuda12x": "14.2.0",
+      "numpy": "2.5.3",
+      "spacy": "3.8.16",
+      "thinc": "8.3.13"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "nb_core_news_sm_words_per_s": {
+      "median": 13038.95818720904,
+      "values": [
+        13038.95818720904,
+        13183.019177278356,
+        12986.662086594079,
+        12907.014116557448,
+        13042.371805464292
+      ]
+    },
+    "ru_core_news_sm_words_per_s": {
+      "median": 13044.719543934834,
+      "values": [
+        13044.719543934834,
+        12992.517197921032,
+        13067.413879916638,
+        12951.6907864326,
+        13125.009136420204
+      ]
+    },
+    "uk_core_news_sm_words_per_s": {
+      "median": 11672.528585151358,
+      "values": [
+        11729.684590934985,
+        11654.806299983233,
+        11714.81413446477,
+        11648.120247512259,
+        11672.528585151358
+      ]
+    },
+    "xx_ent_wiki_sm_words_per_s": {
+      "median": 26150.709443552718,
+      "values": [
+        26150.709443552718,
+        26104.306632248816,
+        26017.197550244753,
+        26181.025138512607,
+        26462.404370889737
+      ]
+    }
+  }
+}

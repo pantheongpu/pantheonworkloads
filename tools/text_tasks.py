@@ -535,7 +535,8 @@ def main(argv):
     except ImportError as e:
         print(f"SKIP: missing Python package ({e})")
         return 77
-    print(json.dumps({"output": output, "detail": detail, "metrics": metrics if os.environ.get("PW_TARGET") == "gpu" else {}}))
+    print(json.dumps({"output": output, "detail": detail, "metrics": metrics if os.environ.get("PW_TARGET") == "gpu" else {},
+                      "versions": ORT.VERSIONS.collect(ORT.VERSIONS.ORT)}))
     return 0
 
 

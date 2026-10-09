@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "nanodet-object-detection-bench",
+  "date": "2026-10-09T17:59:57Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "opencv/opencv_zoo models/object_detection_nanodet/object_detection_nanodet_2022nov.onnx",
+      "revision": "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; object_detection_nanodet_2022nov.onnx sha256 4b82da9944b88577175ee23a459dce2e26e6e4be573def65b1055dc2d9720186 (= its git-LFS oid)",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/opencv/opencv_zoo/tree/main/models/object_detection_nanodet"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "images_per_s": {
+      "median": 111.43040875742163,
+      "values": [
+        111.90752588707652,
+        111.43040875742163,
+        111.3490764591779,
+        112.84200083087975,
+        111.33866259598446
+      ]
+    },
+    "latency_ms": {
+      "median": 8.974210999951993,
+      "values": [
+        8.935949500028073,
+        8.974210999951993,
+        8.980766000036056,
+        8.861948499998107,
+        8.981605999963449
+      ]
+    }
+  }
+}

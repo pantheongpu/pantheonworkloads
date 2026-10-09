@@ -32,21 +32,21 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 
 ## crnn-text-recognition-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/crnn-text-recognition-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| images_per_s | 658.5 | 651.3 | 660.5 |
-| latency_ms | 1.519 | 1.514 | 1.535 |
+| images_per_s | 659.8 | 640 | 669 |
+| latency_ms | 1.516 | 1.495 | 1.562 |
 
 ## glove-wiki-gigaword-50-knn-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/glove-wiki-gigaword-50-knn-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| batch_latency_ms | 2.716 | 2.711 | 2.727 |
-| queries_per_s | 94,256 | 93,859 | 94,440 |
+| batch_latency_ms | 2.725 | 2.709 | 2.742 |
+| queries_per_s | 93,958 | 93,361 | 94,505 |
 
 ## gpt-train-bench on NVIDIA A10G
 
@@ -69,30 +69,30 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 
 ## gtcrn-enhance-onnx-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/gtcrn-enhance-onnx-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| frames_per_s | 152.7 | 148.9 | 153.5 |
-| realtime_factor | 2.442 | 2.381 | 2.455 |
+| frames_per_s | 152.3 | 151.3 | 153 |
+| realtime_factor | 2.435 | 2.419 | 2.447 |
 
 ## kokoro-tts-int8-onnx-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/kokoro-tts-int8-onnx-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| latency_ms_per_sentence | 4,661 | 4,655 | 4,742 |
-| realtime_factor | 0.7374 | 0.725 | 0.7385 |
+| latency_ms_per_sentence | 5,112 | 5,098 | 5,125 |
+| realtime_factor | 0.6749 | 0.6732 | 0.6768 |
 
 ## kws-zipformer-gigaspeech-onnx-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/kws-zipformer-gigaspeech-onnx-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| latency_ms_per_clip | 608.9 | 607.6 | 622.8 |
-| realtime_factor | 19.17 | 18.74 | 19.21 |
+| latency_ms_per_clip | 617.1 | 611.8 | 620.1 |
+| realtime_factor | 18.91 | 18.82 | 19.08 |
 
 ## lib-kernels-bench on NVIDIA A10G
 
@@ -294,93 +294,93 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 
 ## minilm-l6-v2-onnx-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/minilm-l6-v2-onnx-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| batch_latency_ms | 3.968 | 3.951 | 4.007 |
-| sentences_per_s | 9,073 | 8,984 | 9,111 |
+| batch_latency_ms | 4.003 | 3.98 | 4.03 |
+| sentences_per_s | 8,994 | 8,933 | 9,044 |
 
 ## moonshine-tiny-en-onnx-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/moonshine-tiny-en-onnx-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| latency_ms_per_clip | 515.7 | 512.3 | 517 |
-| realtime_factor | 22.63 | 22.57 | 22.78 |
+| latency_ms_per_clip | 530.3 | 524.8 | 537 |
+| realtime_factor | 22.01 | 21.73 | 22.24 |
 
 ## nanodet-object-detection-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/nanodet-object-detection-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| images_per_s | 117.3 | 112 | 119.6 |
-| latency_ms | 8.528 | 8.361 | 8.928 |
+| images_per_s | 111.4 | 111.3 | 112.8 |
+| latency_ms | 8.974 | 8.862 | 8.982 |
 
 ## onnx-zoo-bertsquad-int8-bench on NVIDIA A10G
 
-2026-10-09, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `1533ddbb` (dirty tree)
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/onnx-zoo-bertsquad-int8-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| latency_ms | 243 | 242.7 | 243.5 |
-| questions_per_s | 4.115 | 4.107 | 4.12 |
+| latency_ms | 242.5 | 242.4 | 242.7 |
+| questions_per_s | 4.124 | 4.119 | 4.126 |
 
 ## onnx-zoo-efficientnet-lite4-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/onnx-zoo-efficientnet-lite4-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| batch_latency_ms | 2.882 | 2.88 | 2.892 |
-| images_per_s | 347 | 345.8 | 347.2 |
+| batch_latency_ms | 2.877 | 2.871 | 2.881 |
+| images_per_s | 347.6 | 347.2 | 348.3 |
 
 ## onnx-zoo-mobilenetv2-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/onnx-zoo-mobilenetv2-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| batch_latency_ms | 13.81 | 13.8 | 13.82 |
-| images_per_s | 2,318 | 2,316 | 2,319 |
+| batch_latency_ms | 13.8 | 13.8 | 13.81 |
+| images_per_s | 2,318 | 2,318 | 2,319 |
 
 ## onnx-zoo-shufflenet-v2-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/onnx-zoo-shufflenet-v2-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| batch_latency_ms | 1.35 | 1.318 | 1.366 |
-| images_per_s | 740.8 | 732.3 | 758.9 |
+| batch_latency_ms | 1.35 | 1.3 | 1.366 |
+| images_per_s | 740.5 | 732.3 | 769.5 |
 
 ## onnx-zoo-ssd-mobilenetv1-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/onnx-zoo-ssd-mobilenetv1-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| images_per_s | 86.5 | 85.46 | 88.03 |
-| latency_ms | 11.56 | 11.36 | 11.7 |
+| images_per_s | 86.16 | 85.36 | 86.71 |
+| latency_ms | 11.61 | 11.53 | 11.72 |
 
 ## pphumanseg-person-segmentation-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/pphumanseg-person-segmentation-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| images_per_s | 319.4 | 318.1 | 326 |
-| latency_ms | 3.131 | 3.068 | 3.143 |
+| images_per_s | 319.2 | 318.5 | 322 |
+| latency_ms | 3.132 | 3.105 | 3.14 |
 
 ## ppocr-rapidocr-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/ppocr-rapidocr-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| images_per_s | 6.742 | 6.097 | 7.44 |
-| latency_ms | 148.3 | 134.4 | 164 |
+| images_per_s | 7.259 | 6.07 | 7.556 |
+| latency_ms | 137.8 | 132.3 | 164.8 |
 
 ## pytorch-microsuite on NVIDIA A10G
 
@@ -435,21 +435,21 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 
 ## sface-face-embedding-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/sface-face-embedding-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| images_per_s | 1,194 | 1,175 | 1,199 |
-| latency_ms | 0.8375 | 0.834 | 0.8509 |
+| images_per_s | 1,194 | 1,172 | 1,203 |
+| latency_ms | 0.8377 | 0.8312 | 0.853 |
 
 ## silero-vad-onnx-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/silero-vad-onnx-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| realtime_factor | 61.76 | 61.18 | 63.67 |
-| windows_per_s | 1,930 | 1,912 | 1,990 |
+| realtime_factor | 59.61 | 58.84 | 60.61 |
+| windows_per_s | 1,863 | 1,839 | 1,894 |
 
 ## smollm2-135m-ollama on NVIDIA A10G
 
@@ -471,32 +471,32 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 
 ## spacy-en-core-web-md-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, spacy 3.8.16, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, spacy 3.8.16, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/spacy-en-core-web-md-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| docs_per_s | 1,030 | 1,005 | 1,038 |
-| words_per_s | 15,796 | 15,416 | 15,923 |
+| docs_per_s | 998 | 989.7 | 1,007 |
+| words_per_s | 15,303 | 15,176 | 15,434 |
 
 ## spacy-en-core-web-sm-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, spacy 3.8.16, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, spacy 3.8.16, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/spacy-en-core-web-sm-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| docs_per_s | 985.2 | 962.2 | 997.7 |
-| words_per_s | 16,748 | 16,357 | 16,961 |
+| docs_per_s | 962.4 | 954.3 | 968 |
+| words_per_s | 16,362 | 16,223 | 16,457 |
 
 ## spacy-multilingual-sm-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, spacy 3.8.16, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, spacy 3.8.16, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/spacy-multilingual-sm-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| nb_core_news_sm_words_per_s | 13,361 | 13,151 | 13,545 |
-| ru_core_news_sm_words_per_s | 13,411 | 13,205 | 13,648 |
-| uk_core_news_sm_words_per_s | 12,046 | 11,911 | 12,269 |
-| xx_ent_wiki_sm_words_per_s | 27,178 | 26,799 | 27,198 |
+| nb_core_news_sm_words_per_s | 13,039 | 12,907 | 13,183 |
+| ru_core_news_sm_words_per_s | 13,045 | 12,952 | 13,125 |
+| uk_core_news_sm_words_per_s | 11,673 | 11,648 | 11,730 |
+| xx_ent_wiki_sm_words_per_s | 26,151 | 26,017 | 26,462 |
 
 ## vllm-bench-throughput on NVIDIA A10G
 
@@ -510,12 +510,12 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 
 ## wespeaker-resnet34-onnx-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/wespeaker-resnet34-onnx-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| embeddings_per_s | 14.11 | 14.04 | 14.15 |
-| realtime_factor | 140 | 139.3 | 140.4 |
+| embeddings_per_s | 14.22 | 14.2 | 14.28 |
+| realtime_factor | 141.1 | 140.9 | 141.7 |
 
 ## whisper-cpp-bench-large-v3 on NVIDIA A10G
 
@@ -537,27 +537,27 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 
 ## yolox-object-detection-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/yolox-object-detection-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| images_per_s | 70.7 | 70.6 | 104.1 |
-| latency_ms | 14.14 | 9.608 | 14.16 |
+| images_per_s | 71.29 | 70.95 | 102.6 |
+| latency_ms | 14.03 | 9.742 | 14.09 |
 
 ## yunet-face-detection-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/yunet-face-detection-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| images_per_s | 216.4 | 215.2 | 217.2 |
-| latency_ms | 4.62 | 4.604 | 4.648 |
+| images_per_s | 212.4 | 208.3 | 216.3 |
+| latency_ms | 4.707 | 4.623 | 4.802 |
 
 ## zipformer-audio-tagging-onnx-bench on NVIDIA A10G
 
-2026-10-08, 5 runs, onnxruntime 1.30.0, driver 595.91.07, commit `7efdb830`
+2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/zipformer-audio-tagging-onnx-bench/`
 
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
-| clips_per_s | 21.02 | 20.97 | 21.09 |
-| realtime_factor | 173 | 172.6 | 173.6 |
+| clips_per_s | 21.17 | 21.16 | 21.23 |
+| realtime_factor | 174.3 | 174.1 | 174.8 |
