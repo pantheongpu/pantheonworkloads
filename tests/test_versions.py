@@ -77,7 +77,8 @@ class ResultLines(unittest.TestCase):
 
     def test_speech_tasks_use_the_shared_main(self):
         import speech_tasks
-        with mock.patch.dict(ort.TASKS, {"fake": lambda bench: ({"x": 1}, "d", {})}):
+        # speech_tasks loads its own copy of ort_tasks by path, so patch that copy's table
+        with mock.patch.dict(speech_tasks.ot.TASKS, {"fake": lambda bench: ({"x": 1}, "d", {})}):
             rec = self.run_main(speech_tasks, ["speech_tasks.py", "fake"])
         self.assertEqual(rec["versions"], FAKE)
 
