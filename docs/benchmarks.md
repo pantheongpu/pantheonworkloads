@@ -64,7 +64,7 @@ Deep Learning AMI, driver 595.91.07. 40 records under `bench/`, 5 repeats each, 
 off), spaCy 3.8.16 with cupy-cuda12x, llama.cpp b11447 (CUDA, sm_86, `-ngl 99`), whisper.cpp v1.9.5 (CUDA, sm_86), Ollama 0.40.1,
 vLLM 0.30.0 (torch 2.13.0+cu130, `VLLM_USE_FLASHINFER_SAMPLER=0`). Full account, setup traps and every failure: `docs/first-gpu-run-a10g.md`.
 
-Not recorded: `onnx-zoo-bertsquad-int8-bench` (its functional check fails on this host, see that file). `llamacpp-smollm2-135m` and `whisper-cpp-tiny-en` print no metrics, so `--bench`
+`onnx-zoo-bertsquad-int8-bench` was recorded on 2026-10-09 (g5.xlarge, A10G, driver 595.91.07, 5 repeats, 242.99 ms per question, onnxruntime-gpu 1.30.0 with `session.x64quantprecision=1`; `docs/int8-and-nondeterminism.md`); its check failed on 2026-10-08 on the AVX2 host. The kokoro and moonshine records of 2026-10-08 predate that session option (which can change the CPU-side int8 kernels) and were not re-recorded. `llamacpp-smollm2-135m` and `whisper-cpp-tiny-en` print no metrics, so `--bench`
 refuses them; the benchmark twins carry the numbers. `pytorch-microsuite`, `gpt2-small-pytorch`, `bert-base-uncased-pytorch`,
 `resnet18-randinit-pytorch` and `smollm2-135m-ollama` are functional workloads that also report metrics, and were recorded with `--bench`.
 

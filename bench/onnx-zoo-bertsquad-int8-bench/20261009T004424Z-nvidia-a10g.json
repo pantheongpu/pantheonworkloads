@@ -1,0 +1,45 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "onnx-zoo-bertsquad-int8-bench",
+  "date": "2026-10-09T00:44:24Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "onnxruntime 1.30.0 (PyPI; CPU wheel on cpu, onnxruntime-gpu on gpu)",
+    "model": {
+      "id": "onnx/models validated/text/machine_comprehension/bert-squad/model/bertsquad-12-int8.tar.gz",
+      "revision": "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; bertsquad-12-int8.tar.gz sha256 6c33f44ee1949ee25936e259cb68da3e19bea7f6e7d5ea72a4d95ae300c86d87 (= its git-LFS oid); bertsquad-12-int8/bertsquad-12-int8.onnx inside it sha256 24325bdf732256859e07a385d2f363a6839b20b2bb4a57ac362b3982fc8ce121 (= the LFS oid of bertsquad-12-int8.onnx). Vocabulary: npm @xcidos/genesis-memory-model 0.1.0-alpha.1 (tgz sha256 3462d151396de1943a4f69c154223d9473146f3c4e1a1250f98980aa447e9235; npm integrity sha512-kCEWeIgZ...3WvZSA== matches); the package README pins sentence-transformers/all-MiniLM-L6-v2 at Hugging Face revision c9745ed1d9f207416be6d2e6f8de32d1f16199bf",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/onnx/models/tree/main/validated/text/machine_comprehension/bert-squad"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "1533ddbb48b871088cf5929ca4b063b7e056adb0",
+    "repo_dirty": true,
+    "instance": "AWS g5.xlarge (4 vCPU AMD EPYC 7R32); tree = commit 1533ddb plus this change, run from a tarball without .git, so repo_commit and repo_dirty were set by hand"
+  },
+  "repeats": 5,
+  "metrics": {
+    "latency_ms": {
+      "median": 242.98735150006223,
+      "values": [
+        242.89221099996894,
+        242.74604449999515,
+        243.50832049998417,
+        243.01966850003964,
+        242.98735150006223
+      ]
+    },
+    "questions_per_s": {
+      "median": 4.11544055205583,
+      "values": [
+        4.117052563699245,
+        4.119531595498438,
+        4.106635855180419,
+        4.11489327663138,
+        4.11544055205583
+      ]
+    }
+  }
+}

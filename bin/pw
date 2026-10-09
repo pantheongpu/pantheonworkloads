@@ -27,6 +27,7 @@ import time
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import validate  # noqa: E402
+import wer as werlib  # noqa: E402
 
 WORKLOADS = ROOT / "workloads"
 SKIP_STATUS = 77
@@ -48,14 +49,19 @@ def target_ok(target, patterns):
 
 def close(a, b, absolute, relative, fields=None):
     """Numbers within abs + rel*|b|; lists element-wise; dicts key by key (same keys), where
-    `fields` may give a key its own {abs, rel}; anything else (strings, bools) must be equal."""
+    `fields` may give a key its own {abs, rel}, or {wer: X} for a text field: the word error rate of the
+    output against the reference text (case and punctuation ignored, tools/wer.py) must be <= X;
+    anything else (strings, bools) must be equal."""
     if isinstance(a, dict) and isinstance(b, dict):
         if a.keys() != b.keys():
             return False
         fields = fields or {}
         for k in b:
             f = fields.get(k) or {}
-            if not close(a[k], b[k], f.get("abs", absolute), f.get("rel", relative)):
+            if "wer" in f:
+                if not (isinstance(a[k], str) and isinstance(b[k], str)) or werlib.word_error_rate(b[k], a[k]) > f["wer"]:
+                    return False
+            elif not close(a[k], b[k], f.get("abs", absolute), f.get("rel", relative)):
                 return False
         return True
     if isinstance(a, bool) or isinstance(b, bool):
@@ -97,7 +103,19 @@ def split_unsupported(manifest, output, reference, target=None):
     return output, reference, unchecked
 
 
+def drop_informational(manifest, output, reference):
+    """Top-level keys the manifest lists under `informational` are recorded (so a reference documents them) but
+    never compared. Returns (output, reference, keys whose values differ)."""
+    keys = manifest.get("informational") or []
+    if not keys or not (isinstance(output, dict) and isinstance(reference, dict)):
+        return output, reference, []
+    differ = [k for k in keys if k in output and k in reference and output[k] != reference[k]]
+    drop = lambda d: {k: v for k, v in d.items() if k not in keys}
+    return drop(output), drop(reference), differ
+
+
 def compare(manifest, output, reference):
+    output, reference, _ = drop_informational(manifest, output, reference)
     how = manifest.get("compare", "exact")
     if how == "exact":
         return output == reference
@@ -159,6 +177,10 @@ def execute(name, target, scratch):
         output, reference, unchecked = split_unsupported(manifest, output, reference, target)
         if not compare(manifest, output, reference):
             return "FAIL", seconds, f"output differs from reference: got {output!r}, want {reference!r}"[:200], rec
+        _, _, informational = drop_informational(manifest, output, reference)
+        if informational:
+            note = "informational differs: " + ", ".join(informational)
+            return "PASS", seconds, (str(rec.get("detail", ""))[:200 - len(note) - 3] + " | " + note), rec
         if unchecked:
             note = f"unchecked: {len(unchecked)} ops (supported on this target, unsupported in the reference)"
             return "PASS", seconds, (str(rec.get("detail", ""))[:200 - len(note) - 3] + " | " + note), rec

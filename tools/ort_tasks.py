@@ -71,6 +71,14 @@ def session(path, log_level=None):
     opts = ort.SessionOptions()
     if log_level is not None:
         opts.log_severity_level = log_level
+    if os.environ.get("PW_ORT_X64QUANT", "1") != "0":
+        # MLAS's u8s8 int8 matmul on AVX2 CPUs without VNNI (e.g. AMD EPYC 7R32) saturates its 16-bit intermediate and the
+        # int8 models give wrong answers (BERT-Squad int8: wrong spans, logits 2.2 off); "1" selects 7-bit activations there.
+        # Measured in docs/int8-and-nondeterminism.md. It matters for the CPU provider and for int8 nodes the CUDA EP leaves on the CPU.
+        opts.add_session_config_entry("session.x64quantprecision", "1")
+    for entry in filter(None, os.environ.get("PW_ORT_CONFIG", "").split(",")):   # measurement knob: "key=value,key=value" session config entries
+        key, _, value = entry.partition("=")
+        opts.add_session_config_entry(key, value)
     if prov == "CPUExecutionProvider":   # fixed thread count: stable results and a polite use of shared hosts
         opts.intra_op_num_threads = opts.inter_op_num_threads = int(os.environ.get("PW_ORT_THREADS", "1"))
     providers = [prov] if prov == "CPUExecutionProvider" else [prov, "CPUExecutionProvider"]

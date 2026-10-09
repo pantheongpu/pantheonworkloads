@@ -48,18 +48,14 @@ def read_wav(path):
     return np.frombuffer(data, dtype="<i2").astype("float32") / 32768.0, rate
 
 
-def word_error_rate(ref, hyp):
-    """Word-level edit distance / number of reference words (case, punctuation and hyphens ignored)."""
-    import re
-    norm = lambda t: re.sub(r"[^a-z0-9' ]", " ", t.lower())
-    r, h = norm(ref).split(), norm(hyp).split()
-    d = list(range(len(h) + 1))
-    for i in range(1, len(r) + 1):
-        prev, d[0] = d[0], i
-        for j in range(1, len(h) + 1):
-            cur = min(d[j] + 1, d[j - 1] + 1, prev + (r[i - 1] != h[j - 1]))
-            prev, d[j] = d[j], cur
-    return d[len(h)] / max(len(r), 1)
+def _wer():
+    spec = importlib.util.spec_from_file_location("wer", HERE / "wer.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+word_error_rate = _wer().word_error_rate
 
 
 # ---------------------------------------------------------------- Moonshine tiny (ASR)
@@ -106,12 +102,16 @@ class Moonshine:
         enc = self.enc.run(None, {self.enc.get_inputs()[0].name: feats, self.enc.get_inputs()[1].name: flen})[0]
         max_len = int(enc.shape[1] * 384 / 16000.0 * 6)
         tokens, seq_len = [], 1
+        self.min_gap = float("inf")   # smallest logit gap between the chosen token and the runner-up over the decode
         ui = [i.name for i in self.unc.get_inputs()]
         out = self.unc.run(None, {ui[0]: np.array([[1]], dtype="int32"), ui[1]: enc, ui[2]: np.array([seq_len], dtype="int32")})
         logits, states = out[0], out[1:]
         ci = [i.name for i in self.cac.get_inputs()]
         for _ in range(max_len):
-            tok = int(np.argmax(logits[0, -1]))
+            row = logits[0, -1]
+            tok = int(np.argmax(row))
+            top2 = np.partition(row, -2)[-2:]
+            self.min_gap = min(self.min_gap, float(top2[1] - top2[0]))
             if tok == 2:
                 break
             tokens.append(tok)
@@ -131,7 +131,7 @@ def task_asr(bench):
     tokens = read_tokens(tok_path)
     refs = dict(line.split(" ", 1) for line in pathlib.Path(trans_path).read_text().splitlines() if line.strip())
     model = Moonshine(paths)
-    texts, ids, wers, seconds = [], [], [], 0.0
+    texts, ids, wers, seconds, gaps = [], [], [], 0.0, []
     clips = []
     for wav, key in ((w0, "0.wav"), (w1, "1.wav")):
         audio, rate = read_wav(wav)
@@ -140,6 +140,7 @@ def task_asr(bench):
         clips.append(audio)
         seconds += len(audio) / 16000
         t = model.transcribe(audio)
+        gaps.append(model.min_gap)
         text = moonshine_text(t, tokens)
         ids.append(" ".join(map(str, t)))
         texts.append(text)
@@ -148,8 +149,11 @@ def task_asr(bench):
     wer_max = float(os.environ.get("PW_ASR_WER_MAX", "0.15"))
     if wer > wer_max:
         raise RuntimeError(f"word error rate {wer:.3f} against the archive's own transcripts exceeds {wer_max}")
-    output = {"text": "|".join(texts), "token_ids": "|".join(ids)}
-    detail = f"{len(texts)} clips, {seconds:.1f} s of audio, WER {wer:.3f} vs the archive's transcripts, Moonshine tiny int8, {model.prov}"
+    # text is compared by word error rate against the reference text (manifest: fields.text.wer); the token ids and the
+    # smallest top-1/top-2 logit gap of the decode are recorded as informational (a gap near 0 is a near tie that can flip)
+    output = {"text": "|".join(texts), "token_ids": "|".join(ids), "min_logit_gap": round(min(gaps), 3)}
+    detail = (f"{len(texts)} clips, {seconds:.1f} s of audio, WER {wer:.3f} vs the archive's transcripts, "
+              f"smallest top1-top2 logit gap {min(gaps):.3f}, Moonshine tiny int8, {model.prov}")
     metrics = {}
     if bench:
         times = []
@@ -339,6 +343,7 @@ def task_tts(bench):
     audios = [speak(s) for s in KOKORO_SENTENCES]
     stats = [audio_stats(a, KOKORO_RATE) for a in audios]
     output = {k: [st[k] for st in stats] for k in ("n_samples", "rms", "centroid_hz", "envelope")}
+    output["n_samples_exact"] = output["n_samples"]   # informational: n_samples is compared within a percentage (manifest)
     secs = sum(len(a) for a in audios) / KOKORO_RATE
     detail = f"{len(audios)} sentences, {secs:.1f} s of 24 kHz audio, Kokoro v0.19 int8 voice 'af', {prov}"
     metrics = {}

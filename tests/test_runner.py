@@ -124,6 +124,42 @@ class Compare(unittest.TestCase):
         self.assertFalse(pw.compare(m, {"ids": "1 2 3", "tight": [1.0, 2.0]}, ref), "a missing key differs")
         self.assertFalse(pw.compare(m, {"ids": "1 2 3", "tight": [1.0, 2.0], "loose": [10.0], "x": 1}, ref))
 
+    def test_wer_field_ignores_punctuation_and_bounds_word_changes(self):
+        m = {"compare": "tolerance", "tolerance": {"abs": 0.0, "rel": 0.0, "fields": {"text": {"wer": 0.25}}}}
+        ref = {"text": "one two three four"}
+        self.assertTrue(pw.compare(m, {"text": "One, two three four."}, ref), "case and punctuation do not count")
+        self.assertTrue(pw.compare(m, {"text": "one two three five"}, ref), "one word of four is 0.25")
+        self.assertFalse(pw.compare(m, {"text": "one two six five"}, ref))
+        self.assertFalse(pw.compare(m, {"text": 3}, ref), "a wer field must be text")
+
+    def test_informational_keys_are_not_compared_but_reported(self):
+        m = {"compare": "tolerance", "tolerance": {"abs": 0.0, "rel": 0.0}, "informational": ["gap"]}
+        ref = {"ids": "1 2", "gap": 0.5}
+        self.assertTrue(pw.compare(m, {"ids": "1 2", "gap": 0.01}, ref))
+        self.assertTrue(pw.compare(m, {"ids": "1 2"}, ref), "an informational key may be absent")
+        self.assertFalse(pw.compare(m, {"ids": "1 3", "gap": 0.5}, ref))
+        self.assertEqual(pw.drop_informational(m, {"ids": "1 2", "gap": 0.01}, ref)[2], ["gap"])
+        self.assertEqual(pw.drop_informational(m, {"ids": "1 2", "gap": 0.5}, ref)[2], [])
+
+    def test_ort_int8_workloads_compare_task_output(self):
+        """The measured bounds of docs/int8-and-nondeterminism.md, against the real manifests and references."""
+        def load(name):
+            w = ROOT / "workloads" / name
+            return validate.load(w / "manifest.yaml"), json.loads((w / "reference.json").read_text())["output"]
+        m, ref = load("moonshine-tiny-en-onnx")
+        comma = dict(ref, text=ref["text"].replace("her parent forever", "her parent, forever"), min_logit_gap=0.008)
+        self.assertTrue(pw.compare(m, comma, ref))
+        self.assertTrue(pw.compare(m, dict(ref, text=ref["text"].replace("dishonoured", "dishonored")), ref))
+        self.assertFalse(pw.compare(m, dict(ref, text=ref["text"].replace("dishonoured", "dishonored").replace("lovely", "lonely")), ref))
+        m, ref = load("kokoro-tts-int8-onnx")
+        short = dict(ref, n_samples=[94200, 70800], n_samples_exact=[94200, 70800])
+        self.assertTrue(pw.compare(m, short, ref), "0.84 % fewer samples was measured on AVX2 hosts")
+        self.assertFalse(pw.compare(m, dict(ref, n_samples=[94200, 69000]), ref))
+        m, ref = load("onnx-zoo-bertsquad-int8")
+        self.assertTrue(pw.compare(m, dict(ref, span_scores=[x + 0.5 for x in ref["span_scores"]]), ref))
+        self.assertFalse(pw.compare(m, dict(ref, span_scores=[x - 18 for x in ref["span_scores"]]), ref))
+        self.assertFalse(pw.compare(m, dict(ref, answers="ardmore | 90 | wick | alder rises"), ref))
+
     def test_bool_is_not_a_number(self):
         m = {"compare": "tolerance", "tolerance": {"abs": 5.0, "rel": 0.0}}
         self.assertFalse(pw.compare(m, True, 3))

@@ -99,3 +99,10 @@ unsupported are not compared, as before; the fp8 e4m3fn overflow class is `satur
 (caption 'a woman in an orange space suit with a space helmet') and `sdxl-base-diffusers` (informational pixel sha256 `8cdbac1b501c30b5`).
 Where the 2.10.0 pass above gave a figure, the worst errors, losses and margins equal it as printed, except `lib-composite-blocks`. Benchmark medians against the
 2.10.0 records: `docs/benchmarks.md` (torch 2.14.1 re-run). About 45 minutes of instance time, including a 2.10.0 control run of three bench twins.
+
+## Follow-up on the three ONNX failures (2026-10-09)
+
+The int8 and Moonshine failures above were measured on a g5.xlarge (A10G, AMD EPYC 7R32) and a c6i.xlarge (Ice Lake, AVX512-VNNI): BERT-Squad int8
+is wrong on an AVX2 CPU without VNNI (ONNX Runtime's `session.x64quantprecision=1` repairs it and is a no-op on VNNI), Kokoro's second-sentence length
+depends on the CPU kernel path (70800 or 71400 samples), and Moonshine's text flips on near ties run to run on the card. The comparisons now
+check task output within measured bounds. Everything, with the numbers: `docs/int8-and-nondeterminism.md`.

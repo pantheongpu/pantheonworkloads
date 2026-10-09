@@ -164,7 +164,7 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | nanodet-object-detection | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
 | nanodet-object-detection-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | bench |
 | onnx-zoo-bertsquad-int8 | functional | onnxruntime | cpu, gpu | yes (cpu) | Apache-2.0 | yes | no | no |
-| onnx-zoo-bertsquad-int8-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | no |
+| onnx-zoo-bertsquad-int8-bench | benchmark | onnxruntime | gpu | n/a | Apache-2.0 | yes | no | bench |
 | onnx-zoo-bidaf | functional | onnxruntime | cpu, gpu | yes (cpu) | MIT | yes | no | no |
 | onnx-zoo-efficientnet-lite4 | functional | onnxruntime | cpu, gpu | yes (cpu) | MIT | yes | no | no |
 | onnx-zoo-efficientnet-lite4-bench | benchmark | onnxruntime | gpu | n/a | MIT | yes | no | bench |
@@ -257,12 +257,12 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | Family | Workloads | Functional | Benchmark | Reference recorded | Model sha256-pinned | Sim-validated | GPU-validated |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | llamacpp | 37 | 22 | 15 | 22 | 31 | 0 | 15 |
-| pretrained | 52 | 28 | 24 | 28 | 52 | 0 | 23 |
+| pretrained | 52 | 28 | 24 | 28 | 52 | 0 | 24 |
 | arch | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | lib | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | train | 3 | 2 | 1 | 2 | 0 | 2 | 1 |
 | other | 17 | 12 | 5 | 12 | 13 | 3 | 10 |
-| **all** | 121 | 74 | 47 | 74 | 96 | 15 | 51 |
+| **all** | 121 | 74 | 47 | 74 | 96 | 15 | 52 |
 
 <!-- coverage:end -->
 

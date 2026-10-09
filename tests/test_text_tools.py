@@ -174,6 +174,13 @@ class WordPieceTests(unittest.TestCase):
 
 
 class Pure(unittest.TestCase):
+    def test_runner_up_score_excludes_the_best_span(self):
+        start, end = [0, 5, 4, 0], [0, 1, 4, 3]
+        score, s, e = best_span(start, end, 1, 3)
+        self.assertEqual((score, s, e), (9.0, 1, 2))
+        self.assertEqual(runner_up_score(start, end, 1, 3, (s, e)), 8.0)   # (1, 3) and (2, 2) both score 8
+        self.assertIsNone(runner_up_score([1, 2], [1, 2], 1, 1, (1, 1)))
+
     def test_best_span_respects_order_window_and_length(self):
         start = [0, 5, 1, 9, 0, 0]
         end = [0, 0, 7, 0, 3, 0]
@@ -242,6 +249,7 @@ class Pure(unittest.TestCase):
 
 
 best_span = text_tasks.best_span
+runner_up_score = text_tasks.runner_up_score
 
 
 class Scripts(unittest.TestCase):

@@ -15,5 +15,6 @@ notes: >
   (tools/ort_assets.py; archives are extracted into the cache and deleted, members are checked again on every
   use). One question, batch 1, sequence length 256, median of PW_TEXT_REPEATS (20) calls after 3 warm-up calls:
   per-call latency, not batch throughput. int8 ops may run on the CPU under the CUDA provider, so this may not
-  measure the GPU. gpu target only; exits 77 when onnxruntime has no GPU execution provider. Not run on a GPU
-  here (no bench/ record).
+  measure the GPU (the int8 nodes ran on the host CPU: bench/ record of 2026-10-09, A10G on a 4-vCPU EPYC, 242.99 ms per question). gpu target only;
+  exits 77 when onnxruntime has no GPU execution provider. The functional gate (zoo-vector error at most 0.1) needs
+  `session.x64quantprecision=1`, which tools/ort_tasks.py sets: docs/int8-and-nondeterminism.md.
