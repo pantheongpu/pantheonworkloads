@@ -230,7 +230,7 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | gpt-train-bf16 | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x5 | no |
 | gpt-train-fp32 | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x6 | no |
 
-#### Other (Hugging Face PyTorch, whisper.cpp, vLLM, Ollama, MLPerf LoadGen, runner self-check): 17
+#### Other (Hugging Face PyTorch, whisper.cpp, vLLM, Ollama, MLPerf LoadGen, runner self-check): 23
 
 | Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -240,11 +240,17 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | gpt2-small-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (gpu) | MIT (per card) | yes | no | bench |
 | loadgen-plumbing-check | functional | none | cpu | yes (cpu) | n/a (no weights) | n/a | no | no |
 | pytorch-microsuite | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x8 | bench |
+| qwen25-vl-7b-bench | benchmark | pytorch | gpu | n/a | Apache-2.0 | yes | no | bench |
+| qwen25-vl-7b-pytorch | functional | pytorch | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
+| qwen3-vl-4b-bench | benchmark | pytorch | gpu | n/a | Apache-2.0 | yes | no | bench |
+| qwen3-vl-4b-pytorch | functional | pytorch | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
 | resnet18-randinit-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | yes (cpu) | n/a (no weights) | n/a | nvidia x8 | bench |
 | sdxl-base-bench | benchmark | pytorch | gpu | n/a | OpenRAIL++-M (restricted) | yes | no | bench |
 | sdxl-base-diffusers | functional | pytorch | gpu | yes (gpu) | OpenRAIL++-M (restricted) | yes | no | no |
 | selftest | functional | none | cpu, gpu, sim:* | yes (cpu) | n/a (no weights) | n/a | amd x1, nvidia x1 | no |
 | smollm2-135m-ollama | functional | ollama | cpu, gpu, sim:nvidia | yes (gpu) | Apache-2.0 | yes | no | bench |
+| smolvlm2-2p2b-bench | benchmark | pytorch | gpu | n/a | Apache-2.0 | yes | no | bench |
+| smolvlm2-2p2b-pytorch | functional | pytorch | gpu | yes (gpu) | Apache-2.0 | yes | no | no |
 | vllm-bench-throughput | benchmark | vllm | gpu | n/a | Apache-2.0 (per card) | yes | no | bench |
 | vllm-greedy-smollm2-135m | functional | vllm | gpu, sim:amd | yes (gpu) | Apache-2.0 (per card) | yes | no | no |
 | whisper-cpp-bench-large-v3 | benchmark | whisper.cpp | gpu | n/a | MIT | yes | no | bench |
@@ -261,8 +267,8 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | arch | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | lib | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | train | 3 | 2 | 1 | 2 | 0 | 2 | 1 |
-| other | 17 | 12 | 5 | 12 | 13 | 3 | 10 |
-| **all** | 121 | 74 | 47 | 74 | 96 | 15 | 52 |
+| other | 23 | 15 | 8 | 15 | 19 | 3 | 13 |
+| **all** | 127 | 77 | 50 | 77 | 102 | 15 | 55 |
 
 <!-- coverage:end -->
 

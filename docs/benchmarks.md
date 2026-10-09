@@ -160,3 +160,26 @@ forward pass, and batches of 32x32 solves. With torch 2.10.0 on the same instanc
 45.47 vs 45.46, 7.51e6 vs 7.53e6), so the change belongs to torch 2.14.1 (probably lower per-op CPU dispatch cost; the cause inside
 torch was not investigated), not to the instance. `index_add` +5.0% is a real small gain (tight spread, reproduced against the control).
 Do not compare a record made with torch 2.10.0 with one made with 2.14.1 for these small-kernel workloads.
+
+## Vision-language models (2026-10-09, fifth g5.2xlarge, NVIDIA A10G)
+
+One on-demand g5.2xlarge in us-east-1d, the same AMI family and driver (595.91.07) as above, torch 2.14.1+cu130 / torchvision 0.29.1+cu130 /
+transformers 5.19.0 / numpy 2.5.3 (read from the installed packages; recorded in `environment.runtime_versions`). The three `-bench` twins were run with
+`--bench --repeat 5` from a clean clone of commit `94554d9` (`repo_dirty: false`) with `PW_BENCH_DIR` outside the checkout. All three are fp16, batch 1, greedy, SDPA attention,
+one 512x512 image (scikit-image `astronaut.png`), model load and image preprocessing excluded. Medians of the 5 repeats (every repeat is itself the median of 5 timed pairs):
+
+| Workload | `decode_tokens_per_s_b1` | `prefill_images_per_s_b1` | `peak_gpu_memory_gb` | Prompt tokens | Spread of the 5 decode values |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `qwen25-vl-7b-bench` | 28.76 | 4.699 | 16.72 | 352 | 28.75 to 28.77 |
+| `qwen3-vl-4b-bench` | 23.64 | 9.828 | 9.03 | 273 | 23.57 to 23.77 |
+| `smolvlm2-2p2b-bench` | 47.99 | 2.727 | 5.24 | 1439 | 45.39 to 48.68 |
+
+Definitions: `decode_tokens_per_s_b1` = 127 / (time of a forced 128-token generation minus time of a 1-token generation), so the vision tower and the prompt
+prefill cancel out; `prefill_images_per_s_b1` = 1 / (time of a 1-token generation), i.e. the image through the vision tower plus the prompt through the language
+model plus one decoding step; `peak_gpu_memory_gb` = `torch.cuda.max_memory_allocated()` over the whole process, including the 128-token KV cache.
+
+Reading it: these decode rates are far below the memory-bandwidth bound of the card (roughly 600 GB/s over 8 to 16 GB of weights would allow 40 to 75 tokens/s), and the
+4B model decodes slower than the 7B (the 4B Qwen3 language model has 36 layers against 28, and it adds deep-stack vision features), which is the signature of a batch-1 eager
+decode limited by the host launching many small kernels, the same effect as in the torch 2.14.1 section above. That explanation was not verified with a profile. The SmolVLM2 prefill is
+the slowest of the three because its image processor splits the image into tiles (1439 prompt tokens against 273 and 352); its decode spread (6%) is the widest. Do not
+compare these with the llama.cpp numbers (different runtime, quantised weights) or with the BLIP-2 captions/s (different task and batch).

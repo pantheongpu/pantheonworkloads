@@ -1,0 +1,60 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "smolvlm2-2p2b-bench",
+  "date": "2026-10-09T03:05:29Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "HuggingFaceTB/SmolVLM2-2.2B-Instruct (AutoModelForImageTextToText, fp16; SigLIP vision tower + SmolLM2-1.7B language model, 2 safetensors shards, 9.0 GB on disk (fp32), loaded as fp16)",
+      "revision": "482adb537c021c86670beed01cd58990d01e72e4 (HF commit); the safetensors shards and the image are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/HuggingFaceTB/SmolVLM2-2.2B-Instruct"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "94554d9ac3f95d56d947675cef8adfc34fb91aa1",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "decode_tokens_per_s_b1": {
+      "median": 47.99,
+      "values": [
+        48.68,
+        48.11,
+        47.99,
+        46.05,
+        45.39
+      ]
+    },
+    "peak_gpu_memory_gb": {
+      "median": 5.24,
+      "values": [
+        5.24,
+        5.24,
+        5.24,
+        5.24,
+        5.24
+      ]
+    },
+    "prefill_images_per_s_b1": {
+      "median": 2.727,
+      "values": [
+        2.728,
+        2.727,
+        2.727,
+        2.727,
+        2.727
+      ]
+    }
+  }
+}

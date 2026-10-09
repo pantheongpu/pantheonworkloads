@@ -12,7 +12,7 @@ references recorded **on that GPU** (not the CPU; each commit message says so). 
 `vllm-greedy-smollm2-135m`, `vllm-bench-throughput`, `llamacpp-smollm2-135m` and its bench twin (all Apache-2.0). Added later the same day on a second g5.2xlarge (A10G): `llamacpp-qwen25-0p5b` (+ bench) and `llamacpp-mistral-7b-v03` (+ bench), all Apache-2.0 as read from the cards. Still open: the sections below that still say "unverified" for text
 older than this note, and everything on the simulator or AMD. GitHub and PyPI were always reachable; Hugging Face was not from the host that wrote the first version.
 
-The Tier 1 models added on a third g5.2xlarge (Llama 3.2 1B/3B, Gemma 4 E4B, gpt-oss-20b, DeepSeek-R1-Distill-Qwen 1.5B/7B, Whisper large-v3, SDXL base, BLIP-2) are in "Tier 1 models" below, with the ones that are blocked or too big for one A10G.
+The Tier 1 models added on a third g5.2xlarge (Llama 3.2 1B/3B, Gemma 4 E4B, gpt-oss-20b, DeepSeek-R1-Distill-Qwen 1.5B/7B, Whisper large-v3, SDXL base, BLIP-2) are in "Tier 1 models" below, followed by the vision-language models added on 2026-10-09 (Qwen2.5-VL-7B, Qwen3-VL-4B, SmolVLM2-2.2B), with the ones that are blocked or too big for one A10G.
 
 Each section below is self-contained and covers one workload family.
 
@@ -194,6 +194,9 @@ consecutive runs (all identical). `restricted: true` workloads (docs/manifest.md
 | Whisper large-v3 via whisper.cpp (3.1 GB) | `whisper-cpp-large-v3`, `whisper-cpp-bench-large-v3` | MIT per `ggerganov/whisper.cpp` card front matter. **The two cards disagree**: `openai/whisper-large-v3` @ `06f233fe` says `license: apache-2.0` (no LICENSE file); the `openai/whisper` code repo is MIT. Both permissive | no | `ggerganov/whisper.cpp` `5359861c...` (same pin as tiny.en), `ggml-large-v3.bin` sha256 `64d182b4...` |
 | Stable Diffusion XL base 1.0, fp16 | `sdxl-base-diffusers`, `sdxl-base-bench` | CreativeML Open RAIL++-M: card `license: openrail++` and `LICENSE.md` of the official `stabilityai/stable-diffusion-xl-base-1.0` @ `46216598` (use-based restrictions, Attachment A); not gated | **yes** | repo `46216598...`; four fp16 safetensors (unet, text_encoder, text_encoder_2, vae; 6.9 GB) pinned in `model.sha256` |
 | BLIP-2 OPT-2.7b, fp16 | `blip2-opt-2p7b-pytorch`, `blip2-opt-2p7b-bench` | Card of `Salesforce/blip2-opt-2.7b` @ `59a1ef6c` says `license: mit` (not gated, no LICENSE file). **But** the checkpoint embeds `facebook/opt-2.7b` @ `905a4b60`, whose card says `license: other` and `commercial: false` (Meta's OPT licence, non-commercial research; its text is not a file in that repo, so only the front matter was read). Treated as non-permissive | **yes** | repo `59a1ef6c...`; two safetensors shards pinned; image: scikit-image `astronaut.png` (NASA, public domain; scikit-image v0.22.0 commit `441fe68b`), sha256 pinned, fetched at run time |
+| Qwen2.5-VL-7B-Instruct, fp16 (16.6 GB bf16 on disk, 16.7 GB peak on the card) | `qwen25-vl-7b-pytorch`, `qwen25-vl-7b-bench` | Apache-2.0: front matter (`license: apache-2.0`) of the official `Qwen/Qwen2.5-VL-7B-Instruct` @ `cc594898`, read 2026-10-09; not gated; the repo has **no LICENSE file**, so the card is the only source. The 3B sibling uses `qwen-research` and was not used | no | repo `cc594898...`; five safetensors shards pinned in `model.sha256` (Hub LFS oids) |
+| Qwen3-VL-4B-Instruct, fp16 (8.9 GB bf16 on disk, 9.0 GB peak) | `qwen3-vl-4b-pytorch`, `qwen3-vl-4b-bench` | Apache-2.0: front matter of the official `Qwen/Qwen3-VL-4B-Instruct` @ `ebb281ec`, read 2026-10-09; not gated; no LICENSE file | no | repo `ebb281ec...`; two shards pinned |
+| SmolVLM2-2.2B-Instruct, fp16 (9.0 GB fp32 on disk, 5.0 GB peak) | `smolvlm2-2p2b-pytorch`, `smolvlm2-2p2b-bench` | Apache-2.0: front matter, the card's summary ("License: Apache 2.0") and its License section, official `HuggingFaceTB/SmolVLM2-2.2B-Instruct` @ `482adb53`, read 2026-10-09; not gated; no LICENSE file | no | repo `482adb53...`; two shards pinned; needs `num2words` (`requirements-vlm.txt`) |
 
 Blocked or deferred (nothing here was run):
 
@@ -222,6 +225,18 @@ Notes on the results (details and bench numbers: `docs/benchmarks.md`):
   0.0043, a different seed by up to 0.52. Other cards were not measured, so the tolerance is a reasoned bound, not a cross-card measurement.
 - BLIP-2: the caption of astronaut.png is "a woman in an orange space suit with a space helmet" (greedy, fp16); the smallest top-1/top-2 logit gap
   over its 12 tokens is 0.141, above the 0.1 floor the workload enforces.
+- Vision-language models (added 2026-10-09, a fifth g5.2xlarge, one A10G; torch 2.14.1+cu130, transformers 5.19.0, so the shared pins did not move; the extra pip
+  requirements are in `workloads/_pytorch/requirements-vlm.txt`): chosen in place of SD3 and Llama 3.2 Vision (rows above, still blocked). Each workload feeds the
+  same public-domain image (scikit-image `astronaut.png`, NASA, sha256 pinned, fetched at run time) and one fixed prompt through the chat template, decodes greedily in fp16,
+  and compares the text and token ids exactly. A decoding step whose top-1 and top-2 logits are within 0.1 fails the run, so a reference is never a near tie. Measured:
+  Qwen2.5-VL-7B "The image shows a person in an orange space suit with a NASA patch, standing in front of an American flag and a model of a space shuttle." (31 tokens,
+  smallest gap 0.188); Qwen3-VL-4B "A smiling female astronaut in an orange flight suit with mission patches stands beside an American flag and a model of a space shuttle,
+  holding a helmet." (29 tokens, 0.156); SmolVLM2-2.2B "A space shuttle model." for "What is the person holding or standing next to? Answer in one sentence." (5 tokens, 0.359).
+  Each reference was recorded on the A10G and reproduced in 3 further runs. SmolVLM2 needed a different prompt: free-form captions of this image hit gaps of 0.016 to 0.07
+  (one fp16 step), which the floor rightly rejects, so its output is short and tests the image path and a few decoding steps, not long-text stability. The `{wer: X}`
+  tolerance of `bin/pw` was not needed. Memory (torch peak allocated, batch 1, this image): 16.7 GB for the 7B, 9.0 GB for the 4B, 5.0 GB for SmolVLM2; the 7B in fp16 fits one
+  24 GB A10G with room for the activations of one image, a larger image or batch would not be checked. Qwen3-VL-8B (apache-2.0 on its card, 4 shards, about 17 GB) was not added:
+  it would be a second Qwen3-VL point beside the 4B. The CPU target is a documented SKIP (`targets: [gpu]`); the simulator targets are not listed either, nothing was run on pantheonsim.
 
 ## Other model groups, documented in their own files
 
