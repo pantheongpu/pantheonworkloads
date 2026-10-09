@@ -1,0 +1,14 @@
+name: smolvlm2-2p2b-pytorch
+description: SmolVLM2-2.2B-Instruct (fp16) describes a fixed public-domain image with greedy decoding.
+kind: functional
+runtime: pytorch
+targets:
+- gpu
+compare: exact
+timeout_s: 3600
+model:
+  id: HuggingFaceTB/SmolVLM2-2.2B-Instruct (AutoModelForImageTextToText, fp16; SigLIP vision tower + SmolLM2-1.7B language model, 2 safetensors shards, 9.0 GB on disk (fp32), loaded as fp16)
+  revision: 482adb537c021c86670beed01cd58990d01e72e4 (HF commit); the safetensors shards and the image are pinned by sha256 in model.sha256 and verified on every run
+  licence: Apache-2.0
+  source_url: https://huggingface.co/HuggingFaceTB/SmolVLM2-2.2B-Instruct
+notes: 'Image: scikit-image astronaut.png (NASA photo of Eileen Collins, public domain per scikit-image''s data docstring; scikit-image tag v0.22.0, commit 441fe68b, BSD-3-Clause repo), fetched at run time, sha256 pinned, never committed (same pin as blip2-opt-2p7b-pytorch and yolox-object-detection). Prompt: ''What is the person holding or standing next to? Answer in one sentence.'' (chat template, one image). Greedy (num_beams 1, repetition_penalty 1.0), fp16, up to 32 new tokens, torch 2.14.1+cu130 / transformers 5.19.0 on one NVIDIA A10G 24 GB (peak 5.0 GB allocated). The generated text and token ids are compared exactly; the run fails when any decoding step''s top-1 and top-2 logits are within 0.1 (fp16 logit noise is about 1e-2), so the reference is never a near tie. The prompt is a question, not ''Describe this image in one sentence.'', because that prompt (and several other free-form captions) hit top-1/top-2 gaps of 0.016 to 0.07 in fp16, i.e. one fp16 step, and the floor rejected them. ''What is the person holding or standing next to? Answer in one sentence.'' gives a short answer (5 tokens: ''A space shuttle model.'') whose smallest gap is 0.359. The answer is short, so this checks the image path and 5 decoding steps, not long-text stability. Reference recorded on an NVIDIA A10G and identical in 3 further runs. The image is split into tiles, so the prompt is 1439 tokens (Qwen: 273 and 352). Licence: read 2026-10-09: HuggingFaceTB/SmolVLM2-2.2B-Instruct @ 482adb53 card front matter says license: apache-2.0, the card''s model summary says ''License: Apache 2.0'' and its License section says the checkpoints are released under Apache 2.0; the repo has no LICENSE file and is not gated.'
