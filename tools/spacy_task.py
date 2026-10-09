@@ -9,11 +9,17 @@ offsets and named entities, all compared exactly. Metrics only with --bench on t
 Exit 77 when the target cannot run it (no GPU, spaCy without a GPU build); the gpu target never
 falls back to the CPU.
 """
+import importlib.util
 import json
 import os
+import pathlib
 import statistics
 import sys
 import time
+
+spec = importlib.util.spec_from_file_location("versions", pathlib.Path(__file__).resolve().parent / "versions.py")
+VERSIONS = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(VERSIONS)
 
 TEXTS = [
     "Apple is looking at buying a U.K. startup for $1 billion in London on Monday.",
@@ -67,7 +73,7 @@ def main(argv):
             times.append(time.perf_counter() - t)
         metrics = {"words_per_s": words / statistics.median(times), "docs_per_s": len(corpus) / statistics.median(times)}
     print(json.dumps({"output": output, "detail": f"{sum(len(t.split()) for t in output['tokens'].split(' || '))} tokens, en_core_web_sm {output['model_version']}, spaCy {spacy.__version__}, target {target}",
-                      "metrics": metrics}))
+                      "metrics": metrics, "versions": VERSIONS.collect(VERSIONS.SPACY)}))
     return 0
 
 

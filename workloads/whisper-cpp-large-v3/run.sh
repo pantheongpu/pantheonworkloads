@@ -33,4 +33,4 @@ need clip  "$here/tools/whisper-assets.sh" clip
 text=$("$bin/whisper-cli" -m "$model" -f "$clip" -l en -t 4 -bs 1 -bo 1 -nf -nt -np "${gpu_flag[@]}" 2>"$PW_OUT/whisper-cli.err") \
   || { tail -5 "$PW_OUT/whisper-cli.err" >&2; echo "whisper-cli failed" >&2; exit 1; }
 
-PW_TEXT="$text" PW_BACKEND="$backend" python3 -I "$here/tools/whisper_transcript.py"
+PW_WHISPER_CPP_TAG=$(sed -n "s/^TAG=//p" "$here/tools/build-whisper-cpp.sh") PW_TEXT="$text" PW_BACKEND="$backend" python3 -I "$here/tools/whisper_transcript.py"
