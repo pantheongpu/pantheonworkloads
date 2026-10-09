@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-granite40-h-small",
+  "date": "2026-10-09T18:34:14Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "ibm-granite/granite-4.0-h-small-GGUF (granite-4.0-h-small-Q4_K_M.gguf; official IBM GGUF, Q4_K_M of ibm-granite/granite-4.0-h-small)",
+      "revision": "6522095069a86fc3186b8632850e4373dd850cac (HF commit of the GGUF repo); file sha256 23c6019f2e6fa56eb8872ecf8d9d1e4b2ebf3c087fb5275257ea07602d2a38b6; base model ibm-granite/granite-4.0-h-small @ b8c0982bab7fde4eb48110f5a069527c008fab39",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/ibm-granite/granite-4.0-h-small-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "1b32fe1cdb2e3d4a06949d9304f47763829dd654",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 1754.6,
+      "values": [
+        1754.0,
+        1754.6,
+        1754.72,
+        1754.23,
+        1754.93
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 66.46,
+      "values": [
+        66.46,
+        66.46,
+        66.44,
+        66.47,
+        66.48
+      ]
+    }
+  }
+}
