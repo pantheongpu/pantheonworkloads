@@ -238,7 +238,8 @@ class RunsOnCpu(unittest.TestCase):
                            env=dict(os.environ, PW_TARGET="cpu", PW_DEVICE="cpu", CUDA_VISIBLE_DEVICES="", PW_LIB_SIZE="tiny", OMP_NUM_THREADS="2"))
         self.assertEqual(p.returncode, 0, p.stderr[-1500:])
         rec = json.loads(p.stdout.strip().splitlines()[-1])
-        self.assertEqual(set(rec), {"output", "detail", "metrics"})
+        self.assertEqual(set(rec), {"output", "detail", "metrics", "versions"})
+        self.assertIn("torch", rec["versions"])
         self.assertTrue(rec["metrics"])
         self.assertTrue(all(v > 0 for v in rec["metrics"].values()))
 

@@ -1,0 +1,586 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "lib-kernels-bench",
+  "date": "2026-10-08T22:28:05Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": null,
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "479c1c70674d1b010b0bcbea5433804e472ecc7a",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "autocast_bf16_linear_tflops": {
+      "median": 61.8,
+      "values": [
+        61.8,
+        61.8,
+        61.79,
+        61.79,
+        61.8
+      ]
+    },
+    "autocast_fp16_linear_tflops": {
+      "median": 61.55,
+      "values": [
+        61.86,
+        61.57,
+        61.55,
+        61.39,
+        61.43
+      ]
+    },
+    "batch_norm_train_fp32_gb_s": {
+      "median": 306.7,
+      "values": [
+        306.7,
+        307.0,
+        306.6,
+        305.9,
+        306.8
+      ]
+    },
+    "cholesky_n4096_gflops": {
+      "median": 4850.0,
+      "values": [
+        4839.0,
+        4850.0,
+        4859.0,
+        4846.0,
+        4851.0
+      ]
+    },
+    "conv2d_dilated2_fp16_tflops": {
+      "median": 64.81,
+      "values": [
+        64.78,
+        64.91,
+        64.81,
+        64.72,
+        64.84
+      ]
+    },
+    "conv2d_fp16_channels_last_tflops": {
+      "median": 64.11,
+      "values": [
+        64.11,
+        64.19,
+        64.14,
+        64.03,
+        64.11
+      ]
+    },
+    "conv3d_fp16_tflops": {
+      "median": 46.63,
+      "values": [
+        46.63,
+        46.56,
+        46.86,
+        46.56,
+        46.85
+      ]
+    },
+    "conv_transpose2d_s2_fp16_tflops": {
+      "median": 53.19,
+      "values": [
+        53.15,
+        53.27,
+        53.19,
+        53.17,
+        53.24
+      ]
+    },
+    "cumsum_gb_s": {
+      "median": 475.2,
+      "values": [
+        475.4,
+        475.2,
+        474.7,
+        474.9,
+        475.4
+      ]
+    },
+    "depthwise_conv2d_fp16_gb_s": {
+      "median": 367.4,
+      "values": [
+        366.8,
+        368.2,
+        367.4,
+        366.6,
+        367.4
+      ]
+    },
+    "dlrm_forward_fp32_samples_s": {
+      "median": 15510000.0,
+      "values": [
+        15370000.0,
+        15980000.0,
+        15510000.0,
+        15420000.0,
+        16280000.0
+      ]
+    },
+    "eigh_n4096_ops_s": {
+      "median": 3.558,
+      "values": [
+        3.558,
+        3.558,
+        3.551,
+        3.558,
+        3.558
+      ]
+    },
+    "embedding_bag_sum_gb_s": {
+      "median": 414.5,
+      "values": [
+        414.5,
+        414.5,
+        414.6,
+        414.9,
+        413.6
+      ]
+    },
+    "embedding_lookup_gb_s": {
+      "median": 239.2,
+      "values": [
+        239.1,
+        239.2,
+        239.2,
+        239.2,
+        239.1
+      ]
+    },
+    "fft2_c2c_gflops": {
+      "median": 1293.0,
+      "values": [
+        1293.0,
+        1293.0,
+        1293.0,
+        1292.0,
+        1293.0
+      ]
+    },
+    "fft_c2c_1d_pow2_gflops": {
+      "median": 1035.0,
+      "values": [
+        1035.0,
+        1036.0,
+        1035.0,
+        1036.0,
+        1035.0
+      ]
+    },
+    "fft_c2c_1d_prime_gflops": {
+      "median": 159.3,
+      "values": [
+        159.1,
+        159.3,
+        159.5,
+        159.2,
+        159.4
+      ]
+    },
+    "gelu_fp16_gb_s": {
+      "median": 480.8,
+      "values": [
+        480.8,
+        481.1,
+        480.4,
+        480.6,
+        481.3
+      ]
+    },
+    "group_norm_fp32_gb_s": {
+      "median": 280.8,
+      "values": [
+        281.2,
+        280.8,
+        280.7,
+        280.8,
+        281.7
+      ]
+    },
+    "gru_2layer_fp16_sequences_s": {
+      "median": 19460.0,
+      "values": [
+        19470.0,
+        19500.0,
+        19440.0,
+        19300.0,
+        19460.0
+      ]
+    },
+    "index_add_gb_s": {
+      "median": 156.4,
+      "values": [
+        156.3,
+        156.4,
+        156.4,
+        156.3,
+        156.4
+      ]
+    },
+    "int8_mm_tops": {
+      "median": 33.73,
+      "values": [
+        34.03,
+        33.73,
+        33.73,
+        33.71,
+        33.73
+      ]
+    },
+    "layer_norm_fp16_gb_s": {
+      "median": 372.9,
+      "values": [
+        372.7,
+        373.4,
+        374.7,
+        371.1,
+        372.9
+      ]
+    },
+    "lstm_2layer_bidir_fp16_tflops": {
+      "median": 27.01,
+      "values": [
+        27.01,
+        27.04,
+        27.04,
+        26.93,
+        26.96
+      ]
+    },
+    "lstm_2layer_bidir_fp32_tflops": {
+      "median": 10.91,
+      "values": [
+        10.93,
+        10.91,
+        10.92,
+        10.89,
+        10.9
+      ]
+    },
+    "lu_factor_n4096_gflops": {
+      "median": 2705.0,
+      "values": [
+        2703.0,
+        2706.0,
+        2705.0,
+        2703.0,
+        2705.0
+      ]
+    },
+    "lu_solve_batched_32x32_systems_s": {
+      "median": 9093000.0,
+      "values": [
+        9090000.0,
+        9125000.0,
+        9093000.0,
+        9088000.0,
+        9129000.0
+      ]
+    },
+    "matmul_bf16_tflops": {
+      "median": 65.48,
+      "values": [
+        66.01,
+        65.48,
+        65.48,
+        65.45,
+        65.5
+      ]
+    },
+    "matmul_fp16_tflops": {
+      "median": 64.32,
+      "values": [
+        64.88,
+        64.31,
+        64.42,
+        64.32,
+        64.27
+      ]
+    },
+    "matmul_fp32_highest_tflops": {
+      "median": 22.68,
+      "values": [
+        22.8,
+        22.66,
+        22.68,
+        22.68,
+        22.63
+      ]
+    },
+    "matmul_tf32_tflops": {
+      "median": 34.1,
+      "values": [
+        34.11,
+        34.09,
+        34.09,
+        34.1,
+        34.1
+      ]
+    },
+    "matrix_exp_batched_32x32_ops_s": {
+      "median": 992900.0,
+      "values": [
+        993400.0,
+        993500.0,
+        992900.0,
+        988500.0,
+        992600.0
+      ]
+    },
+    "qr_n4096_gflops": {
+      "median": 2175.0,
+      "values": [
+        2176.0,
+        2176.0,
+        2175.0,
+        2175.0,
+        2175.0
+      ]
+    },
+    "rfft_1d_pow2_gflops": {
+      "median": 822.8,
+      "values": [
+        822.8,
+        822.9,
+        822.8,
+        822.1,
+        823.0
+      ]
+    },
+    "scatter_reduce_amax_gb_s": {
+      "median": 153.9,
+      "values": [
+        153.9,
+        153.8,
+        153.9,
+        154.0,
+        154.0
+      ]
+    },
+    "sdpa_cudnn_bf16_causal_tflops": {
+      "median": 47.19,
+      "values": [
+        47.59,
+        47.24,
+        47.07,
+        47.07,
+        47.19
+      ]
+    },
+    "sdpa_cudnn_fp16_causal_tflops": {
+      "median": 47.21,
+      "values": [
+        47.56,
+        47.22,
+        47.16,
+        47.21,
+        47.21
+      ]
+    },
+    "sdpa_efficient_bf16_causal_tflops": {
+      "median": 45.96,
+      "values": [
+        45.67,
+        45.96,
+        46.37,
+        46.04,
+        45.93
+      ]
+    },
+    "sdpa_efficient_fp16_causal_tflops": {
+      "median": 45.44,
+      "values": [
+        45.86,
+        45.4,
+        45.41,
+        45.44,
+        45.51
+      ]
+    },
+    "sdpa_efficient_fp32_causal_tflops": {
+      "median": 6.69,
+      "values": [
+        6.688,
+        6.694,
+        6.69,
+        6.692,
+        6.687
+      ]
+    },
+    "sdpa_flash_bf16_causal_tflops": {
+      "median": 53.29,
+      "values": [
+        53.64,
+        53.29,
+        53.45,
+        53.11,
+        53.14
+      ]
+    },
+    "sdpa_flash_fp16_causal_tflops": {
+      "median": 53.16,
+      "values": [
+        52.17,
+        53.1,
+        53.31,
+        53.3,
+        53.16
+      ]
+    },
+    "sdpa_gqa_flash_fp16_causal_tflops": {
+      "median": 58.89,
+      "values": [
+        58.89,
+        58.95,
+        58.9,
+        58.84,
+        58.87
+      ]
+    },
+    "sdpa_math_bf16_causal_tflops": {
+      "median": 1.192,
+      "values": [
+        1.192,
+        1.192,
+        1.191,
+        1.192,
+        1.192
+      ]
+    },
+    "sdpa_math_fp16_causal_tflops": {
+      "median": 1.191,
+      "values": [
+        1.192,
+        1.192,
+        1.191,
+        1.191,
+        1.191
+      ]
+    },
+    "sdpa_math_fp32_causal_tflops": {
+      "median": 1.367,
+      "values": [
+        1.368,
+        1.367,
+        1.367,
+        1.367,
+        1.367
+      ]
+    },
+    "softmax_fp16_gb_s": {
+      "median": 463.7,
+      "values": [
+        463.7,
+        463.9,
+        463.7,
+        463.4,
+        464.0
+      ]
+    },
+    "sort_mkeys_s": {
+      "median": 3302.0,
+      "values": [
+        3302.0,
+        3301.0,
+        3303.0,
+        3297.0,
+        3303.0
+      ]
+    },
+    "sparse_softmax_coo_gb_s": {
+      "median": 9.061,
+      "values": [
+        9.052,
+        9.067,
+        9.067,
+        9.024,
+        9.061
+      ]
+    },
+    "spmm_coo_gflops": {
+      "median": 199.6,
+      "values": [
+        199.5,
+        199.6,
+        199.6,
+        199.6,
+        199.6
+      ]
+    },
+    "spmm_csr_gflops": {
+      "median": 674.3,
+      "values": [
+        674.1,
+        674.6,
+        674.8,
+        674.3,
+        674.3
+      ]
+    },
+    "svd_n4096_ops_s": {
+      "median": 0.2463,
+      "values": [
+        0.2463,
+        0.2463,
+        0.2462,
+        0.2463,
+        0.2463
+      ]
+    },
+    "topk_k100_mkeys_s": {
+      "median": 17510.0,
+      "values": [
+        17500.0,
+        17510.0,
+        17510.0,
+        17480.0,
+        17510.0
+      ]
+    },
+    "unet_denoise_step_fp16_images_s": {
+      "median": 135.1,
+      "values": [
+        135.5,
+        135.0,
+        135.2,
+        134.9,
+        135.1
+      ]
+    },
+    "unique_mkeys_s": {
+      "median": 3069.0,
+      "values": [
+        3067.0,
+        3069.0,
+        3069.0,
+        3065.0,
+        3071.0
+      ]
+    },
+    "vit_base_forward_fp16_images_s": {
+      "median": 1371.0,
+      "values": [
+        1371.0,
+        1370.0,
+        1369.0,
+        1371.0,
+        1371.0
+      ]
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "gpt2-small-pytorch",
+  "date": "2026-10-08T22:30:22Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "openai-community/gpt2",
+      "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e; model.safetensors sha256 in model.sha256 (verified at each run)",
+      "licence": "MIT",
+      "source_url": "https://huggingface.co/openai-community/gpt2"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "479c1c70674d1b010b0bcbea5433804e472ecc7a",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "decode_tokens_per_s": {
+      "median": 104.6,
+      "values": [
+        105.4,
+        104.9,
+        103.3,
+        104.6,
+        103.5
+      ]
+    }
+  }
+}

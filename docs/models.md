@@ -61,7 +61,7 @@ How they run (shared code in `workloads/_pytorch/`, which has no manifest so `pw
   exits 77. Flavors: `cpu` (cpu target), `cu130` (gpu on NVIDIA, `sim:nvidia/*`), `rocm` (gpu on AMD, `sim:amd/*`);
   `PW_TORCH_FLAVOR`, `PW_TORCH_PYTHON`, `PW_NO_INSTALL=1` and `PW_TORCH_INDEX_{CPU,CU130,ROCM}` override. It
   also reuses pantheonsim's own venvs (`~/.local/share/torch-cu13*`, `torch-rocm*`, `VGPU_TORCH_CUDA_PYTHON`,
-  `VGPU_TORCH_PYTHON`) when they import what the workload needs. The pins (torch 2.10.0, torchvision 0.25.0,
+  `VGPU_TORCH_PYTHON`) when they import what the workload needs. The pins (torch 2.14.1, torchvision 0.29.1,
   transformers 5.19.0) are existing PyPI releases, but their cu130 and ROCm builds were not checked against the PyTorch
   index, and the ROCm index name (`rocm7.1`) is a guess; pantheonsim's own venvs are the tested route there.
 - `sim:nvidia/<gpu>`: `$PANTHEONSIM_DIR/build/vgpu run --gpu nvidia/<gpu> --preload <python> main.py`, as

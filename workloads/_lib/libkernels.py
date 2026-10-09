@@ -261,8 +261,20 @@ def run_suite(suite):
     return output, detail, failures
 
 
+def _library_versions():
+    """{package: version} of the libraries that produced the result; bin/pw copies it into bench records."""
+    from importlib import metadata
+    found = {}
+    for pkg in ("torch", "torchvision", "transformers", "diffusers", "numpy"):
+        try:
+            found[pkg] = metadata.version(pkg)
+        except Exception:
+            pass
+    return found
+
+
 def finish(output, detail, metrics=None, info=None):
-    rec = {"output": output, "detail": detail, "metrics": (metrics or {}) if REAL else {}}
+    rec = {"output": output, "detail": detail, "metrics": (metrics or {}) if REAL else {}, "versions": _library_versions()}
     if info:
         rec["info"] = info          # informational ops: never compared (see the module docstring)
     print(json.dumps(rec), flush=True)

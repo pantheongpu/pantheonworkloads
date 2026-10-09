@@ -1,0 +1,51 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "blip2-opt-2p7b-bench",
+  "date": "2026-10-08T22:33:13Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "Salesforce/blip2-opt-2.7b (Blip2ForConditionalGeneration, fp16; vision tower + Q-Former + OPT-2.7b)",
+      "revision": "59a1ef6c1e5117b3f65523d1c6066825bcf315e3 (HF commit); the two safetensors shards and the image are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "OPT-2.7b licence (non-commercial)",
+      "source_url": "https://huggingface.co/Salesforce/blip2-opt-2.7b"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "479c1c70674d1b010b0bcbea5433804e472ecc7a",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "captions_per_s_b8": {
+      "median": 18.069,
+      "values": [
+        17.211,
+        18.361,
+        18.008,
+        18.069,
+        18.131
+      ]
+    },
+    "decode_tokens_per_s_b1": {
+      "median": 57.62,
+      "values": [
+        57.03,
+        61.2,
+        57.62,
+        57.62,
+        58.83
+      ]
+    }
+  }
+}
