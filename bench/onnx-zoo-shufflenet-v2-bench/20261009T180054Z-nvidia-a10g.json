@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "onnx-zoo-shufflenet-v2-bench",
+  "date": "2026-10-09T18:00:54Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "onnx/models validated/vision/classification/shufflenet/model/shufflenet-v2-12.onnx",
+      "revision": "onnx/models commit c5cae0f1942c8d7727372c7b1f6b485aa39e4421; shufflenet-v2-12.onnx sha256 ea69821b4dd374ae2f33f9710dd1229ac263d0ee5b5a46ca3521f6483e1ba035 (= its git-LFS oid)",
+      "licence": "BSD-3-Clause",
+      "source_url": "https://github.com/onnx/models/tree/main/validated/vision/classification/shufflenet"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "batch_latency_ms": {
+      "median": 1.3504754999189572,
+      "values": [
+        1.2996290000160116,
+        1.3656505000199104,
+        1.313628999980665,
+        1.3504754999189572,
+        1.3553805000015018
+      ]
+    },
+    "images_per_s": {
+      "median": 740.4799272996886,
+      "values": [
+        769.4503585159149,
+        732.2517730454612,
+        761.2499419658966,
+        740.4799272996886,
+        737.8001970656152
+      ]
+    }
+  }
+}

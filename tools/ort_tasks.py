@@ -31,6 +31,16 @@ class Skip(Exception):
     """The workload cannot run here (exit 77)."""
 
 
+def _versions():
+    spec = importlib.util.spec_from_file_location("versions", HERE / "versions.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+VERSIONS = _versions()
+
+
 def _assets():
     spec = importlib.util.spec_from_file_location("ort_assets", HERE / "ort_assets.py")
     mod = importlib.util.module_from_spec(spec)
@@ -346,7 +356,8 @@ def main(argv):
     except ImportError as e:
         print(f"SKIP: missing Python package ({e})")
         return 77
-    print(json.dumps({"output": output, "detail": detail, "metrics": metrics if os.environ.get("PW_TARGET") == "gpu" else {}}))
+    print(json.dumps({"output": output, "detail": detail, "metrics": metrics if os.environ.get("PW_TARGET") == "gpu" else {},
+                      "versions": VERSIONS.collect(VERSIONS.ORT)}))
     return 0
 
 

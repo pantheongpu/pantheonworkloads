@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "sface-face-embedding-bench",
+  "date": "2026-10-09T18:02:22Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "opencv/opencv_zoo models/face_recognition_sface/face_recognition_sface_2021dec.onnx",
+      "revision": "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; face_recognition_sface_2021dec.onnx sha256 0ba9fbfa01b5270c96627c4ef784da859931e02f04419c829e83484087c34e79 (= its git-LFS oid)",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/opencv/opencv_zoo/tree/main/models/face_recognition_sface"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "images_per_s": {
+      "median": 1193.7611655000967,
+      "values": [
+        1181.4828555719064,
+        1196.8250624983302,
+        1172.348060591732,
+        1193.7611655000967,
+        1203.1254793915516
+      ]
+    },
+    "latency_ms": {
+      "median": 0.8376884999279355,
+      "values": [
+        0.8463939999501235,
+        0.8355439999832015,
+        0.8529890001227614,
+        0.8376884999279355,
+        0.8311684999853242
+      ]
+    }
+  }
+}

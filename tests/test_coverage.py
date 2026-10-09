@@ -75,7 +75,7 @@ class TestRows(unittest.TestCase):
 
     def test_check_detects_drift_and_write_fixes_it(self):
         readme = self.root / "README.md"
-        readme.write_text(f"intro\n\n{coverage.START}\n{coverage.END}\n\ntail\n")
+        readme.write_text(f"intro\n\n{coverage.BSTART}\n{coverage.BEND}\n\n{coverage.START}\n{coverage.END}\n\ntail\n")
         self.assertTrue(coverage.check(self.root))
         coverage.write(self.root)
         self.assertEqual(coverage.check(self.root), [])
@@ -84,12 +84,51 @@ class TestRows(unittest.TestCase):
         readme.write_text(text.replace("yes (cpu)", "yes (gpu)"))
         self.assertTrue(coverage.check(self.root))
 
+    def write_bench(self, name, device, date, metrics, versions=None):
+        d = self.root / "bench" / name
+        d.mkdir(parents=True, exist_ok=True)
+        env = {"device": device, "runtime_version": "ort 1.0 (PyPI; long text)", "driver": "1", "repo_commit": "abcdef123456"}
+        if versions:
+            env["runtime_versions"] = versions
+        rec = {"schema": "pw-bench/0", "workload": name, "date": date, "environment": env, "repeats": 5,
+               "metrics": {k: {"median": v, "values": [v - 1, v, v + 1]} for k, v in metrics.items()}}
+        (d / (date + ".json")).write_text(__import__("json").dumps(rec))
+
+    def test_results_use_the_newest_record_per_workload_and_device_and_show_versions(self):
+        self.write_bench("foo-onnx-bench", "A10G", "2026-10-01T00:00:00Z", {"images_per_s": 100.0})
+        self.write_bench("foo-onnx-bench", "A10G", "2026-10-09T00:00:00Z", {"images_per_s": 2500.0, "latency_ms": 3.2},
+                         {"torch": "2.14.1+cu130", "numpy": "2.5"})
+        self.write_bench("foo-onnx-bench", "H100", "2026-10-05T00:00:00Z", {"images_per_s": 9000.0})
+        compact = coverage.render_bench(self.root)
+        self.assertIn("2,500", compact)
+        self.assertNotIn("| images_per_s 100", compact)
+        self.assertIn("torch 2.14.1+cu130", compact)
+        self.assertIn("ort 1.0 | 2026-10-05", compact)              # no versions object: the manifest-style string, cut at ' ('
+        full = coverage.render_results(self.root)
+        self.assertIn("## foo-onnx-bench on A10G", full)
+        self.assertIn("1 older record", full)
+        self.assertIn("| latency_ms | 3.2 | 2.2 | 4.2 |", full)
+
+    def test_stale_results_page_is_reported_and_written(self):
+        self.write_bench("foo-onnx-bench", "A10G", "2026-10-09T00:00:00Z", {"images_per_s": 1.0})
+        (self.root / "README.md").write_text(f"{coverage.BSTART}\n{coverage.BEND}\n{coverage.START}\n{coverage.END}\n")
+        self.assertTrue(any("docs/results.md" in p for p in coverage.check(self.root)))
+        coverage.write(self.root)
+        self.assertEqual(coverage.check(self.root), [])
+        self.write_bench("foo-onnx-bench", "A10G", "2026-10-10T00:00:00Z", {"images_per_s": 2.0})
+        self.assertTrue(coverage.check(self.root))
+
     def test_missing_markers_are_reported(self):
         (self.root / "README.md").write_text("no markers here\n")
         self.assertIn("markers are missing", coverage.check(self.root)[0])
 
 
 class TestRepository(unittest.TestCase):
+    def test_every_bench_record_is_covered_by_the_results_page(self):
+        results = (ROOT / "docs" / "results.md").read_text()
+        for f in (ROOT / "bench").glob("*/*.json"):
+            self.assertIn(f"## {f.parent.name} on ", results, f.name)
+
     def test_every_workload_is_in_exactly_one_row(self):
         names = sorted(p.parent.name for p in (ROOT / "workloads").glob("*/manifest.yaml"))
         self.assertEqual(sorted(r["name"] for r in coverage.rows(ROOT)), names)

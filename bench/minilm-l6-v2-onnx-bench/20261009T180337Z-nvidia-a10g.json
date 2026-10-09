@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "minilm-l6-v2-onnx-bench",
+  "date": "2026-10-09T18:03:37Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "npm @xcidos/genesis-memory-model onnx/model.onnx (sentence-transformers/all-MiniLM-L6-v2, fp32)",
+      "revision": "npm @xcidos/genesis-memory-model 0.1.0-alpha.1 (tgz sha256 3462d151396de1943a4f69c154223d9473146f3c4e1a1250f98980aa447e9235; npm integrity sha512-kCEWeIgZ...3WvZSA== matches); the package README pins sentence-transformers/all-MiniLM-L6-v2 at Hugging Face revision c9745ed1d9f207416be6d2e6f8de32d1f16199bf; package/onnx/model.onnx sha256 6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452, package/tokenizer.json sha256 be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037",
+      "licence": "Apache-2.0",
+      "source_url": "https://www.npmjs.com/package/@xcidos/genesis-memory-model"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "batch_latency_ms": {
+      "median": 4.002863999971851,
+      "values": [
+        4.030099500027973,
+        3.9851190000490533,
+        4.002863999971851,
+        3.980348000027334,
+        4.0057240000805905
+      ]
+    },
+    "sentences_per_s": {
+      "median": 8993.560610666054,
+      "values": [
+        8932.78193249326,
+        9033.607277362828,
+        8993.560610666054,
+        9044.435310619268,
+        8987.139403332762
+      ]
+    }
+  }
+}

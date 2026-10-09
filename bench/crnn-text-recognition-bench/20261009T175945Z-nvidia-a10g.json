@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "crnn-text-recognition-bench",
+  "date": "2026-10-09T17:59:45Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "opencv/opencv_zoo models/text_recognition_crnn/text_recognition_CRNN_EN_2021sep.onnx",
+      "revision": "opencv/opencv_zoo commit 47534e27c9851bb1128ccc0102f1145e27f23f98; text_recognition_CRNN_EN_2021sep.onnx sha256 a84b1f6e11a65c2d733cb0cc1f014aae3f99051e3f11447dc282faa678eee544 (= its git-LFS oid)",
+      "licence": "Apache-2.0",
+      "source_url": "https://github.com/opencv/opencv_zoo/tree/main/models/text_recognition_crnn"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "images_per_s": {
+      "median": 659.8160169285675,
+      "values": [
+        659.8160169285675,
+        663.1482232750035,
+        669.0046147780382,
+        646.3854609979994,
+        640.0370709369729
+      ]
+    },
+    "latency_ms": {
+      "median": 1.5155739999386242,
+      "values": [
+        1.5155739999386242,
+        1.5079584999284634,
+        1.49475800003529,
+        1.5470644999595606,
+        1.5624095000248417
+      ]
+    }
+  }
+}

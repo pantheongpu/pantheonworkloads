@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "wespeaker-resnet34-onnx-bench",
+  "date": "2026-10-09T17:59:01Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "onnxruntime",
+    "runtime_version": "numpy 2.5.3, onnx 1.23.2, onnxruntime-gpu 1.30.0, opencv-python 5.0.0.93, pillow 12.3.0, pyclipper 1.4.0, rapidocr_onnxruntime 1.2.3, shapely 2.1.2",
+    "model": {
+      "id": "wenet-e2e/wespeaker voxceleb_resnet34 (ONNX), as repackaged with metadata by k2-fsa/sherpa-onnx (wespeaker_en_voxceleb_resnet34.onnx)",
+      "revision": "k2-fsa/sherpa-onnx release tag speaker-recongition-models (sic; a rolling tag), wespeaker_en_voxceleb_resnet34.onnx sha256 5ef208a9da1453335308a6b6f4e6dfbd7e183a38b604de0a57664f45d257fe94; preprocessing read at wenet-e2e/wespeaker commit 9fecd6cb4f47475d01761d87c826298dff4ef18c",
+      "licence": "CC-BY-4.0",
+      "source_url": "https://github.com/wenet-e2e/wespeaker/blob/master/docs/pretrained.md"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0ae5a6be6ad0ff932ac7b8fbf5f6dae9f68209f4",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "numpy": "2.5.3",
+      "onnx": "1.23.2",
+      "onnxruntime-gpu": "1.30.0",
+      "opencv-python": "5.0.0.93",
+      "pillow": "12.3.0",
+      "pyclipper": "1.4.0",
+      "rapidocr_onnxruntime": "1.2.3",
+      "shapely": "2.1.2"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "embeddings_per_s": {
+      "median": 14.221978489117426,
+      "values": [
+        14.207347234906537,
+        14.19990211345292,
+        14.279604315021823,
+        14.221978489117426,
+        14.245161228561896
+      ]
+    },
+    "realtime_factor": {
+      "median": 141.12409996507517,
+      "values": [
+        140.9789146391761,
+        140.90503700920527,
+        141.69591863444845,
+        141.12409996507517,
+        141.35414132263517
+      ]
+    }
+  }
+}
