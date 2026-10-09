@@ -1,0 +1,14 @@
+name: qwen25-vl-7b-pytorch
+description: Qwen2.5-VL-7B-Instruct (fp16) describes a fixed public-domain image with greedy decoding.
+kind: functional
+runtime: pytorch
+targets:
+- gpu
+compare: exact
+timeout_s: 3600
+model:
+  id: Qwen/Qwen2.5-VL-7B-Instruct (AutoModelForImageTextToText, fp16; vision tower + Qwen2.5-7B language model, 5 safetensors shards, 16.6 GB on disk (bf16), loaded as fp16)
+  revision: cc594898137f460bfe9f0759e9844b3ce807cfb5 (HF commit); the safetensors shards and the image are pinned by sha256 in model.sha256 and verified on every run
+  licence: Apache-2.0
+  source_url: https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct
+notes: 'Image: scikit-image astronaut.png (NASA photo of Eileen Collins, public domain per scikit-image''s data docstring; scikit-image tag v0.22.0, commit 441fe68b, BSD-3-Clause repo), fetched at run time, sha256 pinned, never committed (same pin as blip2-opt-2p7b-pytorch and yolox-object-detection). Prompt: ''Describe this image in one sentence.'' (chat template, one image). Greedy (num_beams 1, repetition_penalty 1.0), fp16, up to 32 new tokens, torch 2.14.1+cu130 / transformers 5.19.0 on one NVIDIA A10G 24 GB (peak 16.7 GB allocated). The generated text and token ids are compared exactly; the run fails when any decoding step''s top-1 and top-2 logits are within 0.1 (fp16 logit noise is about 1e-2), so the reference is never a near tie. Reference recorded on an NVIDIA A10G (the output is 31 tokens, ending at the end-of-turn token) and identical in 3 further runs (smallest top-1/top-2 logit gap 0.188, floor 0.1); fp16 gave finite logits, no bf16 needed. Fits one 24 GB card with about 5 GB to spare. Licence: read 2026-10-09: Qwen/Qwen2.5-VL-7B-Instruct @ cc594898 card front matter says license: apache-2.0; the repo has no LICENSE file and is not gated. Not read separately: the licences of the components the checkpoint was built from. (The sibling Qwen/Qwen2.5-VL-3B-Instruct uses the ''qwen-research'' licence and was not used.)'

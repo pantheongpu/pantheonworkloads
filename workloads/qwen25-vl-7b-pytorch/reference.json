@@ -1,0 +1,8 @@
+{
+  "output": {
+    "text": "The image shows a person in an orange space suit with a NASA patch, standing in front of an American flag and a model of a space shuttle.",
+    "token_ids": "785 2168 4933 264 1697 304 458 18575 3550 7781 448 264 21431 10900 11 11259 304 4065 315 458 3693 5181 323 264 1614 315 264 3550 44541 13 151645"
+  },
+  "recorded_on": "gpu",
+  "recorded_at": "2026-10-09"
+}

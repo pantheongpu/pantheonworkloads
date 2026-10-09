@@ -1,0 +1,4 @@
+# HuggingFaceTB/SmolVLM2-2.2B-Instruct @ 482adb537c021c86670beed01cd58990d01e72e4 (LFS oids of the safetensors files, from the Hub API); astronaut.png is the scikit-image v0.22.0 sample (same pin as blip2-opt-2p7b-pytorch)
+7c88a90e78f567460b2369a0369cc4dafbfda5607c9cb090b30fa4437b0282f2  model-00001-of-00002.safetensors
+cf3d0958a8240f71054a6812038f2a6bfbe2e5124573a3b363f6b120c9a52657  model-00002-of-00002.safetensors
+88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5  astronaut.png

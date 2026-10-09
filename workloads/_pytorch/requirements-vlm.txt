@@ -1,0 +1,8 @@
+# On top of requirements-torch.txt and requirements-common.txt, for the vision-language-model workloads
+# (qwen25-vl-7b-pytorch, qwen3-vl-4b-pytorch, smolvlm2-2p2b-pytorch). Exact PyPI releases; checked on an NVIDIA A10G.
+# No diffusers: these models load through transformers' AutoModelForImageTextToText (transformers 5.19.0 from requirements-common.txt).
+accelerate==1.15.0
+pillow==12.3.0
+safetensors==0.8.0
+# SmolVLM's processor imports it (it raises ImportError without it); it brings docopt along.
+num2words==0.5.14
