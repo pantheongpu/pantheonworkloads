@@ -4,4 +4,4 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_pytorch"))
 import vlm  # noqa: E402
-vlm.run("mistral-community/pixtral-12b", "c2756cbbb9422eba9f6c5c439a214b0392dfc998", dtype="bfloat16", new=32, margin=0.5, label="pixtral-12b-2409", prompt='Describe this image in one sentence.', image="astronaut", expect=None, extra_allow=("*.model", "*.jinja", "*.tiktoken"), device_map="auto", exact_weights=True)
+vlm.run("mistral-community/pixtral-12b", "c2756cbbb9422eba9f6c5c439a214b0392dfc998", dtype="bfloat16", new=32, margin=0.5, label="pixtral-12b-2409", prompt='What color is the flag on the left? Answer with one word.', image="astronaut", expect=None, extra_allow=("*.model", "*.jinja", "*.tiktoken"), device_map="auto", exact_weights=True)

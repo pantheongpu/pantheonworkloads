@@ -48,7 +48,7 @@ def stats(frames, size_hw):
 
 
 def run(model_id, revision, kind, steps, guidance, size=None, width=None, height=None, frames=None, variant=None,
-        label=None, kwargs=None, negative=True, dtype="bfloat16"):
+        label=None, kwargs=None, negative=True, dtype="bfloat16", vae_tiling=False):
     mode = os.environ.get("PW_DIFFUSION_MODE", "functional")
     if common.DEVICE == "cpu":
         common.skip("this diffusion model is run on a GPU only")
@@ -76,12 +76,16 @@ def run(model_id, revision, kind, steps, guidance, size=None, width=None, height
     if not dmap:
         pipe.to(common.DEVICE)
     pipe.set_progress_bar_config(disable=True)
+    if vae_tiling:   # HunyuanVideo-1.5: the untiled VAE decode of 33 frames at 848x480 ran out of memory on a 44 GiB card (stage 2a, L40S)
+        pipe.vae.enable_tiling()
     load_s = time.perf_counter() - t0
     gen_dev = "cuda:0" if dmap else common.DEVICE
 
     def generate(seed):
         g = torch.Generator(device=gen_dev).manual_seed(seed)
-        args = dict(prompt=PROMPT, num_inference_steps=steps, guidance_scale=guidance, generator=g, output_type="np")
+        args = dict(prompt=PROMPT, num_inference_steps=steps, generator=g, output_type="np")
+        if guidance is not None:   # None: the pipeline has no guidance_scale argument (Qwen-Image-2.1 takes true_cfg_scale, off by default)
+            args["guidance_scale"] = guidance
         if negative:
             args["negative_prompt"] = NEGATIVE
         if kind == "video":
@@ -91,6 +95,9 @@ def run(model_id, revision, kind, steps, guidance, size=None, width=None, height
         args.update(kwargs or {})
         res = pipe(**args)
         arr = np.asarray(res.frames[0] if kind == "video" else res.images[0], dtype=np.float32)
+        if arr.shape[-1] == 4:   # RGBA (Qwen-Image-2.1's VAE has 4 channels): composite over white, as the pipeline does for its own vision encoder
+            alpha = arr[..., 3:4]
+            arr = arr[..., :3] * alpha + (1.0 - alpha)
         return arr[None] if arr.ndim == 3 else arr   # F x H x W x 3
 
     out_frames = generate(SEED)
