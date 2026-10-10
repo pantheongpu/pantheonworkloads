@@ -29,9 +29,9 @@ FAMILIES = [
     ("lib", "GPU-library coverage (random inputs, PyTorch)"),
     ("train", "Training"),
     ("other", "Other (Hugging Face PyTorch, whisper.cpp, vLLM, Ollama, MLPerf LoadGen, runner self-check)"),
-    ("catalog", "Model catalog: written from Hub metadata, never run (docs/model-registry.md); models of any size, each gated by `requires`"),
+    ("catalog", "Model catalog: written from Hub metadata (docs/model-registry.md); models of any size, each gated by `requires`. A row with a reference recorded and a GPU-validated entry has had its first real run (see the registry for the state of each); the others were never run"),
 ]
-CATALOG_MARK = "WRITTEN, NEVER RUN"
+CATALOG_MARKS = ("WRITTEN, NEVER RUN", "(model catalog, stage 2a")   # notes of a catalog workload: never run / graduated after its first run
 PRETRAINED_RUNTIMES = {"onnxruntime", "spacy", "numpy", "sentencepiece"}
 NO_WEIGHTS = re.compile(r"random|synthetic|no pretrained|weights=None", re.I)
 SIM = re.compile(r"sim:(nvidia|amd)/(\{[^}]*\}|[\w*-]+)")
@@ -138,7 +138,7 @@ def rows(root):
         has_bench = any((root / "bench" / n).glob("*.json"))
         gpu = [x for x, ok in (("bench", has_bench), ("functional", seen[n]["gpu"])) if ok]
         result.append({
-            "name": n, "family": "catalog" if CATALOG_MARK in str(m.get("notes") or "") else family(n, m.get("runtime")), "kind": m.get("kind"),
+            "name": n, "family": "catalog" if any(mark in str(m.get("notes") or "") for mark in CATALOG_MARKS) else family(n, m.get("runtime")), "kind": m.get("kind"),
             "runtime": m.get("runtime"), "targets": short_targets(m.get("targets", [])),
             "needs": validate.needs_text(validate.requirements(m)),
             "reference": reference, "licence": licence(m.get("model"), (root / "workloads" / n / "manifest.yaml").read_text(encoding="utf-8")) + (" (restricted)" if validate.is_restricted(m) else ""), "pinned": pinned(root, n, m.get("model")),
