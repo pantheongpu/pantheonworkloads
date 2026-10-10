@@ -7,7 +7,7 @@ set -uo pipefail
 . "$PW_WORKLOAD_DIR/../../tools/hwcheck.sh"
 pw_require_gpus 1 10
 pw_require_disk 5
-export PW_TORCH_EXTRA_REQ="$PW_WORKLOAD_DIR/../_pytorch/requirements-vlm.txt"
+export PW_TORCH_EXTRA_REQ="$PW_WORKLOAD_DIR/../_pytorch/requirements-asr.txt"
 export PW_ASR_MODE=bench
 source "$PW_WORKLOAD_DIR/../_pytorch/env.sh"
 pw_torch_run "$PW_WORKLOAD_DIR/../qwen3-asr-1p7b-pytorch/main.py" transformers accelerate

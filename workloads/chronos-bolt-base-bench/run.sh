@@ -7,7 +7,7 @@ set -uo pipefail
 . "$PW_WORKLOAD_DIR/../../tools/hwcheck.sh"
 pw_require_gpus 1 10
 pw_require_disk 1
-export PW_TORCH_EXTRA_REQ="$PW_WORKLOAD_DIR/../_pytorch/requirements-speech.txt"
+export PW_TORCH_EXTRA_REQ="$PW_WORKLOAD_DIR/../_pytorch/requirements-chronos.txt"
 export PW_TS_MODE=bench
 source "$PW_WORKLOAD_DIR/../_pytorch/env.sh"
 pw_torch_run "$PW_WORKLOAD_DIR/../chronos-bolt-base-pytorch/main.py" chronos

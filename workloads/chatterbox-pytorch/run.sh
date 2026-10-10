@@ -7,6 +7,8 @@ set -uo pipefail
 . "$PW_WORKLOAD_DIR/../../tools/hwcheck.sh"
 pw_require_gpus 1 10
 pw_require_disk 3
-export PW_TORCH_EXTRA_REQ="$PW_WORKLOAD_DIR/../_pytorch/requirements-speech.txt"
+export PW_TORCH_EXTRA_REQ="$PW_WORKLOAD_DIR/../_pytorch/requirements-chatterbox.txt"
+export PW_VENV_NAME=chatterbox
+export PW_TORCH_ANY_CUDA=1
 source "$PW_WORKLOAD_DIR/../_pytorch/env.sh"
 pw_torch_run "$PW_WORKLOAD_DIR/main.py" chatterbox

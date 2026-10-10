@@ -1,0 +1,8 @@
+{
+  "output": {
+    "text": "The quick brown fox jumps over 13 lazy dogs.",
+    "token_ids": "700 6105 19836 67586 56692 974 93919 4 6 32280 23996 93937 2"
+  },
+  "recorded_on": "gpu",
+  "recorded_at": "2026-10-10"
+}

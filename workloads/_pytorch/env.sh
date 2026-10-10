@@ -8,6 +8,9 @@
 #   PW_TORCH_PYTHON   a Python to use as it is (skips discovery and install)
 #   PW_TORCH_FLAVOR   cpu | cu130 | rocm: which PyTorch build (default: by target)
 #   PW_VENV_ROOT      where venvs are made (default ~/.cache/pantheonworkloads/venvs)
+#   PW_VENV_NAME      the venv's directory name under PW_VENV_ROOT (default: the flavor). A workload whose own package pins another torch
+#                     (chatterbox-tts, NeMo, f5-tts) names its own venv so it cannot disturb the shared one
+#   PW_TORCH_ANY_CUDA 1: accept any CUDA build of torch for flavor cu130 (a package that pins torch 2.6 brings its own cu124 wheel)
 #   PANTHEONSIM_DIR / VGPU_BUILD_DIR   sim: targets: a built pantheonsim checkout, or its build directory
 #                     (tools/sim-env.sh builds one and prints both)
 #   PW_TORCH_EXTRA_REQ  a requirements file to install on top (set by workloads that need diffusers etc.)
@@ -28,7 +31,10 @@ _pw_have() {  # python flavor modules...
 import importlib, sys
 import torch
 flavor, mods = sys.argv[1], sys.argv[2:]
-if flavor == "cu130" and not (torch.version.cuda or "").startswith("13"): sys.exit(1)
+import os
+if flavor == "cu130" and os.environ.get("PW_TORCH_ANY_CUDA") == "1":
+    if not torch.version.cuda: sys.exit(1)
+elif flavor == "cu130" and not (torch.version.cuda or "").startswith("13"): sys.exit(1)
 if flavor == "rocm" and not torch.version.hip: sys.exit(1)
 for m in mods: importlib.import_module(m)
 PY
@@ -70,9 +76,9 @@ _pw_install() {  # flavor venv
 _pw_python() {  # modules... -> sets PW_PY
   local flavor c venv
   _pw_flavor; flavor=$PW_FLAVOR
-  venv="${PW_VENV_ROOT:-$HOME/.cache/pantheonworkloads/venvs}/$flavor"
+  venv="${PW_VENV_ROOT:-$HOME/.cache/pantheonworkloads/venvs}/${PW_VENV_NAME:-$flavor}"
   local cands=("${PW_TORCH_PYTHON:-}" "$venv/bin/python")
-  case "$flavor" in
+  case "${PW_VENV_NAME:+named}$flavor" in   # a named venv is used alone: another venv's torch is not the one its package pins
     cu130) cands+=("${VGPU_TORCH_CUDA_PYTHON:-}" $(ls -d "$HOME"/.local/share/torch-cu13*/bin/python 2>/dev/null)) ;;
     rocm) cands+=("${VGPU_TORCH_PYTHON:-}" $(ls -d "$HOME"/.local/share/torch-rocm*/bin/python 2>/dev/null)) ;;
   esac

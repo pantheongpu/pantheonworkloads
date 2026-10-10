@@ -7,6 +7,7 @@ set -uo pipefail
 . "$PW_WORKLOAD_DIR/../../tools/hwcheck.sh"
 pw_require_gpus 1 10
 pw_require_disk 2
-export PW_TORCH_EXTRA_REQ="$PW_WORKLOAD_DIR/../_pytorch/requirements-speech.txt"
+export PW_TORCH_EXTRA_REQ="$PW_WORKLOAD_DIR/../_pytorch/requirements-f5.txt"
+export PW_VENV_NAME=f5
 source "$PW_WORKLOAD_DIR/../_pytorch/env.sh"
 pw_torch_run "$PW_WORKLOAD_DIR/main.py" f5_tts
