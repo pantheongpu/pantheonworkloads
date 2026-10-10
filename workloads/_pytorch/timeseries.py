@@ -4,7 +4,7 @@ The input is a synthetic series made here with numpy (a trend, a 24-step season 
 points, nothing downloaded). The 24-step median forecast is compared with a tolerance and must follow the season
 (correlation with the true continuation above 0.8). Uses the `chronos-forecasting` package
 (`BaseChronosPipeline.from_pretrained` on the pinned snapshot, `predict_quantiles`). Bench mode (PW_TS_MODE=bench):
-forecasts per second at batch 1. Never run on a GPU yet; the package's calls for Chronos-2 (several variates, group
+forecasts per second at batch 1. Run on an A10G (stage 2a); the package's calls for Chronos-2 (several variates, group
 attention) are the least certain part.
 """
 import os
@@ -35,7 +35,7 @@ def run(model_id, revision, pipeline, label=None, dtype="bfloat16"):
     try:
         from chronos import BaseChronosPipeline
     except ImportError as e:
-        common.skip(f"chronos-forecasting is not installed ({e}); pip install -r workloads/_pytorch/requirements-speech.txt")
+        common.skip(f"chronos-forecasting is not installed ({e}); pip install -r workloads/_pytorch/requirements-chronos.txt")
     t0 = time.perf_counter()
     pipe = BaseChronosPipeline.from_pretrained(path, device_map=common.DEVICE, torch_dtype=getattr(torch, dtype))
     load_s = time.perf_counter() - t0

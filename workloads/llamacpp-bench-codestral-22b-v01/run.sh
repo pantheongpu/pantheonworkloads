@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-bench-codestral-22b-v01: llama-bench tokens/s with Codestral-22B-v0.1 (Q4_K_M GGUF, 12.4 GiB, 1 x 22 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# Run on an A10G (stage 2a, docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

@@ -15,6 +15,16 @@ def cell(s):
     return str(s).replace("|", "/").replace("\n", " ")
 
 
+def run_status(r, state):
+    """Status text of a workload that has had its first run, from its manifest notes (docs/model-registry.md, 'Stage 2a')."""
+    import yaml
+    notes = str(yaml.safe_load((generate.ROOT / "workloads" / generate.names(r)[0] / "manifest.yaml").read_text(encoding="utf-8")).get("notes") or "")
+    head = notes.split(". ", 1)[0]
+    if state == "verified":
+        return "verified on a real GPU: " + head.replace("VERIFIED ON ", "", 1)
+    return "blocked at run: " + head.replace("BLOCKED(run)", "", 1).lstrip(": ")
+
+
 def row(r):
     gated = r.get("base_gated")
     if r.get("community"):
@@ -27,6 +37,10 @@ def row(r):
     if hw and hw["scope"] != "single node":
         need += f"; {hw['scope']}"
     status = r["status"]
+    if r["workloads"]:
+        state = generate.run_state(generate.names(r)[0])
+        if state != "written":
+            status = run_status(r, state)
     if r.get("community"):
         status += f" (community GGUF; the official repo is gated, blocked-for-download: accept the terms at https://huggingface.co/{r['base']}, then set HF_TOKEN)"
     if r.get("access"):
@@ -53,7 +67,10 @@ def tables(resolved):
         by.setdefault(r["family"], []).append(r)
     out = []
     ok = [r for r in resolved if r["workloads"]]
-    out += [f"**{len(resolved)} entries: {len(ok)} with workloads written (never run), {len(resolved) - len(ok)} blocked.** "
+    states = collections.Counter(generate.run_state(generate.names(r)[0]) for r in ok)
+    out += [f"**{len(resolved)} entries: {len(ok)} with workloads written, {len(resolved) - len(ok)} blocked.** "
+            f"Of the {len(ok)} written: {states['verified']} verified on a real GPU (reference and bench recorded), "
+            f"{states['blocked']} blocked at their first run, {states['written']} never run. "
             f"Hub data read {mc.DATE}; runtimes: llama.cpp b11447, vLLM v0.30.0, transformers 5.19.0, diffusers 0.41.0.", "",
             "| Family | Entries | Workloads written | Blocked |", "| --- | ---: | ---: | ---: |"]
     for fam, rs in by.items():

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# WRITTEN, NEVER RUN (docs/model-registry.md).
+# Run on an A10G (stage 2a, docs/model-registry.md).
 # whisper-cpp-large-v3-turbo: whisper.cpp transcribes an 11 s clip with the large-v3-turbo model; the
 # normalised transcript is the output. Contract: docs/workload-contract.md.
 #

@@ -6,8 +6,14 @@ spaces only, compared by word error rate (manifest `tolerance.fields.text.wer`);
 error rate against the known words of the speech exceeds PW_ASR_WER_MAX (default 0.15), whatever a reference says.
 Engines:
   transformers-pipeline   transformers.pipeline("automatic-speech-recognition") on the pinned snapshot
+  qwen3-asr               transformers' native Qwen3ASRForConditionalGeneration on Qwen's own checkpoint, which is in the layout of Qwen's own
+                          `qwen-asr` package (transformers 4.57): config.json nests everything under `thinker_config`, the audio encoder's model_type is
+                          `qwen3_asr_audio_encoder` (native: `qwen3_asr_encoder`) and the weights are named `thinker.*`. Loaded here with that config and a
+                          key mapping (without them every weight is UNEXPECTED and the model is random: measured on an A10G). Prompt: the processor's chat
+                          template with the audio, greedy generate(); the output "language English<asr_text>..." is parsed by the processor. The pipeline
+                          cannot drive this model (beam search by default, audio features passed as input_ids).
   nemo                    NVIDIA NeMo: ASRModel.restore_from(<.nemo file of the snapshot>).transcribe([wav])
-Bench mode (PW_ASR_MODE=bench): seconds of audio transcribed per second of compute. Never run on a GPU yet.
+Bench mode (PW_ASR_MODE=bench): seconds of audio transcribed per second of compute. Run on an A10G (stage 2a).
 """
 import glob
 import os
@@ -35,11 +41,29 @@ def run(model_id, revision, engine, label=None, dtype="float16", language=None):
 
         def go():
             return pipe({"raw": audio, "sampling_rate": 16000})["text"]
+    elif engine == "qwen3-asr":
+        import json
+        from transformers import AutoProcessor, Qwen3ASRConfig, Qwen3ASRForConditionalGeneration
+        processor = AutoProcessor.from_pretrained(path)
+        thinker = json.load(open(os.path.join(path, "config.json")))["thinker_config"]
+        thinker["audio_config"]["model_type"] = "qwen3_asr_encoder"
+        key_mapping = {r"^thinker\.model\.": "model.language_model.", r"^thinker\.audio_tower\.proj1\.": "model.multi_modal_projector.linear_1.",
+                       r"^thinker\.audio_tower\.proj2\.": "model.multi_modal_projector.linear_2.", r"^thinker\.audio_tower\.": "model.audio_tower.",
+                       r"^thinker\.lm_head\.": "lm_head."}
+        model = Qwen3ASRForConditionalGeneration.from_pretrained(path, config=Qwen3ASRConfig(**thinker), dtype=getattr(torch, dtype), key_mapping=key_mapping,
+                                                                 device_map=os.environ.get("PW_DEVICE_MAP") or "auto").eval()
+
+        def go():
+            messages = [{"role": "user", "content": [{"type": "audio", "audio": audio}]}]
+            inputs = processor.apply_chat_template(messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt").to(model.device, model.dtype)
+            with torch.no_grad():
+                out = model.generate(**inputs, max_new_tokens=128, do_sample=False, num_beams=1)
+            return processor.decode(out[0, inputs["input_ids"].shape[1]:], return_format="transcription_only")
     elif engine == "nemo":
         try:
             import nemo.collections.asr as nemo_asr
         except ImportError as e:
-            common.skip(f"NeMo is not installed ({e}); pip install -r workloads/_pytorch/requirements-speech.txt")
+            common.skip(f"NeMo is not installed ({e}); pip install -r workloads/_pytorch/requirements-nemo.txt")
         files = sorted(glob.glob(os.path.join(path, "*.nemo")))
         if not files:
             sys.exit(f"no .nemo file in {path}")

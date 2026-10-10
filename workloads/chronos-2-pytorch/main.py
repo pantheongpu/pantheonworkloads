@@ -1,4 +1,4 @@
-"""chronos-2-pytorch: Chronos-2. Shared body: ../_pytorch/timeseries.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""chronos-2-pytorch: Chronos-2. Shared body: ../_pytorch/timeseries.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

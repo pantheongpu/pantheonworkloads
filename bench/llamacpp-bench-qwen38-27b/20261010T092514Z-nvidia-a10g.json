@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-qwen38-27b",
+  "date": "2026-10-10T09:25:14Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "ggml-org/Qwen3.8-27B-GGUF (Qwen3.8-27B-Q4_K_M.gguf; Q4_K_M GGUF of Qwen/Qwen3.8-27B)",
+      "revision": "71bc7b627595dc8a91039addd9c791ae548d6747 (HF commit of the GGUF repo); file sha256 c600de0300ae8a0eb3a6c0b8b5561b8b96f16bd2c863c2a66c42de29d391a747; base model Qwen/Qwen3.8-27B @ 1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/ggml-org/Qwen3.8-27B-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 1097.26,
+      "values": [
+        1095.88,
+        1097.18,
+        1097.75,
+        1097.26,
+        1097.3
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 24.2,
+      "values": [
+        24.2,
+        24.2,
+        24.2,
+        24.2,
+        24.21
+      ]
+    }
+  }
+}

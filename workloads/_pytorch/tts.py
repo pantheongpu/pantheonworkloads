@@ -7,7 +7,7 @@ the clip is shorter than a second, silent or clipped. Engines:
   f5-tts       the `f5-tts` package: F5TTS(ckpt_file=..., vocab_file=...).infer(ref_file, ref_text, gen_text) with the
                pinned jfk.wav clip as the reference voice
 Both sample, so the generator is seeded (torch.manual_seed) but the result is only expected to be stable in these
-coarse numbers. Bench mode (PW_TTS_MODE=bench): seconds of audio produced per second of compute. Never run on a GPU yet.
+coarse numbers. Bench mode (PW_TTS_MODE=bench): seconds of audio produced per second of compute. Run on an A10G (stage 2a).
 """
 import glob
 import os
@@ -34,7 +34,7 @@ def run(model_id, revision, engine, label=None):
         try:
             from chatterbox.tts import ChatterboxTTS
         except ImportError as e:
-            common.skip(f"chatterbox-tts is not installed ({e}); pip install -r workloads/_pytorch/requirements-speech.txt")
+            common.skip(f"chatterbox-tts is not installed ({e}); pip install -r workloads/_pytorch/requirements-chatterbox.txt")
         model = ChatterboxTTS.from_local(path, common.DEVICE)
         sr = model.sr
 
@@ -45,13 +45,14 @@ def run(model_id, revision, engine, label=None):
         try:
             from f5_tts.api import F5TTS
         except ImportError as e:
-            common.skip(f"f5-tts is not installed ({e}); pip install -r workloads/_pytorch/requirements-speech.txt")
+            common.skip(f"f5-tts is not installed ({e}); pip install -r workloads/_pytorch/requirements-f5.txt")
         _, ref = cc.load_clip()
         ckpts = sorted(glob.glob(os.path.join(path, "F5TTS_v1_Base", "model_*.safetensors")) + glob.glob(os.path.join(path, "F5TTS_Base", "model_*.safetensors")))
         vocabs = sorted(glob.glob(os.path.join(path, "F5TTS_v1_Base", "vocab.txt")) + glob.glob(os.path.join(path, "F5TTS_Base", "vocab.txt")))
         if not ckpts:
             sys.exit(f"no F5-TTS checkpoint found under {path}")
-        model = F5TTS(ckpt_file=ckpts[0], vocab_file=vocabs[0] if vocabs else "", device=common.DEVICE)
+        own = os.path.join(os.path.dirname(ckpts[0]), "vocab.txt")   # the checkpoint's own directory first (the two vocabularies are identical, measured)
+        model = F5TTS(ckpt_file=ckpts[0], vocab_file=own if os.path.exists(own) else (vocabs[0] if vocabs else ""), device=common.DEVICE)
         sr = 24000
 
         def go():

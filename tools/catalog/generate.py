@@ -4,8 +4,14 @@
     tools/catalog/generate.py            write workloads/<name>/ for every unblocked entry and the tables of docs/model-registry.md
     tools/catalog/generate.py --check    exit 1 when anything on disk differs from what would be written
 
-Every written workload is WRITTEN, NEVER RUN: no weights were downloaded, no GPU was used, there is no reference.json
+Every written workload starts as WRITTEN, NEVER RUN: no weights were downloaded, no GPU was used, there is no reference.json
 and no bench record (the coverage table says so). A workload directory not listed by the catalog is never touched.
+
+A workload that has had its first real run *graduates*: its manifest notes then start with `VERIFIED ON` (a reference and bench
+record exist, from a real GPU) or `BLOCKED(run)` (the first run showed it cannot work as pinned; the notes carry the evidence).
+From then on its files are maintained by hand (run-script and pin fixes live in the workload directory) and this generator
+neither writes nor checks them; the registry tables show the state read from the manifest. Never put those prefixes on a
+workload that has not been run.
 """
 import argparse
 import json
@@ -23,6 +29,21 @@ RUNTIME_VERSION = "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
 VLLM_VERSION = "vLLM v0.30.0"
 MARK_START, MARK_END = "<!-- registry:start -->", "<!-- registry:end -->"
 EXAMPLES = "https://huggingface.co/"
+GRADUATED = ("VERIFIED ON", "BLOCKED(run)")   # prefixes of the notes of a workload that has been run (see the module docstring)
+
+
+def run_state(name):
+    """'written' (never run), 'verified' or 'blocked' (a first run happened), read from the workload's manifest notes; 'written' when there is no manifest."""
+    path = ROOT / "workloads" / name / "manifest.yaml"
+    if not path.exists():
+        return "written"
+    import yaml
+    notes = str((yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get("notes") or "")
+    if notes.startswith("VERIFIED ON"):
+        return "verified"
+    if notes.startswith("BLOCKED(run)"):
+        return "blocked"
+    return "written"
 
 
 def q(s):
@@ -519,6 +540,8 @@ def build_all():
         build = BUILDERS.get(r["plan"], pytorch_plan)
         for name, parts in build(r).items():
             existing = ROOT / "workloads" / name / "manifest.yaml"
+            if run_state(name) != "written":
+                continue   # graduated: hand-maintained since its first run
             if existing.exists() and "WRITTEN, NEVER RUN" not in existing.read_text(encoding="utf-8"):
                 sys.exit(f"{name}: a workload of that name exists and was not written by the catalog; rename the catalog key '{r['key']}'")
             for fn, content in parts.items():

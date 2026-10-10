@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-qwen3-coder-30b-a3b-instruct",
+  "date": "2026-10-10T09:05:49Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF (Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf; Q4_K_M GGUF of Qwen/Qwen3-Coder-30B-A3B-Instruct)",
+      "revision": "b17cb02dd882d5b6ab62fc777ad2995f19668350 (HF commit of the GGUF repo); file sha256 fadc3e5f8d42bf7e894a785b05082e47daee4df26680389817e2093056f088ad; base model Qwen/Qwen3-Coder-30B-A3B-Instruct @ b2cff646eb4bb1d68355c01b18ae02e7cf42d120",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 3378.92,
+      "values": [
+        3371.2,
+        3378.92,
+        3380.45,
+        3379.88,
+        3377.94
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 155.73,
+      "values": [
+        155.63,
+        155.69,
+        155.73,
+        155.79,
+        155.76
+      ]
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "parakeet-tdt-0p6b-v3-bench",
+  "date": "2026-10-10T06:47:42Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "nvidia/parakeet-tdt-0.6b-v3 (asr; 1 pinned weights file(s), as stored)",
+      "revision": "541d1f99c6b0c3cd0b11a95167540bb8edefd82b (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "CC-BY-4.0",
+      "source_url": "https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "audio_seconds_per_s": {
+      "median": 111.3,
+      "values": [
+        108.84,
+        114.68,
+        111.3,
+        109.76,
+        113.42
+      ]
+    }
+  }
+}

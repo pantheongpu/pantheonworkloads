@@ -1,4 +1,4 @@
-"""paddleocr-vl-pytorch: PaddleOCR-VL. Shared body: ../_pytorch/vlm.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""paddleocr-vl-pytorch: PaddleOCR-VL. Shared body: ../_pytorch/vlm.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

@@ -8,7 +8,7 @@ passages (Paris, the mitochondrion, Berlin). Heads:
                      the logits and the ranking
   qwen3-reranker     Qwen3-Reranker: a causal LM scored by P("yes") at the last position of a fixed judging prompt
                      (the model card's recipe); output = the scores and the ranking
-Bench mode (PW_RETRIEVAL_MODE=bench): forward passes per second over the four texts / three pairs. Never run on a GPU yet.
+Bench mode (PW_RETRIEVAL_MODE=bench): forward passes per second over the four texts / three pairs. Run on an A10G (stage 2a).
 """
 import os
 import sys
@@ -82,12 +82,16 @@ def run(model_id, revision, head, label=None, dtype="bfloat16", margin=1e-3):
         sys.exit(f"non-finite scores {scores}")
     order = sorted(range(3), key=lambda i: -scores[i])
     ranked = [scores[i] for i in order]
-    gap = min(a - b for a, b in zip(ranked[:-1], ranked[1:]))
+    # The Qwen3 rerankers' score is P(yes): the two irrelevant passages both sit within 1e-3 of zero (measured on an A10G: gaps of
+    # 7e-5 to 7e-4), so their order is noise. Only the top passage is part of the result and only its gap to the runner-up is checked.
+    top_only = head == "qwen3-reranker"
+    checked = ranked[:2] if top_only else ranked
+    gap = min(a - b for a, b in zip(checked[:-1], checked[1:]))
     if gap < margin:
         sys.exit(f"two passages score within {gap:g} (< {margin:g}): too close to compare across backends")
     if order[0] != 0:
         sys.exit(f"the Paris passage is not ranked first for the Paris query: scores {scores}")
-    out = {"scores": [round(s, 3) for s in scores], "ranking": " ".join(str(i + 1) for i in order)}
+    out = {"scores": [round(s, 3) for s in scores], "ranking": str(order[0] + 1) if top_only else " ".join(str(i + 1) for i in order)}
     metrics = {}
     if mode == "bench":
         for _ in range(3):

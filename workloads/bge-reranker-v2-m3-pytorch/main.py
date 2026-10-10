@@ -1,4 +1,4 @@
-"""bge-reranker-v2-m3-pytorch: bge-reranker-v2-m3. Shared body: ../_pytorch/retrieval.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""bge-reranker-v2-m3-pytorch: bge-reranker-v2-m3. Shared body: ../_pytorch/retrieval.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

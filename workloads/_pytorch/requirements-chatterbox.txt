@@ -1,0 +1,5 @@
+# Chatterbox TTS (chatterbox-pytorch). Own venv (PW_VENV_NAME=chatterbox): chatterbox-tts 0.1.7 pins torch==2.6.0, torchaudio 2.6.0, numpy 1.26.4, transformers 5.2.0 and safetensors 0.5.3,
+# so it replaces the shared stack (and cannot be installed together with requirements-vlm.txt, whose safetensors pin differs). Its torch is the cu124 wheel from PyPI.
+chatterbox-tts==0.1.7
+# (resemble-perth, which chatterbox imports, needs pkg_resources: setuptools 81 and later removed it, and without it perth.PerthImplicitWatermarker is None, "TypeError: NoneType is not callable".)
+setuptools==80.10.2

@@ -1,0 +1,40 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "chatterbox-bench",
+  "date": "2026-10-10T06:12:28Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.29.0, numpy 1.26.4, torch 2.6.0, transformers 5.2.0",
+    "model": {
+      "id": "ResembleAI/chatterbox (tts; 4 pinned weights file(s), as stored)",
+      "revision": "5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "MIT",
+      "source_url": "https://huggingface.co/ResembleAI/chatterbox"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.29.0",
+      "numpy": "1.26.4",
+      "torch": "2.6.0",
+      "transformers": "5.2.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "audio_seconds_per_s": {
+      "median": 1.22,
+      "values": [
+        1.22,
+        1.23,
+        1.22,
+        1.25,
+        1.22
+      ]
+    }
+  }
+}

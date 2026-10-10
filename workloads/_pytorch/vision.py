@@ -8,7 +8,7 @@ All heads look at the pinned public-domain photo of the other workloads (scikit-
   sam2      SAM 2.x with one point prompt on the astronaut's face: output = the fraction of the image the best mask
             covers and its bounding box
   depth     Depth Anything V2: output = mean/std of the normalised depth map and an 8x8 grid of block means
-Bench mode (PW_VISION_MODE=bench): images per second at batch 1. Never run on a GPU yet.
+Bench mode (PW_VISION_MODE=bench): images per second at batch 1. Run on an A10G (stage 2a).
 """
 import os
 import sys

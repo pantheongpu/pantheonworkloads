@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-orpheus-3b-0p1-ft",
+  "date": "2026-10-10T08:50:42Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "lex-au/Orpheus-3b-FT-Q8_0.gguf (Orpheus-3b-FT-Q8_0.gguf; Q8_0 GGUF of canopylabs/orpheus-3b-0.1-ft)",
+      "revision": "6d58c3d2601e03f2016380cc6069d643d1119501 (HF commit of the GGUF repo); file sha256 d435342ebf8428b08157445861370f84ffa5f6af8affcb3a9c00f542f39b4980; base model canopylabs/orpheus-3b-0.1-ft @ 4206a56e5a68cf6cf96900a8a78acd3370c02eb6",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/lex-au/Orpheus-3b-FT-Q8_0.gguf"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 7617.06,
+      "values": [
+        7596.66,
+        7617.72,
+        7622.14,
+        7609.96,
+        7617.06
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 120.53,
+      "values": [
+        120.53,
+        120.52,
+        120.52,
+        120.53,
+        120.54
+      ]
+    }
+  }
+}

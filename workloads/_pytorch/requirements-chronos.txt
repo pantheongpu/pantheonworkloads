@@ -1,0 +1,3 @@
+# Chronos time-series forecasting (chronos-*-pytorch): adds five small packages to the shared venv and leaves torch alone.
+-r requirements-vlm.txt
+chronos-forecasting==2.3.2

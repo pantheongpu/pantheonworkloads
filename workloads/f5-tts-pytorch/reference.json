@@ -1,0 +1,9 @@
+{
+  "output": {
+    "duration_s": 4.5,
+    "rms": 0.202,
+    "finite": true
+  },
+  "recorded_on": "gpu",
+  "recorded_at": "2026-10-10"
+}

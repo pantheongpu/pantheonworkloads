@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "whisper-cpp-bench-large-v3-turbo",
+  "date": "2026-10-10T09:26:04Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "whisper.cpp",
+    "runtime_version": null,
+    "model": {
+      "id": "ggerganov/whisper.cpp ggml-large-v3-turbo.bin   # OpenAI Whisper large-v3-turbo converted to ggml by whisper.cpp",
+      "revision": "ggerganov/whisper.cpp HF commit 5359861c739e955e79d9a303bcbc70fb988958b1; ggml-large-v3-turbo.bin sha256 1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69 (1624555275 bytes, the Hub's LFS oid); weights of openai/whisper-large-v3-turbo @ 41f01f3fe87f28c78e2fbf8b568835947dd65ed9",
+      "licence": "MIT",
+      "source_url": "https://huggingface.co/ggerganov/whisper.cpp"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "decode_ms_per_run": {
+      "median": 1.31,
+      "values": [
+        1.31,
+        1.32,
+        1.31,
+        1.31,
+        1.31
+      ]
+    },
+    "encode_ms_per_run": {
+      "median": 85.45,
+      "values": [
+        85.45,
+        85.32,
+        85.54,
+        85.43,
+        85.45
+      ]
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-codestral-22b-v01",
+  "date": "2026-10-10T07:10:16Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "bartowski/Codestral-22B-v0.1-GGUF (Codestral-22B-v0.1-Q4_K_M.gguf; Q4_K_M GGUF of mistralai/Codestral-22B-v0.1)",
+      "revision": "0e6abe14d6aeaf2c99d5dc9973205e8e38692d90 (HF commit of the GGUF repo); file sha256 003e48ed892850b80994fcddca2bd6b833b092a4ef2db2853c33a3144245e06c; base model mistralai/Codestral-22B-v0.1 @ 28b1c1a51dabe9d86ca8c41420ada1984632498f",
+      "licence": "Mistral AI Non-Production License",
+      "source_url": "https://huggingface.co/bartowski/Codestral-22B-v0.1-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 1388.32,
+      "values": [
+        1386.34,
+        1387.61,
+        1388.32,
+        1388.47,
+        1388.77
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 34.16,
+      "values": [
+        34.16,
+        34.15,
+        34.15,
+        34.16,
+        34.16
+      ]
+    }
+  }
+}

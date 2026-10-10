@@ -1,4 +1,4 @@
-"""bge-reranker-large-pytorch: bge-reranker-large. Shared body: ../_pytorch/retrieval.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""bge-reranker-large-pytorch: bge-reranker-large. Shared body: ../_pytorch/retrieval.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 
