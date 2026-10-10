@@ -1,0 +1,41 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "chronos-2-bench",
+  "date": "2026-10-10T06:13:49Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "amazon/chronos-2 (timeseries; 1 pinned weights file(s), as stored)",
+      "revision": "29ec3766d36d6f73f0696f85560a422f50e8498c (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/amazon/chronos-2"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "forecasts_per_s_b1": {
+      "median": 36.08,
+      "values": [
+        35.84,
+        36.37,
+        35.73,
+        36.08,
+        36.84
+      ]
+    }
+  }
+}

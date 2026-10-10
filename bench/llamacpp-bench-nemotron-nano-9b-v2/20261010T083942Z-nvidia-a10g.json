@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-nemotron-nano-9b-v2",
+  "date": "2026-10-10T08:39:42Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "bartowski/nvidia_NVIDIA-Nemotron-Nano-9B-v2-GGUF (nvidia_NVIDIA-Nemotron-Nano-9B-v2-Q8_0.gguf; Q8_0 GGUF of nvidia/NVIDIA-Nemotron-Nano-9B-v2)",
+      "revision": "b2daccafb3d123ea94653720a0db1f5db9c698ff (HF commit of the GGUF repo); file sha256 5c43a91e9d200cb2444a8ddc4f1b64c06adca98f86ae390e12c23605dfddef1c; base model nvidia/NVIDIA-Nemotron-Nano-9B-v2 @ 6533e8de2c68e4536bf7c411d7a3ce5734111476",
+      "licence": "NVIDIA Open Model License",
+      "source_url": "https://huggingface.co/bartowski/nvidia_NVIDIA-Nemotron-Nano-9B-v2-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 2878.47,
+      "values": [
+        2877.02,
+        2872.52,
+        2879.03,
+        2878.64,
+        2878.47
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 49.15,
+      "values": [
+        49.15,
+        49.14,
+        49.15,
+        49.14,
+        49.15
+      ]
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-deepseek-r1-distill-llama-8b",
+  "date": "2026-10-10T07:14:20Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "unsloth/DeepSeek-R1-Distill-Llama-8B-GGUF (DeepSeek-R1-Distill-Llama-8B-Q8_0.gguf; Q8_0 GGUF of deepseek-ai/DeepSeek-R1-Distill-Llama-8B)",
+      "revision": "615f8936e16dfde29dcc00be71145d4d5ce8ed53 (HF commit of the GGUF repo); file sha256 8c6e3924d662d3f24a96b228a5c317510c27e91c587e71e78877ed18a875ec82; base model deepseek-ai/DeepSeek-R1-Distill-Llama-8B @ 6a6f4aa4197940add57724a7707d069478df56b1",
+      "licence": "Llama 3.1 Community Licence",
+      "source_url": "https://huggingface.co/unsloth/DeepSeek-R1-Distill-Llama-8B-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 3987.44,
+      "values": [
+        3986.25,
+        3984.11,
+        3988.51,
+        3987.44,
+        3987.95
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 58.13,
+      "values": [
+        58.12,
+        58.12,
+        58.14,
+        58.13,
+        58.13
+      ]
+    }
+  }
+}

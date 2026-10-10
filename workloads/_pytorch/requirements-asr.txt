@@ -1,0 +1,4 @@
+# On top of requirements-torch.txt and requirements-common.txt, for the transformers speech-recognition workloads
+# (parakeet-tdt-0p6b-v3-pytorch needs librosa for its feature extractor; qwen3-asr-1p7b-pytorch needs nothing extra). Versions checked on an A10G (2026-10-10).
+-r requirements-vlm.txt
+librosa==1.0.0

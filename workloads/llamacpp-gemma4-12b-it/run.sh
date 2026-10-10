@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-gemma4-12b-it: llama-completion greedy-decodes 3 tokens with gemma-4-12B-it (Q4_0 GGUF, 6.5 GiB, 1 x 15 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# Run on an A10G (stage 2a, docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

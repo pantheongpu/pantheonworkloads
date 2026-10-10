@@ -1,4 +1,4 @@
-"""olmocr-2-7b-pytorch: olmOCR-2-7B-1025. Shared body: ../_pytorch/vlm.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""olmocr-2-7b-pytorch: olmOCR-2-7B-1025. Shared body: ../_pytorch/vlm.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

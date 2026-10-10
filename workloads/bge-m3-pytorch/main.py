@@ -1,4 +1,4 @@
-"""bge-m3-pytorch: BGE-M3 (dense head). Shared body: ../_pytorch/retrieval.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""bge-m3-pytorch: BGE-M3 (dense head). Shared body: ../_pytorch/retrieval.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

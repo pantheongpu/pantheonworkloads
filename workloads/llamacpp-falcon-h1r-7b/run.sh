@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-falcon-h1r-7b: llama-completion greedy-decodes 3 tokens with Falcon-H1R-7B (Q8_0 GGUF, 7.5 GiB, 1 x 15 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# Run on an A10G (stage 2a, docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

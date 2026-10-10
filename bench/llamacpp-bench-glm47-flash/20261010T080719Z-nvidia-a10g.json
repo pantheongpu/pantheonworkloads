@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-glm47-flash",
+  "date": "2026-10-10T08:07:19Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "unsloth/GLM-4.7-Flash-GGUF (GLM-4.7-Flash-Q4_K_M.gguf; Q4_K_M GGUF of zai-org/GLM-4.7-Flash)",
+      "revision": "0d32489ecb9db6d2a4fc93bd27ef01519f95474d (HF commit of the GGUF repo); file sha256 29837ed2c0fc5f51981adf8ac8083fcf80743c598381f13e9f06cbad0498b174; base model zai-org/GLM-4.7-Flash @ 7dd20894a642a0aa287e9827cb1a1f7f91386b67",
+      "licence": "MIT",
+      "source_url": "https://huggingface.co/unsloth/GLM-4.7-Flash-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 2729.01,
+      "values": [
+        2726.11,
+        2729.01,
+        2729.05,
+        2726.95,
+        2729.47
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 111.43,
+      "values": [
+        111.42,
+        111.49,
+        111.43,
+        111.42,
+        111.49
+      ]
+    }
+  }
+}

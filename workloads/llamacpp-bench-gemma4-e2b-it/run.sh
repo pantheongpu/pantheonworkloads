@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-bench-gemma4-e2b-it: llama-bench tokens/s with gemma-4-E2B-it (Q4_0 GGUF, 3.1 GiB, 1 x 10 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# Run on an A10G (stage 2a, docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

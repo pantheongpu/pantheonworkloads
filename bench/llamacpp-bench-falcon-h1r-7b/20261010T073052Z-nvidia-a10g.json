@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-falcon-h1r-7b",
+  "date": "2026-10-10T07:30:52Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "tiiuae/Falcon-H1R-7B-GGUF (Falcon-H1R-7B-Q8_0.gguf; Q8_0 GGUF of tiiuae/Falcon-H1R-7B)",
+      "revision": "2dc053e015a9e3c5b954aa81e00aaed24bef830f (HF commit of the GGUF repo); file sha256 4c96b2ff690766257852dfd51044996521ba0bacaf9939953e5aaabdfd50898a; base model tiiuae/Falcon-H1R-7B @ a6f74bf181389908efd6970878d7ee2b42f5d417",
+      "licence": "Falcon LLM License",
+      "source_url": "https://huggingface.co/tiiuae/Falcon-H1R-7B-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 3042.53,
+      "values": [
+        3032.57,
+        3044.91,
+        3042.53,
+        3043.37,
+        3039.85
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 50.78,
+      "values": [
+        50.75,
+        50.78,
+        50.78,
+        50.78,
+        50.78
+      ]
+    }
+  }
+}

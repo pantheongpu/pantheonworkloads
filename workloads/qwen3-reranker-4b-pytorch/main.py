@@ -1,4 +1,4 @@
-"""qwen3-reranker-4b-pytorch: Qwen3-Reranker-4B. Shared body: ../_pytorch/retrieval.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""qwen3-reranker-4b-pytorch: Qwen3-Reranker-4B. Shared body: ../_pytorch/retrieval.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

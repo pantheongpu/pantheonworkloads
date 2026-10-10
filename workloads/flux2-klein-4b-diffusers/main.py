@@ -1,4 +1,4 @@
-"""flux2-klein-4b-diffusers: FLUX.2-klein-4B. Shared body: ../_pytorch/diffusion.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""flux2-klein-4b-diffusers: FLUX.2-klein-4B. Shared body: ../_pytorch/diffusion.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

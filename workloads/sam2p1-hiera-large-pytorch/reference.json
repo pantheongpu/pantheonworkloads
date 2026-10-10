@@ -1,0 +1,13 @@
+{
+  "output": {
+    "area_fraction": 0.0337,
+    "bbox_xyxy": [
+      171,
+      74,
+      278,
+      190
+    ]
+  },
+  "recorded_on": "gpu",
+  "recorded_at": "2026-10-10"
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-devstral-small-2-24b-2512",
+  "date": "2026-10-10T07:26:36Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF (Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf; Q4_K_M GGUF of mistralai/Devstral-Small-2-24B-Instruct-2512)",
+      "revision": "6e458b8add42681bfd023de5eab93637694aaf82 (HF commit of the GGUF repo); file sha256 d14ba9edee1bb4c4996a726deb81e49ae81800a3216f0774634238c380aee496; base model mistralai/Devstral-Small-2-24B-Instruct-2512 @ 55c5b41e98c2dbd21b0c8afffc540dcfc9eb5128",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/unsloth/Devstral-Small-2-24B-Instruct-2512-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 1503.45,
+      "values": [
+        1502.51,
+        1503.49,
+        1502.9,
+        1503.45,
+        1503.71
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 31.88,
+      "values": [
+        31.9,
+        31.87,
+        31.9,
+        31.88,
+        31.87
+      ]
+    }
+  }
+}

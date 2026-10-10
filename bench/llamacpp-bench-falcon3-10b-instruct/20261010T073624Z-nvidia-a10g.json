@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-falcon3-10b-instruct",
+  "date": "2026-10-10T07:36:24Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "tiiuae/Falcon3-10B-Instruct-GGUF (Falcon3-10B-Instruct-q8_0.gguf; Q8_0 GGUF of tiiuae/Falcon3-10B-Instruct)",
+      "revision": "0072d525c72df8cbb1af9561672da481bd9e5595 (HF commit of the GGUF repo); file sha256 8eeef4b03593b225f7317946cb592bb43f3c68f875b5422f89bd4232b8dc2a2b; base model tiiuae/Falcon3-10B-Instruct @ 8799bc6aec0152757221dc6b272d824642db6202",
+      "licence": "Falcon LLM License",
+      "source_url": "https://huggingface.co/tiiuae/Falcon3-10B-Instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 3063.96,
+      "values": [
+        3065.01,
+        3063.14,
+        3063.96,
+        3051.16,
+        3065.15
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 43.77,
+      "values": [
+        43.76,
+        43.77,
+        43.76,
+        43.77,
+        43.77
+      ]
+    }
+  }
+}

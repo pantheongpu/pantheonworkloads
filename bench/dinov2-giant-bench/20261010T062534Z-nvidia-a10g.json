@@ -1,0 +1,51 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "dinov2-giant-bench",
+  "date": "2026-10-10T06:25:34Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "facebook/dinov2-giant (vision; 1 pinned weights file(s), as stored)",
+      "revision": "611a9d42f2335e0f921f1e313ad3c1b7178d206d (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/facebook/dinov2-giant"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "images_per_s_b1": {
+      "median": 10.81,
+      "values": [
+        10.83,
+        10.8,
+        10.81,
+        10.81,
+        10.8
+      ]
+    },
+    "peak_gpu_memory_gb": {
+      "median": 4.59,
+      "values": [
+        4.59,
+        4.59,
+        4.59,
+        4.59,
+        4.59
+      ]
+    }
+  }
+}

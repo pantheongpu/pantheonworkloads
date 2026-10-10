@@ -9,7 +9,7 @@ and library versions and a sampler amplifies tiny differences into different fin
 Which files are downloaded is whatever the workload's model.sha256 lists (weights, pinned) plus the small configs and
 tokenizers; every listed file is verified before the pipeline is built. With PW_DIFFUSION_DEVICE_MAP=balanced (the
 default when the host has more than one GPU) diffusers places whole pipeline components on different GPUs.
-Never run on a GPU yet: the first run decides whether the tolerances and keyword arguments here hold.
+Run on an A10G (stage 2a) for the Tier A models (flux2-klein); the larger pipelines have not been run.
 """
 import hashlib
 import os
