@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """pantheonworkloads runner.
 
-    pw list [--default]
+    pw list [--default] [--runnable]
     pw validate [workload ...]
     pw run <workload ...> --target cpu|gpu|sim:<vendor>/<profile> [--out DIR]
     pw record <workload> --target T
@@ -131,6 +131,121 @@ def last_json(text):
     raise ValueError("the workload printed nothing")
 
 
+MEMORY_SLACK = 0.98   # drivers report a little less than the marketing size (80 GB H100: 79.6 GiB)
+
+
+def _capability(text):
+    try:
+        major, minor = str(text).strip().split(".", 1)
+        return int(major), int(minor)
+    except ValueError:
+        return None
+
+
+def _nvidia_gpus():
+    exe = os.environ.get("PW_NVIDIA_SMI") or "nvidia-smi"   # PW_NVIDIA_SMI: tests point it at a fake
+    try:
+        p = subprocess.run([exe, "--query-gpu=name,memory.total,compute_cap,driver_version",
+                            "--format=csv,noheader,nounits"], capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    if p.returncode != 0:
+        return []
+    gpus = []
+    for line in p.stdout.splitlines():
+        parts = [x.strip() for x in line.split(",")]
+        if len(parts) < 2 or not parts[0]:
+            continue
+        try:
+            mem = round(float(parts[1]) / 1024, 2)
+        except ValueError:
+            mem = None
+        cc = parts[2] if len(parts) > 2 and _capability(parts[2]) else None
+        gpus.append({"vendor": "nvidia", "name": parts[0], "memory_gib": mem, "compute_capability": cc,
+                     "driver": parts[3] if len(parts) > 3 else None})
+    return gpus
+
+
+def _amd_gpus():
+    exe = os.environ.get("PW_ROCM_SMI") or "rocm-smi"
+    try:
+        p = subprocess.run([exe, "--showproductname", "--showmeminfo", "vram", "--json"],
+                           capture_output=True, text=True, timeout=30)
+        data = json.loads(p.stdout) if p.returncode == 0 else {}
+    except (OSError, subprocess.TimeoutExpired, ValueError):
+        data = {}
+    gpus = []
+    for key in sorted(k for k in data if k.startswith("card") and isinstance(data[k], dict)):
+        card = data[key]
+        name = card.get("Card Series") or card.get("Card series") or card.get("Card Model") or "AMD GPU"
+        try:
+            mem = round(int(card["VRAM Total Memory (B)"]) / 2**30, 2)
+        except (KeyError, ValueError, TypeError):
+            mem = None
+        gpus.append({"vendor": "amd", "name": name, "memory_gib": mem, "compute_capability": None, "driver": None})
+    if gpus:
+        return gpus
+    root = pathlib.Path(os.environ.get("PW_DRM_ROOT") or "/sys/class/drm")   # sysfs fallback
+    for dev in sorted(root.glob("card[0-9]*/device")):
+        try:
+            if (dev / "vendor").read_text().strip() != "0x1002":
+                continue
+            mem = round(int((dev / "mem_info_vram_total").read_text()) / 2**30, 2)
+        except (OSError, ValueError):
+            continue
+        gpus.append({"vendor": "amd", "name": "AMD GPU", "memory_gib": mem, "compute_capability": None, "driver": None})
+    return gpus
+
+
+def detect_gpus():
+    """Every GPU on this host as dicts {vendor, name, memory_gib, compute_capability, driver}; [] when unknown.
+    NVIDIA through nvidia-smi (PW_NVIDIA_SMI overrides the command), else AMD through rocm-smi (PW_ROCM_SMI) or sysfs
+    (PW_DRM_ROOT)."""
+    return _nvidia_gpus() or _amd_gpus()
+
+
+def describe_gpus(gpus):
+    """'8 x NVIDIA H100 80GB HBM3 80 GiB' / '1 x A 24 GiB, 1 x B 12 GiB' / 'no GPU detected'."""
+    if not gpus:
+        return "no GPU detected"
+    groups = {}
+    for g in gpus:
+        groups.setdefault((g["name"], g["memory_gib"]), []).append(g)
+    return ", ".join(f"{len(v)} x {n}" + (f" {m:g} GiB" if m is not None else "") for (n, m), v in groups.items())
+
+
+def meets(gpu, req):
+    """Does one GPU satisfy the per-GPU parts of `requires` (vendor, memory, compute capability)?"""
+    if req.get("vendor") and gpu["vendor"] != req["vendor"]:
+        return False
+    if req.get("gpu_memory_gb") is not None and (gpu["memory_gib"] is None or gpu["memory_gib"] < req["gpu_memory_gb"] * MEMORY_SLACK):
+        return False
+    if req.get("min_compute_capability"):
+        have = _capability(gpu["compute_capability"]) if gpu["compute_capability"] else None
+        if gpu["vendor"] != "nvidia" or have is None or have < _capability(req["min_compute_capability"]):
+            return False
+    return True
+
+
+def unmet_requires(manifest, gpus=None):
+    """None when the host satisfies the manifest's `requires` (or it has none, or PW_IGNORE_REQUIRES=1);
+    otherwise the reason string for the SKIP. `gpus` defaults to detect_gpus()."""
+    req = validate.requirements(manifest)
+    if not req or os.environ.get("PW_IGNORE_REQUIRES") == "1":
+        return None
+    gpus = detect_gpus() if gpus is None else gpus
+    if sum(meets(g, req) for g in gpus) >= req["gpus"]:
+        return None
+    text = f"needs {req['gpus']} GPU" + ("s" if req["gpus"] != 1 else "")
+    if req.get("vendor"):
+        text += f" ({req['vendor']})"
+    if req.get("gpu_memory_gb") is not None:
+        text += f" with >= {req['gpu_memory_gb']:g} GiB each"
+    if req.get("min_compute_capability"):
+        text += f" (compute capability >= {req['min_compute_capability']})"
+    return f"{text}; this host has {describe_gpus(gpus)}"
+
+
 def execute(name, target, scratch):
     """Run one workload once. Returns (result, seconds, detail, record)."""
     wdir = WORKLOADS / name
@@ -140,6 +255,11 @@ def execute(name, target, scratch):
         return "FAIL", 0.0, "invalid manifest: " + "; ".join(errors), {}
     if not target_ok(target, manifest["targets"]):
         return "SKIP", 0.0, f"{target} is not one of this workload's targets", {}
+
+    if target == "gpu":
+        why = unmet_requires(manifest)
+        if why:
+            return "SKIP", 0.0, why[:200], {}
 
     env = dict(os.environ, PW_TARGET=target, PW_WORKLOAD_DIR=str(wdir), PW_OUT=str(scratch))
     if target.startswith("sim:"):
@@ -201,20 +321,42 @@ def tool_output(cmd):
 
 
 def detect_device():
-    """(device name, driver) from nvidia-smi when it is there; otherwise (None, None).
+    """(device name, driver) of the first GPU from nvidia-smi when it is there; otherwise (None, None).
     AMD cards are not auto-detected: pass --device so the number is attributable."""
-    line = tool_output(["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"])
+    line = tool_output([os.environ.get("PW_NVIDIA_SMI") or "nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"])
     if line and "," in line:
         name, driver = (x.strip() for x in line.split(",", 1))
         return name, driver
     return None, None
 
 
+def multi_gpu_env(manifest, target):
+    """For a workload that requires more than one GPU on a real GPU target: (device string, gpu_count, devices
+    list) of the GPUs it ran on, e.g. ('8x NVIDIA H100 80GB HBM3', 8, [...]); otherwise None."""
+    req = validate.requirements(manifest)
+    if target != "gpu" or not req or req["gpus"] <= 1:
+        return None
+    gpus = [g for g in detect_gpus() if meets(g, req)][:req["gpus"]]
+    if len(gpus) < 2:
+        return None
+    counts = {}
+    for g in gpus:
+        counts[g["name"]] = counts.get(g["name"], 0) + 1
+    device = " + ".join(f"{n}x {name}" for name, n in counts.items())
+    return device, len(gpus), [{"name": g["name"], "memory_gib": g["memory_gib"]} for g in gpus]
+
+
 def collect_env(manifest, target, device):
     detected, driver = detect_device()
+    multi = multi_gpu_env(manifest, target)
+    extra = {}
+    if multi:
+        detected = multi[0]
+        extra = {"gpu_count": multi[1], "devices": multi[2]}
     return {
         "target": target,
         "device": device or detected,
+        **extra,
         "driver": driver,
         "runtime": manifest.get("runtime"),
         "runtime_version": manifest.get("runtime_version") or (tool_output([manifest["runtime"], "--version"]) if manifest.get("runtime") not in (None, "none") else None),
@@ -229,10 +371,22 @@ def slug(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
+def runnable_here(manifest, gpus):
+    """Can this host run the workload? A cpu or sim: target always can; a gpu one when `requires` is met."""
+    if any(t == "cpu" or t.startswith("sim:") for t in manifest.get("targets", [])):
+        return True
+    return "gpu" in manifest.get("targets", []) and unmet_requires(manifest, gpus) is None
+
+
 def cmd_list(a):
+    gpus = detect_gpus() if a.runnable else None
     for n in (default_names() if a.default else names()):
         m = validate.load(WORKLOADS / n / "manifest.yaml")
+        if a.runnable and not runnable_here(m, gpus):
+            continue
         flag = " [restricted]" if validate.is_restricted(m) else ""
+        if m.get("requires"):
+            flag += f" [needs {validate.needs_text(validate.requirements(m))}]"
         print(f"{n}\t{m.get('kind')}\t{','.join(m.get('targets', []))}\t{m.get('description', '')}{flag}")
 
 
@@ -413,6 +567,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(prog="pw")
     sub = ap.add_subparsers(dest="cmd", required=True)
     ls = sub.add_parser("list"); ls.add_argument("--default", action="store_true", help="leave out restricted workloads")
+    ls.add_argument("--runnable", action="store_true", help="only what this host can run (gpu workloads whose `requires` this host meets)")
     ls.set_defaults(fn=cmd_list)
     v = sub.add_parser("validate"); v.add_argument("workload", nargs="*"); v.set_defaults(fn=cmd_validate)
     r = sub.add_parser("run"); r.add_argument("workload", nargs="+"); r.add_argument("--target", required=True)

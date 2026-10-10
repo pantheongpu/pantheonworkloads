@@ -20,6 +20,54 @@ def is_restricted(manifest):
     return isinstance(manifest, dict) and manifest.get("restricted") is True
 
 
+REQUIRES_KEYS = {"gpus", "gpu_memory_gb", "min_compute_capability", "vendor", "interconnect", "notes"}
+VENDORS = {"nvidia", "amd"}
+CAPABILITY = re.compile(r"^\d+\.\d+$")
+
+
+def requirements(manifest):
+    """The normalised `requires` of a manifest: {gpus, gpu_memory_gb, min_compute_capability, vendor, ...}
+    with gpus defaulting to 1, or None when the manifest declares none (any GPU will do)."""
+    req = manifest.get("requires") if isinstance(manifest, dict) else None
+    if not isinstance(req, dict):
+        return None
+    out = dict(req)
+    out.setdefault("gpus", 1)
+    return out
+
+
+def needs_text(req):
+    """Short form for tables: '8 x 80 GiB', '1 x 24 GiB', '2 x any' (no memory requirement); 'any' for no requires."""
+    if not req:
+        return "any"
+    mem = req.get("gpu_memory_gb")
+    return f"{req.get('gpus', 1)} x " + (f"{mem:g} GiB" if mem is not None else "any")
+
+
+def check_requires(req):
+    """Errors for a `requires` value (rules: docs/manifest.md)."""
+    if not isinstance(req, dict):
+        return ["requires must be a mapping"]
+    errors = [f"requires.{k}: unknown key (known: {sorted(REQUIRES_KEYS)})" for k in req if k not in REQUIRES_KEYS]
+    num = lambda v: isinstance(v, (int, float)) and not isinstance(v, bool)
+    if "gpus" in req and not (isinstance(req["gpus"], int) and not isinstance(req["gpus"], bool) and req["gpus"] >= 1):
+        errors.append("requires.gpus must be an integer >= 1")
+    if "gpu_memory_gb" in req and not (num(req["gpu_memory_gb"]) and req["gpu_memory_gb"] > 0):
+        errors.append("requires.gpu_memory_gb must be a positive number (GiB per GPU)")
+    if "min_compute_capability" in req:
+        c = req["min_compute_capability"]
+        if not (isinstance(c, str) and CAPABILITY.match(c)):
+            errors.append('requires.min_compute_capability must be a string "major.minor", e.g. "9.0"')
+        elif req.get("vendor") == "amd":
+            errors.append("requires.min_compute_capability is NVIDIA only (vendor: amd conflicts)")
+    if "vendor" in req and req["vendor"] not in VENDORS:
+        errors.append(f"requires.vendor {req['vendor']!r}: one of {sorted(VENDORS)}")
+    for k in ("interconnect", "notes"):
+        if k in req and not (isinstance(req[k], str) and req[k].strip()):
+            errors.append(f"requires.{k} must be a non-empty string")
+    return errors
+
+
 def check(path):
     """Return (errors, warnings) for one manifest file."""
     path = pathlib.Path(path)
@@ -59,6 +107,9 @@ def check(path):
             errors.append("restricted: true needs a 'model' (the restriction is the model's licence)")
         elif m["restricted"] and not m.get("notes"):
             errors.append("restricted: true needs 'notes' saying which licence or gate applies and what was read")
+
+    if "requires" in m:
+        errors += check_requires(m["requires"])
 
     model = m.get("model")
     # `model: null` written out says "this workload downloads no model" (a pure-compute suite on a runtime).
