@@ -1,0 +1,61 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "cogvideox-5b-bench",
+  "date": "2026-10-10T13:19:39Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA L40S",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "zai-org/CogVideoX-5b (diffusers; 5 pinned weights file(s), as stored)",
+      "revision": "8fc5b281006c82b82d34fd2543d2f0ebb4e7e321 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "custom licence (LICENSE file begins 'The CogVideoX License 1. Definitions \u201cLicensor\u201d means the Co')",
+      "source_url": "https://huggingface.co/zai-org/CogVideoX-5b"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "454bae3d90918131681162f28a18826ba447f5f6",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "peak_gpu_memory_gb": {
+      "median": 36.98,
+      "values": [
+        36.98,
+        36.98,
+        36.98,
+        36.98,
+        36.98
+      ]
+    },
+    "seconds_per_generation": {
+      "median": 142.247,
+      "values": [
+        143.791,
+        143.184,
+        142.247,
+        141.013,
+        141.567
+      ]
+    },
+    "steps_per_s": {
+      "median": 0.211,
+      "values": [
+        0.209,
+        0.21,
+        0.211,
+        0.213,
+        0.212
+      ]
+    }
+  }
+}

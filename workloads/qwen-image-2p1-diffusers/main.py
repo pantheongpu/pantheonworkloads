@@ -1,4 +1,4 @@
-"""qwen-image-2p1-diffusers: Qwen-Image-2.1. Shared body: ../_pytorch/diffusion.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""qwen-image-2p1-diffusers: Qwen-Image-2.1. Shared body: ../_pytorch/diffusion.py (functional and bench modes). Verified on an L40S (stage 2a)."""
 import os
 import sys
 

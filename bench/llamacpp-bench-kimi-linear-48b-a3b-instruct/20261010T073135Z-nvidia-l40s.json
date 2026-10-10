@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-kimi-linear-48b-a3b-instruct",
+  "date": "2026-10-10T07:31:35Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA L40S",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "bartowski/moonshotai_Kimi-Linear-48B-A3B-Instruct-GGUF (moonshotai_Kimi-Linear-48B-A3B-Instruct-Q4_K_M.gguf; Q4_K_M GGUF of moonshotai/Kimi-Linear-48B-A3B-Instruct)",
+      "revision": "228dbe476e5a02091624a19068f4c962caa8a1c5 (HF commit of the GGUF repo); file sha256 a1a7d865370652221f937163f7e94c99e1f114861335ba4f8666606843f1620f; base model moonshotai/Kimi-Linear-48B-A3B-Instruct @ e1df551a447157d4658b573f9a695d57658590e9",
+      "licence": "MIT",
+      "source_url": "https://huggingface.co/bartowski/moonshotai_Kimi-Linear-48B-A3B-Instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "196d4166f82cf24e32c67412a73a198454981b88",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 5155.12,
+      "values": [
+        5098.61,
+        5155.12,
+        5155.12,
+        5130.12,
+        5157.51
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 162.55,
+      "values": [
+        162.51,
+        162.6,
+        162.5,
+        162.55,
+        162.61
+      ]
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-command-r-08-2024",
+  "date": "2026-10-10T06:47:31Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA L40S",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "bartowski/c4ai-command-r-08-2024-GGUF (c4ai-command-r-08-2024-Q4_K_M.gguf; Q4_K_M GGUF of CohereLabs/c4ai-command-r-08-2024)",
+      "revision": "0390adf30f4e73160774db7d8fcd1f6172a16e65 (HF commit of the GGUF repo); file sha256 9fd704afe04c123ce11f9f25709f6b233065853dc346ebc3b7eeff8edc4d20a0; base model CohereLabs/c4ai-command-r-08-2024 @ dc835b893cd3fb8f14b24970dbc2a0a6d3c22ee3",
+      "licence": "CC-BY-NC-4.0",
+      "source_url": "https://huggingface.co/bartowski/c4ai-command-r-08-2024-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "196d4166f82cf24e32c67412a73a198454981b88",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 2581.92,
+      "values": [
+        2573.3,
+        2581.92,
+        2581.98,
+        2582.23,
+        2579.44
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 34.59,
+      "values": [
+        34.59,
+        34.59,
+        34.59,
+        34.59,
+        34.59
+      ]
+    }
+  }
+}

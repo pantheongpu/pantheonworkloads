@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-bench-qwen36-27b: llama-bench tokens/s with Qwen3.6-27B (Q4_K_M GGUF, 17.8 GiB, 1 x 24 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# VERIFIED on an L40S (stage 2a, Tier B; docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

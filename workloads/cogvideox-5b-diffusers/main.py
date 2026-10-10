@@ -1,4 +1,4 @@
-"""cogvideox-5b-diffusers: CogVideoX-5b. Shared body: ../_pytorch/diffusion.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""cogvideox-5b-diffusers: CogVideoX-5b. Shared body: ../_pytorch/diffusion.py (functional and bench modes). Verified on an L40S (stage 2a)."""
 import os
 import sys
 

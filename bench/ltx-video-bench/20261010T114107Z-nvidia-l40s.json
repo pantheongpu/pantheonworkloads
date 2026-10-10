@@ -1,0 +1,61 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "ltx-video-bench",
+  "date": "2026-10-10T11:41:07Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA L40S",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "Lightricks/LTX-Video (diffusers; 7 pinned weights file(s), stored fp32, loaded bf16)",
+      "revision": "8984fa25007f376c1a299016d0957a37a2f797bb (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "custom licence (LICENSE file begins 'LTX Video (\"LTXV\") By Lightricks Ltd. (\"Lightricks\") LTXV Op')",
+      "source_url": "https://huggingface.co/Lightricks/LTX-Video"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "454bae3d90918131681162f28a18826ba447f5f6",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "peak_gpu_memory_gb": {
+      "median": 15.96,
+      "values": [
+        15.96,
+        15.96,
+        15.96,
+        15.96,
+        15.96
+      ]
+    },
+    "seconds_per_generation": {
+      "median": 4.684,
+      "values": [
+        4.65,
+        4.684,
+        4.688,
+        4.73,
+        4.647
+      ]
+    },
+    "steps_per_s": {
+      "median": 6.404,
+      "values": [
+        6.451,
+        6.404,
+        6.399,
+        6.342,
+        6.456
+      ]
+    }
+  }
+}

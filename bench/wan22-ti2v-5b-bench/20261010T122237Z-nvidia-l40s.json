@@ -1,0 +1,61 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "wan22-ti2v-5b-bench",
+  "date": "2026-10-10T12:22:37Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA L40S",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "Wan-AI/Wan2.2-TI2V-5B-Diffusers (diffusers; 9 pinned weights file(s), stored fp32, loaded bf16)",
+      "revision": "b8fff7315c768468a5333511427288870b2e9635 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B-Diffusers"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "454bae3d90918131681162f28a18826ba447f5f6",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "peak_gpu_memory_gb": {
+      "median": 27.65,
+      "values": [
+        27.65,
+        27.65,
+        27.65,
+        27.65,
+        27.65
+      ]
+    },
+    "seconds_per_generation": {
+      "median": 21.914,
+      "values": [
+        21.881,
+        21.883,
+        21.914,
+        22.005,
+        21.989
+      ]
+    },
+    "steps_per_s": {
+      "median": 1.369,
+      "values": [
+        1.371,
+        1.371,
+        1.369,
+        1.363,
+        1.364
+      ]
+    }
+  }
+}

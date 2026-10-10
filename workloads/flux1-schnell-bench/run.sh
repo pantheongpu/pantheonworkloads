@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# flux1-schnell-bench: FLUX.1-schnell (unsloth mirror of the gated official repo) on PyTorch, bench mode. WRITTEN, NEVER RUN (docs/model-registry.md).
+# flux1-schnell-bench: FLUX.1-schnell (unsloth mirror of the gated official repo) on PyTorch, bench mode. VERIFIED on an L40S (stage 2a, Tier B; docs/model-registry.md).
 # Contract: docs/workload-contract.md; PyTorch discovery/install: ../_pytorch/env.sh. Exits 77 when the host lacks the GPUs, the disk,
 # PyTorch or the model download. Real GPUs only.
 set -uo pipefail

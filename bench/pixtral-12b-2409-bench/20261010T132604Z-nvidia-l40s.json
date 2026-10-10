@@ -1,0 +1,61 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "pixtral-12b-2409-bench",
+  "date": "2026-10-10T13:26:04Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA L40S",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "mistral-community/pixtral-12b (vlm; 6 pinned weights file(s), as stored)",
+      "revision": "c2756cbbb9422eba9f6c5c439a214b0392dfc998 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/mistral-community/pixtral-12b"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "454bae3d90918131681162f28a18826ba447f5f6",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "decode_tokens_per_s_b1": {
+      "median": 27.0,
+      "values": [
+        27.0,
+        27.01,
+        27.0,
+        26.96,
+        27.0
+      ]
+    },
+    "peak_gpu_memory_gb": {
+      "median": 25.95,
+      "values": [
+        25.95,
+        25.95,
+        25.95,
+        25.95,
+        25.95
+      ]
+    },
+    "prefill_images_per_s_b1": {
+      "median": 5.932,
+      "values": [
+        5.868,
+        5.92,
+        5.932,
+        5.972,
+        5.971
+      ]
+    }
+  }
+}

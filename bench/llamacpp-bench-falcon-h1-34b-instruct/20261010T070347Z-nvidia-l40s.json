@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-falcon-h1-34b-instruct",
+  "date": "2026-10-10T07:03:47Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA L40S",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "tiiuae/Falcon-H1-34B-Instruct-GGUF (Falcon-H1-34B-Instruct-Q4_K_M.gguf; Q4_K_M GGUF of tiiuae/Falcon-H1-34B-Instruct)",
+      "revision": "ceb29e9c241944eb64c44325972c4e9470271d92 (HF commit of the GGUF repo); file sha256 9f7fcda8783567bf0b28eceba6d558046a89d191b4052099ba4d99ce70e91f8e; base model tiiuae/Falcon-H1-34B-Instruct @ 6e6890e26cba1f58b1e6ee70d654ddf054f9fce8",
+      "licence": "Falcon LLM License",
+      "source_url": "https://huggingface.co/tiiuae/Falcon-H1-34B-Instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "196d4166f82cf24e32c67412a73a198454981b88",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 2183.57,
+      "values": [
+        2138.18,
+        2183.57,
+        2180.76,
+        2188.55,
+        2190.52
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 29.32,
+      "values": [
+        29.32,
+        29.32,
+        29.32,
+        29.32,
+        29.32
+      ]
+    }
+  }
+}
