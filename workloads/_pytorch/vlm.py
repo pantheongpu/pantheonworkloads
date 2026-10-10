@@ -26,7 +26,26 @@ BENCH_NEW = 128
 BENCH_REPS = 5
 
 
-def run(model_id, revision, dtype="float16", new=32, margin=0.1, label=None, prompt=PROMPT):
+TEXT_LINES = ["The quick brown fox", "jumps over 13 lazy dogs."]   # the OCR workloads read this (drawn at run time, never stored)
+
+
+def text_image():
+    """A white page with TEXT_LINES in Pillow's built-in font: the input of the OCR workloads (no file to fetch or license)."""
+    from PIL import Image, ImageDraw, ImageFont
+    img = Image.new("RGB", (768, 256), "white")
+    draw = ImageDraw.Draw(img)
+    font = ImageFont.load_default(size=40)
+    for i, line in enumerate(TEXT_LINES):
+        draw.text((24, 36 + 80 * i), line, fill="black", font=font)
+    return img
+
+
+def run(model_id, revision, dtype="float16", new=32, margin=0.1, label=None, prompt=PROMPT, image="astronaut",
+        expect=None, extra_allow=(), device_map=None, exact_weights=False):
+    """image: "astronaut" (the pinned public-domain photo) or "text" (text_image()). expect: words that must be in the
+    output (an OCR model that cannot read two lines of text fails the run, whatever a reference says). extra_allow:
+    more file patterns to download. device_map: how to place the model (default: the one device; "auto" splits it
+    over every visible GPU and fails when anything would be offloaded to the CPU)."""
     mode = os.environ.get("PW_VLM_MODE", "functional")
     margin = float(os.environ.get("PW_VLM_MARGIN", margin))
     dtype = os.environ.get("PW_VLM_DTYPE", dtype)
@@ -41,21 +60,31 @@ def run(model_id, revision, dtype="float16", new=32, margin=0.1, label=None, pro
 
     rev = os.environ.get("PW_HF_REVISION") or revision
     cache_root = os.environ.get("PW_CACHE", os.path.expanduser("~/.cache/pantheonworkloads"))
+    # exact_weights (the model-catalog workloads): download only the weights files model.sha256 lists, not every *.safetensors of the repository
+    exact = [n for n in pinned.read_sums(os.path.join(os.environ["PW_WORKLOAD_DIR"], "model.sha256")) if n.endswith(".safetensors")] if exact_weights else []
     path = common.hf_load(lambda m, r, c: snapshot_download(
-        m, revision=r, cache_dir=c, allow_patterns=["*.json", "*.txt", "*.safetensors"]), model_id, rev)
+        m, revision=r, cache_dir=c, allow_patterns=["*.json", "*.txt", *(exact if exact_weights and not os.environ.get("PW_HF_REVISION") else ["*.safetensors"]), *extra_allow]), model_id, rev)
     if not os.environ.get("PW_HF_REVISION"):
         for name, want in pinned.read_sums(os.path.join(os.environ["PW_WORKLOAD_DIR"], "model.sha256")).items():
             if name.endswith(".safetensors"):
                 got = pinned.sha256_file(os.path.join(path, name))
                 if got != want:
                     sys.exit(f"{name} has sha256 {got}, the pin is {want}")
-    img_path = common.hf_load(lambda m, r, c: pinned.fetch_asset(
-        IMAGE_URL, IMAGE_SHA256, os.path.join(cache_root, "assets", "astronaut.png")), "astronaut.png", None)
-    image = Image.open(img_path).convert("RGB")
+    if image == "text":
+        pic = text_image()
+    else:
+        img_path = common.hf_load(lambda m, r, c: pinned.fetch_asset(
+            IMAGE_URL, IMAGE_SHA256, os.path.join(cache_root, "assets", "astronaut.png")), "astronaut.png", None)
+        pic = Image.open(img_path).convert("RGB")
+    image = pic
 
     t0 = time.perf_counter()
     processor = AutoProcessor.from_pretrained(path)
-    model = AutoModelForImageTextToText.from_pretrained(path, dtype=getattr(torch, dtype), device_map=common.DEVICE).eval()
+    dmap = os.environ.get("PW_VLM_DEVICE_MAP") or device_map or common.DEVICE
+    model = AutoModelForImageTextToText.from_pretrained(path, dtype=getattr(torch, dtype), device_map=dmap).eval()
+    placed = getattr(model, "hf_device_map", None)
+    if placed and any(str(v) in ("cpu", "disk") for v in placed.values()):
+        sys.exit(f"device_map {dmap!r} offloaded part of {model_id} to the CPU or disk: not enough GPU memory (see requires in the manifest)")
     load_s = time.perf_counter() - t0
 
     messages = [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": prompt_text}]}]
@@ -79,6 +108,11 @@ def run(model_id, revision, dtype="float16", new=32, margin=0.1, label=None, pro
             sys.exit(f"step {step}: non-finite logits in {dtype}")
         gaps.append(common.margin_ok(top, f"step {step}", margin))
     text = processor.batch_decode([new_ids], skip_special_tokens=True)[0].strip()
+    if expect:
+        low = " ".join(text.lower().split())
+        missing = [w for w in expect if w.lower() not in low]
+        if missing:
+            sys.exit(f"the output {text!r} lacks {missing}: the model did not read the text it was shown")
     out = {"text": text, "token_ids": " ".join(map(str, new_ids))}
     metrics = {}
     if mode == "bench":

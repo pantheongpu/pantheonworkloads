@@ -1,0 +1,18 @@
+name: llamacpp-step-3p7-flash
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Step-3.7-Flash (IQ4_XS GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 4773
+requires:
+  gpus: 2
+  gpu_memory_gb: 80
+  notes: "weights 97.8 GiB; 97.8/2*1.05 + 3 = 54.3 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 2 x 80"
+model:
+  id: "stepfun-ai/Step-3.7-Flash-GGUF (Step-3.7-flash-IQ4_XS-00001-of-00003.gguf + 2 more shard(s); IQ4_XS GGUF of stepfun-ai/Step-3.7-Flash)"
+  revision: "0b69336d2fd2adfdef9c66e425f7778196c31482 (HF commit of the GGUF repo); 3 file(s), model.sha256 lists them; base model stepfun-ai/Step-3.7-Flash @ 5f6244077ac62e04eec3f320501ff8c2b293373a"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/stepfun-ai/Step-3.7-Flash-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 3 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: stepfun-ai/Step-3.7-Flash@5f624407; card license: apache-2.0 | downloaded repository stepfun-ai/Step-3.7-Flash-GGUF@0b69336d; card license: apache-2.0; its card carries a licence agreement text: False. Hardware: requires 2 x 80 GiB (single node); weights 97.8 GiB; 97.8/2*1.05 + 3 = 54.3 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 2 x 80. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'step35', which the pinned source lists), the output, speed, real memory use. No reference.json."

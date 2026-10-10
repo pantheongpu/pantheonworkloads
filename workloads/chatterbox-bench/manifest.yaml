@@ -1,0 +1,16 @@
+name: chatterbox-bench
+description: "Chatterbox (Resemble AI): throughput and peak GPU memory (tts)."
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 7270
+requires:
+  gpus: 1
+  gpu_memory_gb: 10
+  notes: "weights 3.0 GiB; 3.0/1*1.1 + 4 = 7.3 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10"
+model:
+  id: "ResembleAI/chatterbox (tts; 4 pinned weights file(s), as stored)"
+  revision: "5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "MIT"
+  source_url: https://huggingface.co/ResembleAI/chatterbox
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 4 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: ResembleAI/chatterbox@5bb1f6ee; card license: mit. Hardware: requires 1 x 10 GiB (single node); weights 3.0 GiB; 3.0/1*1.1 + 4 = 7.3 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10. These margins are assumptions, not measurements. Task: synthesise one fixed sentence; the waveform is checked (finite, 1 s or longer, not silent), output = duration rounded to 0.5 s and the RMS level, abs tolerance 0.03. The generator is sampled, so this is a plausibility check, not a regression test of the audio. Bench mode of the same script: metrics are throughput and peak memory after warm-up; model load excluded. Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json, no bench record."

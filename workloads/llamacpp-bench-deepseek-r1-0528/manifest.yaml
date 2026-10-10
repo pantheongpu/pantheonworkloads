@@ -1,0 +1,17 @@
+name: llamacpp-bench-deepseek-r1-0528
+description: "llama-bench prompt-processing and token-generation tokens/s for DeepSeek-R1-0528 (Q4_K_M GGUF, 8 x 80 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 16250
+requires:
+  gpus: 8
+  gpu_memory_gb: 80
+  notes: "weights 377.1 GiB; 377.1/8*1.05 + 3 = 52.5 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 8 x 80"
+model:
+  id: "unsloth/DeepSeek-R1-0528-GGUF (DeepSeek-R1-0528-Q4_K_M-00001-of-00009.gguf + 8 more shard(s); Q4_K_M GGUF of deepseek-ai/DeepSeek-R1-0528)"
+  revision: "72f5d5bd7f0821bc0be039b094cc1501bdbf232a (HF commit of the GGUF repo); 9 file(s), model.sha256 lists them; base model deepseek-ai/DeepSeek-R1-0528 @ 4236a6af538feda4548eca9ab308586007567f52"
+  licence: "MIT"
+  source_url: https://huggingface.co/unsloth/DeepSeek-R1-0528-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 9 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: deepseek-ai/DeepSeek-R1-0528@4236a6af; card license: mit; LICENSE begins 'MIT License Copyright (c) 2023 DeepSeek Permission is hereby granted, free of charge, to a' | downloaded repository unsloth/DeepSeek-R1-0528-GGUF@72f5d5bd; card license: mit; its card carries a licence agreement text: False. Hardware: requires 8 x 80 GiB (single node); weights 377.1 GiB; 377.1/8*1.05 + 3 = 52.5 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 8 x 80. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'deepseek2', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

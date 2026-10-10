@@ -1,0 +1,19 @@
+name: llamacpp-llama4-maverick-17b-128e-instruct
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Llama-4-Maverick-17B-128E-Instruct (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 6313
+restricted: true
+requires:
+  gpus: 4
+  gpu_memory_gb: 80
+  notes: "weights 226.1 GiB; 226.1/4*1.05 + 3 = 62.3 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80"
+model:
+  id: "unsloth/Llama-4-Maverick-17B-128E-Instruct-GGUF (Llama-4-Maverick-17B-128E-Instruct-Q4_K_M-00001-of-00005.gguf + 4 more shard(s); Q4_K_M GGUF of meta-llama/Llama-4-Maverick-17B-128E-Instruct)"
+  revision: "41032e5471dd6ea5b349062d978626215d6c5bba (HF commit of the GGUF repo); 5 file(s), model.sha256 lists them; base model meta-llama/Llama-4-Maverick-17B-128E-Instruct @ 73d14711bcc77c16df3470856949c3764056b617"
+  licence: "Llama 4 Community License"
+  source_url: https://huggingface.co/unsloth/Llama-4-Maverick-17B-128E-Instruct-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 5 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Llama 4 Community License. Read 2026-10-09 from the Hub without credentials: meta-llama/Llama-4-Maverick-17B-128E-Instruct@73d14711; card license: other, license_name: llama4; GATED (manual): only the API tags were readable | public licence text https://raw.githubusercontent.com/meta-llama/llama-models/0e0b8c519242d5833d8c11bffc1232b77ad7f301/models/llama4/LICENSE begins 'LLAMA 4 COMMUNITY LICENSE AGREEMENT Llama 4 Version Effective Date: April 5, 2025 “Agreement” means ' | downloaded repository unsloth/Llama-4-Maverick-17B-128E-Instruct-GGUF@41032e54; card license: other, license_name: llama4; its card carries a licence agreement text: True. RESTRICTED: Llama 4 Community License is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 4 x 80 GiB (single node); weights 226.1 GiB; 226.1/4*1.05 + 3 = 62.3 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80. These margins are assumptions, not measurements. Third-party conversion: the official meta-llama/Llama-4-Maverick-17B-128E-Instruct is gated (manual); the files come from unsloth/Llama-4-Maverick-17B-128E-Instruct-GGUF, which is not gated, and whose card was read for the licence text. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'llama4', which the pinned source lists), the output, speed, real memory use. No reference.json."

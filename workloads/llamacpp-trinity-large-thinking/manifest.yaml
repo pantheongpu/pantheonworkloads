@@ -1,0 +1,19 @@
+name: llamacpp-trinity-large-thinking
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Trinity-Large-Thinking (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 6302
+restricted: true
+requires:
+  gpus: 4
+  gpu_memory_gb: 80
+  notes: "weights 225.2 GiB; 225.2/4*1.05 + 3 = 62.1 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80"
+model:
+  id: "arcee-ai/Trinity-Large-Thinking-GGUF (Trinity-Large-Thinking-Q4_K_M-00001-of-00007.gguf + 6 more shard(s); Q4_K_M GGUF of arcee-ai/Trinity-Large-Thinking)"
+  revision: "352ed5f50f0148466e596950c29aecb51bed4cb3 (HF commit of the GGUF repo); 7 file(s), model.sha256 lists them; base model arcee-ai/Trinity-Large-Thinking @ dc6a99b6b74202880e31491a445a94884c97890c"
+  licence: "OpenMDW-1.1"
+  source_url: https://huggingface.co/arcee-ai/Trinity-Large-Thinking-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 7 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: OpenMDW-1.1. Read 2026-10-09 from the Hub without credentials: arcee-ai/Trinity-Large-Thinking@dc6a99b6; card license: other, license_name: openmdw-1.1, license_link: LICENSE; LICENSE begins 'OpenMDW License Agreement, version 1.1 (OpenMDW-1.1) By exercising rights granted to you u'; card licence section: 'Trinity-Large-Thinking is released under the OpenMDW License, version 1.1 (OpenMDW-1.1).' | downloaded repository arcee-ai/Trinity-Large-Thinking-GGUF@352ed5f5; card license: other, license_name: openmdw-1.1, license_link: LICENSE; LICENSE begins 'OpenMDW License Agreement, version 1.1 (OpenMDW-1.1) By exercising rights granted to you u'; card licence section: 'Trinity-Large-Thinking-GGUF is released under the OpenMDW License, version 1.1 (OpenMDW-1.1).'; its card carries a licence agreement text: False. RESTRICTED: OpenMDW-1.1 is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 4 x 80 GiB (single node); weights 225.2 GiB; 225.2/4*1.05 + 3 = 62.1 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'afmoe', which the pinned source lists), the output, speed, real memory use. No reference.json."

@@ -1,0 +1,17 @@
+name: llamacpp-bench-deepseek-r1-distill-qwen-32b
+description: "llama-bench prompt-processing and token-generation tokens/s for DeepSeek-R1-Distill-Qwen-32B (Q4_K_M GGUF, 1 x 24 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7642
+requires:
+  gpus: 1
+  gpu_memory_gb: 24
+  notes: "weights 18.5 GiB; 18.5/1*1.05 + 3 = 22.4 GiB per GPU; smallest class holding it at 98% usable: 24 GiB; 1 x 24"
+model:
+  id: "unsloth/DeepSeek-R1-Distill-Qwen-32B-GGUF (DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf; Q4_K_M GGUF of deepseek-ai/DeepSeek-R1-Distill-Qwen-32B)"
+  revision: "1938d05cc893a60f37be1dc16e7465038f4fca63 (HF commit of the GGUF repo); file sha256 ca171ca03554ee20cf67ad6b540610ae7eabb95af00c0abd36bb73542e140fb5; base model deepseek-ai/DeepSeek-R1-Distill-Qwen-32B @ 711ad2ea6aa40cfca18895e8aca02ab92df1a746"
+  licence: "MIT"
+  source_url: https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-32B-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B@711ad2ea; card license: mit; LICENSE begins 'MIT License Copyright (c) 2023 DeepSeek Permission is hereby granted, free of charge, to a' | downloaded repository unsloth/DeepSeek-R1-Distill-Qwen-32B-GGUF@1938d05c; card license: apache-2.0; its card carries a licence agreement text: False. Note: the two cards disagree (mit vs apache-2.0); the more restrictive is recorded. Hardware: requires 1 x 24 GiB (single node); weights 18.5 GiB; 18.5/1*1.05 + 3 = 22.4 GiB per GPU; smallest class holding it at 98% usable: 24 GiB; 1 x 24. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'qwen2', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

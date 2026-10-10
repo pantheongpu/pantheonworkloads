@@ -1,0 +1,18 @@
+name: llamacpp-qwen35-397b-a17b
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Qwen3.5-397B-A17B (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 6327
+requires:
+  gpus: 4
+  gpu_memory_gb: 80
+  notes: "weights 227.3 GiB; 227.3/4*1.05 + 3 = 62.7 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80"
+model:
+  id: "unsloth/Qwen3.5-397B-A17B-GGUF (Qwen3.5-397B-A17B-Q4_K_M-00001-of-00006.gguf + 5 more shard(s); Q4_K_M GGUF of Qwen/Qwen3.5-397B-A17B)"
+  revision: "da33c16fa4440f831149fcf53b98a22bc07785e5 (HF commit of the GGUF repo); 6 file(s), model.sha256 lists them; base model Qwen/Qwen3.5-397B-A17B @ 8472618112abcbd45acbcdc58436aff4233c23f7"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/unsloth/Qwen3.5-397B-A17B-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 6 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: Qwen/Qwen3.5-397B-A17B@84726181; card license: apache-2.0, license_link: https://huggingface.co/Qwen/Qwen3.5-397B-A17B/blob/main/LICENSE; LICENSE begins 'Apache License Version 2.0, January 2004 http://www.apache.org/licenses/ TERMS AND CONDITI' | downloaded repository unsloth/Qwen3.5-397B-A17B-GGUF@da33c16f; card license: apache-2.0, license_link: https://huggingface.co/Qwen/Qwen3.5-397B-A17B/blob/main/LICENSE; its card carries a licence agreement text: False. Hardware: requires 4 x 80 GiB (single node); weights 227.3 GiB; 227.3/4*1.05 + 3 = 62.7 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'qwen35moe', which the pinned source lists), the output, speed, real memory use. No reference.json."

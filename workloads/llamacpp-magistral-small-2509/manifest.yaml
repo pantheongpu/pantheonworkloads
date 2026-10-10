@@ -1,0 +1,18 @@
+name: llamacpp-magistral-small-2509
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Magistral-Small-2509 (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 3760
+requires:
+  gpus: 1
+  gpu_memory_gb: 22
+  notes: "weights 13.3 GiB; 13.3/1*1.05 + 3 = 17.0 GiB per GPU; smallest class holding it at 98% usable: 22 GiB; 1 x 22"
+model:
+  id: "mistralai/Magistral-Small-2509-GGUF (Magistral-Small-2509-Q4_K_M.gguf; Q4_K_M GGUF of mistralai/Magistral-Small-2509)"
+  revision: "429b90d8a8f0037241db6fab46a20b0f90859b03 (HF commit of the GGUF repo); file sha256 d3a024d29e0e8f35d9353f5d4f08fc3715406835c8ae1328ce2f3bd212a43434; base model mistralai/Magistral-Small-2509 @ a31cc96ab10cf19bc42c628fedf1e359e0853c49"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/mistralai/Magistral-Small-2509-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: mistralai/Magistral-Small-2509@a31cc96a; card license: apache-2.0 | downloaded repository mistralai/Magistral-Small-2509-GGUF@429b90d8; card license: apache-2.0; its card carries a licence agreement text: False. Hardware: requires 1 x 22 GiB (single node); weights 13.3 GiB; 13.3/1*1.05 + 3 = 17.0 GiB per GPU; smallest class holding it at 98% usable: 22 GiB; 1 x 22. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'llama', which the pinned source lists), the output, speed, real memory use. No reference.json."

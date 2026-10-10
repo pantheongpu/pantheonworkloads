@@ -1,0 +1,18 @@
+name: llamacpp-qwen3-next-80b-a3b-instruct
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Qwen3-Next-80B-A3B-Instruct (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 4141
+requires:
+  gpus: 1
+  gpu_memory_gb: 80
+  notes: "weights 45.1 GiB; 45.1/1*1.05 + 3 = 50.3 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80"
+model:
+  id: "Qwen/Qwen3-Next-80B-A3B-Instruct-GGUF (Qwen3-Next-80B-A3B-Instruct-Q4_K_M.gguf; Q4_K_M GGUF of Qwen/Qwen3-Next-80B-A3B-Instruct)"
+  revision: "4c8630cf7af926a9c5095cb4bbbbc65d36e20f77 (HF commit of the GGUF repo); file sha256 d103b2733ec1012a52d01edda66b7e5c24ae50508c9f99f5297ea459ef3c061a; base model Qwen/Qwen3-Next-80B-A3B-Instruct @ 9c7f2fbe84465e40164a94cc16cd30b6999b0cc7"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: Qwen/Qwen3-Next-80B-A3B-Instruct@9c7f2fbe; card license: apache-2.0, license_link: https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct/blob/main/LICENSE; LICENSE begins 'Apache License Version 2.0, January 2004 http://www.apache.org/licenses/ TERMS AND CONDITI' | downloaded repository Qwen/Qwen3-Next-80B-A3B-Instruct-GGUF@4c8630cf; card license: apache-2.0, license_link: https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct/blob/main/LICENSE; its card carries a licence agreement text: False. Hardware: requires 1 x 80 GiB (single node); weights 45.1 GiB; 45.1/1*1.05 + 3 = 50.3 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'qwen3next', which the pinned source lists), the output, speed, real memory use. No reference.json."

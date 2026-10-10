@@ -1,0 +1,19 @@
+name: llamacpp-nemotron-3-ultra-550b-a55b
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from NVIDIA-Nemotron-3-Ultra-550B-A55B (UD-Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 7614
+restricted: true
+requires:
+  gpus: 8
+  gpu_memory_gb: 48
+  notes: "weights 334.6 GiB; 334.6/8*1.05 + 3 = 46.9 GiB per GPU; smallest class holding it at 98% usable: 48 GiB; 8 x 48"
+model:
+  id: "unsloth/NVIDIA-Nemotron-3-Ultra-550B-A55B-GGUF (NVIDIA-Nemotron-3-Ultra-550B-A55B-UD-Q4_K_M-00001-of-00009.gguf + 8 more shard(s); UD-Q4_K_M GGUF of nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16)"
+  revision: "2fb7d5b3f4eae7aedb18b4839b6a6300111e46f6 (HF commit of the GGUF repo); 9 file(s), model.sha256 lists them; base model nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16 @ 77df655d5e9f8362164ed14dd8b48f8bce657498"
+  licence: "OpenMDW-1.1"
+  source_url: https://huggingface.co/unsloth/NVIDIA-Nemotron-3-Ultra-550B-A55B-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 9 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: OpenMDW-1.1. Read 2026-10-09 from the Hub without credentials: nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16@77df655d; card license: other, license_name: openmdw-1.1, license_link: https://openmdw.ai/license/1-1/ | downloaded repository unsloth/NVIDIA-Nemotron-3-Ultra-550B-A55B-GGUF@2fb7d5b3; card license: other, license_name: openmdw-1.1, license_link: https://openmdw.ai/license/1-1/; its card carries a licence agreement text: True. RESTRICTED: OpenMDW-1.1 is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 8 x 48 GiB (single node); weights 334.6 GiB; 334.6/8*1.05 + 3 = 46.9 GiB per GPU; smallest class holding it at 98% usable: 48 GiB; 8 x 48. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'nemotron_h_moe', which the pinned source lists), the output, speed, real memory use. No reference.json."

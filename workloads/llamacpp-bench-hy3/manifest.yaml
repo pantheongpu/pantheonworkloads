@@ -1,0 +1,17 @@
+name: llamacpp-bench-hy3
+description: "llama-bench prompt-processing and token-generation tokens/s for Tencent Hy3 (Q4_K_M GGUF, 4 x 80 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 11270
+requires:
+  gpus: 4
+  gpu_memory_gb: 80
+  notes: "weights 169.6 GiB; 169.6/4*1.05 + 3 = 47.5 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80"
+model:
+  id: "bartowski/Hy3-GGUF (Hy3-Q4_K_M-00001-of-00005.gguf + 4 more shard(s); Q4_K_M GGUF of tencent/Hy3)"
+  revision: "3ee5a3c4d76226edd9cdaec017969d24b589b64e (HF commit of the GGUF repo); 5 file(s), model.sha256 lists them; base model tencent/Hy3 @ a960ebc3da325ba167f069f76c41eb62c9280d22"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/bartowski/Hy3-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 5 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: tencent/Hy3@a960ebc3; card license: apache-2.0; LICENSE begins 'Tencent is pleased to support the open source community by making Tencent Hy3 available. C'; card licence section: 'Hy3 is released under the **Apache License 2.0**. See [LICENSE](https://huggingface.co/tencent/Hy3/b' | downloaded repository bartowski/Hy3-GGUF@3ee5a3c4; card license: apache-2.0; its card carries a licence agreement text: False. Hardware: requires 4 x 80 GiB (single node); weights 169.6 GiB; 169.6/4*1.05 + 3 = 47.5 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'hy_v3', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

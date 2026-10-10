@@ -1,0 +1,19 @@
+name: llamacpp-command-r-08-2024
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from c4ai-command-r-08-2024 (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 3821
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 24
+  notes: "weights 18.4 GiB; 18.4/1*1.05 + 3 = 22.4 GiB per GPU; smallest class holding it at 98% usable: 24 GiB; 1 x 24"
+model:
+  id: "bartowski/c4ai-command-r-08-2024-GGUF (c4ai-command-r-08-2024-Q4_K_M.gguf; Q4_K_M GGUF of CohereLabs/c4ai-command-r-08-2024)"
+  revision: "0390adf30f4e73160774db7d8fcd1f6172a16e65 (HF commit of the GGUF repo); file sha256 9fd704afe04c123ce11f9f25709f6b233065853dc346ebc3b7eeff8edc4d20a0; base model CohereLabs/c4ai-command-r-08-2024 @ dc835b893cd3fb8f14b24970dbc2a0a6d3c22ee3"
+  licence: "CC-BY-NC-4.0"
+  source_url: https://huggingface.co/bartowski/c4ai-command-r-08-2024-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: CC-BY-NC-4.0. Read 2026-10-09 from the Hub without credentials: CohereLabs/c4ai-command-r-08-2024@dc835b89; card license: cc-by-nc-4.0; GATED (auto): only the API tags were readable | downloaded repository bartowski/c4ai-command-r-08-2024-GGUF@0390adf3; card license: cc-by-nc-4.0; its card carries a licence agreement text: True. RESTRICTED: CC-BY-NC-4.0 is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 24 GiB (single node); weights 18.4 GiB; 18.4/1*1.05 + 3 = 22.4 GiB per GPU; smallest class holding it at 98% usable: 24 GiB; 1 x 24. These margins are assumptions, not measurements. Third-party conversion: the official CohereLabs/c4ai-command-r-08-2024 is gated (auto); the files come from bartowski/c4ai-command-r-08-2024-GGUF, which is not gated, and whose card was read for the licence text. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'command-r', which the pinned source lists), the output, speed, real memory use. No reference.json."

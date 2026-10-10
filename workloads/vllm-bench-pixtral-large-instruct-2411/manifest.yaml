@@ -1,0 +1,17 @@
+name: vllm-bench-pixtral-large-instruct-2411
+description: "vLLM's own throughput benchmark on Pixtral-Large-Instruct-2411 (4 x 80 GiB)."
+kind: benchmark
+runtime: vllm
+targets: [gpu]
+timeout_s: 12748
+restricted: true
+requires:
+  gpus: 4
+  gpu_memory_gb: 80
+  notes: "weights 231.2 GiB; (231.2/4 + 6)/0.9 = 70.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80"
+model:
+  id: "mistralai/Pixtral-Large-Instruct-2411 (vLLM, tensor parallel 4, as stored (Mistral format); 52 weights file(s))"
+  revision: "c1e51f6f11974a1199685d35c62f5a425c2d001e (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Mistral Research License"
+  source_url: https://huggingface.co/mistralai/Pixtral-Large-Instruct-2411
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 52 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Mistral Research License. Read 2026-10-09 from the Hub without credentials: mistralai/Pixtral-Large-Instruct-2411@c1e51f6f; card license: other, license_name: mrl, license_link: https://mistral.ai/licenses/MRL-0.1.md. RESTRICTED: Mistral Research License is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 4 x 80 GiB (single node); weights 231.2 GiB; (231.2/4 + 6)/0.9 = 70.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80. These margins are assumptions, not measurements. Task: `vllm bench throughput` (vLLM v0.30.0) on the verified local snapshot: random dataset, 64 prompts of 128 input and 128 output tokens, --max-model-len 4096, tensor parallel = requires.gpus; metrics requests_per_s, total_tokens_per_s, output_tokens_per_s. Real GPUs only. Not verified: that vLLM v0.30.0 loads this checkpoint on the GPUs it will meet (the config declares architecture None, which the pinned registry lists; Mistral-format repositories carry no config.json, so the architecture was not checked), quantisation kernels for the GPU generation, the output, speed. No reference.json, no bench record."

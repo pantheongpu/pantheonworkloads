@@ -1,0 +1,16 @@
+name: cogvideox-2b-bench
+description: "CogVideoX-2b: throughput and peak GPU memory (diffusers)."
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 7506
+requires:
+  gpus: 1
+  gpu_memory_gb: 40
+  notes: "weights 12.8 GiB; max(8.9 largest component, 12.8/1) + 16 = 28.8 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40"
+model:
+  id: "zai-org/CogVideoX-2b (diffusers; 4 pinned weights file(s), as stored)"
+  revision: "1137dacfc2c9c012bed6a0793f4ecf2ca8e7ba01 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/zai-org/CogVideoX-2b
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 4 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: zai-org/CogVideoX-2b@1137dacf; card license: apache-2.0; LICENSE begins 'Apache License Version 2.0, January 2004 http://www.apache.org/licenses/ TERMS AND CONDITI'. Hardware: requires 1 x 40 GiB (single node); weights 12.8 GiB; max(8.9 largest component, 12.8/1) + 16 = 28.8 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40. These margins are assumptions, not measurements. Task: one video from a fixed prompt and seed (30 steps, guidance 6.0); the output is statistics (channel mean/std, 8x8 block means, gradients, frame-to-frame change), never pixels, with an abs tolerance that is a guess until two GPUs have been compared. Weights are loaded bf16; with more than one GPU diffusers' device_map=balanced places whole components, so the largest component must fit one GPU. Bench mode of the same script: metrics are throughput and peak memory after warm-up; model load excluded. Architecture CogVideoXPipeline is listed by the pinned runtime (diffusers 0.41.0 pipelines). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json, no bench record."

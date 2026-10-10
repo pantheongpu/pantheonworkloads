@@ -1,0 +1,18 @@
+name: llamacpp-glm47
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from GLM-4.7 (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 6019
+requires:
+  gpus: 4
+  gpu_memory_gb: 80
+  notes: "weights 201.6 GiB; 201.6/4*1.05 + 3 = 55.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80"
+model:
+  id: "unsloth/GLM-4.7-GGUF (GLM-4.7-Q4_K_M-00001-of-00005.gguf + 4 more shard(s); Q4_K_M GGUF of zai-org/GLM-4.7)"
+  revision: "70deda3fcbe622671ff2111d7c0c7392f618e3b0 (HF commit of the GGUF repo); 5 file(s), model.sha256 lists them; base model zai-org/GLM-4.7 @ 602d01efcdd332c5238ca4bcede555defbe83eb7"
+  licence: "MIT"
+  source_url: https://huggingface.co/unsloth/GLM-4.7-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 5 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: zai-org/GLM-4.7@602d01ef; card license: mit | downloaded repository unsloth/GLM-4.7-GGUF@70deda3f; card license: mit; its card carries a licence agreement text: False. Hardware: requires 4 x 80 GiB (single node); weights 201.6 GiB; 201.6/4*1.05 + 3 = 55.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'glm4moe', which the pinned source lists), the output, speed, real memory use. No reference.json."

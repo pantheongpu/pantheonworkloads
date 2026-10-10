@@ -1,0 +1,6 @@
+# Qwen/Qwen3-Reranker-8B @ 77d193c791ed757ca307ee72715aa132723da912 (LFS oids from the Hub API, read 2026-10-09; never downloaded when this was written)
+22cdfea4a13b7b3e866573800eeeb638fc38962940adf631d06dc03befed047a  model-00001-of-00005.safetensors
+d2163b74137e35b4614bd2aa5bf27bcb07de4ca61c6962495feb968385eb0df8  model-00002-of-00005.safetensors
+a5038caa78c817e8acce6806104869675938a33fd4e60ed038e9931d390d6989  model-00003-of-00005.safetensors
+247f85538c5996d4c296291b0e4004f618c9b17ca8cdc25d1fc726567eb15803  model-00004-of-00005.safetensors
+8ba41b93c2e4ec8339ad16b000bc977fde196aeac054956cbfc8c0186ee6d4cf  model-00005-of-00005.safetensors

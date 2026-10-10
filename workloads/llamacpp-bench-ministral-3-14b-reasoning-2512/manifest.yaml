@@ -1,0 +1,17 @@
+name: llamacpp-bench-ministral-3-14b-reasoning-2512
+description: "llama-bench prompt-processing and token-generation tokens/s for Ministral-3-14B-Reasoning-2512 (Q8_0 GGUF, 1 x 22 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7520
+requires:
+  gpus: 1
+  gpu_memory_gb: 22
+  notes: "weights 13.4 GiB; 13.4/1*1.05 + 3 = 17.0 GiB per GPU; smallest class holding it at 98% usable: 22 GiB; 1 x 22"
+model:
+  id: "mistralai/Ministral-3-14B-Reasoning-2512-GGUF (Ministral-3-14B-Reasoning-2512-Q8_0.gguf; Q8_0 GGUF of mistralai/Ministral-3-14B-Reasoning-2512)"
+  revision: "fe3b038f30334729263d860d5dadbaa34e0f2a18 (HF commit of the GGUF repo); file sha256 54fabf5972dcc410c3ccafa8da3ef4e652048dcaa833b73cf6625217679a606d; base model mistralai/Ministral-3-14B-Reasoning-2512 @ 51f9210f3cd20f3452a80d5819d15dc61cc50630"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/mistralai/Ministral-3-14B-Reasoning-2512-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: mistralai/Ministral-3-14B-Reasoning-2512@51f9210f; card license: apache-2.0; card licence section: 'This model is licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0.tx' | downloaded repository mistralai/Ministral-3-14B-Reasoning-2512-GGUF@fe3b038f; card license: apache-2.0; card licence section: 'This model is licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0.tx'; its card carries a licence agreement text: False. Hardware: requires 1 x 22 GiB (single node); weights 13.4 GiB; 13.4/1*1.05 + 3 = 17.0 GiB per GPU; smallest class holding it at 98% usable: 22 GiB; 1 x 22. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'mistral3', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

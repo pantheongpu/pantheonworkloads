@@ -1,0 +1,17 @@
+name: paddleocr-vl-pytorch
+description: "PaddleOCR-VL reads text drawn at run time with greedy decoding."
+kind: functional
+runtime: pytorch
+targets: [gpu]
+compare: exact
+timeout_s: 3621
+requires:
+  gpus: 1
+  gpu_memory_gb: 10
+  notes: "weights 1.8 GiB; 1.8/1*1.1 + 4 = 6.0 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10"
+model:
+  id: "PaddlePaddle/PaddleOCR-VL (vlm; 1 pinned weights file(s), as stored)"
+  revision: "7fa00a8c55b735ba51ba49a9058f3f9c57a99a11 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/PaddlePaddle/PaddleOCR-VL
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: PaddlePaddle/PaddleOCR-VL@7fa00a8c; card license: apache-2.0; LICENSE begins 'Apache License Version 2.0, January 2004 http://www.apache.org/licenses/ TERMS AND CONDITI'. Hardware: requires 1 x 10 GiB (single node); weights 1.8 GiB; 1.8/1*1.1 + 4 = 6.0 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10. These margins are assumptions, not measurements. Task: reads two lines of text drawn at run time with Pillow (\"The quick brown fox\" / \"jumps over 13 lazy dogs.\") with greedy decoding; the run also fails when the words quick, brown and fox are not in the output, whatever a reference says; text and token ids compared exactly; a decoding step whose top-1 and top-2 logits are within 0.5 (bf16 noise) fails the run. Weights are loaded bf16 with device_map=auto and the run fails if anything would be offloaded to the CPU. bf16 reasoned, not measured. If the model's processor or chat template differs from the generic image+text chat message, the first real run will fail and need a model-specific prompt. Architecture PaddleOCRVLForConditionalGeneration is listed by the pinned runtime (transformers 5.19.0 image-text-to-text types). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json."

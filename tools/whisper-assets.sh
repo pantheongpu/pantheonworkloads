@@ -19,6 +19,10 @@ MODEL_SHA256=921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f
 # large-v3: the same HF commit; sha256 = the file's LFS oid there (3095033483 bytes).
 LARGE_URL=https://huggingface.co/ggerganov/whisper.cpp/resolve/5359861c739e955e79d9a303bcbc70fb988958b1/ggml-large-v3.bin
 LARGE_SHA256=64d182b440b98d5203c4f9bd541544d84c605196c4f7b845dfa11fb23594d1e2
+# large-v3-turbo (added with the model catalog, docs/model-registry.md; never downloaded when this was written): the same HF commit;
+# sha256 = the file's LFS oid there, read from the Hub API on 2026-10-09 (see workloads/whisper-cpp-large-v3-turbo/model.sha256).
+TURBO_URL=https://huggingface.co/ggerganov/whisper.cpp/resolve/5359861c739e955e79d9a303bcbc70fb988958b1/ggml-large-v3-turbo.bin
+TURBO_SHA256=1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69
 # Clip: pinned to the whisper.cpp commit of tag v1.9.5; sha256 computed when this was written.
 CLIP_URL=https://raw.githubusercontent.com/ggml-org/whisper.cpp/d1be6fde11ac6e0407606b4e42fe72d34add8037/samples/jfk.wav
 CLIP_SHA256=59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e
@@ -48,6 +52,13 @@ case "${1:-}" in
     else
       fetch "$LARGE_URL" "$cache/ggml-large-v3.bin" sha256 "$LARGE_SHA256"
     fi ;;
+  model-large-v3-turbo)
+    if [[ -n "${PW_WHISPER_MODEL:-}" ]]; then
+      [[ "$(sha256sum "$PW_WHISPER_MODEL" 2>/dev/null | cut -d' ' -f1)" == "$TURBO_SHA256" ]] || skip "PW_WHISPER_MODEL is missing or not ggml-large-v3-turbo.bin (sha256 $TURBO_SHA256)"
+      echo "$PW_WHISPER_MODEL"
+    else
+      fetch "$TURBO_URL" "$cache/ggml-large-v3-turbo.bin" sha256 "$TURBO_SHA256"
+    fi ;;
   clip) fetch "$CLIP_URL" "$cache/jfk-$CLIP_SHA256.wav" sha256 "$CLIP_SHA256" ;;
-  *) echo "usage: $0 model|model-large-v3|clip" >&2; exit 2 ;;
+  *) echo "usage: $0 model|model-large-v3|model-large-v3-turbo|clip" >&2; exit 2 ;;
 esac

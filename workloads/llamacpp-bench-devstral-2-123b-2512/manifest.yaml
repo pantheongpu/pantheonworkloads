@@ -1,0 +1,18 @@
+name: llamacpp-bench-devstral-2-123b-2512
+description: "llama-bench prompt-processing and token-generation tokens/s for Devstral-2-123B-Instruct-2512 (Q4_K_M GGUF, 1 x 80 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 8874
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 80
+  notes: "weights 69.8 GiB; 69.8/1*1.05 + 3 = 76.2 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80"
+model:
+  id: "unsloth/Devstral-2-123B-Instruct-2512-GGUF (Devstral-2-123B-Instruct-2512-Q4_K_M-00001-of-00002.gguf + 1 more shard(s); Q4_K_M GGUF of mistralai/Devstral-2-123B-Instruct-2512)"
+  revision: "1f2bfbe35f7f9071d9b318374bf5eeffefab4459 (HF commit of the GGUF repo); 2 file(s), model.sha256 lists them; base model mistralai/Devstral-2-123B-Instruct-2512 @ 1613bf01adb5e1c6fdc196b46e6b173eae75eb4a"
+  licence: "custom licence (LICENSE file begins 'Modified MIT License Attribution notice: 2025 - Mistral AI P')"
+  source_url: https://huggingface.co/unsloth/Devstral-2-123B-Instruct-2512-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 2 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: custom licence (LICENSE file begins 'Modified MIT License Attribution notice: 2025 - Mistral AI P'). Read 2026-10-09 from the Hub without credentials: mistralai/Devstral-2-123B-Instruct-2512@1613bf01; card license: other; LICENSE begins 'Modified MIT License Attribution notice: 2025 - Mistral AI Permission is hereby granted, f'; card licence section: 'This model is licensed under a [Modified MIT License](https://huggingface.co/mistralai/Devstral-2-12' | downloaded repository unsloth/Devstral-2-123B-Instruct-2512-GGUF@1f2bfbe3; card license: other; card licence section: 'This model is licensed under a [Modified MIT License](https://huggingface.co/mistralai/Devstral-2-12'; its card carries a licence agreement text: False. RESTRICTED: custom licence (LICENSE file begins 'Modified MIT License Attribution notice: 2025 - Mistral AI P') is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 80 GiB (single node); weights 69.8 GiB; 69.8/1*1.05 + 3 = 76.2 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'llama', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

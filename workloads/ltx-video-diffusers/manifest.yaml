@@ -1,0 +1,21 @@
+name: ltx-video-diffusers
+description: "LTX-Video 0.9.x (diffusers) on a fixed input; the result is compared with a tolerance."
+kind: functional
+runtime: pytorch
+targets: [gpu]
+compare: tolerance
+tolerance:
+  abs: 0.05
+  rel: 0.0
+timeout_s: 3758
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 40
+  notes: "weights 13.2 GiB; max(8.9 largest component, 13.2/1) + 16 = 29.2 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40"
+model:
+  id: "Lightricks/LTX-Video (diffusers; 7 pinned weights file(s), stored fp32, loaded bf16)"
+  revision: "8984fa25007f376c1a299016d0957a37a2f797bb (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "custom licence (LICENSE file begins 'LTX Video (\"LTXV\") By Lightricks Ltd. (\"Lightricks\") LTXV Op')"
+  source_url: https://huggingface.co/Lightricks/LTX-Video
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 7 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: custom licence (LICENSE file begins 'LTX Video (\"LTXV\") By Lightricks Ltd. (\"Lightricks\") LTXV Op'). Read 2026-10-09 from the Hub without credentials: Lightricks/LTX-Video@8984fa25; card license: other; LTX-Video-Open-Weights-License-0.X.txt begins 'LTX Video (\"LTXV\") By Lightricks Ltd. (\"Lightricks\") LTXV Open Weights License 0.X License'; ltx-video-2b-v0.9.1.license.txt begins 'LTX Video 0.9.1 (“LTXV”) By Lightricks Ltd. (“Lightricks”) RAIL-M License dated November 2'; ltx-video-2b-v0.9.5.license.txt begins 'LTX Video 2B 0.9.5 (�LTXV�) By Lightricks Ltd. (�Lightricks�) Open RAIL-M License dated Ma'; ltx-video-2b-v0.9.license.txt begins 'LTX Video 0.9 (“LTXV”) By Lightricks Ltd. (“Lightricks”) RAIL-M License dated November 22,'. RESTRICTED: custom licence (LICENSE file begins 'LTX Video (\"LTXV\") By Lightricks Ltd. (\"Lightricks\") LTXV Op') is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 40 GiB (single node); weights 13.2 GiB; max(8.9 largest component, 13.2/1) + 16 = 29.2 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40. These margins are assumptions, not measurements. Task: one video from a fixed prompt and seed (30 steps, guidance 3.0); the output is statistics (channel mean/std, 8x8 block means, gradients, frame-to-frame change), never pixels, with an abs tolerance that is a guess until two GPUs have been compared. Weights are loaded bf16; with more than one GPU diffusers' device_map=balanced places whole components, so the largest component must fit one GPU. Architecture LTXPipeline is listed by the pinned runtime (diffusers 0.41.0 pipelines). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json."

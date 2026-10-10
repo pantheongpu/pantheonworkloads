@@ -1,0 +1,5 @@
+# allenai/olmOCR-2-7B-1025 @ e52d6f090b7a9007afffbbd6ce510876222fea93 (LFS oids from the Hub API, read 2026-10-09; never downloaded when this was written)
+f752fd105e3d9ecd4efc16cb5c40e9f97f46c0d0614e328b5723a74df4634561  model-00001-of-00004.safetensors
+0bbaa22a46fdad5a68c733f59712e87e83dacfccfd0f14c300074992642bcd90  model-00002-of-00004.safetensors
+41ecc0cc06829b18c2fdcd704c2c3032bafc3b51e79d73c5b536f9c142a07e2e  model-00003-of-00004.safetensors
+ffca66cb61f6ad70364a095fee84ccf40597476f82649983003e41e305dfc5f8  model-00004-of-00004.safetensors

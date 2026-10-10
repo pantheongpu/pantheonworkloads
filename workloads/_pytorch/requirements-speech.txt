@@ -1,0 +1,11 @@
+# On top of requirements-torch.txt and requirements-common.txt, for the model-catalog workloads that use a model's own
+# package: speech recognition with NeMo (canary-1b-v2), text to speech (chatterbox, f5-tts), time series (Chronos).
+# Exact PyPI releases current when written (2026-10-09); NOT installed or tried anywhere yet. These packages pull their
+# own torch pins, which may conflict with requirements-torch.txt: a venv per workload family is the likely outcome.
+accelerate==1.15.0
+pillow==12.3.0
+safetensors==0.8.0
+nemo_toolkit[asr]==3.0.0
+chatterbox-tts==0.1.7
+f5-tts==1.1.22
+chronos-forecasting==2.3.2

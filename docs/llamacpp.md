@@ -24,6 +24,12 @@ pinned commit). The pin is in `tools/llamacpp/pin.env`: tag `b11447`, commit
 | `llamacpp-olmo2-7b-instruct` (+ bench) | functional, benchmark | `gpu` | OLMo-2-1124-7B-Instruct Q8_0, Ai2's own GGUF (7.8 GB). Apache-2.0 |
 | `llamacpp-qwen3-embedding-4b` (+ bench) | functional, benchmark | `gpu` | Qwen3-Embedding-4B Q8_0, Qwen's own GGUF (4.3 GB). The functional workload runs `llama-embedding` (last-token pooling) on a query and three passages and compares cosine similarities and the passage ranking; the bench twin is the same `llama-bench` pp512/tg128. Apache-2.0 |
 
+The model catalog ([`docs/model-registry.md`](model-registry.md)) adds eighty-two `llamacpp-<model>` / `llamacpp-bench-<model>` pairs for models from
+3 B to 2.4 T parameters. They are written, never run. They differ from the workloads above in three ways: many GGUFs are split into shards
+(`tools/llamacpp/common.sh` `lc_fetch_shards` downloads and verifies each file listed in `model.sha256` and hands llama.cpp the first shard); they
+call `lc_require_gpus <n> <GiB>` first (exit 77 with the needs when the host lacks them); and the layers are split over the n GPUs llama.cpp sees
+(its default `--split-mode layer`, `-ngl 99`).
+
 ## Backends and building
 
 `tools/llamacpp/build.sh <cpu|cuda|hip> <prefix>` fetches the pinned commit (shallow, by hash), builds

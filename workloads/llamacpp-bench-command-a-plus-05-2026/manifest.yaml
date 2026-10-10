@@ -1,0 +1,17 @@
+name: llamacpp-bench-command-a-plus-05-2026
+description: "llama-bench prompt-processing and token-generation tokens/s for command-a-plus-05-2026 (Q4_K_M GGUF, 2 x 80 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 10218
+requires:
+  gpus: 2
+  gpu_memory_gb: 80
+  notes: "weights 125.8 GiB; 125.8/2*1.05 + 3 = 69.1 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 2 x 80"
+model:
+  id: "bartowski/command-a-plus-05-2026-GGUF (command-a-plus-05-2026-Q4_K_M-00001-of-00004.gguf + 3 more shard(s); Q4_K_M GGUF of CohereLabs/command-a-plus-05-2026-bf16)"
+  revision: "a26ba921242484b5e1a8ac8519169fe7421c3ab3 (HF commit of the GGUF repo); 4 file(s), model.sha256 lists them; base model CohereLabs/command-a-plus-05-2026-bf16 @ 5fb6fde5fd12ff89356aae552e11883bc49f069b"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/bartowski/command-a-plus-05-2026-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 4 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: CohereLabs/command-a-plus-05-2026-bf16@5fb6fde5; card license: apache-2.0 | downloaded repository bartowski/command-a-plus-05-2026-GGUF@a26ba921; card license: apache-2.0; its card carries a licence agreement text: False. Hardware: requires 2 x 80 GiB (single node); weights 125.8 GiB; 125.8/2*1.05 + 3 = 69.1 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 2 x 80. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'cohere2moe', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

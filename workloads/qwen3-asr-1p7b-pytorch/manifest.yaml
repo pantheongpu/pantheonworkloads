@@ -1,0 +1,22 @@
+name: qwen3-asr-1p7b-pytorch
+description: "Qwen3-ASR-1.7B (asr) on a fixed input; the result is compared with a tolerance."
+kind: functional
+runtime: pytorch
+targets: [gpu]
+compare: tolerance
+tolerance:
+  abs: 0.0
+  rel: 0.0
+  fields:
+    text: {wer: 0.1}
+timeout_s: 3652
+requires:
+  gpus: 1
+  gpu_memory_gb: 10
+  notes: "weights 4.4 GiB; 4.4/1*1.1 + 4 = 8.8 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10"
+model:
+  id: "Qwen/Qwen3-ASR-1.7B (asr; 2 pinned weights file(s), as stored)"
+  revision: "7278e1e70fe206f11671096ffdd38061171dd6e5 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/Qwen/Qwen3-ASR-1.7B
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 2 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: Qwen/Qwen3-ASR-1.7B@7278e1e7; card license: apache-2.0. Hardware: requires 1 x 10 GiB (single node); weights 4.4 GiB; 4.4/1*1.1 + 4 = 8.8 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10. These margins are assumptions, not measurements. Task: transcribe the 11 s clip jfk.wav of whisper.cpp (pinned commit and sha256, fetched at run time; its provenance is stated nowhere, see docs/models.md); output = the transcript with only lower-case letters, compared by word error rate (<= 0.1 against a reference) and checked against the known words (<= 0.15) on every run. Architecture Qwen3ASRForConditionalGeneration is listed by the pinned runtime (transformers 5.19.0 model types). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json."

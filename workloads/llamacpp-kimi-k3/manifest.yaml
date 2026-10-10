@@ -1,0 +1,19 @@
+name: llamacpp-kimi-k3
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Kimi-K3 (UD-Q4_K_XL GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 20460
+restricted: true
+requires:
+  gpus: 8
+  gpu_memory_gb: 192
+  notes: "weights 1405.1 GiB; 1405.1/8*1.05 + 3 = 187.4 GiB per GPU; smallest class holding it at 98% usable: 192 GiB; 8 x 192"
+model:
+  id: "unsloth/Kimi-K3-GGUF (Kimi-K3-UD-Q4_K_XL-00001-of-00032.gguf + 31 more shard(s); UD-Q4_K_XL GGUF of moonshotai/Kimi-K3)"
+  revision: "a0836360ce58dfec088d966a97f2ddc8a606279b (HF commit of the GGUF repo); 32 file(s), model.sha256 lists them; base model moonshotai/Kimi-K3 @ f831ab66814297da540d832a5235f8e904f29d06"
+  licence: "Kimi K3 License"
+  source_url: https://huggingface.co/unsloth/Kimi-K3-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 32 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Kimi K3 License. Read 2026-10-09 from the Hub without credentials: moonshotai/Kimi-K3@f831ab66; card license: other, license_name: kimi-k3; LICENSE begins 'Kimi K3 License Copyright (c) 2026 Moonshot AI Permission is hereby granted, free of charg' | downloaded repository unsloth/Kimi-K3-GGUF@a0836360; card license: other, license_name: kimi-k3; its card carries a licence agreement text: False. RESTRICTED: Kimi K3 License is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 8 x 192 GiB (single node); weights 1405.1 GiB; 1405.1/8*1.05 + 3 = 187.4 GiB per GPU; smallest class holding it at 98% usable: 192 GiB; 8 x 192. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'kimi-k3', which the pinned source lists), the output, speed, real memory use. No reference.json."

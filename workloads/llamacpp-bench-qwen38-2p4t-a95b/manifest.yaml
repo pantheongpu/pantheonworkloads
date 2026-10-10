@@ -1,0 +1,18 @@
+name: llamacpp-bench-qwen38-2p4t-a95b
+description: "llama-bench prompt-processing and token-generation tokens/s for Qwen3.8-2.4T-A95B (UD-IQ4_XS GGUF, 8 x 180 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 36500
+restricted: true
+requires:
+  gpus: 8
+  gpu_memory_gb: 180
+  notes: "weights 1220.8 GiB; 1220.8/8*1.05 + 3 = 163.2 GiB per GPU; smallest class holding it at 98% usable: 180 GiB; 8 x 180"
+model:
+  id: "unsloth/Qwen3.8-2.4T-A95B-GGUF (Qwen3.8-2.4T-A95B-UD-IQ4_XS-00001-of-00029.gguf + 28 more shard(s); UD-IQ4_XS GGUF of Qwen/Qwen3.8-2.4T-A95B)"
+  revision: "567d3e6ac26c5474b18311e619c04350fb9a5556 (HF commit of the GGUF repo); 29 file(s), model.sha256 lists them; base model Qwen/Qwen3.8-2.4T-A95B @ 207bd685a7e3696cfaff12ded7c6a7ea0f88c996"
+  licence: "qwen3.8-max"
+  source_url: https://huggingface.co/unsloth/Qwen3.8-2.4T-A95B-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 29 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: qwen3.8-max. Read 2026-10-09 from the Hub without credentials: Qwen/Qwen3.8-2.4T-A95B@207bd685; card license: other, license_name: qwen3.8-max, license_link: LICENSE; LICENSE begins 'Qwen3.8-Max License Copyright (c) 2026 Qwen Permission is hereby granted, free of charge, ' | downloaded repository unsloth/Qwen3.8-2.4T-A95B-GGUF@567d3e6a; card license: other, license_name: qwen3.8-max, license_link: LICENSE; its card carries a licence agreement text: False. RESTRICTED: qwen3.8-max is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 8 x 180 GiB (single node); weights 1220.8 GiB; 1220.8/8*1.05 + 3 = 163.2 GiB per GPU; smallest class holding it at 98% usable: 180 GiB; 8 x 180. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'qwen35moe', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

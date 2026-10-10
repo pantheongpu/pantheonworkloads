@@ -1,0 +1,17 @@
+name: llamacpp-bench-qwen35-9b
+description: "llama-bench prompt-processing and token-generation tokens/s for Qwen3.5-9B (Q8_0 GGUF, 1 x 15 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7412
+requires:
+  gpus: 1
+  gpu_memory_gb: 15
+  notes: "weights 8.9 GiB; 8.9/1*1.05 + 3 = 12.3 GiB per GPU; smallest class holding it at 98% usable: 15 GiB; 1 x 15"
+model:
+  id: "unsloth/Qwen3.5-9B-GGUF (Qwen3.5-9B-Q8_0.gguf; Q8_0 GGUF of Qwen/Qwen3.5-9B)"
+  revision: "3885219b6810b007914f3a7950a8d1b469d598a5 (HF commit of the GGUF repo); file sha256 809626574d0cb43d4becfa56169980da2bb448f2299270f7be443cb89d0a6ae4; base model Qwen/Qwen3.5-9B @ c202236235762e1c871ad0ccb60c8ee5ba337b9a"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/unsloth/Qwen3.5-9B-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: Qwen/Qwen3.5-9B@c2022362; card license: apache-2.0, license_link: https://huggingface.co/Qwen/Qwen3.5-9B/blob/main/LICENSE; LICENSE begins 'Apache License Version 2.0, January 2004 http://www.apache.org/licenses/ TERMS AND CONDITI' | downloaded repository unsloth/Qwen3.5-9B-GGUF@3885219b; card license: apache-2.0, license_link: https://huggingface.co/Qwen/Qwen3.5-9B/blob/main/LICENSE; its card carries a licence agreement text: False. Hardware: requires 1 x 15 GiB (single node); weights 8.9 GiB; 8.9/1*1.05 + 3 = 12.3 GiB per GPU; smallest class holding it at 98% usable: 15 GiB; 1 x 15. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'qwen35', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

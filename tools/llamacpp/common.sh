@@ -119,3 +119,45 @@ lc_fetch_model() {
     echo "warning: model sha256 is not pinned; this result is not reproducible. sha256 is $(sha256sum "$LC_MODEL" | cut -d' ' -f1)" >&2
   fi
 }
+
+# lc_require_gpus <count> <gib each>: exit 77 unless the host has that many GPUs with that much memory (tools/hwcheck.sh).
+lc_require_gpus() {
+  . "$LC_ROOT/../hwcheck.sh"
+  pw_require_gpus "$@"
+}
+
+# lc_fetch_shards <url prefix up to /resolve/<commit>> <sums file> <GiB the files need>
+# For a model of one or more GGUF files listed in the sums file ("<sha256>  <path in the repository>", sorted, so the
+# first line is the first shard): downloads what is missing into $PW_CACHE/models/<workload name>/ (resumable, one file
+# at a time), verifies every sha256 (a mismatch fails the run), and sets LC_MODEL to the first shard, which llama.cpp
+# follows to the others in the same directory. Exits 77 when the disk lacks room or a download fails. PW_MODEL_FILE
+# uses your own first shard instead (not verified).
+lc_fetch_shards() {
+  local base="$1" sums="$2" need="$3" dir sha path f got free
+  if [[ -n "${PW_MODEL_FILE:-}" ]]; then
+    [[ -f "$PW_MODEL_FILE" ]] || lc_skip "PW_MODEL_FILE=$PW_MODEL_FILE does not exist"
+    LC_MODEL="$PW_MODEL_FILE"; echo "warning: PW_MODEL_FILE is not checked against model.sha256" >&2; return 0
+  fi
+  [[ -r "$sums" ]] || lc_skip "no model.sha256 next to the workload"
+  dir="$PW_CACHE/models/$(basename "$(dirname "$sums")")"
+  mkdir -p "$dir"
+  LC_MODEL=""
+  while read -r sha path; do
+    [[ -z "$sha" || "$sha" == \#* ]] && continue
+    f="$dir/$(basename "$path")"
+    if [[ -z "$LC_MODEL" && ! -f "$f" ]]; then
+      free=$(df -P --block-size=1G "$dir" | awk 'NR==2 {print $4}')
+      (( free >= need + 2 )) || lc_skip "needs about $need GiB free under $dir; $free GiB are free (set PW_CACHE to a bigger disk)"
+    fi
+    if [[ ! -f "$f" ]]; then
+      command -v curl >/dev/null || lc_skip "curl is not installed"
+      curl -fL --retry 3 -C - -m "${PW_DOWNLOAD_TIMEOUT_S:-172800}" -o "$f.part" "$base/$path" \
+        || lc_skip "cannot download $base/$path (the partial file is kept in $f.part for a resume)"
+      mv "$f.part" "$f"
+    fi
+    got=$(sha256sum "$f" | cut -d' ' -f1)
+    [[ "$got" == "$sha" ]] || { echo "sha256 of $f is $got, expected $sha" >&2; exit 1; }
+    [[ -n "$LC_MODEL" ]] || LC_MODEL="$f"
+  done < "$sums"
+  [[ -n "$LC_MODEL" ]] || lc_skip "model.sha256 lists no files"
+}

@@ -1,0 +1,17 @@
+name: llamacpp-bench-gpt-oss-120b
+description: "llama-bench prompt-processing and token-generation tokens/s for gpt-oss-120b (MXFP4 GGUF, 1 x 80 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 8616
+requires:
+  gpus: 1
+  gpu_memory_gb: 80
+  notes: "weights 59.0 GiB; 59.0/1*1.05 + 3 = 65.0 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80"
+model:
+  id: "ggml-org/gpt-oss-120b-GGUF (gpt-oss-120b-MXFP4.gguf; MXFP4 GGUF of openai/gpt-oss-120b)"
+  revision: "238abdd290bb874b90a5da1b4549881b7d05c091 (HF commit of the GGUF repo); file sha256 582bd40f6886200101f4c4ed9f25f3fe80cc14c86e9e2b37746cd8904a0c622d; base model openai/gpt-oss-120b @ b5c939de8f754692c1647ca79fbf85e8c1e70f8a"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/ggml-org/gpt-oss-120b-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: openai/gpt-oss-120b@b5c939de; card license: apache-2.0; LICENSE begins 'Apache License Version 2.0, January 2004 http://www.apache.org/licenses/ TERMS AND CONDITI' | downloaded repository ggml-org/gpt-oss-120b-GGUF@238abdd2; card license: apache-2.0; its card carries a licence agreement text: False. Hardware: requires 1 x 80 GiB (single node); weights 59.0 GiB; 59.0/1*1.05 + 3 = 65.0 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'gpt-oss', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."
