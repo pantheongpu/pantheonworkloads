@@ -10,6 +10,9 @@ weights were downloaded, no GPU was used, no workload was run.** There is no `re
 of them; the coverage table in the README marks them as never run (family "Model catalog", reference "no", GPU-validated
 "no"). Every manifest's `notes` starts with `WRITTEN, NEVER RUN` and ends with what was not verified. The first real run on a
 suitable rig is what turns a row into a measurement; until then a SKIP from the runner is the expected result everywhere.
+The exceptions are the workloads whose manifest `notes` start with `VERIFIED ON` (a real GPU produced the reference and the bench record) or
+`BLOCKED(run)` (the first run showed the pinned runtime cannot run it): the Status column of the tables below says which, and "Stage 2a, Tier B"
+below reports the 20 workloads (and their bench twins) of 24 to 44 GiB that were run on one NVIDIA L40S on 2026-10-10.
 
 The tables at the end are generated (`tools/catalog/generate.py`) from three files, so a row can always be traced to evidence:
 

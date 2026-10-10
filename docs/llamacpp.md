@@ -25,7 +25,7 @@ pinned commit). The pin is in `tools/llamacpp/pin.env`: tag `b11447`, commit
 | `llamacpp-qwen3-embedding-4b` (+ bench) | functional, benchmark | `gpu` | Qwen3-Embedding-4B Q8_0, Qwen's own GGUF (4.3 GB). The functional workload runs `llama-embedding` (last-token pooling) on a query and three passages and compares cosine similarities and the passage ranking; the bench twin is the same `llama-bench` pp512/tg128. Apache-2.0 |
 
 The model catalog ([`docs/model-registry.md`](model-registry.md)) adds eighty-two `llamacpp-<model>` / `llamacpp-bench-<model>` pairs for models from
-3 B to 2.4 T parameters. They are written, never run. They differ from the workloads above in three ways: many GGUFs are split into shards
+3 B to 2.4 T parameters. Most are written, never run; the eleven pairs of 24 to 44 GiB that fit one NVIDIA L40S (Qwen3-32B, Qwen2.5-Coder-32B, DeepSeek-R1-Distill-Qwen-32B, Qwen3.6-27B and 35B-A3B, Command R 08-2024, EXAONE 4.5 33B, Falcon-H1 34B, Nemotron 3 Nano and 3.5 Lightning, Kimi-Linear 48B) were run on 2026-10-10 and carry a reference and a bench record (`docs/model-registry.md`, "Stage 2a, Tier B"). They differ from the workloads above in three ways: many GGUFs are split into shards
 (`tools/llamacpp/common.sh` `lc_fetch_shards` downloads and verifies each file listed in `model.sha256` and hands llama.cpp the first shard); they
 call `lc_require_gpus <n> <GiB>` first (exit 77 with the needs when the host lacks them); and the layers are split over the n GPUs llama.cpp sees
 (its default `--split-mode layer`, `-ngl 99`).
