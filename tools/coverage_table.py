@@ -33,7 +33,7 @@ FAMILIES = [
 PRETRAINED_RUNTIMES = {"onnxruntime", "spacy", "numpy", "sentencepiece"}
 NO_WEIGHTS = re.compile(r"random|synthetic|no pretrained|weights=None", re.I)
 SIM = re.compile(r"sim:(nvidia|amd)/(\{[^}]*\}|[\w*-]+)")
-COLUMNS = ("name", "kind", "runtime", "targets", "reference", "licence", "pinned", "sim", "gpu")
+COLUMNS = ("name", "kind", "runtime", "targets", "needs", "reference", "licence", "pinned", "sim", "gpu")
 
 
 def family(name, runtime):
@@ -138,6 +138,7 @@ def rows(root):
         result.append({
             "name": n, "family": family(n, m.get("runtime")), "kind": m.get("kind"),
             "runtime": m.get("runtime"), "targets": short_targets(m.get("targets", [])),
+            "needs": validate.needs_text(validate.requirements(m)),
             "reference": reference, "licence": licence(m.get("model"), (root / "workloads" / n / "manifest.yaml").read_text(encoding="utf-8")) + (" (restricted)" if validate.is_restricted(m) else ""), "pinned": pinned(root, n, m.get("model")),
             "sim": ", ".join(f"{v} x{len(p)}" for v, p in sorted(sim.items())) or "no", "sim_ok": bool(sim),
             "gpu": " + ".join(gpu) or "no", "gpu_ok": bool(gpu),
@@ -153,8 +154,8 @@ def render(root):
         if not group:
             continue
         out += [f"#### {title}: {len(group)}", "",
-                "| Workload | Kind | Runtime | Targets | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |",
-                "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+                "| Workload | Kind | Runtime | Targets | Needs | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |",
+                "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
         for r in group:
             out.append("| " + " | ".join(str(r[k]).replace("|", "/") for k in COLUMNS) + " |")
         out.append("")
