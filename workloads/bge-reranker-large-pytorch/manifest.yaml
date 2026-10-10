@@ -1,0 +1,20 @@
+name: bge-reranker-large-pytorch
+description: "bge-reranker-large (retrieval) on a fixed input; the result is compared with a tolerance."
+kind: functional
+runtime: pytorch
+targets: [gpu]
+compare: tolerance
+tolerance:
+  abs: 0.03
+  rel: 0.0
+timeout_s: 3625
+requires:
+  gpus: 1
+  gpu_memory_gb: 10
+  notes: "weights 2.1 GiB; 2.1/1*1.1 + 4 = 6.3 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10"
+model:
+  id: "BAAI/bge-reranker-large (retrieval; 1 pinned weights file(s), as stored)"
+  revision: "55611d7bca2a7133960a6d3b71e083071bbfc312 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "MIT"
+  source_url: https://huggingface.co/BAAI/bge-reranker-large
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: BAAI/bge-reranker-large@55611d7b; card license: mit; card licence section: 'FlagEmbedding is licensed under the [MIT License](https://github.com/FlagOpen/FlagEmbedding/blob/mas'. Hardware: requires 1 x 10 GiB (single node); weights 2.1 GiB; 2.1/1*1.1 + 4 = 6.3 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10. These margins are assumptions, not measurements. Task: the four fixed texts of llamacpp-qwen3-embedding-4b (a query about the capital of France and three passages); output = cosine similarities / scores and the passage ranking, head 'seqcls'; the run fails when the Paris passage is not first. Architecture XLMRobertaForSequenceClassification is listed by the pinned runtime (transformers 5.19.0 model types). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json."

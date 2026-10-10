@@ -1,0 +1,21 @@
+name: depth-anything-v2-large-pytorch
+description: "Depth Anything V2 Large (vision) on a fixed input; the result is compared with a tolerance."
+kind: functional
+runtime: pytorch
+targets: [gpu]
+compare: tolerance
+tolerance:
+  abs: 0.03
+  rel: 0.0
+timeout_s: 3607
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 10
+  notes: "weights 0.6 GiB; 0.6/1*1.1 + 4 = 4.7 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10"
+model:
+  id: "depth-anything/Depth-Anything-V2-Large-hf (vision; 1 pinned weights file(s), as stored)"
+  revision: "7581137eff8d4e94f6e796d3baea0e9fa79b22d2 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "CC-BY-NC-4.0"
+  source_url: https://huggingface.co/depth-anything/Depth-Anything-V2-Large-hf
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: CC-BY-NC-4.0. Read 2026-10-09 from the Hub without credentials: depth-anything/Depth-Anything-V2-Large-hf@7581137e; card license: cc-by-nc-4.0. RESTRICTED: CC-BY-NC-4.0 is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 10 GiB (single node); weights 0.6 GiB; 0.6/1*1.1 + 4 = 4.7 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10. These margins are assumptions, not measurements. Task: head 'depth' on scikit-image's public-domain astronaut.png (sha256 pinned, fetched at run time); see workloads/_pytorch/vision.py for the statistics compared. Architecture DepthAnythingForDepthEstimation is listed by the pinned runtime (transformers 5.19.0 model types). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json."

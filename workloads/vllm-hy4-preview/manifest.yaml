@@ -1,0 +1,17 @@
+name: vllm-hy4-preview
+description: "vLLM greedy-decodes 8 tokens from Tencent Hy4-preview (tensor parallel 8)."
+kind: functional
+runtime: vllm
+targets: [gpu]
+compare: exact
+timeout_s: 21034
+requires:
+  gpus: 8
+  gpu_memory_gb: 256
+  notes: "weights 1452.8 GiB; (1452.8/8 + 6)/0.9 = 208.5 GiB per GPU; smallest class holding it at 98% usable: 256 GiB; 8 x 256"
+model:
+  id: "tencent/Hy4-preview (vLLM, tensor parallel 8, as stored; 131 weights file(s))"
+  revision: "705d81ee51566a186d645b74c974d642ef2828fe (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/tencent/Hy4-preview
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 131 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: tencent/Hy4-preview@705d81ee; card license: apache-2.0; LICENSE begins 'Tencent is pleased to support the open source community by making Tencent Hy4 preview avai'; card licence section: 'Hy4 preview is released under the **Apache License 2.0**. See [LICENSE](https://huggingface.co/tence'. Hardware: requires 8 x 256 GiB (single node); weights 1452.8 GiB; (1452.8/8 + 6)/0.9 = 208.5 GiB per GPU; smallest class holding it at 98% usable: 256 GiB; 8 x 256. These margins are assumptions, not measurements. no GGUF was found for it on the Hub; vLLM v0.30.0 lists HYV4ForCausalLM. Task: vLLM v0.30.0 greedy-decodes 8 tokens after \"The capital of France is\" (eager mode, max_model_len 4096, gpu_memory_utilization 0.90, seed 0, temperature 0); output compared exactly once a reference is recorded. Not verified: that vLLM v0.30.0 loads this checkpoint on the GPUs it will meet (the config declares architecture HYV4ForCausalLM, which the pinned registry lists), quantisation kernels for the GPU generation, the output, speed. No reference.json."

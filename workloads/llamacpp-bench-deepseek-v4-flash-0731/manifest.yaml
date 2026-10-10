@@ -1,0 +1,17 @@
+name: llamacpp-bench-deepseek-v4-flash-0731
+description: "llama-bench prompt-processing and token-generation tokens/s for DeepSeek-V4-Flash-0731 (MXFP4 GGUF, 4 x 44 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 10664
+requires:
+  gpus: 4
+  gpu_memory_gb: 44
+  notes: "weights 144.3 GiB; 144.3/4*1.05 + 3 = 40.9 GiB per GPU; smallest class holding it at 98% usable: 44 GiB; 4 x 44"
+model:
+  id: "ggml-org/DeepSeek-V4-Flash-0731-GGUF (DeepSeek-V4-Flash-0731-MXFP4-00001-of-00002.gguf + 1 more shard(s); MXFP4 GGUF of deepseek-ai/DeepSeek-V4-Flash-0731)"
+  revision: "f559fd6005309e5f6bd650342ee8711ff189b3b8 (HF commit of the GGUF repo); 2 file(s), model.sha256 lists them; base model deepseek-ai/DeepSeek-V4-Flash-0731 @ 7872f01b1d1fe23eabc4c98b48bffcef5a386062"
+  licence: "MIT"
+  source_url: https://huggingface.co/ggml-org/DeepSeek-V4-Flash-0731-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 2 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: deepseek-ai/DeepSeek-V4-Flash-0731@7872f01b; card license: mit; LICENSE begins 'MIT License Copyright (c) 2023 DeepSeek Permission is hereby granted, free of charge, to a'; card licence section: 'This repository and the model weights are licensed under the [MIT License](LICENSE).' | downloaded repository ggml-org/DeepSeek-V4-Flash-0731-GGUF@f559fd60; card license: mit; its card carries a licence agreement text: False. Hardware: requires 4 x 44 GiB (single node); weights 144.3 GiB; 144.3/4*1.05 + 3 = 40.9 GiB per GPU; smallest class holding it at 98% usable: 44 GiB; 4 x 44. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'deepseek4', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

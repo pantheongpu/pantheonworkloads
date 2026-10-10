@@ -1,0 +1,16 @@
+name: vllm-bench-gpt-oss-120b-vllm
+description: "vLLM's own throughput benchmark on gpt-oss-120b (vLLM; official MXFP4 weights) (1 x 80 GiB)."
+kind: benchmark
+runtime: vllm
+targets: [gpu]
+timeout_s: 8658
+requires:
+  gpus: 1
+  gpu_memory_gb: 80
+  notes: "weights 60.8 GiB; (60.8/1 + 6)/0.9 = 74.2 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80"
+model:
+  id: "openai/gpt-oss-120b (vLLM, tensor parallel 1, as stored; 15 weights file(s))"
+  revision: "b5c939de8f754692c1647ca79fbf85e8c1e70f8a (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/openai/gpt-oss-120b
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 15 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: openai/gpt-oss-120b@b5c939de; card license: apache-2.0; LICENSE begins 'Apache License Version 2.0, January 2004 http://www.apache.org/licenses/ TERMS AND CONDITI'. Hardware: requires 1 x 80 GiB (single node); weights 60.8 GiB; (60.8/1 + 6)/0.9 = 74.2 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80. These margins are assumptions, not measurements. Task: `vllm bench throughput` (vLLM v0.30.0) on the verified local snapshot: random dataset, 64 prompts of 128 input and 128 output tokens, --max-model-len 4096, tensor parallel = requires.gpus; metrics requests_per_s, total_tokens_per_s, output_tokens_per_s. Real GPUs only. Not verified: that vLLM v0.30.0 loads this checkpoint on the GPUs it will meet (the config declares architecture GptOssForCausalLM, which the pinned registry lists), quantisation kernels for the GPU generation, the output, speed. No reference.json, no bench record."

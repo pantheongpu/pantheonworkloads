@@ -1,0 +1,18 @@
+name: llamacpp-bench-minimax-m2p7
+description: "llama-bench prompt-processing and token-generation tokens/s for MiniMax-M2.7 (Q4_K_M GGUF, 2 x 80 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 10302
+restricted: true
+requires:
+  gpus: 2
+  gpu_memory_gb: 80
+  notes: "weights 129.3 GiB; 129.3/2*1.05 + 3 = 70.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 2 x 80"
+model:
+  id: "bartowski/MiniMaxAI_MiniMax-M2.7-GGUF (MiniMaxAI_MiniMax-M2.7-Q4_K_M-00001-of-00004.gguf + 3 more shard(s); Q4_K_M GGUF of MiniMaxAI/MiniMax-M2.7)"
+  revision: "2b13ec99437c3ddb36f692a3a90be57ed3ba43af (HF commit of the GGUF repo); 4 file(s), model.sha256 lists them; base model MiniMaxAI/MiniMax-M2.7 @ d494266a4affc0d2995ba1fa35c8481cbd84294b"
+  licence: "custom licence (LICENSE file begins 'NON-COMMERCIAL LICENSE Non-commercial use permitted based on')"
+  source_url: https://huggingface.co/bartowski/MiniMaxAI_MiniMax-M2.7-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 4 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: custom licence (LICENSE file begins 'NON-COMMERCIAL LICENSE Non-commercial use permitted based on'). Read 2026-10-09 from the Hub without credentials: MiniMaxAI/MiniMax-M2.7@d494266a; card license: other, license_name: other, license_link: https://github.com/MiniMax-AI/MiniMax-M2.7/blob/main/LICENSE; LICENSE begins 'NON-COMMERCIAL LICENSE Non-commercial use permitted based on MIT-style terms; commercial u' | downloaded repository bartowski/MiniMaxAI_MiniMax-M2.7-GGUF@2b13ec99; card license: other, license_name: modified-mit, license_link: https://github.com/MiniMax-AI/MiniMax-M2.7/blob/main/LICENSE; its card carries a licence agreement text: False. Note: the two cards disagree (other vs other/modified-mit); the more restrictive is recorded. RESTRICTED: custom licence (LICENSE file begins 'NON-COMMERCIAL LICENSE Non-commercial use permitted based on') is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 2 x 80 GiB (single node); weights 129.3 GiB; 129.3/2*1.05 + 3 = 70.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 2 x 80. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'minimax-m2', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

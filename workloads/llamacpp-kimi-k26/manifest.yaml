@@ -1,0 +1,19 @@
+name: llamacpp-kimi-k26
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Kimi-K2.6 (UD-Q4_K_XL GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 10123
+restricted: true
+requires:
+  gpus: 8
+  gpu_memory_gb: 80
+  notes: "weights 543.6 GiB; 543.6/8*1.05 + 3 = 74.4 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 8 x 80"
+model:
+  id: "unsloth/Kimi-K2.6-GGUF (Kimi-K2.6-UD-Q4_K_XL-00001-of-00014.gguf + 13 more shard(s); UD-Q4_K_XL GGUF of moonshotai/Kimi-K2.6)"
+  revision: "47c7cab1e440dd9fcfc57c469e4737983408a6f2 (HF commit of the GGUF repo); 14 file(s), model.sha256 lists them; base model moonshotai/Kimi-K2.6 @ 7eb5002f6aadc958aed6a9177b7ed26bb94011bb"
+  licence: "Modified MIT"
+  source_url: https://huggingface.co/unsloth/Kimi-K2.6-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 14 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Modified MIT. Read 2026-10-09 from the Hub without credentials: moonshotai/Kimi-K2.6@7eb5002f; card license: other, license_name: modified-mit; LICENSE begins 'Modified MIT License Copyright (c) 2026 Moonshot AI Permission is hereby granted, free of ' | downloaded repository unsloth/Kimi-K2.6-GGUF@47c7cab1; card license: other, license_name: modified-mit; its card carries a licence agreement text: False. RESTRICTED: Modified MIT is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 8 x 80 GiB (single node); weights 543.6 GiB; 543.6/8*1.05 + 3 = 74.4 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 8 x 80. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'deepseek2', which the pinned source lists), the output, speed, real memory use. No reference.json."

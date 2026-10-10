@@ -1,0 +1,19 @@
+name: llamacpp-minimax-m3
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from MiniMax-M3 (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 6520
+restricted: true
+requires:
+  gpus: 4
+  gpu_memory_gb: 80
+  notes: "weights 243.3 GiB; 243.3/4*1.05 + 3 = 66.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80"
+model:
+  id: "bartowski/MiniMax-M3-GGUF (MiniMax-M3-Q4_K_M-00001-of-00007.gguf + 6 more shard(s); Q4_K_M GGUF of MiniMaxAI/MiniMax-M3)"
+  revision: "2ee48e5fcf21a2522ee2fb9ffaa15592ec5498e6 (HF commit of the GGUF repo); 7 file(s), model.sha256 lists them; base model MiniMaxAI/MiniMax-M3 @ f0e1c1e04d40177e4673a22097036854f536e9c0"
+  licence: "minimax-community"
+  source_url: https://huggingface.co/bartowski/MiniMax-M3-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 7 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: minimax-community. Read 2026-10-09 from the Hub without credentials: MiniMaxAI/MiniMax-M3@f0e1c1e0; card license: other, license_name: minimax-community, license_link: LICENSE; LICENSE begins 'MINIMAX COMMUNITY LICENSE Copyright (c) 2026 MiniMax Permission is hereby granted, free of' | downloaded repository bartowski/MiniMax-M3-GGUF@2ee48e5f; card license: other, license_name: minimax-community, license_link: LICENSE; its card carries a licence agreement text: False. RESTRICTED: minimax-community is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 4 x 80 GiB (single node); weights 243.3 GiB; 243.3/4*1.05 + 3 = 66.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 4 x 80. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'minimax-m3', which the pinned source lists), the output, speed, real memory use. No reference.json."

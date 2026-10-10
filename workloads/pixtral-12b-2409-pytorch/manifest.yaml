@@ -1,0 +1,17 @@
+name: pixtral-12b-2409-pytorch
+description: "Pixtral-12B-2409 (HF-format conversion) (bf16) describes a fixed public-domain image with greedy decoding."
+kind: functional
+runtime: pytorch
+targets: [gpu]
+compare: exact
+timeout_s: 3883
+requires:
+  gpus: 1
+  gpu_memory_gb: 40
+  notes: "weights 23.6 GiB; 23.6/1*1.1 + 4 = 30.0 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40"
+model:
+  id: "mistral-community/pixtral-12b (vlm; 6 pinned weights file(s), as stored)"
+  revision: "c2756cbbb9422eba9f6c5c439a214b0392dfc998 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/mistral-community/pixtral-12b
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 6 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: mistral-community/pixtral-12b@c2756cbb; card license: apache-2.0 | licence also read from mistralai/Pixtral-12B-2409@a5ca2b7a; card license: apache-2.0. Hardware: requires 1 x 40 GiB (single node); weights 23.6 GiB; 23.6/1*1.1 + 4 = 30.0 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40. These margins are assumptions, not measurements. Task: describes scikit-image's public-domain astronaut.png (sha256 pinned, fetched at run time) in one sentence with greedy decoding; text and token ids compared exactly; a decoding step whose top-1 and top-2 logits are within 0.5 (bf16 noise) fails the run. Weights are loaded bf16 with device_map=auto and the run fails if anything would be offloaded to the CPU. bf16 reasoned, not measured. If the model's processor or chat template differs from the generic image+text chat message, the first real run will fail and need a model-specific prompt. Architecture LlavaForConditionalGeneration is listed by the pinned runtime (transformers 5.19.0 image-text-to-text types). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json."

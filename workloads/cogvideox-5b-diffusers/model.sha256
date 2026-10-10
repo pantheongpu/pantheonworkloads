@@ -1,0 +1,6 @@
+# zai-org/CogVideoX-5b @ 8fc5b281006c82b82d34fd2543d2f0ebb4e7e321 (LFS oids from the Hub API, read 2026-10-09; never downloaded when this was written)
+9162b8ae9152e7a8e3bbebc535c8692783f50aec8cd3bb8ef6a751c432dd6392  text_encoder/model-00001-of-00002.safetensors
+d3edef29693d52402b1cc7c362f031e052f2e9482ed0c765c6351950434349b0  text_encoder/model-00002-of-00002.safetensors
+b7101be7e75631130cdf4a63ad798452bdce29716aaa47829e882dd384c398bf  transformer/diffusion_pytorch_model-00001-of-00002.safetensors
+ebe6c0e34a52c89f8ea8032a3a8a278a9ff1880dc70e1e6f3b840bcfd0396647  transformer/diffusion_pytorch_model-00002-of-00002.safetensors
+a410e48d988c8224cef392b68db0654485cfd41f345f4a3a81d3e6b765bb995e  vae/diffusion_pytorch_model.safetensors

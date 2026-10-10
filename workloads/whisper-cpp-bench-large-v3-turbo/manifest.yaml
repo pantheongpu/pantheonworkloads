@@ -1,0 +1,16 @@
+name: whisper-cpp-bench-large-v3-turbo
+description: "whisper.cpp's own whisper-bench with Whisper large-v3-turbo (whisper.cpp ggml)."
+kind: benchmark
+runtime: whisper.cpp
+targets: [gpu]
+timeout_s: 7236
+requires:
+  gpus: 1
+  gpu_memory_gb: 10
+  notes: "weights 1.5 GiB; 1.5/1*1.05 + 2 = 3.6 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10"
+model:
+  id: "ggerganov/whisper.cpp ggml-large-v3-turbo.bin   # OpenAI Whisper large-v3-turbo converted to ggml by whisper.cpp"
+  revision: "ggerganov/whisper.cpp HF commit 5359861c739e955e79d9a303bcbc70fb988958b1; ggml-large-v3-turbo.bin sha256 1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69 (1624555275 bytes, the Hub's LFS oid); weights of openai/whisper-large-v3-turbo @ 41f01f3fe87f28c78e2fbf8b568835947dd65ed9"
+  licence: "MIT"
+  source_url: https://huggingface.co/ggerganov/whisper.cpp
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: openai/whisper-large-v3-turbo@41f01f3f; card license: mit | downloaded repository ggerganov/whisper.cpp@5359861c; card license: mit; its card carries a licence agreement text: False. Hardware: requires 1 x 10 GiB (single node); weights 1.5 GiB; 1.5/1*1.05 + 2 = 3.6 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10. These margins are assumptions, not measurements. Same as whisper-cpp-large-v3 with the large-v3-turbo model (whisper.cpp ggml format, converted by the whisper.cpp project; a pruned large-v3 with 4 decoder layers). Runtime: whisper.cpp tag v1.9.5 built by tools/build-whisper-cpp.sh; model and clip are fetched by tools/whisper-assets.sh and checked against pinned checksums. Task: whisper-bench (encoder on synthetic input plus decoder steps). Not verified: that the ggml file loads in v1.9.5 and what it outputs. No reference.json, no bench record."

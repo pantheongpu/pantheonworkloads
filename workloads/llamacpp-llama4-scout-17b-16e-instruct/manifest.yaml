@@ -1,0 +1,19 @@
+name: llamacpp-llama4-scout-17b-16e-instruct
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Llama-4-Scout-17B-16E-Instruct (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 4330
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 80
+  notes: "weights 60.9 GiB; 60.9/1*1.05 + 3 = 66.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80"
+model:
+  id: "ggml-org/Llama-4-Scout-17B-16E-Instruct-GGUF (Llama-4-Scout-17B-16E-Instruct-Q4_K_M-00001-of-00002.gguf + 1 more shard(s); Q4_K_M GGUF of meta-llama/Llama-4-Scout-17B-16E-Instruct)"
+  revision: "42675345da11ade9203a5187595da7b74d4ff2ac (HF commit of the GGUF repo); 2 file(s), model.sha256 lists them; base model meta-llama/Llama-4-Scout-17B-16E-Instruct @ 92f3b1597a195b523d8d9e5700e57e4fbb8f20d3"
+  licence: "Llama 4 Community License"
+  source_url: https://huggingface.co/ggml-org/Llama-4-Scout-17B-16E-Instruct-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 2 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Llama 4 Community License. Read 2026-10-09 from the Hub without credentials: meta-llama/Llama-4-Scout-17B-16E-Instruct@92f3b159; card license: other, license_name: llama4; GATED (manual): only the API tags were readable | public licence text https://raw.githubusercontent.com/meta-llama/llama-models/0e0b8c519242d5833d8c11bffc1232b77ad7f301/models/llama4/LICENSE begins 'LLAMA 4 COMMUNITY LICENSE AGREEMENT Llama 4 Version Effective Date: April 5, 2025 “Agreement” means ' | downloaded repository ggml-org/Llama-4-Scout-17B-16E-Instruct-GGUF@42675345; its card carries a licence agreement text: False. RESTRICTED: Llama 4 Community License is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 80 GiB (single node); weights 60.9 GiB; 60.9/1*1.05 + 3 = 66.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80. These margins are assumptions, not measurements. Third-party conversion: the official meta-llama/Llama-4-Scout-17B-16E-Instruct is gated (manual); the files come from ggml-org/Llama-4-Scout-17B-16E-Instruct-GGUF, which is not gated, and whose card was read for the licence text. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'llama4', which the pinned source lists), the output, speed, real memory use. No reference.json."

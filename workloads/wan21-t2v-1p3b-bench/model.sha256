@@ -1,0 +1,9 @@
+# Wan-AI/Wan2.1-T2V-1.3B-Diffusers @ 0fad780a534b6463e45facd96134c9f345acfa5b (LFS oids from the Hub API, read 2026-10-09; never downloaded when this was written)
+c0ef3a140898e228a3520c9adec60743d2e8e5b3d229651bb37f1a3921919f99  text_encoder/model-00001-of-00005.safetensors
+481c7b2b39771c44df6dd8d13ee12ed072d731b4a650bd092885d4d52db229ad  text_encoder/model-00002-of-00005.safetensors
+f93148bcc04052a169e1e49bfcf6125df6cf9bf243cb9c627da75266cf8e35c3  text_encoder/model-00003-of-00005.safetensors
+a451792c739c05bca4606190cc2dd16731411bac03b4cf6aacc5767321f857c9  text_encoder/model-00004-of-00005.safetensors
+7e76e18d224531b8197a46231cb53daf7f2f6ca707130252becf933026ac4eea  text_encoder/model-00005-of-00005.safetensors
+6d011927dbd2cc8afe53d57abab04a8fd86f615d83324770d985fb058ece3a24  transformer/diffusion_pytorch_model-00001-of-00002.safetensors
+b92ec2309b1f239af6f746431815a881afcc938abb26a4f08d9a2fd6c892f872  transformer/diffusion_pytorch_model-00002-of-00002.safetensors
+d6e524b3fffede1787a74e81b30976dce5400c4439ba64222168e607ed19e793  vae/diffusion_pytorch_model.safetensors

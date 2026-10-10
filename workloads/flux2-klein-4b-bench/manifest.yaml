@@ -1,0 +1,16 @@
+name: flux2-klein-4b-bench
+description: "FLUX.2-klein-4B: throughput and peak GPU memory (diffusers)."
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 7556
+requires:
+  gpus: 1
+  gpu_memory_gb: 22
+  notes: "weights 14.9 GiB; max(7.5 largest component, 14.9/1) + 6 = 20.9 GiB per GPU; smallest class holding it at 98% usable: 22 GiB; 1 x 22"
+model:
+  id: "black-forest-labs/FLUX.2-klein-4B (diffusers; 4 pinned weights file(s), as stored)"
+  revision: "e7b7dc27f91deacad38e78976d1f2b499d76a294 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/black-forest-labs/FLUX.2-klein-4B
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 4 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: black-forest-labs/FLUX.2-klein-4B@e7b7dc27; card license: apache-2.0; LICENSE.md begins 'Apache License Version 2.0, January 2004 http://www.apache.org/licenses/ TERMS AND CONDITI'. Hardware: requires 1 x 22 GiB (single node); weights 14.9 GiB; max(7.5 largest component, 14.9/1) + 6 = 20.9 GiB per GPU; smallest class holding it at 98% usable: 22 GiB; 1 x 22. These margins are assumptions, not measurements. Task: one image from a fixed prompt and seed (4 steps, guidance 1.0); the output is statistics (channel mean/std, 8x8 block means, gradients), never pixels, with an abs tolerance that is a guess until two GPUs have been compared. Weights are loaded bf16; with more than one GPU diffusers' device_map=balanced places whole components, so the largest component must fit one GPU. Bench mode of the same script: metrics are throughput and peak memory after warm-up; model load excluded. Architecture Flux2KleinPipeline is listed by the pinned runtime (diffusers 0.41.0 pipelines). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json, no bench record."

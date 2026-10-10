@@ -1,0 +1,21 @@
+name: hunyuanvideo-diffusers
+description: "HunyuanVideo (diffusers conversion) (diffusers) on a fixed input; the result is compared with a tolerance."
+kind: functional
+runtime: pytorch
+targets: [gpu]
+compare: tolerance
+tolerance:
+  abs: 0.05
+  rel: 0.0
+timeout_s: 4068
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 80
+  notes: "weights 39.0 GiB; max(23.9 largest component, 39.0/1) + 16 = 55.0 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80"
+model:
+  id: "hunyuanvideo-community/HunyuanVideo (diffusers; 12 pinned weights file(s), as stored)"
+  revision: "e8c2aaa66fe3742a32c11a6766aecbf07c56e773 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Tencent Hunyuan Community License"
+  source_url: https://huggingface.co/hunyuanvideo-community/HunyuanVideo
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 12 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Tencent Hunyuan Community License. Read 2026-10-09 from the Hub without credentials: hunyuanvideo-community/HunyuanVideo@e8c2aaa6 | licence also read from tencent/HunyuanVideo@6204ad6a; card license: other, license_name: tencent-hunyuan-community, license_link: LICENSE; LICENSE begins 'TENCENT HUNYUAN COMMUNITY LICENSE AGREEMENT Tencent HunyuanVideo Release Date: December 3,'; Notice begins 'Usage and Legal Notices: Tencent is pleased to support the open source community by making'. RESTRICTED: Tencent Hunyuan Community License is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 80 GiB (single node); weights 39.0 GiB; max(23.9 largest component, 39.0/1) + 16 = 55.0 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80. These margins are assumptions, not measurements. Task: one video from a fixed prompt and seed (30 steps, guidance 1.0); the output is statistics (channel mean/std, 8x8 block means, gradients, frame-to-frame change), never pixels, with an abs tolerance that is a guess until two GPUs have been compared. Weights are loaded bf16; with more than one GPU diffusers' device_map=balanced places whole components, so the largest component must fit one GPU. Architecture HunyuanVideoPipeline is listed by the pinned runtime (diffusers 0.41.0 pipelines). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json."

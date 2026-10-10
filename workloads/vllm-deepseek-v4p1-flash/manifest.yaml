@@ -1,0 +1,17 @@
+name: vllm-deepseek-v4p1-flash
+description: "vLLM greedy-decodes 8 tokens from DeepSeek-V4.1-Flash (tensor parallel 8)."
+kind: functional
+runtime: vllm
+targets: [gpu]
+compare: exact
+timeout_s: 9303
+requires:
+  gpus: 8
+  gpu_memory_gb: 80
+  notes: "weights 475.3 GiB; (475.3/8 + 6)/0.9 = 72.7 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 8 x 80"
+model:
+  id: "deepseek-ai/DeepSeek-V4.1-Flash (vLLM, tensor parallel 8, as stored; 48 weights file(s))"
+  revision: "2cba9e42aa026125f3ed06c6d98c1db82f7ca027 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "MIT"
+  source_url: https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 48 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: deepseek-ai/DeepSeek-V4.1-Flash@2cba9e42; card license: mit; LICENSE begins 'MIT License Copyright (c) 2023 DeepSeek Permission is hereby granted, free of charge, to a'; card licence section: 'This repository and the model weights are licensed under the [MIT License](LICENSE).'. Hardware: requires 8 x 80 GiB (single node); weights 475.3 GiB; (475.3/8 + 6)/0.9 = 72.7 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 8 x 80. These margins are assumptions, not measurements. llama.cpp b11447 has no deepseek41 architecture (the community GGUFs declare it), so this one runs on vLLM with the official weights. Task: vLLM v0.30.0 greedy-decodes 8 tokens after \"The capital of France is\" (eager mode, max_model_len 4096, gpu_memory_utilization 0.90, seed 0, temperature 0); output compared exactly once a reference is recorded. Not verified: that vLLM v0.30.0 loads this checkpoint on the GPUs it will meet (the config declares architecture DeepseekV41ForCausalLM, which the pinned registry lists), quantisation kernels for the GPU generation, the output, speed. No reference.json."

@@ -1,0 +1,17 @@
+name: llamacpp-bench-mixtral-8x22b-instruct-v01
+description: "llama-bench prompt-processing and token-generation tokens/s for Mixtral-8x22B-Instruct-v0.1 (Q4_K_M GGUF, 2 x 48 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 9112
+requires:
+  gpus: 2
+  gpu_memory_gb: 48
+  notes: "weights 79.7 GiB; 79.7/2*1.05 + 3 = 44.9 GiB per GPU; smallest class holding it at 98% usable: 48 GiB; 2 x 48"
+model:
+  id: "MaziyarPanahi/Mixtral-8x22B-Instruct-v0.1-GGUF (Mixtral-8x22B-Instruct-v0.1.Q4_K_M-00001-of-00002.gguf + 1 more shard(s); Q4_K_M GGUF of mistralai/Mixtral-8x22B-Instruct-v0.1)"
+  revision: "9f2f6c5ec37f9bce5f5f3a7ff07b11d573443e62 (HF commit of the GGUF repo); 2 file(s), model.sha256 lists them; base model mistralai/Mixtral-8x22B-Instruct-v0.1 @ cc88a6cc19fbd17d9f1c0ee0b0d70a748dce698d"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/MaziyarPanahi/Mixtral-8x22B-Instruct-v0.1-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 2 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: mistralai/Mixtral-8x22B-Instruct-v0.1@cc88a6cc; card license: apache-2.0 | downloaded repository MaziyarPanahi/Mixtral-8x22B-Instruct-v0.1-GGUF@9f2f6c5e; card license: apache-2.0; its card carries a licence agreement text: False. Hardware: requires 2 x 48 GiB (single node); weights 79.7 GiB; 79.7/2*1.05 + 3 = 44.9 GiB per GPU; smallest class holding it at 98% usable: 48 GiB; 2 x 48. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'llama', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

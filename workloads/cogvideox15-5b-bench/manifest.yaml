@@ -1,0 +1,17 @@
+name: cogvideox15-5b-bench
+description: "CogVideoX1.5-5B: throughput and peak GPU memory (diffusers)."
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 7894
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 48
+  notes: "weights 28.9 GiB; max(17.7 largest component, 28.9/1) + 16 = 44.9 GiB per GPU; smallest class holding it at 98% usable: 48 GiB; 1 x 48"
+model:
+  id: "zai-org/CogVideoX1.5-5B (diffusers; 8 pinned weights file(s), as stored)"
+  revision: "fdc5267c90b5c06492985b966e43aae984e189e0 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "custom licence (LICENSE file begins 'The CogVideoX License 1. Definitions “Licensor” means the Co')"
+  source_url: https://huggingface.co/zai-org/CogVideoX1.5-5B
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 8 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: custom licence (LICENSE file begins 'The CogVideoX License 1. Definitions “Licensor” means the Co'). Read 2026-10-09 from the Hub without credentials: zai-org/CogVideoX1.5-5B@fdc5267c; card license: other; LICENSE begins 'The CogVideoX License 1. Definitions “Licensor” means the CogVideoX Model Team that distri'. RESTRICTED: custom licence (LICENSE file begins 'The CogVideoX License 1. Definitions “Licensor” means the Co') is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 48 GiB (single node); weights 28.9 GiB; max(17.7 largest component, 28.9/1) + 16 = 44.9 GiB per GPU; smallest class holding it at 98% usable: 48 GiB; 1 x 48. These margins are assumptions, not measurements. Task: one video from a fixed prompt and seed (30 steps, guidance 6.0); the output is statistics (channel mean/std, 8x8 block means, gradients, frame-to-frame change), never pixels, with an abs tolerance that is a guess until two GPUs have been compared. Weights are loaded bf16; with more than one GPU diffusers' device_map=balanced places whole components, so the largest component must fit one GPU. Bench mode of the same script: metrics are throughput and peak memory after warm-up; model load excluded. Architecture CogVideoXPipeline is listed by the pinned runtime (diffusers 0.41.0 pipelines). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json, no bench record."

@@ -1,0 +1,18 @@
+name: llamacpp-glm47-flash
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from GLM-4.7-Flash (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 3804
+requires:
+  gpus: 1
+  gpu_memory_gb: 22
+  notes: "weights 17.1 GiB; 17.1/1*1.05 + 3 = 20.9 GiB per GPU; smallest class holding it at 98% usable: 22 GiB; 1 x 22"
+model:
+  id: "unsloth/GLM-4.7-Flash-GGUF (GLM-4.7-Flash-Q4_K_M.gguf; Q4_K_M GGUF of zai-org/GLM-4.7-Flash)"
+  revision: "0d32489ecb9db6d2a4fc93bd27ef01519f95474d (HF commit of the GGUF repo); file sha256 29837ed2c0fc5f51981adf8ac8083fcf80743c598381f13e9f06cbad0498b174; base model zai-org/GLM-4.7-Flash @ 7dd20894a642a0aa287e9827cb1a1f7f91386b67"
+  licence: "MIT"
+  source_url: https://huggingface.co/unsloth/GLM-4.7-Flash-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: zai-org/GLM-4.7-Flash@7dd20894; card license: mit | downloaded repository unsloth/GLM-4.7-Flash-GGUF@0d32489e; card license: mit; its card carries a licence agreement text: False. Hardware: requires 1 x 22 GiB (single node); weights 17.1 GiB; 17.1/1*1.05 + 3 = 20.9 GiB per GPU; smallest class holding it at 98% usable: 22 GiB; 1 x 22. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'deepseek2', which the pinned source lists), the output, speed, real memory use. No reference.json."

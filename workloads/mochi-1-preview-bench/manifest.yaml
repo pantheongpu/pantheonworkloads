@@ -1,0 +1,16 @@
+name: mochi-1-preview-bench
+description: "Mochi 1 preview: throughput and peak GPU memory (diffusers)."
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 8094
+requires:
+  gpus: 1
+  gpu_memory_gb: 80
+  notes: "weights 37.3 GiB; max(18.7 largest component, 37.3/1) + 16 = 53.3 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80"
+model:
+  id: "genmo/mochi-1-preview (diffusers; 8 pinned weights file(s), bf16 variant)"
+  revision: "cd1d0fe89aa8382fcd9ae760bc3d7afe6183579f (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/genmo/mochi-1-preview
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 8 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: genmo/mochi-1-preview@cd1d0fe8; card license: apache-2.0; LICENSE begins 'Apache License Version 2.0, January 2004 http://www.apache.org/licenses/ TERMS AND CONDITI'; NOTICE begins 'Mochi 1 Preview Copyright 2024 Genmo, Inc. This repository is licensed under the Apache Li'. Hardware: requires 1 x 80 GiB (single node); weights 37.3 GiB; max(18.7 largest component, 37.3/1) + 16 = 53.3 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80. These margins are assumptions, not measurements. Task: one video from a fixed prompt and seed (30 steps, guidance 4.5); the output is statistics (channel mean/std, 8x8 block means, gradients, frame-to-frame change), never pixels, with an abs tolerance that is a guess until two GPUs have been compared. Weights are loaded bf16; with more than one GPU diffusers' device_map=balanced places whole components, so the largest component must fit one GPU. Bench mode of the same script: metrics are throughput and peak memory after warm-up; model load excluded. Architecture MochiPipeline is listed by the pinned runtime (diffusers 0.41.0 pipelines). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json, no bench record."

@@ -1,0 +1,18 @@
+name: llamacpp-glm52
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from GLM-5.2 (UD-Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 8806
+requires:
+  gpus: 8
+  gpu_memory_gb: 80
+  notes: "weights 433.8 GiB; 433.8/8*1.05 + 3 = 59.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 8 x 80"
+model:
+  id: "unsloth/GLM-5.2-GGUF (GLM-5.2-UD-Q4_K_M-00001-of-00011.gguf + 10 more shard(s); UD-Q4_K_M GGUF of zai-org/GLM-5.2)"
+  revision: "abc55e72527792c6e77069c99b4cb7de16fa9f23 (HF commit of the GGUF repo); 11 file(s), model.sha256 lists them; base model zai-org/GLM-5.2 @ cf457fa734ab149ffef225f80893eb38c6ff5cdc"
+  licence: "MIT"
+  source_url: https://huggingface.co/unsloth/GLM-5.2-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 11 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: zai-org/GLM-5.2@cf457fa7; card license: mit; LICENSE begins 'MIT License Copyright (c) 2026 Zhipu AI Permission is hereby granted, free of charge, to a' | downloaded repository unsloth/GLM-5.2-GGUF@abc55e72; card license: mit; its card carries a licence agreement text: False. Hardware: requires 8 x 80 GiB (single node); weights 433.8 GiB; 433.8/8*1.05 + 3 = 59.9 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 8 x 80. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'glm-dsa', which the pinned source lists), the output, speed, real memory use. No reference.json."

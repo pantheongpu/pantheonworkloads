@@ -1,0 +1,21 @@
+name: cogvideox-5b-diffusers
+description: "CogVideoX-5b (diffusers) on a fixed input; the result is compared with a tolerance."
+kind: functional
+runtime: pytorch
+targets: [gpu]
+compare: tolerance
+tolerance:
+  abs: 0.05
+  rel: 0.0
+timeout_s: 3840
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 40
+  notes: "weights 20.0 GiB; max(10.4 largest component, 20.0/1) + 16 = 36.0 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40"
+model:
+  id: "zai-org/CogVideoX-5b (diffusers; 5 pinned weights file(s), as stored)"
+  revision: "8fc5b281006c82b82d34fd2543d2f0ebb4e7e321 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "custom licence (LICENSE file begins 'The CogVideoX License 1. Definitions “Licensor” means the Co')"
+  source_url: https://huggingface.co/zai-org/CogVideoX-5b
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 5 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: custom licence (LICENSE file begins 'The CogVideoX License 1. Definitions “Licensor” means the Co'). Read 2026-10-09 from the Hub without credentials: zai-org/CogVideoX-5b@8fc5b281; card license: other, license_link: https://huggingface.co/THUDM/CogVideoX-5b/blob/main/LICENSE; LICENSE begins 'The CogVideoX License 1. Definitions “Licensor” means the CogVideoX Model Team that distri'. RESTRICTED: custom licence (LICENSE file begins 'The CogVideoX License 1. Definitions “Licensor” means the Co') is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 40 GiB (single node); weights 20.0 GiB; max(10.4 largest component, 20.0/1) + 16 = 36.0 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40. These margins are assumptions, not measurements. Task: one video from a fixed prompt and seed (30 steps, guidance 6.0); the output is statistics (channel mean/std, 8x8 block means, gradients, frame-to-frame change), never pixels, with an abs tolerance that is a guess until two GPUs have been compared. Weights are loaded bf16; with more than one GPU diffusers' device_map=balanced places whole components, so the largest component must fit one GPU. Architecture CogVideoXPipeline is listed by the pinned runtime (diffusers 0.41.0 pipelines). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json."

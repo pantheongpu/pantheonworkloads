@@ -1,0 +1,16 @@
+name: bge-m3-bench
+description: "BGE-M3 (dense head): throughput and peak GPU memory (retrieval)."
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 7250
+requires:
+  gpus: 1
+  gpu_memory_gb: 10
+  notes: "weights 2.1 GiB; 2.1/1*1.1 + 4 = 6.3 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10"
+model:
+  id: "BAAI/bge-m3 (retrieval; 1 pinned weights file(s), as stored (pytorch .bin))"
+  revision: "5617a9f61b028005a4858fdac845db406aefb181 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "MIT"
+  source_url: https://huggingface.co/BAAI/bge-m3
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: BAAI/bge-m3@5617a9f6; card license: mit. Hardware: requires 1 x 10 GiB (single node); weights 2.1 GiB; 2.1/1*1.1 + 4 = 6.3 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10. These margins are assumptions, not measurements. Task: the four fixed texts of llamacpp-qwen3-embedding-4b (a query about the capital of France and three passages); output = cosine similarities / scores and the passage ranking, head 'embed-cls'; the run fails when the Paris passage is not first. Bench mode of the same script: metrics are throughput and peak memory after warm-up; model load excluded. Architecture XLMRobertaModel is listed by the pinned runtime (transformers 5.19.0 model types). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json, no bench record."

@@ -1,0 +1,17 @@
+name: llamacpp-bench-gemma4-31b-it
+description: "llama-bench prompt-processing and token-generation tokens/s for gemma-4-31B-it (Q4_0 GGUF, 1 x 22 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7594
+requires:
+  gpus: 1
+  gpu_memory_gb: 22
+  notes: "weights 16.4 GiB; 16.4/1*1.05 + 3 = 20.3 GiB per GPU; smallest class holding it at 98% usable: 22 GiB; 1 x 22"
+model:
+  id: "google/gemma-4-31B-it-qat-q4_0-gguf (gemma-4-31B_q4_0-it.gguf; Q4_0 GGUF of google/gemma-4-31B-it)"
+  revision: "59dde24573e7e61570dba08b18a2e1fe246955ed (HF commit of the GGUF repo); file sha256 179cfb99212709597eae5929112cfca677e1bbf566178b479ae1da0c4772874b; base model google/gemma-4-31B-it @ 842da3794eaa0b77d5f08bae87a17459d91ff475"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/google/gemma-4-31B-it-qat-q4_0-gguf
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: google/gemma-4-31B-it@842da379; card license: apache-2.0, license_link: https://ai.google.dev/gemma/docs/gemma_4_license | downloaded repository google/gemma-4-31B-it-qat-q4_0-gguf@59dde245; card license: apache-2.0, license_link: https://ai.google.dev/gemma/docs/gemma_4_license; its card carries a licence agreement text: False. Hardware: requires 1 x 22 GiB (single node); weights 16.4 GiB; 16.4/1*1.05 + 3 = 20.3 GiB per GPU; smallest class holding it at 98% usable: 22 GiB; 1 x 22. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'gemma4', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

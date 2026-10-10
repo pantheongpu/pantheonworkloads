@@ -1,0 +1,18 @@
+name: llamacpp-bench-qwen25-72b-instruct
+description: "llama-bench prompt-processing and token-generation tokens/s for Qwen2.5-72B-Instruct (Q4_K_M GGUF, 1 x 48 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 8182
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 48
+  notes: "weights 41.0 GiB; 41.0/1*1.05 + 3 = 46.0 GiB per GPU; smallest class holding it at 98% usable: 48 GiB; 1 x 48"
+model:
+  id: "Qwen/Qwen2.5-72B-Instruct-GGUF (qwen2.5-72b-instruct-q4_k_m-00001-of-00012.gguf + 11 more shard(s); Q4_K_M GGUF of Qwen/Qwen2.5-72B-Instruct)"
+  revision: "7ca3bc388f97b264c4283bc9bf1055e2abc38441 (HF commit of the GGUF repo); 12 file(s), model.sha256 lists them; base model Qwen/Qwen2.5-72B-Instruct @ 495f39366efef23836d0cfae4fbe635880d2be31"
+  licence: "Qwen License"
+  source_url: https://huggingface.co/Qwen/Qwen2.5-72B-Instruct-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 12 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Qwen License. Read 2026-10-09 from the Hub without credentials: Qwen/Qwen2.5-72B-Instruct@495f3936; card license: other, license_name: qwen, license_link: https://huggingface.co/Qwen/Qwen2.5-72B-Instruct/blob/main/LICENSE; LICENSE begins 'Qwen LICENSE AGREEMENT Qwen LICENSE AGREEMENT Release Date: September 19, 2024 By clicking' | downloaded repository Qwen/Qwen2.5-72B-Instruct-GGUF@7ca3bc38; card license: other, license_name: qwen, license_link: https://huggingface.co/Qwen/Qwen2.5-72B-Instruct-GGUF/blob/main/LICENSE; LICENSE begins 'Qwen LICENSE AGREEMENT Qwen LICENSE AGREEMENT Release Date: September 19, 2024 By clicking'; LICENSE.txt begins 'Qwen LICENSE AGREEMENT Qwen LICENSE AGREEMENT Release Date: September 19, 2024 By clicking'; its card carries a licence agreement text: False. RESTRICTED: Qwen License is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 48 GiB (single node); weights 41.0 GiB; 41.0/1*1.05 + 3 = 46.0 GiB per GPU; smallest class holding it at 98% usable: 48 GiB; 1 x 48. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'qwen2', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

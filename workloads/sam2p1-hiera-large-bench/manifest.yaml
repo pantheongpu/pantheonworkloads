@@ -1,0 +1,16 @@
+name: sam2p1-hiera-large-bench
+description: "SAM 2.1 Hiera Large: throughput and peak GPU memory (vision)."
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 7210
+requires:
+  gpus: 1
+  gpu_memory_gb: 10
+  notes: "weights 0.4 GiB; 0.4/1*1.1 + 4 = 4.5 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10"
+model:
+  id: "facebook/sam2.1-hiera-large (vision; 1 pinned weights file(s), as stored)"
+  revision: "665f8e2ad61cf5f53d65644ff27c8ee525124610 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/facebook/sam2.1-hiera-large
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: facebook/sam2.1-hiera-large@665f8e2a; card license: apache-2.0. Hardware: requires 1 x 10 GiB (single node); weights 0.4 GiB; 0.4/1*1.1 + 4 = 4.5 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10. These margins are assumptions, not measurements. Task: head 'sam2' on scikit-image's public-domain astronaut.png (sha256 pinned, fetched at run time); see workloads/_pytorch/vision.py for the statistics compared. Bench mode of the same script: metrics are throughput and peak memory after warm-up; model load excluded. Architecture Sam2VideoModel is listed by the pinned runtime (transformers 5.19.0 model types). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json, no bench record."

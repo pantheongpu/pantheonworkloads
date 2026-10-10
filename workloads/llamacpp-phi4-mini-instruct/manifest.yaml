@@ -1,0 +1,18 @@
+name: llamacpp-phi4-mini-instruct
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Phi-4-mini-instruct (Q8_0 GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 3645
+requires:
+  gpus: 1
+  gpu_memory_gb: 10
+  notes: "weights 3.8 GiB; 3.8/1*1.05 + 3 = 7.0 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10"
+model:
+  id: "unsloth/Phi-4-mini-instruct-GGUF (Phi-4-mini-instruct.Q8_0.gguf; Q8_0 GGUF of microsoft/Phi-4-mini-instruct)"
+  revision: "78eb92a46fc37e6b524df991ed9aca9bc6aa7b80 (HF commit of the GGUF repo); file sha256 26188c6050d525376a88b04514c236c5e28a36730f1e936f2a00314212b7ba42; base model microsoft/Phi-4-mini-instruct @ cfbefacb99257ffa30c83adab238a50856ac3083"
+  licence: "MIT"
+  source_url: https://huggingface.co/unsloth/Phi-4-mini-instruct-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: MIT. Read 2026-10-09 from the Hub without credentials: microsoft/Phi-4-mini-instruct@cfbefacb; card license: mit, license_link: https://huggingface.co/microsoft/Phi-4-mini-instruct/resolve/main/LICENSE; LICENSE begins 'Microsoft. Copyright (c) Microsoft Corporation. MIT License Permission is hereby granted, '; NOTICE.md begins 'NOTICES AND INFORMATION Do Not Translate or Localize This software incorporates material f'; card licence section: 'The model is licensed under the [MIT license](./LICENSE).' | downloaded repository unsloth/Phi-4-mini-instruct-GGUF@78eb92a4; card license: mit, license_link: https://huggingface.co/microsoft/Phi-4-mini-instruct/resolve/main/LICENSE; card licence section: 'The model is licensed under the [MIT license](./LICENSE).'; its card carries a licence agreement text: False. Hardware: requires 1 x 10 GiB (single node); weights 3.8 GiB; 3.8/1*1.05 + 3 = 7.0 GiB per GPU; smallest class holding it at 98% usable: 10 GiB; 1 x 10. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'phi3', which the pinned source lists), the output, speed, real memory use. No reference.json."

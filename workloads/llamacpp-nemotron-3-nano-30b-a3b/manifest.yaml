@@ -1,0 +1,19 @@
+name: llamacpp-nemotron-3-nano-30b-a3b
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from NVIDIA-Nemotron-3-Nano-30B-A3B (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 3850
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 40
+  notes: "weights 20.9 GiB; 20.9/1*1.05 + 3 = 24.9 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40"
+model:
+  id: "ggml-org/NVIDIA-Nemotron-3-Nano-30B-A3B-GGUF (NVIDIA-Nemotron-3-Nano-30B-A3B-Q4_K_M.gguf; Q4_K_M GGUF of nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16)"
+  revision: "f9d9b441a049bf27473c3cdd9cec220f5657b862 (HF commit of the GGUF repo); file sha256 0f111a0d49777a2a0178758b1aee14e5365c495987499401ef3ebe87754322a8; base model nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16 @ bf77c3174f68ad409e1c2aa60daeb46e32d1c606"
+  licence: "NVIDIA Nemotron Open Model License"
+  source_url: https://huggingface.co/ggml-org/NVIDIA-Nemotron-3-Nano-30B-A3B-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: NVIDIA Nemotron Open Model License. Read 2026-10-09 from the Hub without credentials: nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16@bf77c317; card license: other, license_name: nvidia-nemotron-open-model-license, license_link: https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-nemotron-open-model-license/ | downloaded repository ggml-org/NVIDIA-Nemotron-3-Nano-30B-A3B-GGUF@f9d9b441; card license: other; its card carries a licence agreement text: False. Note: the downloaded repository's card says 'license: other' without a name; the official repository's other/nvidia-nemotron-open-model-license is recorded. RESTRICTED: NVIDIA Nemotron Open Model License is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 40 GiB (single node); weights 20.9 GiB; 20.9/1*1.05 + 3 = 24.9 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40. These margins are assumptions, not measurements. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'nemotron_h_moe', which the pinned source lists), the output, speed, real memory use. No reference.json."

@@ -1,0 +1,16 @@
+name: wan21-t2v-14b-bench
+description: "Wan2.1-T2V-14B: throughput and peak GPU memory (diffusers)."
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 8098
+requires:
+  gpus: 1
+  gpu_memory_gb: 80
+  notes: "weights 37.4 GiB; max(26.6 largest component, 37.4/1) + 16 = 53.4 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80"
+model:
+  id: "Wan-AI/Wan2.1-T2V-14B-Diffusers (diffusers; 18 pinned weights file(s), stored fp32, loaded bf16)"
+  revision: "38ec498cb3208fb688890f8cc7e94ede2cbd7f68 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/Wan-AI/Wan2.1-T2V-14B-Diffusers
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 18 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: Wan-AI/Wan2.1-T2V-14B-Diffusers@38ec498c; card license: apache-2.0. Hardware: requires 1 x 80 GiB (single node); weights 37.4 GiB; max(26.6 largest component, 37.4/1) + 16 = 53.4 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80. These margins are assumptions, not measurements. Task: one video from a fixed prompt and seed (30 steps, guidance 5.0); the output is statistics (channel mean/std, 8x8 block means, gradients, frame-to-frame change), never pixels, with an abs tolerance that is a guess until two GPUs have been compared. Weights are loaded bf16; with more than one GPU diffusers' device_map=balanced places whole components, so the largest component must fit one GPU. Bench mode of the same script: metrics are throughput and peak memory after warm-up; model load excluded. Architecture WanPipeline is listed by the pinned runtime (diffusers 0.41.0 pipelines). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json, no bench record."

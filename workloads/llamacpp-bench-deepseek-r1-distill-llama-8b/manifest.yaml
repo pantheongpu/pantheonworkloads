@@ -1,0 +1,18 @@
+name: llamacpp-bench-deepseek-r1-distill-llama-8b
+description: "llama-bench prompt-processing and token-generation tokens/s for DeepSeek-R1-Distill-Llama-8B (Q8_0 GGUF, 1 x 15 GiB)."
+kind: benchmark
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+timeout_s: 7390
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 15
+  notes: "weights 8.0 GiB; 8.0/1*1.05 + 3 = 11.4 GiB per GPU; smallest class holding it at 98% usable: 15 GiB; 1 x 15"
+model:
+  id: "unsloth/DeepSeek-R1-Distill-Llama-8B-GGUF (DeepSeek-R1-Distill-Llama-8B-Q8_0.gguf; Q8_0 GGUF of deepseek-ai/DeepSeek-R1-Distill-Llama-8B)"
+  revision: "615f8936e16dfde29dcc00be71145d4d5ce8ed53 (HF commit of the GGUF repo); file sha256 8c6e3924d662d3f24a96b228a5c317510c27e91c587e71e78877ed18a875ec82; base model deepseek-ai/DeepSeek-R1-Distill-Llama-8B @ 6a6f4aa4197940add57724a7707d069478df56b1"
+  licence: "Llama 3.1 Community Licence"
+  source_url: https://huggingface.co/unsloth/DeepSeek-R1-Distill-Llama-8B-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Llama 3.1 Community Licence. Read 2026-10-09 from the Hub without credentials: deepseek-ai/DeepSeek-R1-Distill-Llama-8B@6a6f4aa4; card license: mit; LICENSE begins 'MIT License Copyright (c) 2023 DeepSeek Permission is hereby granted, free of charge, to a' | public licence text https://raw.githubusercontent.com/meta-llama/llama-models/0e0b8c519242d5833d8c11bffc1232b77ad7f301/models/llama3_1/LICENSE begins 'LLAMA 3.1 COMMUNITY LICENSE AGREEMENT Llama 3.1 Version Release Date: July 23, 2024 “Agreement” mean' | downloaded repository unsloth/DeepSeek-R1-Distill-Llama-8B-GGUF@615f8936; card license: llama3.1; its card carries a licence agreement text: False. Note: the two cards disagree (mit vs llama3.1); the more restrictive is recorded. RESTRICTED: Llama 3.1 Community Licence is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 15 GiB (single node); weights 8.0 GiB; 8.0/1*1.05 + 3 = 11.4 GiB per GPU; smallest class holding it at 98% usable: 15 GiB; 1 x 15. These margins are assumptions, not measurements. Task: llama-bench pp512 and tg128 (tools/llamacpp/bench.sh), -ngl 99, layers split over the GPUs llama.cpp sees; metrics pp512_tokens_per_s and tg128_tokens_per_s. Real GPUs only. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'llama', which the pinned source lists), the output, speed, real memory use. No reference.json, no bench record."

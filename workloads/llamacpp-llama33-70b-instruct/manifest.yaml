@@ -1,0 +1,19 @@
+name: llamacpp-llama33-70b-instruct
+description: "llama.cpp (llama-completion) greedy-decodes 3 tokens from Llama-3.3-70B-Instruct (Q4_K_M GGUF)."
+kind: functional
+runtime: llama.cpp
+runtime_version: "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)"
+targets: [gpu]
+compare: exact
+timeout_s: 4075
+restricted: true
+requires:
+  gpus: 1
+  gpu_memory_gb: 48
+  notes: "weights 39.6 GiB; 39.6/1*1.05 + 3 = 44.6 GiB per GPU; smallest class holding it at 98% usable: 48 GiB; 1 x 48"
+model:
+  id: "bartowski/Llama-3.3-70B-Instruct-GGUF (Llama-3.3-70B-Instruct-Q4_K_M.gguf; Q4_K_M GGUF of meta-llama/Llama-3.3-70B-Instruct)"
+  revision: "b6c5c9f176f3279204034e1d16d393105e95cb88 (HF commit of the GGUF repo); file sha256 32df3baccb556f9840059b2528b2dee4d3d516b24afdfb9d0c56ff5f63e3a664; base model meta-llama/Llama-3.3-70B-Instruct @ 6f6073b423013f6a7d4d9f39144961bfbfbc386b"
+  licence: "Llama 3.3 Community Licence"
+  source_url: https://huggingface.co/bartowski/Llama-3.3-70B-Instruct-GGUF
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 1 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Llama 3.3 Community Licence. Read 2026-10-09 from the Hub without credentials: meta-llama/Llama-3.3-70B-Instruct@6f6073b4; card license: llama3.3; GATED (manual): only the API tags were readable | public licence text https://raw.githubusercontent.com/meta-llama/llama-models/0e0b8c519242d5833d8c11bffc1232b77ad7f301/models/llama3_3/LICENSE begins '**LLAMA 3.3 COMMUNITY LICENSE AGREEMENT** Llama 3.3 Version Release Date: December 6, 2024 “**Agreem' | downloaded repository bartowski/Llama-3.3-70B-Instruct-GGUF@b6c5c9f1; card license: llama3.3; its card carries a licence agreement text: True. RESTRICTED: Llama 3.3 Community Licence is a custom, non-OSI or use-based licence (rule in docs/model-registry.md), so the workload is excluded from default selections (docs/manifest.md); name it to run it, and accept the licence yourself. Hardware: requires 1 x 48 GiB (single node); weights 39.6 GiB; 39.6/1*1.05 + 3 = 44.6 GiB per GPU; smallest class holding it at 98% usable: 48 GiB; 1 x 48. These margins are assumptions, not measurements. Third-party conversion: the official meta-llama/Llama-3.3-70B-Instruct is gated (manual); the files come from bartowski/Llama-3.3-70B-Instruct-GGUF, which is not gated, and whose card was read for the licence text. Task: prompt \"The capital of France is\", -n 3, --temp 0, seed 1, no chat template, -c 256, -ngl 99 (layers split over the GPUs llama.cpp sees, --split-mode layer by default); output compared exactly once a reference is recorded. Build and knobs: docs/llamacpp.md. Not verified: that llama.cpp b11447 loads these files (the GGUF header declares architecture 'llama', which the pinned source lists), the output, speed, real memory use. No reference.json."

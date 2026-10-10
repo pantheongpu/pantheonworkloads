@@ -1,0 +1,20 @@
+name: flux1-schnell-diffusers
+description: "FLUX.1-schnell (unsloth mirror of the gated official repo) (diffusers) on a fixed input; the result is compared with a tolerance."
+kind: functional
+runtime: pytorch
+targets: [gpu]
+compare: tolerance
+tolerance:
+  abs: 0.03
+  rel: 0.0
+timeout_s: 3976
+requires:
+  gpus: 1
+  gpu_memory_gb: 40
+  notes: "weights 31.4 GiB; max(22.1 largest component, 31.4/1) + 6 = 37.4 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40"
+model:
+  id: "unsloth/FLUX.1-schnell (diffusers; 7 pinned weights file(s), as stored)"
+  revision: "9df3faa7ae3b6ddf0b2b69bb78616372897cc65c (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/unsloth/FLUX.1-schnell
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 7 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: black-forest-labs/FLUX.1-schnell@741f7c3c; card license: apache-2.0; GATED (auto): only the API tags were readable | downloaded repository unsloth/FLUX.1-schnell@9df3faa7; card license: apache-2.0; NOTICE begins 'The FLUX.1 [dev] Model is licensed by Black Forest Labs Inc. under the FLUX.1 [dev] Non-Co'; its card carries a licence agreement text: False. Hardware: requires 1 x 40 GiB (single node); weights 31.4 GiB; max(22.1 largest component, 31.4/1) + 6 = 37.4 GiB per GPU; smallest class holding it at 98% usable: 40 GiB; 1 x 40. These margins are assumptions, not measurements. Task: one image from a fixed prompt and seed (4 steps, guidance 0.0); the output is statistics (channel mean/std, 8x8 block means, gradients), never pixels, with an abs tolerance that is a guess until two GPUs have been compared. Weights are loaded bf16; with more than one GPU diffusers' device_map=balanced places whole components, so the largest component must fit one GPU. Architecture FluxPipeline is listed by the pinned runtime (diffusers 0.41.0 pipelines). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json."

@@ -1,0 +1,16 @@
+name: qwen3-vl-32b-bench
+description: "Qwen3-VL-32B-Instruct (bf16): decode tokens per second, prefill images per second and peak GPU memory."
+kind: benchmark
+runtime: pytorch
+targets: [gpu]
+timeout_s: 8690
+requires:
+  gpus: 1
+  gpu_memory_gb: 80
+  notes: "weights 62.1 GiB; 62.1/1*1.1 + 4 = 72.3 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80"
+model:
+  id: "Qwen/Qwen3-VL-32B-Instruct (vlm; 14 pinned weights file(s), as stored)"
+  revision: "0cfaf48183f594c314753d30a4c4974bc75f3ccb (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run"
+  licence: "Apache-2.0"
+  source_url: https://huggingface.co/Qwen/Qwen3-VL-32B-Instruct
+notes: "WRITTEN, NEVER RUN: nothing in this workload has been executed; no weights were downloaded and no GPU was used. What was read (2026-10-09, public Hugging Face API and raw files, no credentials): commit, file names, sizes and LFS sha256 of the 14 pinned file(s) (model.sha256, Hub oids, verified on every run). Licence: Apache-2.0. Read 2026-10-09 from the Hub without credentials: Qwen/Qwen3-VL-32B-Instruct@0cfaf481; card license: apache-2.0. Hardware: requires 1 x 80 GiB (single node); weights 62.1 GiB; 62.1/1*1.1 + 4 = 72.3 GiB per GPU; smallest class holding it at 98% usable: 80 GiB; 1 x 80. These margins are assumptions, not measurements. Task: describes scikit-image's public-domain astronaut.png (sha256 pinned, fetched at run time) in one sentence with greedy decoding; text and token ids compared exactly; a decoding step whose top-1 and top-2 logits are within 0.5 (bf16 noise) fails the run. Weights are loaded bf16 with device_map=auto and the run fails if anything would be offloaded to the CPU. bf16 reasoned, not measured. If the model's processor or chat template differs from the generic image+text chat message, the first real run will fail and need a model-specific prompt. Bench mode of the same script: metrics are throughput and peak memory after warm-up; model load excluded. Architecture Qwen3VLForConditionalGeneration is listed by the pinned runtime (transformers 5.19.0 image-text-to-text types). Not verified: that the pinned library versions load this checkpoint, the output, the tolerances, speed, memory. No reference.json, no bench record."
