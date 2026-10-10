@@ -52,6 +52,11 @@ def pairs(r):
     return generate.names(r)
 
 
+def state(name):
+    """'written' (never run), 'verified' (run on a real GPU, reference and bench recorded) or 'blocked' (the first run showed it cannot work as pinned)."""
+    return generate.run_state(name)
+
+
 def fake_smi(tmp, gpus):
     """A fake nvidia-smi printing `name, MiB, compute_cap` lines for the given (name, MiB) list."""
     p = pathlib.Path(tmp) / "nvidia-smi"
@@ -98,7 +103,10 @@ class PinnedModels(unittest.TestCase):
             for name in pairs(r):
                 errors, warnings = validate.check(WL / name / "manifest.yaml")
                 self.assertEqual(errors, [], name)
-                self.assertTrue(all("no reference.json" in w for w in warnings), (name, warnings))
+                if state(name) == "written":
+                    self.assertTrue(all("no reference.json" in w for w in warnings), (name, warnings))
+                elif state(name) == "verified":
+                    self.assertEqual(warnings, [], name)
 
     def test_pinned_revision_licence_requires_and_never_run_note(self):
         for r in WRITTEN:
@@ -116,8 +124,13 @@ class PinnedModels(unittest.TestCase):
                 self.assertEqual(req["gpus"], r["hw"]["gpus"], name)
                 self.assertEqual(req["gpu_memory_gb"], r["hw"]["gpu_memory_gb"], name)
                 self.assertEqual(m["targets"], ["gpu"], name)
-                self.assertIn("WRITTEN, NEVER RUN", m["notes"], name)
-                self.assertIn("Not verified", m["notes"], name)
+                if state(name) == "written":
+                    self.assertIn("WRITTEN, NEVER RUN", m["notes"], name)
+                    self.assertIn("Not verified", m["notes"], name)
+                else:   # graduated: the first run happened; the notes say what it showed and keep the provenance
+                    self.assertNotIn("WRITTEN, NEVER RUN", m["notes"], name)
+                    self.assertTrue(m["notes"].startswith(generate.GRADUATED), name)
+                    self.assertRegex(m["notes"], r"A10G|L40S|H100|RTX|GPU", name)
                 self.assertIn(r["licence"]["label"], m["notes"], name)
 
     def test_model_sha256_matches_the_hub_listing(self):
@@ -140,11 +153,32 @@ class PinnedModels(unittest.TestCase):
                 self.assertEqual(f["sha256"], by[f["path"]]["sha256"], (r["key"], f["path"]))
         self.assertEqual(HUB["fetched"], mc.DATE)
 
-    def test_no_reference_and_no_bench_record(self):
+    def test_no_reference_and_no_bench_record_until_the_first_run(self):
+        for r in WRITTEN:
+            f, b = pairs(r)
+            if state(f) != "verified":
+                for name in (f, b):   # never run, or blocked at its first run: nothing may pose as a measurement
+                    self.assertFalse((WL / name / "reference.json").exists(), name)
+                    self.assertFalse((ROOT / "bench" / name).exists(), name)
+            else:   # verified: a reference from a real GPU and a bench record of the twin
+                ref = json.loads((WL / f / "reference.json").read_text())
+                self.assertIn("output", ref, f)
+                self.assertEqual(ref.get("recorded_on"), "gpu", f)
+                self.assertTrue(list((ROOT / "bench" / b).glob("*.json")), b)
+                self.assertEqual(state(b), "verified", b)
+
+    def test_graduated_workloads_come_in_pairs_and_say_so_in_both_manifests(self):
+        for r in WRITTEN:
+            f, b = pairs(r)
+            self.assertEqual(state(f), state(b), (f, b))
+
+    def test_blocked_at_run_notes_carry_evidence(self):
         for r in WRITTEN:
             for name in pairs(r):
-                self.assertFalse((WL / name / "reference.json").exists(), name)
-                self.assertFalse((ROOT / "bench" / name).exists(), name)
+                if state(name) == "blocked":
+                    notes = validate.load(WL / name / "manifest.yaml")["notes"]
+                    self.assertRegex(notes, r"(?i)error|exit|OOM|out of memory|unsupported|not found|fail", name)
+                    self.assertGreater(len(notes), 200, name)
 
     def test_restricted_follows_the_licence(self):
         for r in RESOLVED:

@@ -114,7 +114,7 @@ PW_CACHE=/big/disk bin/pw run llamacpp-kimi-k3 --target gpu   # 8 x 192 GiB, 140
 
 <!-- registry:start -->
 
-**147 entries: 129 with workloads written (never run), 18 blocked.** Hub data read 2026-10-09; runtimes: llama.cpp b11447, vLLM v0.30.0, transformers 5.19.0, diffusers 0.41.0.
+**147 entries: 129 with workloads written, 18 blocked.** Of the 129 written: 0 verified on a real GPU (reference and bench recorded), 0 blocked at their first run, 129 never run. Hub data read 2026-10-09; runtimes: llama.cpp b11447, vLLM v0.30.0, transformers 5.19.0, diffusers 0.41.0.
 
 | Family | Entries | Workloads written | Blocked |
 | --- | ---: | ---: | ---: |
