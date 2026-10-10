@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-exaone-4p5-33b",
+  "date": "2026-10-10T06:55:31Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA L40S",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "LGAI-EXAONE/EXAONE-4.5-33B-GGUF (EXAONE-4.5-33B-Q4_K_M.gguf; Q4_K_M GGUF of LGAI-EXAONE/EXAONE-4.5-33B)",
+      "revision": "0e969634ef24db05151b435970297a6dee634b7e (HF commit of the GGUF repo); file sha256 5ba3839b67dcee5618ea7b2206cedc8f9e2ec90fbcec3c95a8cc8b33967f6baf; base model LGAI-EXAONE/EXAONE-4.5-33B @ 570aa4b15a4f45ba1133072b45f50198f6e3b4fd",
+      "licence": "EXAONE AI Model License Agreement",
+      "source_url": "https://huggingface.co/LGAI-EXAONE/EXAONE-4.5-33B-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "196d4166f82cf24e32c67412a73a198454981b88",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 2483.91,
+      "values": [
+        2483.28,
+        2482.74,
+        2486.14,
+        2486.59,
+        2483.91
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 33.88,
+      "values": [
+        33.88,
+        33.89,
+        33.89,
+        33.88,
+        33.88
+      ]
+    }
+  }
+}

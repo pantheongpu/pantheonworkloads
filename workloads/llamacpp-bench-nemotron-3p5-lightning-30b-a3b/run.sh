@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-bench-nemotron-3p5-lightning-30b-a3b: llama-bench tokens/s with NVIDIA-Nemotron-3.5-Lightning-30B-A3B (Q4_K_M GGUF, 23.7 GiB, 1 x 40 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# VERIFIED on an L40S (stage 2a, Tier B; docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

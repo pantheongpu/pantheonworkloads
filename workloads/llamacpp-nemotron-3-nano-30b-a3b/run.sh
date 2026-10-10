@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-nemotron-3-nano-30b-a3b: llama-completion greedy-decodes 3 tokens with NVIDIA-Nemotron-3-Nano-30B-A3B (Q4_K_M GGUF, 20.9 GiB, 1 x 40 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# VERIFIED on an L40S (stage 2a, Tier B; docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

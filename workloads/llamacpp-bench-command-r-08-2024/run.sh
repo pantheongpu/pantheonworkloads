@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-bench-command-r-08-2024: llama-bench tokens/s with c4ai-command-r-08-2024 (Q4_K_M GGUF, 18.4 GiB, 1 x 24 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# VERIFIED on an L40S (stage 2a, Tier B; docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

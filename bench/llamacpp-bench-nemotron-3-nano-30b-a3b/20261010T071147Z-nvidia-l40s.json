@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-nemotron-3-nano-30b-a3b",
+  "date": "2026-10-10T07:11:47Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA L40S",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "ggml-org/NVIDIA-Nemotron-3-Nano-30B-A3B-GGUF (NVIDIA-Nemotron-3-Nano-30B-A3B-Q4_K_M.gguf; Q4_K_M GGUF of nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16)",
+      "revision": "f9d9b441a049bf27473c3cdd9cec220f5657b862 (HF commit of the GGUF repo); file sha256 0f111a0d49777a2a0178758b1aee14e5365c495987499401ef3ebe87754322a8; base model nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16 @ bf77c3174f68ad409e1c2aa60daeb46e32d1c606",
+      "licence": "NVIDIA Nemotron Open Model License",
+      "source_url": "https://huggingface.co/ggml-org/NVIDIA-Nemotron-3-Nano-30B-A3B-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "196d4166f82cf24e32c67412a73a198454981b88",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 7255.75,
+      "values": [
+        7221.18,
+        7261.76,
+        7222.5,
+        7263.51,
+        7255.75
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 168.0,
+      "values": [
+        167.97,
+        167.91,
+        168.02,
+        168.1,
+        168.0
+      ]
+    }
+  }
+}
