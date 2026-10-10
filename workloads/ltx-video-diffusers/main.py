@@ -1,4 +1,4 @@
-"""ltx-video-diffusers: LTX-Video 0.9.x. Shared body: ../_pytorch/diffusion.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""ltx-video-diffusers: LTX-Video 0.9.x. Shared body: ../_pytorch/diffusion.py (functional and bench modes). Verified on an L40S (stage 2a)."""
 import os
 import sys
 

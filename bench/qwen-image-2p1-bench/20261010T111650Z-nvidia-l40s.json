@@ -1,0 +1,61 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "qwen-image-2p1-bench",
+  "date": "2026-10-10T11:16:50Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA L40S",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "Qwen/Qwen-Image-2.1 (diffusers; 7 pinned weights file(s), as stored)",
+      "revision": "d26bb61231c349cf6b7896fa83353113880e1ba3 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "Qwen Research License",
+      "source_url": "https://huggingface.co/Qwen/Qwen-Image-2.1"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "454bae3d90918131681162f28a18826ba447f5f6",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "peak_gpu_memory_gb": {
+      "median": 39.53,
+      "values": [
+        39.53,
+        39.53,
+        39.53,
+        39.53,
+        39.53
+      ]
+    },
+    "seconds_per_generation": {
+      "median": 12.068,
+      "values": [
+        12.148,
+        12.086,
+        12.068,
+        12.037,
+        12.049
+      ]
+    },
+    "steps_per_s": {
+      "median": 2.486,
+      "values": [
+        2.47,
+        2.482,
+        2.486,
+        2.492,
+        2.49
+      ]
+    }
+  }
+}

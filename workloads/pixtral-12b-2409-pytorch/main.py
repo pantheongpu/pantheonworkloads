@@ -1,4 +1,4 @@
-"""pixtral-12b-2409-pytorch: Pixtral-12B-2409 (HF-format conversion). Shared body: ../_pytorch/vlm.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""pixtral-12b-2409-pytorch: Pixtral-12B-2409 (HF-format conversion). Shared body: ../_pytorch/vlm.py (functional and bench modes). Verified on an L40S (stage 2a)."""
 import os
 import sys
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# wan21-t2v-1p3b-bench: Wan2.1-T2V-1.3B on PyTorch, bench mode. WRITTEN, NEVER RUN (docs/model-registry.md).
+# wan21-t2v-1p3b-bench: Wan2.1-T2V-1.3B on PyTorch, bench mode. VERIFIED on an L40S (stage 2a, Tier B; docs/model-registry.md).
 # Contract: docs/workload-contract.md; PyTorch discovery/install: ../_pytorch/env.sh. Exits 77 when the host lacks the GPUs, the disk,
 # PyTorch or the model download. Real GPUs only.
 set -uo pipefail

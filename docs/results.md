@@ -97,6 +97,26 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | forecasts_per_s_b1 | 1.17 | 1.16 | 1.22 |
 
+## cogvideox-2b-bench on NVIDIA L40S
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `454bae3d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 29.54 | 29.54 | 29.54 |
+| seconds_per_generation | 49.35 | 48.72 | 51.15 |
+| steps_per_s | 0.608 | 0.587 | 0.616 |
+
+## cogvideox-5b-bench on NVIDIA L40S
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `454bae3d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 36.98 | 36.98 | 36.98 |
+| seconds_per_generation | 142.2 | 141 | 143.8 |
+| steps_per_s | 0.211 | 0.209 | 0.213 |
+
 ## crnn-text-recognition-bench on NVIDIA A10G
 
 2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/crnn-text-recognition-bench/`
@@ -140,6 +160,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | Metric | Median | Min | Max |
 | --- | ---: | ---: | ---: |
 | audio_seconds_per_s | 2.21 | 2.21 | 2.21 |
+
+## flux1-schnell-bench on NVIDIA L40S
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `454bae3d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 36.3 | 36.3 | 36.3 |
+| seconds_per_generation | 2.252 | 2.251 | 2.252 |
+| steps_per_s | 1.776 | 1.776 | 1.777 |
 
 ## flux2-klein-4b-bench on NVIDIA A10G
 
@@ -197,6 +227,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | frames_per_s | 152.3 | 151.3 | 153 |
 | realtime_factor | 2.435 | 2.419 | 2.447 |
+
+## hunyuanvideo-15-720p-t2v-bench on NVIDIA L40S
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `454bae3d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 37.93 | 37.93 | 37.93 |
+| seconds_per_generation | 175.5 | 175.2 | 175.7 |
+| steps_per_s | 0.171 | 0.171 | 0.171 |
 
 ## kokoro-tts-int8-onnx-bench on NVIDIA A10G
 
@@ -792,6 +832,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 50,341 | 49,816 | 50,432 |
 | tg128_tokens_per_s | 1,178 | 1,176 | 1,181 |
 
+## ltx-video-bench on NVIDIA L40S
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `454bae3d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 15.96 | 15.96 | 15.96 |
+| seconds_per_generation | 4.684 | 4.647 | 4.73 |
+| steps_per_s | 6.404 | 6.342 | 6.456 |
+
 ## minilm-l6-v2-onnx-bench on NVIDIA A10G
 
 2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/minilm-l6-v2-onnx-bench/`
@@ -892,6 +942,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | audio_seconds_per_s | 111.3 | 108.8 | 114.7 |
 
+## pixtral-12b-2409-bench on NVIDIA L40S
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `454bae3d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| decode_tokens_per_s_b1 | 27 | 26.96 | 27.01 |
+| peak_gpu_memory_gb | 25.95 | 25.95 | 25.95 |
+| prefill_images_per_s_b1 | 5.932 | 5.868 | 5.972 |
+
 ## pphumanseg-person-segmentation-bench on NVIDIA A10G
 
 2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/pphumanseg-person-segmentation-bench/`
@@ -923,6 +983,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | matmul_fp32_tflops | 22.48 | 22.47 | 22.48 |
 | matmul_tf32_tflops | 30.86 | 30.84 | 30.87 |
 | sdpa_causal_fp16_tflops | 54.91 | 54.9 | 54.99 |
+
+## qwen-image-2p1-bench on NVIDIA L40S
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `454bae3d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 39.53 | 39.53 | 39.53 |
+| seconds_per_generation | 12.07 | 12.04 | 12.15 |
+| steps_per_s | 2.486 | 2.47 | 2.492 |
 
 ## qwen25-vl-7b-bench on NVIDIA A10G
 
@@ -1097,6 +1167,26 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | output_tokens_per_s | 32,545 | 32,348 | 32,672 |
 | requests_per_s | 254.3 | 252.7 | 255.2 |
 | total_tokens_per_s | 65,090 | 64,696 | 65,343 |
+
+## wan21-t2v-1p3b-bench on NVIDIA L40S
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `454bae3d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 19.09 | 19.09 | 19.09 |
+| seconds_per_generation | 37.38 | 37.35 | 37.42 |
+| steps_per_s | 0.803 | 0.802 | 0.803 |
+
+## wan22-ti2v-5b-bench on NVIDIA L40S
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `454bae3d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 27.65 | 27.65 | 27.65 |
+| seconds_per_generation | 21.91 | 21.88 | 22 |
+| steps_per_s | 1.369 | 1.363 | 1.371 |
 
 ## wespeaker-resnet34-onnx-bench on NVIDIA A10G
 

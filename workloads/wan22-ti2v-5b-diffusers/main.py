@@ -1,4 +1,4 @@
-"""wan22-ti2v-5b-diffusers: Wan2.2-TI2V-5B. Shared body: ../_pytorch/diffusion.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""wan22-ti2v-5b-diffusers: Wan2.2-TI2V-5B. Shared body: ../_pytorch/diffusion.py (functional and bench modes). Verified on an L40S (stage 2a)."""
 import os
 import sys
 

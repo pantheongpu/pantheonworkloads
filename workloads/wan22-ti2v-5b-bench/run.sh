@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# wan22-ti2v-5b-bench: Wan2.2-TI2V-5B on PyTorch, bench mode. WRITTEN, NEVER RUN (docs/model-registry.md).
+# wan22-ti2v-5b-bench: Wan2.2-TI2V-5B on PyTorch, bench mode. VERIFIED on an L40S (stage 2a, Tier B; docs/model-registry.md).
 # Contract: docs/workload-contract.md; PyTorch discovery/install: ../_pytorch/env.sh. Exits 77 when the host lacks the GPUs, the disk,
 # PyTorch or the model download. Real GPUs only.
 set -uo pipefail

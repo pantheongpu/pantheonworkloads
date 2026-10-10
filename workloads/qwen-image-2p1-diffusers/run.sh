@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# qwen-image-2p1-diffusers: Qwen-Image-2.1 on PyTorch, functional. WRITTEN, NEVER RUN (docs/model-registry.md).
+# qwen-image-2p1-diffusers: Qwen-Image-2.1 on PyTorch, functional. VERIFIED on an L40S (stage 2a, Tier B; docs/model-registry.md).
 # Contract: docs/workload-contract.md; PyTorch discovery/install: ../_pytorch/env.sh. Exits 77 when the host lacks the GPUs, the disk,
 # PyTorch or the model download. Real GPUs only.
 set -uo pipefail

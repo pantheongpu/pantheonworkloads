@@ -1,4 +1,4 @@
-"""wan21-t2v-1p3b-diffusers: Wan2.1-T2V-1.3B. Shared body: ../_pytorch/diffusion.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""wan21-t2v-1p3b-diffusers: Wan2.1-T2V-1.3B. Shared body: ../_pytorch/diffusion.py (functional and bench modes). Verified on an L40S (stage 2a)."""
 import os
 import sys
 

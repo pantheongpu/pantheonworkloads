@@ -1,4 +1,4 @@
-"""flux1-schnell-diffusers: FLUX.1-schnell (unsloth mirror of the gated official repo). Shared body: ../_pytorch/diffusion.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""flux1-schnell-diffusers: FLUX.1-schnell (unsloth mirror of the gated official repo). Shared body: ../_pytorch/diffusion.py (functional and bench modes). Verified on an L40S (stage 2a)."""
 import os
 import sys
 

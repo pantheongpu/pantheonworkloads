@@ -1,4 +1,4 @@
-"""hunyuanvideo-15-720p-t2v-diffusers: HunyuanVideo-1.5 720p T2V. Shared body: ../_pytorch/diffusion.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""hunyuanvideo-15-720p-t2v-diffusers: HunyuanVideo-1.5 720p T2V. Shared body: ../_pytorch/diffusion.py (functional and bench modes). Verified on an L40S (stage 2a)."""
 import os
 import sys
 

@@ -298,3 +298,32 @@ Medians of 5 repeats; `**` marks a change above 5%. Spread is (max - min) / medi
 | `zipformer-audio-tagging-onnx-bench` | `realtime_factor` | 173 | 174.3 | +0.7% | 0.6% / 0.4% |  |
 
 `onnx-zoo-bertsquad-int8-bench` already had the 7-bit option and the same instance class, so its re-record only adds the versions (and agrees with the previous record within 0.2%).
+
+## Model catalog, Tier B (2026-10-10, one g6e.xlarge, NVIDIA L40S)
+
+NVIDIA L40S 48 GB (44.4 GiB), driver 595.91.07, llama.cpp b11447 CUDA sm_89 `-ngl 99` (pp512/tg128, 3 llama-bench repetitions per repeat), torch 2.14.1+cu130, transformers 5.19.0,
+diffusers 0.41.0; 5 repeats each, from a clean checkout of the pushed commit (`repo_dirty: false`). The diffusion twins use `PW_DIFFUSION_RUNS=1` (one timed
+generation per repeat after one warm-up). The records hold all five values. Details and the first-run fixes: `docs/model-registry.md`, "Stage 2a, Tier B".
+
+| Workload | Medians |
+| --- | --- |
+| `cogvideox-2b-bench` | peak_gpu_memory_gb 29.54, seconds_per_generation 49.349, steps_per_s 0.608 |
+| `cogvideox-5b-bench` | peak_gpu_memory_gb 36.98, seconds_per_generation 142.247, steps_per_s 0.211 |
+| `flux1-schnell-bench` | peak_gpu_memory_gb 36.3, seconds_per_generation 2.252, steps_per_s 1.776 |
+| `hunyuanvideo-15-720p-t2v-bench` | peak_gpu_memory_gb 37.93, seconds_per_generation 175.541, steps_per_s 0.171 |
+| `llamacpp-bench-command-r-08-2024` | pp512_tokens_per_s 2581.92, tg128_tokens_per_s 34.59 |
+| `llamacpp-bench-deepseek-r1-distill-qwen-32b` | pp512_tokens_per_s 2463.6, tg128_tokens_per_s 33.63 |
+| `llamacpp-bench-exaone-4p5-33b` | pp512_tokens_per_s 2483.91, tg128_tokens_per_s 33.88 |
+| `llamacpp-bench-falcon-h1-34b-instruct` | pp512_tokens_per_s 2183.57, tg128_tokens_per_s 29.32 |
+| `llamacpp-bench-kimi-linear-48b-a3b-instruct` | pp512_tokens_per_s 5155.12, tg128_tokens_per_s 162.55 |
+| `llamacpp-bench-nemotron-3-nano-30b-a3b` | pp512_tokens_per_s 7255.75, tg128_tokens_per_s 168.0 |
+| `llamacpp-bench-nemotron-3p5-lightning-30b-a3b` | pp512_tokens_per_s 7057.12, tg128_tokens_per_s 177.69 |
+| `llamacpp-bench-qwen25-coder-32b-instruct` | pp512_tokens_per_s 2465.47, tg128_tokens_per_s 33.63 |
+| `llamacpp-bench-qwen3-32b` | pp512_tokens_per_s 2452.62, tg128_tokens_per_s 33.73 |
+| `llamacpp-bench-qwen36-27b` | pp512_tokens_per_s 2589.59, tg128_tokens_per_s 33.57 |
+| `llamacpp-bench-qwen36-35b-a3b` | pp512_tokens_per_s 6234.63, tg128_tokens_per_s 146.61 |
+| `ltx-video-bench` | peak_gpu_memory_gb 15.96, seconds_per_generation 4.684, steps_per_s 6.404 |
+| `pixtral-12b-2409-bench` | decode_tokens_per_s_b1 27.0, peak_gpu_memory_gb 25.95, prefill_images_per_s_b1 5.932 |
+| `qwen-image-2p1-bench` | peak_gpu_memory_gb 39.53, seconds_per_generation 12.068, steps_per_s 2.486 |
+| `wan21-t2v-1p3b-bench` | peak_gpu_memory_gb 19.09, seconds_per_generation 37.377, steps_per_s 0.803 |
+| `wan22-ti2v-5b-bench` | peak_gpu_memory_gb 27.65, seconds_per_generation 21.914, steps_per_s 1.369 |

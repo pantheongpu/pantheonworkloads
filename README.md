@@ -57,7 +57,7 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 
 <!-- bench:start -->
 
-122 records from real GPUs (newest per workload and device; all metrics, every record and the software versions: [`docs/results.md`](docs/results.md)).
+131 records from real GPUs (newest per workload and device; all metrics, every record and the software versions: [`docs/results.md`](docs/results.md)).
 
 | Workload | Device | Metrics (median of N runs) | Software | Date |
 | --- | --- | --- | --- | --- |
@@ -72,17 +72,21 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 | chronos-2-bench | NVIDIA A10G | forecasts_per_s_b1 36.08 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | chronos-bolt-base-bench | NVIDIA A10G | forecasts_per_s_b1 31.09 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | chronos-t5-large-bench | NVIDIA A10G | forecasts_per_s_b1 1.17 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
+| cogvideox-2b-bench | NVIDIA L40S | peak_gpu_memory_gb 29.54; seconds_per_generation 49.35; steps_per_s 0.608 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
+| cogvideox-5b-bench | NVIDIA L40S | peak_gpu_memory_gb 36.98; seconds_per_generation 142.2; steps_per_s 0.211 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | crnn-text-recognition-bench | NVIDIA A10G | images_per_s 659.8; latency_ms 1.516 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | depth-anything-v2-large-bench | NVIDIA A10G | images_per_s_b1 8.93; peak_gpu_memory_gb 1.68 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | depth-anything-v2-small-bench | NVIDIA A10G | images_per_s_b1 52.41; peak_gpu_memory_gb 0.22 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | dinov2-giant-bench | NVIDIA A10G | images_per_s_b1 10.81; peak_gpu_memory_gb 4.59 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | f5-tts-bench | NVIDIA A10G | audio_seconds_per_s 2.21 (n=5) | torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
+| flux1-schnell-bench | NVIDIA L40S | peak_gpu_memory_gb 36.3; seconds_per_generation 2.252; steps_per_s 1.776 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | flux2-klein-4b-bench | NVIDIA A10G | peak_gpu_memory_gb 18.6; seconds_per_generation 3.224; steps_per_s 1.241 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | glm-ocr-bench | NVIDIA A10G | decode_tokens_per_s_b1 51.9; peak_gpu_memory_gb 2.29; prefill_images_per_s_b1 14.85 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | glove-wiki-gigaword-50-knn-bench | NVIDIA A10G | batch_latency_ms 2.725; queries_per_s 93,958 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | gpt-train-bench | NVIDIA A10G | bf16_steps_per_s 35.29; bf16_tokens_per_s 289,064; fp32_steps_per_s 19.3; +1 more (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
 | gpt2-small-pytorch | NVIDIA A10G | decode_tokens_per_s 104.6 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
 | gtcrn-enhance-onnx-bench | NVIDIA A10G | frames_per_s 152.3; realtime_factor 2.435 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
+| hunyuanvideo-15-720p-t2v-bench | NVIDIA L40S | peak_gpu_memory_gb 37.93; seconds_per_generation 175.5; steps_per_s 0.171 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | kokoro-tts-int8-onnx-bench | NVIDIA A10G | latency_ms_per_sentence 5,112; realtime_factor 0.6749 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | kws-zipformer-gigaspeech-onnx-bench | NVIDIA A10G | latency_ms_per_clip 617.1; realtime_factor 18.91 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | lib-kernels-bench | NVIDIA A10G | autocast_bf16_linear_tflops 61.8; autocast_fp16_linear_tflops 61.55; batch_norm_train_fp32_gb_s 306.7; +53 more (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
@@ -143,6 +147,7 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 | llamacpp-synth-bench-mixtral | NVIDIA A10G | pp512_tokens_per_s 40,886; tg128_tokens_per_s 1,053 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-synth-bench-phi3 | NVIDIA A10G | pp512_tokens_per_s 54,902; tg128_tokens_per_s 1,280 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | llamacpp-synth-bench-qwen2 | NVIDIA A10G | pp512_tokens_per_s 50,341; tg128_tokens_per_s 1,178 (n=5) | llama.cpp b11447 | 2026-10-08 |
+| ltx-video-bench | NVIDIA L40S | peak_gpu_memory_gb 15.96; seconds_per_generation 4.684; steps_per_s 6.404 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | minilm-l6-v2-onnx-bench | NVIDIA A10G | batch_latency_ms 4.003; sentences_per_s 8,994 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | moonshine-tiny-en-onnx-bench | NVIDIA A10G | latency_ms_per_clip 530.3; realtime_factor 22.01 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | nanodet-object-detection-bench | NVIDIA A10G | images_per_s 111.4; latency_ms 8.974 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
@@ -154,9 +159,11 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 | onnx-zoo-ssd-mobilenetv1-bench | NVIDIA A10G | images_per_s 86.16; latency_ms 11.61 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | paddleocr-vl-bench | NVIDIA A10G | decode_tokens_per_s_b1 19.15; peak_gpu_memory_gb 1.92; prefill_images_per_s_b1 16.91 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | parakeet-tdt-0p6b-v3-bench | NVIDIA A10G | audio_seconds_per_s 111.3 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
+| pixtral-12b-2409-bench | NVIDIA L40S | decode_tokens_per_s_b1 27; peak_gpu_memory_gb 25.95; prefill_images_per_s_b1 5.932 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | pphumanseg-person-segmentation-bench | NVIDIA A10G | images_per_s 319.2; latency_ms 3.132 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | ppocr-rapidocr-bench | NVIDIA A10G | images_per_s 7.259; latency_ms 137.8 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | pytorch-microsuite | NVIDIA A10G | conv2d_fp16_tflops 43.49; copy_gb_s 482.1; matmul_bf16_tflops 62.39; +4 more (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-08 |
+| qwen-image-2p1-bench | NVIDIA L40S | peak_gpu_memory_gb 39.53; seconds_per_generation 12.07; steps_per_s 2.486 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | qwen25-vl-7b-bench | NVIDIA A10G | decode_tokens_per_s_b1 28.76; peak_gpu_memory_gb 16.72; prefill_images_per_s_b1 4.699 (n=5) | torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-09 |
 | qwen3-asr-1p7b-bench | NVIDIA A10G | audio_seconds_per_s 10.88 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | qwen3-reranker-0p6b-bench | NVIDIA A10G | forward_passes_per_s 25.44; peak_gpu_memory_gb 1.32 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
@@ -176,6 +183,8 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 | spacy-en-core-web-sm-bench | NVIDIA A10G | docs_per_s 962.4; words_per_s 16,362 (n=5) | spacy 3.8.16 | 2026-10-09 |
 | spacy-multilingual-sm-bench | NVIDIA A10G | nb_core_news_sm_words_per_s 13,039; ru_core_news_sm_words_per_s 13,045; uk_core_news_sm_words_per_s 11,673; +1 more (n=5) | spacy 3.8.16 | 2026-10-09 |
 | vllm-bench-throughput | NVIDIA A10G | output_tokens_per_s 32,545; requests_per_s 254.3; total_tokens_per_s 65,090 (n=5) | not recorded | 2026-10-08 |
+| wan21-t2v-1p3b-bench | NVIDIA L40S | peak_gpu_memory_gb 19.09; seconds_per_generation 37.38; steps_per_s 0.803 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
+| wan22-ti2v-5b-bench | NVIDIA L40S | peak_gpu_memory_gb 27.65; seconds_per_generation 21.91; steps_per_s 1.369 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | wespeaker-resnet34-onnx-bench | NVIDIA A10G | embeddings_per_s 14.22; realtime_factor 141.1 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | whisper-cpp-bench-large-v3 | NVIDIA A10G | decode_ms_per_run 7.72; encode_ms_per_run 96.46 (n=5) | not recorded | 2026-10-08 |
 | whisper-cpp-bench-large-v3-turbo | NVIDIA A10G | decode_ms_per_run 1.31; encode_ms_per_run 85.45 (n=5) | not recorded | 2026-10-10 |
@@ -432,9 +441,9 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | chronos-bolt-base-pytorch | functional | pytorch | gpu | 1 x 10 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
 | chronos-t5-large-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | bench |
 | chronos-t5-large-pytorch | functional | pytorch | gpu | 1 x 10 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
-| cogvideox-2b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | no |
+| cogvideox-2b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | bench |
 | cogvideox-2b-diffusers | functional | pytorch | gpu | 1 x 40 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
-| cogvideox-5b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | custom licence (restricted) | yes | no | no |
+| cogvideox-5b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | custom licence (restricted) | yes | no | bench |
 | cogvideox-5b-diffusers | functional | pytorch | gpu | 1 x 40 GiB | yes (gpu) | custom licence (restricted) | yes | no | no |
 | cogvideox15-5b-bench | benchmark | pytorch | gpu | 1 x 48 GiB | n/a | custom licence (restricted) | yes | no | no |
 | cogvideox15-5b-diffusers | functional | pytorch | gpu | 1 x 48 GiB | no | custom licence (restricted) | yes | no | no |
@@ -446,7 +455,7 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | dinov2-giant-pytorch | functional | pytorch | gpu | 1 x 10 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
 | f5-tts-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | CC-BY-NC-4.0 (restricted) | yes | no | bench |
 | f5-tts-pytorch | functional | pytorch | gpu | 1 x 10 GiB | yes (gpu) | CC-BY-NC-4.0 (restricted) | yes | no | no |
-| flux1-schnell-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | no |
+| flux1-schnell-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | bench |
 | flux1-schnell-diffusers | functional | pytorch | gpu | 1 x 40 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
 | flux2-klein-4b-bench | benchmark | pytorch | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | bench |
 | flux2-klein-4b-diffusers | functional | pytorch | gpu | 1 x 22 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
@@ -454,7 +463,7 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | glm-ocr-pytorch | functional | pytorch | gpu | 1 x 10 GiB | yes (gpu) | MIT | yes | no | no |
 | glm46v-bench | benchmark | pytorch | gpu | 4 x 80 GiB | n/a | MIT | yes | no | no |
 | glm46v-pytorch | functional | pytorch | gpu | 4 x 80 GiB | no | MIT | yes | no | no |
-| hunyuanvideo-15-720p-t2v-bench | benchmark | pytorch | gpu | 1 x 44 GiB | n/a | Tencent Hunyuan Community License (restricted) | yes | no | no |
+| hunyuanvideo-15-720p-t2v-bench | benchmark | pytorch | gpu | 1 x 44 GiB | n/a | Tencent Hunyuan Community License (restricted) | yes | no | bench |
 | hunyuanvideo-15-720p-t2v-diffusers | functional | pytorch | gpu | 1 x 44 GiB | yes (gpu) | Tencent Hunyuan Community License (restricted) | yes | no | no |
 | hunyuanvideo-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Tencent Hunyuan Community License (restricted) | yes | no | no |
 | hunyuanvideo-diffusers | functional | pytorch | gpu | 1 x 80 GiB | no | Tencent Hunyuan Community License (restricted) | yes | no | no |
@@ -622,7 +631,7 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | llamacpp-qwen38-flash-next | functional | llama.cpp | gpu | 2 x 80 GiB | no | Qwen Community License 1.0 (restricted) | yes | no | no |
 | llamacpp-step-3p7-flash | functional | llama.cpp | gpu | 2 x 80 GiB | no | Apache-2.0 | yes | no | no |
 | llamacpp-trinity-large-thinking | functional | llama.cpp | gpu | 4 x 80 GiB | no | OpenMDW-1.1 (restricted) | yes | no | no |
-| ltx-video-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | custom licence (restricted) | yes | no | no |
+| ltx-video-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | custom licence (restricted) | yes | no | bench |
 | ltx-video-diffusers | functional | pytorch | gpu | 1 x 40 GiB | yes (gpu) | custom licence (restricted) | yes | no | no |
 | mochi-1-preview-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
 | mochi-1-preview-diffusers | functional | pytorch | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
@@ -632,9 +641,9 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | paddleocr-vl-pytorch | functional | pytorch | gpu | 1 x 10 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
 | parakeet-tdt-0p6b-v3-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | CC-BY-4.0 | yes | no | bench |
 | parakeet-tdt-0p6b-v3-pytorch | functional | pytorch | gpu | 1 x 10 GiB | yes (gpu) | CC-BY-4.0 | yes | no | no |
-| pixtral-12b-2409-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | no |
+| pixtral-12b-2409-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | bench |
 | pixtral-12b-2409-pytorch | functional | pytorch | gpu | 1 x 40 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
-| qwen-image-2p1-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Qwen Research License (restricted) | yes | no | no |
+| qwen-image-2p1-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Qwen Research License (restricted) | yes | no | bench |
 | qwen-image-2p1-diffusers | functional | pytorch | gpu | 1 x 40 GiB | yes (gpu) | Qwen Research License (restricted) | yes | no | no |
 | qwen25-vl-72b-bench | benchmark | pytorch | gpu | 4 x 44 GiB | n/a | Qwen License (restricted) | yes | no | no |
 | qwen25-vl-72b-pytorch | functional | pytorch | gpu | 4 x 44 GiB | no | Qwen License (restricted) | yes | no | no |
@@ -666,11 +675,11 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | vllm-pixtral-large-instruct-2411 | functional | vllm | gpu | 4 x 80 GiB | no | Mistral Research License (restricted) | yes | no | no |
 | wan21-t2v-14b-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
 | wan21-t2v-14b-diffusers | functional | pytorch | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
-| wan21-t2v-1p3b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | no |
+| wan21-t2v-1p3b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | bench |
 | wan21-t2v-1p3b-diffusers | functional | pytorch | gpu | 1 x 40 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
 | wan22-t2v-a14b-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
 | wan22-t2v-a14b-diffusers | functional | pytorch | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
-| wan22-ti2v-5b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | no |
+| wan22-ti2v-5b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | bench |
 | wan22-ti2v-5b-diffusers | functional | pytorch | gpu | 1 x 40 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
 | whisper-cpp-bench-large-v3-turbo | benchmark | whisper.cpp | gpu | 1 x 10 GiB | n/a | MIT | yes | no | bench |
 | whisper-cpp-large-v3-turbo | functional | whisper.cpp | gpu | 1 x 10 GiB | yes (gpu) | MIT | yes | no | no |
@@ -685,8 +694,8 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | lib | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | train | 3 | 2 | 1 | 2 | 0 | 2 | 1 |
 | other | 23 | 15 | 8 | 15 | 19 | 3 | 13 |
-| catalog | 258 | 129 | 129 | 69 | 258 | 0 | 60 |
-| **all** | 399 | 213 | 186 | 153 | 374 | 15 | 122 |
+| catalog | 258 | 129 | 129 | 69 | 258 | 0 | 69 |
+| **all** | 399 | 213 | 186 | 153 | 374 | 15 | 131 |
 
 <!-- coverage:end -->
 
