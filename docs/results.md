@@ -21,6 +21,33 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | forward_sequences_per_s_b32_s128 | 640.5 | 640.1 | 641.4 |
 
+## bge-m3-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| forward_passes_per_s | 67.86 | 67.64 | 68.58 |
+| peak_gpu_memory_gb | 1.15 | 1.15 | 1.15 |
+
+## bge-reranker-large-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| forward_passes_per_s | 69.31 | 68.75 | 70.2 |
+| peak_gpu_memory_gb | 1.13 | 1.13 | 1.13 |
+
+## bge-reranker-v2-m3-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| forward_passes_per_s | 68.74 | 68.25 | 69.49 |
+| peak_gpu_memory_gb | 1.15 | 1.15 | 1.15 |
+
 ## blip2-opt-2p7b-bench on NVIDIA A10G
 
 2026-10-08, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `479c1c70`; 1 older record in `bench/blip2-opt-2p7b-bench/`
@@ -30,6 +57,46 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | captions_per_s_b8 | 18.07 | 17.21 | 18.36 |
 | decode_tokens_per_s_b1 | 57.62 | 57.03 | 61.2 |
 
+## canary-1b-v2-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| audio_seconds_per_s | 29.79 | 28.86 | 30.27 |
+
+## chatterbox-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.29.0, torch 2.6.0, transformers 5.2.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| audio_seconds_per_s | 1.22 | 1.22 | 1.25 |
+
+## chronos-2-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| forecasts_per_s_b1 | 36.08 | 35.73 | 36.84 |
+
+## chronos-bolt-base-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| forecasts_per_s_b1 | 31.09 | 30.25 | 31.55 |
+
+## chronos-t5-large-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| forecasts_per_s_b1 | 1.17 | 1.16 | 1.22 |
+
 ## crnn-text-recognition-bench on NVIDIA A10G
 
 2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/crnn-text-recognition-bench/`
@@ -38,6 +105,61 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | images_per_s | 659.8 | 640 | 669 |
 | latency_ms | 1.516 | 1.495 | 1.562 |
+
+## depth-anything-v2-large-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| images_per_s_b1 | 8.93 | 8.93 | 8.96 |
+| peak_gpu_memory_gb | 1.68 | 1.68 | 1.68 |
+
+## depth-anything-v2-small-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| images_per_s_b1 | 52.41 | 52.27 | 52.59 |
+| peak_gpu_memory_gb | 0.22 | 0.22 | 0.22 |
+
+## dinov2-giant-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| images_per_s_b1 | 10.81 | 10.8 | 10.83 |
+| peak_gpu_memory_gb | 4.59 | 4.59 | 4.59 |
+
+## f5-tts-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| audio_seconds_per_s | 2.21 | 2.21 | 2.21 |
+
+## flux2-klein-4b-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 18.6 | 18.6 | 18.6 |
+| seconds_per_generation | 3.224 | 3.224 | 3.224 |
+| steps_per_s | 1.241 | 1.241 | 1.241 |
+
+## glm-ocr-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| decode_tokens_per_s_b1 | 51.9 | 50.62 | 52.68 |
+| peak_gpu_memory_gb | 2.29 | 2.29 | 2.29 |
+| prefill_images_per_s_b1 | 14.85 | 14.69 | 14.92 |
 
 ## glove-wiki-gigaword-50-knn-bench on NVIDIA A10G
 
@@ -157,6 +279,33 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | unique_mkeys_s | 3,069 | 3,065 | 3,071 |
 | vit_base_forward_fp16_images_s | 1,371 | 1,369 | 1,371 |
 
+## llamacpp-bench-codestral-22b-v01 on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,388 | 1,386 | 1,389 |
+| tg128_tokens_per_s | 34.16 | 34.15 | 34.16 |
+
+## llamacpp-bench-deepseek-r1-distill-llama-8b on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,987 | 3,984 | 3,989 |
+| tg128_tokens_per_s | 58.13 | 58.12 | 58.14 |
+
+## llamacpp-bench-deepseek-r1-distill-qwen-14b on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 2,184 | 2,182 | 2,186 |
+| tg128_tokens_per_s | 50.32 | 50.31 | 50.33 |
+
 ## llamacpp-bench-deepseek-r1-distill-qwen-1p5b on NVIDIA A10G
 
 2026-10-08, 5 runs, llama.cpp b11447, driver 595.91.07, commit `978153e7`
@@ -175,6 +324,69 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 4,230 | 4,223 | 4,231 |
 | tg128_tokens_per_s | 60.37 | 60.37 | 60.37 |
 
+## llamacpp-bench-devstral-small-2-24b-2512 on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,503 | 1,503 | 1,504 |
+| tg128_tokens_per_s | 31.88 | 31.87 | 31.9 |
+
+## llamacpp-bench-falcon-h1r-7b on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,043 | 3,033 | 3,045 |
+| tg128_tokens_per_s | 50.78 | 50.75 | 50.78 |
+
+## llamacpp-bench-falcon3-10b-instruct on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,064 | 3,051 | 3,065 |
+| tg128_tokens_per_s | 43.77 | 43.76 | 43.77 |
+
+## llamacpp-bench-gemma4-12b-it on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 2,631 | 2,628 | 2,633 |
+| tg128_tokens_per_s | 59.44 | 59.41 | 59.44 |
+
+## llamacpp-bench-gemma4-26b-a4b-it on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,712 | 3,703 | 3,714 |
+| tg128_tokens_per_s | 123 | 122.9 | 123 |
+
+## llamacpp-bench-gemma4-31b-it on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,083 | 1,081 | 1,083 |
+| tg128_tokens_per_s | 25.31 | 25.3 | 25.31 |
+
+## llamacpp-bench-gemma4-e2b-it on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 8,560 | 8,549 | 8,569 |
+| tg128_tokens_per_s | 193.3 | 193.2 | 193.5 |
+
 ## llamacpp-bench-gemma4-e4b-it on NVIDIA A10G
 
 2026-10-08, 5 runs, llama.cpp b11447, driver 595.91.07, commit `978153e7`
@@ -183,6 +395,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | pp512_tokens_per_s | 5,459 | 5,306 | 5,470 |
 | tg128_tokens_per_s | 114.5 | 114.4 | 114.5 |
+
+## llamacpp-bench-glm47-flash on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 2,729 | 2,726 | 2,729 |
+| tg128_tokens_per_s | 111.4 | 111.4 | 111.5 |
 
 ## llamacpp-bench-gpt-oss-20b on NVIDIA A10G
 
@@ -202,6 +423,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 1,755 | 1,754 | 1,755 |
 | tg128_tokens_per_s | 66.46 | 66.44 | 66.48 |
 
+## llamacpp-bench-llama31-8b-instruct on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,984 | 3,976 | 3,988 |
+| tg128_tokens_per_s | 58.13 | 58.12 | 58.13 |
+
 ## llamacpp-bench-llama32-1b-instruct on NVIDIA A10G
 
 2026-10-08, 5 runs, llama.cpp b11447, driver 595.91.07, commit `978153e7`
@@ -219,6 +449,33 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | pp512_tokens_per_s | 7,646 | 7,640 | 7,648 |
 | tg128_tokens_per_s | 123.3 | 123.2 | 123.3 |
+
+## llamacpp-bench-magistral-small-2509 on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,514 | 1,503 | 1,515 |
+| tg128_tokens_per_s | 32.83 | 32.82 | 32.83 |
+
+## llamacpp-bench-ministral-3-14b-instruct-2512 on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 2,484 | 2,478 | 2,484 |
+| tg128_tokens_per_s | 33.63 | 33.63 | 33.65 |
+
+## llamacpp-bench-ministral-3-14b-reasoning-2512 on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 2,483 | 2,477 | 2,483 |
+| tg128_tokens_per_s | 33.64 | 33.63 | 33.65 |
 
 ## llamacpp-bench-mistral-7b-v03 on NVIDIA A10G
 
@@ -238,6 +495,24 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 1,514 | 1,513 | 1,516 |
 | tg128_tokens_per_s | 32.83 | 32.82 | 32.83 |
 
+## llamacpp-bench-nemotron-nano-9b-v2 on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 2,878 | 2,873 | 2,879 |
+| tg128_tokens_per_s | 49.15 | 49.14 | 49.15 |
+
+## llamacpp-bench-north-mini-code-1p0 on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,201 | 3,199 | 3,202 |
+| tg128_tokens_per_s | 143.5 | 143.5 | 143.7 |
+
 ## llamacpp-bench-olmo2-7b-instruct on NVIDIA A10G
 
 2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
@@ -247,6 +522,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 3,910 | 3,899 | 3,911 |
 | tg128_tokens_per_s | 61.59 | 61.57 | 61.59 |
 
+## llamacpp-bench-orpheus-3b-0p1-ft on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 7,617 | 7,597 | 7,622 |
+| tg128_tokens_per_s | 120.5 | 120.5 | 120.5 |
+
 ## llamacpp-bench-phi4-14b on NVIDIA A10G
 
 2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
@@ -255,6 +539,24 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | pp512_tokens_per_s | 2,413 | 2,406 | 2,414 |
 | tg128_tokens_per_s | 51.23 | 51.22 | 51.23 |
+
+## llamacpp-bench-phi4-mini-instruct on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 7,420 | 7,416 | 7,422 |
+| tg128_tokens_per_s | 105.8 | 105.8 | 105.8 |
+
+## llamacpp-bench-phi4-reasoning-plus on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 2,410 | 2,392 | 2,411 |
+| tg128_tokens_per_s | 51.22 | 51.22 | 51.22 |
 
 ## llamacpp-bench-qwen25-0p5b on NVIDIA A10G
 
@@ -283,6 +585,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 3,555 | 3,497 | 3,562 |
 | tg128_tokens_per_s | 69.15 | 69.07 | 69.17 |
 
+## llamacpp-bench-qwen3-coder-30b-a3b-instruct on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,379 | 3,371 | 3,380 |
+| tg128_tokens_per_s | 155.7 | 155.6 | 155.8 |
+
 ## llamacpp-bench-qwen3-embedding-4b on NVIDIA A10G
 
 2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
@@ -291,6 +602,33 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | pp512_tokens_per_s | 6,428 | 6,418 | 6,433 |
 | tg128_tokens_per_s | 96.52 | 96.48 | 96.53 |
+
+## llamacpp-bench-qwen3-embedding-8b on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,877 | 3,874 | 3,880 |
+| tg128_tokens_per_s | 56.86 | 56.85 | 56.87 |
+
+## llamacpp-bench-qwen35-9b on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 3,267 | 3,261 | 3,270 |
+| tg128_tokens_per_s | 53.08 | 53.07 | 53.08 |
+
+## llamacpp-bench-qwen38-27b on NVIDIA A10G
+
+2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,097 | 1,096 | 1,098 |
+| tg128_tokens_per_s | 24.2 | 24.2 | 24.21 |
 
 ## llamacpp-bench-smollm2-135m on NVIDIA A10G
 
@@ -382,6 +720,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | images_per_s | 111.4 | 111.3 | 112.8 |
 | latency_ms | 8.974 | 8.862 | 8.982 |
 
+## olmocr-2-7b-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| decode_tokens_per_s_b1 | 28.8 | 28.77 | 28.82 |
+| peak_gpu_memory_gb | 16.68 | 16.68 | 16.68 |
+| prefill_images_per_s_b1 | 4.971 | 4.959 | 4.983 |
+
 ## onnx-zoo-bertsquad-int8-bench on NVIDIA A10G
 
 2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/onnx-zoo-bertsquad-int8-bench/`
@@ -427,6 +775,24 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | images_per_s | 86.16 | 85.36 | 86.71 |
 | latency_ms | 11.61 | 11.53 | 11.72 |
 
+## paddleocr-vl-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| decode_tokens_per_s_b1 | 19.15 | 19.05 | 19.29 |
+| peak_gpu_memory_gb | 1.92 | 1.92 | 1.92 |
+| prefill_images_per_s_b1 | 16.91 | 16.72 | 17.03 |
+
+## parakeet-tdt-0p6b-v3-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| audio_seconds_per_s | 111.3 | 108.8 | 114.7 |
+
 ## pphumanseg-person-segmentation-bench on NVIDIA A10G
 
 2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/pphumanseg-person-segmentation-bench/`
@@ -469,6 +835,41 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | peak_gpu_memory_gb | 16.72 | 16.72 | 16.72 |
 | prefill_images_per_s_b1 | 4.699 | 4.691 | 4.708 |
 
+## qwen3-asr-1p7b-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| audio_seconds_per_s | 10.88 | 10.71 | 10.98 |
+
+## qwen3-reranker-0p6b-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| forward_passes_per_s | 25.44 | 25.31 | 25.91 |
+| peak_gpu_memory_gb | 1.32 | 1.32 | 1.32 |
+
+## qwen3-reranker-4b-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| forward_passes_per_s | 12.59 | 12.59 | 12.6 |
+| peak_gpu_memory_gb | 8.18 | 8.18 | 8.18 |
+
+## qwen3-reranker-8b-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| forward_passes_per_s | 7.3 | 7.3 | 7.31 |
+| peak_gpu_memory_gb | 16.52 | 16.52 | 16.52 |
+
 ## qwen3-vl-4b-bench on NVIDIA A10G
 
 2026-10-09, 5 runs, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `94554d9a`
@@ -487,6 +888,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | images_per_s_b64_224 | 3,175 | 3,173 | 3,177 |
 
+## sam2p1-hiera-large-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| images_per_s_b1 | 4.84 | 4.7 | 4.86 |
+| peak_gpu_memory_gb | 1.42 | 1.42 | 1.42 |
+
 ## sdxl-base-bench on NVIDIA A10G
 
 2026-10-08, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `479c1c70`; 1 older record in `bench/sdxl-base-bench/`
@@ -504,6 +914,24 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | images_per_s | 1,194 | 1,172 | 1,203 |
 | latency_ms | 0.8377 | 0.8312 | 0.853 |
+
+## siglip2-giant-opt-patch16-384-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| images_per_s_b1 | 8.64 | 8.62 | 8.64 |
+| peak_gpu_memory_gb | 7.54 | 7.54 | 7.54 |
+
+## siglip2-so400m-patch16-512-bench on NVIDIA A10G
+
+2026-10-10, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| images_per_s_b1 | 10.14 | 10.13 | 10.15 |
+| peak_gpu_memory_gb | 4.61 | 4.61 | 4.61 |
 
 ## silero-vad-onnx-bench on NVIDIA A10G
 
@@ -588,6 +1016,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | decode_ms_per_run | 7.72 | 7.67 | 7.74 |
 | encode_ms_per_run | 96.46 | 96.39 | 96.53 |
+
+## whisper-cpp-bench-large-v3-turbo on NVIDIA A10G
+
+2026-10-10, 5 runs, not recorded, driver 595.91.07, commit `ba94bc74`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| decode_ms_per_run | 1.31 | 1.31 | 1.32 |
+| encode_ms_per_run | 85.45 | 85.32 | 85.54 |
 
 ## whisper-cpp-bench-tiny-en on NVIDIA A10G
 

@@ -1,0 +1,41 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "chronos-bolt-base-bench",
+  "date": "2026-10-10T06:15:12Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.3, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "amazon/chronos-bolt-base (timeseries; 1 pinned weights file(s), as stored)",
+      "revision": "5d9f166d69f47aef3401367a7b842e78fe97b121 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/amazon/chronos-bolt-base"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.3",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "forecasts_per_s_b1": {
+      "median": 31.09,
+      "values": [
+        31.11,
+        31.09,
+        31.55,
+        30.55,
+        30.25
+      ]
+    }
+  }
+}

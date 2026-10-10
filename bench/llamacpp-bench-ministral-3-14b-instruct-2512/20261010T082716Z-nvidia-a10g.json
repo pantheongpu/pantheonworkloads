@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-ministral-3-14b-instruct-2512",
+  "date": "2026-10-10T08:27:16Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "mistralai/Ministral-3-14B-Instruct-2512-GGUF (Ministral-3-14B-Instruct-2512-Q8_0.gguf; Q8_0 GGUF of mistralai/Ministral-3-14B-Instruct-2512)",
+      "revision": "74fac473c43357d7fb2671713608183cc72496d0 (HF commit of the GGUF repo); file sha256 8122acc8df446039d41dd9650dabb024d3c6b8dae6eff336d28ac2bddd3bbc13; base model mistralai/Ministral-3-14B-Instruct-2512 @ 29439f81c2be264d8d393273f99e7db9c0961120",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 2483.52,
+      "values": [
+        2478.38,
+        2483.52,
+        2483.67,
+        2483.15,
+        2484.13
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 33.63,
+      "values": [
+        33.63,
+        33.63,
+        33.65,
+        33.63,
+        33.64
+      ]
+    }
+  }
+}

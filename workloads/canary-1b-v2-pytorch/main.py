@@ -1,4 +1,4 @@
-"""canary-1b-v2-pytorch: canary-1b-v2. Shared body: ../_pytorch/asr.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""canary-1b-v2-pytorch: canary-1b-v2. Shared body: ../_pytorch/asr.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

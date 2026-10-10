@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# siglip2-so400m-patch16-512-bench: SigLIP 2 so400m patch16 512 on PyTorch, bench mode. WRITTEN, NEVER RUN (docs/model-registry.md).
+# siglip2-so400m-patch16-512-bench: SigLIP 2 so400m patch16 512 on PyTorch, bench mode. Run on an A10G (stage 2a, docs/model-registry.md).
 # Contract: docs/workload-contract.md; PyTorch discovery/install: ../_pytorch/env.sh. Exits 77 when the host lacks the GPUs, the disk,
 # PyTorch or the model download. Real GPUs only.
 set -uo pipefail

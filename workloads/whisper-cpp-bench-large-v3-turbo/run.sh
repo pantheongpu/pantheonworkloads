@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# WRITTEN, NEVER RUN (docs/model-registry.md).
+# Run on an A10G (stage 2a, docs/model-registry.md).
 # whisper-cpp-bench-large-v3-turbo: whisper.cpp's own `whisper-bench` (encoder on synthetic input plus
 # decoder steps) with large-v3-turbo on a real GPU. Contract: docs/workload-contract.md.
 #

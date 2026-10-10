@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-magistral-small-2509",
+  "date": "2026-10-10T08:19:35Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "mistralai/Magistral-Small-2509-GGUF (Magistral-Small-2509-Q4_K_M.gguf; Q4_K_M GGUF of mistralai/Magistral-Small-2509)",
+      "revision": "429b90d8a8f0037241db6fab46a20b0f90859b03 (HF commit of the GGUF repo); file sha256 d3a024d29e0e8f35d9353f5d4f08fc3715406835c8ae1328ce2f3bd212a43434; base model mistralai/Magistral-Small-2509 @ a31cc96ab10cf19bc42c628fedf1e359e0853c49",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/mistralai/Magistral-Small-2509-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 1514.43,
+      "values": [
+        1503.13,
+        1514.46,
+        1514.43,
+        1514.1,
+        1514.56
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 32.83,
+      "values": [
+        32.82,
+        32.83,
+        32.83,
+        32.83,
+        32.82
+      ]
+    }
+  }
+}

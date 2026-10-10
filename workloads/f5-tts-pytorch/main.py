@@ -1,4 +1,4 @@
-"""f5-tts-pytorch: F5-TTS (v1 Base). Shared body: ../_pytorch/tts.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""f5-tts-pytorch: F5-TTS (v1 Base). Shared body: ../_pytorch/tts.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-phi4-reasoning-plus",
+  "date": "2026-10-10T08:57:43Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "unsloth/Phi-4-reasoning-plus-GGUF (Phi-4-reasoning-plus-Q4_K_M.gguf; Q4_K_M GGUF of microsoft/Phi-4-reasoning-plus)",
+      "revision": "80fff8542dc7b88dba725b660beefd80e91e80c9 (HF commit of the GGUF repo); file sha256 faf720745e20df40f52ee218be14c72b33070f7aacc508b3fbc61d47f32b4ffe; base model microsoft/Phi-4-reasoning-plus @ 69baf8528e1bcf05f475034d9e5dd32875ed125f",
+      "licence": "MIT",
+      "source_url": "https://huggingface.co/unsloth/Phi-4-reasoning-plus-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 2409.54,
+      "values": [
+        2391.98,
+        2409.94,
+        2395.77,
+        2409.54,
+        2410.56
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 51.22,
+      "values": [
+        51.22,
+        51.22,
+        51.22,
+        51.22,
+        51.22
+      ]
+    }
+  }
+}

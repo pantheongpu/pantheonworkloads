@@ -1,4 +1,4 @@
-"""parakeet-tdt-0p6b-v3-pytorch: parakeet-tdt-0.6b-v3. Shared body: ../_pytorch/asr.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""parakeet-tdt-0p6b-v3-pytorch: parakeet-tdt-0.6b-v3. Shared body: ../_pytorch/asr.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

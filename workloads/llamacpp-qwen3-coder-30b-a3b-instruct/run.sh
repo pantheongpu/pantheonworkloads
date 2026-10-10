@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-qwen3-coder-30b-a3b-instruct: llama-completion greedy-decodes 3 tokens with Qwen3-Coder-30B-A3B-Instruct (Q4_K_M GGUF, 17.3 GiB, 1 x 22 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# Run on an A10G (stage 2a, docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

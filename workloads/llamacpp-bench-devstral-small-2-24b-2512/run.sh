@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-bench-devstral-small-2-24b-2512: llama-bench tokens/s with Devstral-Small-2-24B-Instruct-2512 (Q4_K_M GGUF, 13.3 GiB, 1 x 22 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# Run on an A10G (stage 2a, docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

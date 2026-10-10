@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bge-reranker-v2-m3-pytorch: bge-reranker-v2-m3 on PyTorch, functional. WRITTEN, NEVER RUN (docs/model-registry.md).
+# bge-reranker-v2-m3-pytorch: bge-reranker-v2-m3 on PyTorch, functional. Run on an A10G (stage 2a, docs/model-registry.md).
 # Contract: docs/workload-contract.md; PyTorch discovery/install: ../_pytorch/env.sh. Exits 77 when the host lacks the GPUs, the disk,
 # PyTorch or the model download. Real GPUs only.
 set -uo pipefail

@@ -1,4 +1,4 @@
-"""siglip2-giant-opt-patch16-384-pytorch: SigLIP 2 giant-opt patch16 384. Shared body: ../_pytorch/vision.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""siglip2-giant-opt-patch16-384-pytorch: SigLIP 2 giant-opt patch16 384. Shared body: ../_pytorch/vision.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 

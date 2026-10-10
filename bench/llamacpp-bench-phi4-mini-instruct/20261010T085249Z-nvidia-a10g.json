@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-phi4-mini-instruct",
+  "date": "2026-10-10T08:52:49Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "unsloth/Phi-4-mini-instruct-GGUF (Phi-4-mini-instruct.Q8_0.gguf; Q8_0 GGUF of microsoft/Phi-4-mini-instruct)",
+      "revision": "78eb92a46fc37e6b524df991ed9aca9bc6aa7b80 (HF commit of the GGUF repo); file sha256 26188c6050d525376a88b04514c236c5e28a36730f1e936f2a00314212b7ba42; base model microsoft/Phi-4-mini-instruct @ cfbefacb99257ffa30c83adab238a50856ac3083",
+      "licence": "MIT",
+      "source_url": "https://huggingface.co/unsloth/Phi-4-mini-instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 7419.82,
+      "values": [
+        7416.08,
+        7420.48,
+        7422.08,
+        7419.51,
+        7419.82
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 105.81,
+      "values": [
+        105.81,
+        105.8,
+        105.83,
+        105.83,
+        105.8
+      ]
+    }
+  }
+}

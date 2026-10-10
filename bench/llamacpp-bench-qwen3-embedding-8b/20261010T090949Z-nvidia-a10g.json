@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-qwen3-embedding-8b",
+  "date": "2026-10-10T09:09:49Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA A10G",
+    "driver": "595.91.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "Qwen/Qwen3-Embedding-8B-GGUF (Qwen3-Embedding-8B-Q8_0.gguf; Q8_0 GGUF of Qwen/Qwen3-Embedding-8B)",
+      "revision": "69d0e58a13e463cd99a9b83e3f5fee7c10265fab (HF commit of the GGUF repo); file sha256 d20ddc71e8a5c4344f2343481e242233a997dc5eaff442427a945836c97b4deb; base model Qwen/Qwen3-Embedding-8B @ 1d8ad4ca9b3dd8059ad90a75d4983776a23d44af",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/Qwen/Qwen3-Embedding-8B-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ba94bc749d101607ba96c9310b1d7007fd020f18",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 3876.91,
+      "values": [
+        3876.91,
+        3875.31,
+        3873.68,
+        3877.83,
+        3879.83
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 56.86,
+      "values": [
+        56.86,
+        56.86,
+        56.85,
+        56.87,
+        56.87
+      ]
+    }
+  }
+}

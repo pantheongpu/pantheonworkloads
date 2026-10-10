@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # llamacpp-bench-deepseek-r1-distill-qwen-14b: llama-bench tokens/s with DeepSeek-R1-Distill-Qwen-14B (Q4_K_M GGUF, 8.4 GiB, 1 x 15 GiB GPU(s)).
-# WRITTEN, NEVER RUN (docs/model-registry.md). Contract: docs/workload-contract.md.
+# Run on an A10G (stage 2a, docs/model-registry.md). Contract: docs/workload-contract.md.
 # Backends, build and knobs: docs/llamacpp.md and tools/llamacpp/common.sh.
 #
 #   PW_MODEL_FILE         your own first GGUF shard instead of downloading (not checked against model.sha256)

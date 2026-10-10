@@ -1,4 +1,4 @@
-"""dinov2-giant-pytorch: DINOv2 giant. Shared body: ../_pytorch/vision.py (functional and bench modes). WRITTEN, NEVER RUN."""
+"""dinov2-giant-pytorch: DINOv2 giant. Shared body: ../_pytorch/vision.py (functional and bench modes). Run on an A10G (stage 2a, docs/model-registry.md)."""
 import os
 import sys
 
