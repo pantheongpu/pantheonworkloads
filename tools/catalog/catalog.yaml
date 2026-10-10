@@ -1,0 +1,239 @@
+# The model catalog: one entry per open-weight model this repository tracks, however large.
+#
+# Only choices are written here. Facts (commit, file sizes, sha256, licence tags, gating, parameter counts,
+# architectures) are read from the public Hugging Face API by tools/catalog/fetch_hub.py into hub.json, and
+# tools/catalog/generate.py turns the two into workloads/<name>/ directories and docs/model-registry.md.
+# Nothing is downloaded, nothing is run: see docs/model-registry.md for what that means.
+#
+# Fields
+#   key        workload name stem
+#   family     grouping in the registry
+#   title      display name
+#   plan       how it would run: llamacpp | llamacpp-embed | vllm | vlm | diffusers | whispercpp | asr | tts | retrieval | vision | timeseries
+#   base       the official repository (licence evidence, parameter count, architecture)
+#   repo       repository whose files are downloaded (default: base)
+#   gguf       llamacpp: candidate GGUF repositories, in order of preference (default: derived from the base name)
+#   quant      llamacpp: GGUF quantisation to use (default: Q4_K_M, or Q8_0 for models up to 14B parameters)
+#   allow      non-GGUF plans: path regexes of the files to download (default: every weights file and small config)
+#   block      a reason: the entry is recorded in the registry but gets no workload
+#   spec       plan-specific settings (see the shared modules in workloads/_pytorch and workloads/_shared)
+#   note       free text carried into the manifest notes
+entries:
+
+# ---------------------------------------------------------------- DeepSeek
+- {key: deepseek-v4-pro-0813, family: DeepSeek, title: DeepSeek-V4-Pro-0813, plan: llamacpp, base: deepseek-ai/DeepSeek-V4-Pro-0813}
+- {key: deepseek-v4-flash-0731, family: DeepSeek, title: DeepSeek-V4-Flash-0731, plan: llamacpp, base: deepseek-ai/DeepSeek-V4-Flash-0731}
+- {key: deepseek-v4p1-flash, family: DeepSeek, title: DeepSeek-V4.1-Flash, plan: vllm, base: deepseek-ai/DeepSeek-V4.1-Flash,
+   note: "llama.cpp b11447 has no deepseek41 architecture (the community GGUFs declare it), so this one runs on vLLM with the official weights"}
+- {key: deepseek-v3p2, family: DeepSeek, title: DeepSeek-V3.2, plan: llamacpp, base: deepseek-ai/DeepSeek-V3.2}
+- {key: deepseek-v3p1-terminus, family: DeepSeek, title: DeepSeek-V3.1-Terminus, plan: llamacpp, base: deepseek-ai/DeepSeek-V3.1-Terminus}
+- {key: deepseek-r1-0528, family: DeepSeek, title: DeepSeek-R1-0528, plan: llamacpp, base: deepseek-ai/DeepSeek-R1-0528}
+- {key: deepseek-r1-distill-llama-70b, family: DeepSeek, title: DeepSeek-R1-Distill-Llama-70B, plan: llamacpp, base: deepseek-ai/DeepSeek-R1-Distill-Llama-70B, licence_text: "https://raw.githubusercontent.com/meta-llama/llama-models/0e0b8c519242d5833d8c11bffc1232b77ad7f301/models/llama3_3/LICENSE"}
+- {key: deepseek-r1-distill-llama-8b, family: DeepSeek, title: DeepSeek-R1-Distill-Llama-8B, plan: llamacpp, base: deepseek-ai/DeepSeek-R1-Distill-Llama-8B,
+   licence_text: "https://raw.githubusercontent.com/meta-llama/llama-models/0e0b8c519242d5833d8c11bffc1232b77ad7f301/models/llama3_1/LICENSE"}
+- {key: deepseek-r1-distill-qwen-32b, family: DeepSeek, title: DeepSeek-R1-Distill-Qwen-32B, plan: llamacpp, base: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B}
+- {key: deepseek-r1-distill-qwen-14b, family: DeepSeek, title: DeepSeek-R1-Distill-Qwen-14B, plan: llamacpp, base: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B}
+- {key: deepseek-ocr-2, family: DeepSeek, title: DeepSeek-OCR-2, plan: vlm, base: deepseek-ai/DeepSeek-OCR-2,
+   spec: {image: text, dtype: bfloat16, prompt: "Read all the text in the image.", new: 48}}
+
+# ---------------------------------------------------------------- Meta Llama (official repositories are gated; community GGUFs are not)
+- {key: llama31-8b-instruct, family: Meta Llama, title: Llama-3.1-8B-Instruct, plan: llamacpp, base: meta-llama/Llama-3.1-8B-Instruct, licence_text: &L31 "https://raw.githubusercontent.com/meta-llama/llama-models/0e0b8c519242d5833d8c11bffc1232b77ad7f301/models/llama3_1/LICENSE",
+   gguf: [bartowski/Meta-Llama-3.1-8B-Instruct-GGUF, lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF]}
+- {key: llama31-70b-instruct, family: Meta Llama, title: Llama-3.1-70B-Instruct, plan: llamacpp, base: meta-llama/Llama-3.1-70B-Instruct, licence_text: *L31,
+   gguf: [bartowski/Meta-Llama-3.1-70B-Instruct-GGUF, lmstudio-community/Meta-Llama-3.1-70B-Instruct-GGUF]}
+- {key: llama31-405b-instruct, family: Meta Llama, title: Llama-3.1-405B-Instruct, plan: llamacpp, base: meta-llama/Llama-3.1-405B-Instruct, licence_text: *L31,
+   gguf: [bullerwins/Meta-Llama-3.1-405B-Instruct-GGUF, ThomasBaruzier/Meta-Llama-3.1-405B-Instruct-GGUF, MaziyarPanahi/Meta-Llama-3.1-405B-Instruct-GGUF]}
+- {key: llama33-70b-instruct, family: Meta Llama, title: Llama-3.3-70B-Instruct, plan: llamacpp, base: meta-llama/Llama-3.3-70B-Instruct, licence_text: &L33 "https://raw.githubusercontent.com/meta-llama/llama-models/0e0b8c519242d5833d8c11bffc1232b77ad7f301/models/llama3_3/LICENSE",
+   gguf: [bartowski/Llama-3.3-70B-Instruct-GGUF, unsloth/Llama-3.3-70B-Instruct-GGUF, lmstudio-community/Llama-3.3-70B-Instruct-GGUF]}
+- {key: llama4-scout-17b-16e-instruct, family: Meta Llama, title: Llama-4-Scout-17B-16E-Instruct, plan: llamacpp, base: meta-llama/Llama-4-Scout-17B-16E-Instruct, licence_text: &L4 "https://raw.githubusercontent.com/meta-llama/llama-models/0e0b8c519242d5833d8c11bffc1232b77ad7f301/models/llama4/LICENSE",
+   gguf: [ggml-org/Llama-4-Scout-17B-16E-Instruct-GGUF, unsloth/Llama-4-Scout-17B-16E-Instruct-GGUF, lmstudio-community/Llama-4-Scout-17B-16E-Instruct-GGUF]}
+- {key: llama4-maverick-17b-128e-instruct, family: Meta Llama, title: Llama-4-Maverick-17B-128E-Instruct, plan: llamacpp, base: meta-llama/Llama-4-Maverick-17B-128E-Instruct, licence_text: *L4,
+   gguf: [unsloth/Llama-4-Maverick-17B-128E-Instruct-GGUF]}
+- {key: llama32-11b-vision-instruct, family: Meta Llama, title: Llama-3.2-11B-Vision-Instruct, plan: vlm, base: meta-llama/Llama-3.2-11B-Vision-Instruct, licence_text: &L32 "https://raw.githubusercontent.com/meta-llama/llama-models/0e0b8c519242d5833d8c11bffc1232b77ad7f301/models/llama3_2/LICENSE",
+   block: "gated, and llama.cpp b11447 has no mllama architecture"}
+- {key: llama32-90b-vision-instruct, family: Meta Llama, title: Llama-3.2-90B-Vision-Instruct, plan: vlm, base: meta-llama/Llama-3.2-90B-Vision-Instruct, licence_text: *L32,
+   block: "gated, and llama.cpp b11447 has no mllama architecture"}
+
+# ---------------------------------------------------------------- Qwen
+- {key: qwen25-72b-instruct, family: Qwen, title: Qwen2.5-72B-Instruct, plan: llamacpp, base: Qwen/Qwen2.5-72B-Instruct}
+- {key: qwen25-coder-32b-instruct, family: Qwen, title: Qwen2.5-Coder-32B-Instruct, plan: llamacpp, base: Qwen/Qwen2.5-Coder-32B-Instruct}
+- {key: qwen3-32b, family: Qwen, title: Qwen3-32B, plan: llamacpp, base: Qwen/Qwen3-32B}
+- {key: qwen3-235b-a22b-instruct-2507, family: Qwen, title: Qwen3-235B-A22B-Instruct-2507, plan: llamacpp, base: Qwen/Qwen3-235B-A22B-Instruct-2507}
+- {key: qwen3-235b-a22b-thinking-2507, family: Qwen, title: Qwen3-235B-A22B-Thinking-2507, plan: llamacpp, base: Qwen/Qwen3-235B-A22B-Thinking-2507}
+- {key: qwen3-coder-480b-a35b-instruct, family: Qwen, title: Qwen3-Coder-480B-A35B-Instruct, plan: llamacpp, base: Qwen/Qwen3-Coder-480B-A35B-Instruct}
+- {key: qwen3-coder-30b-a3b-instruct, family: Qwen, title: Qwen3-Coder-30B-A3B-Instruct, plan: llamacpp, base: Qwen/Qwen3-Coder-30B-A3B-Instruct}
+- {key: qwen3-coder-next, family: Qwen, title: Qwen3-Coder-Next, plan: llamacpp, base: Qwen/Qwen3-Coder-Next}
+- {key: qwen3-next-80b-a3b-instruct, family: Qwen, title: Qwen3-Next-80B-A3B-Instruct, plan: llamacpp, base: Qwen/Qwen3-Next-80B-A3B-Instruct}
+- {key: qwen35-397b-a17b, family: Qwen, title: Qwen3.5-397B-A17B, plan: llamacpp, base: Qwen/Qwen3.5-397B-A17B}
+- {key: qwen35-122b-a10b, family: Qwen, title: Qwen3.5-122B-A10B, plan: llamacpp, base: Qwen/Qwen3.5-122B-A10B}
+- {key: qwen35-9b, family: Qwen, title: Qwen3.5-9B, plan: llamacpp, base: Qwen/Qwen3.5-9B}
+- {key: qwen36-35b-a3b, family: Qwen, title: Qwen3.6-35B-A3B, plan: llamacpp, base: Qwen/Qwen3.6-35B-A3B}
+- {key: qwen36-27b, family: Qwen, title: Qwen3.6-27B, plan: llamacpp, base: Qwen/Qwen3.6-27B}
+- {key: qwen38-27b, family: Qwen, title: Qwen3.8-27B, plan: llamacpp, base: Qwen/Qwen3.8-27B}
+- {key: qwen38-flash-next, family: Qwen, title: Qwen3.8-Flash-Next, plan: llamacpp, base: Qwen/Qwen3.8-Flash-Next}
+- {key: qwen38-2p4t-a95b, family: Qwen, title: Qwen3.8-2.4T-A95B, plan: llamacpp, base: Qwen/Qwen3.8-2.4T-A95B}
+- {key: qwen25-vl-72b, family: Qwen, title: Qwen2.5-VL-72B-Instruct, plan: vlm, base: Qwen/Qwen2.5-VL-72B-Instruct, spec: {image: astronaut, dtype: bfloat16}}
+- {key: qwen3-vl-32b, family: Qwen, title: Qwen3-VL-32B-Instruct, plan: vlm, base: Qwen/Qwen3-VL-32B-Instruct, spec: {image: astronaut, dtype: bfloat16}}
+- {key: qwen3-vl-235b-a22b, family: Qwen, title: Qwen3-VL-235B-A22B-Instruct, plan: vlm, base: Qwen/Qwen3-VL-235B-A22B-Instruct, spec: {image: astronaut, dtype: bfloat16}}
+- {key: qwen3-embedding-8b, family: Qwen, title: Qwen3-Embedding-8B, plan: llamacpp-embed, base: Qwen/Qwen3-Embedding-8B, gguf: [Qwen/Qwen3-Embedding-8B-GGUF], quant: Q8_0}
+- {key: qwen3-reranker-8b, family: Qwen, title: Qwen3-Reranker-8B, plan: retrieval, base: Qwen/Qwen3-Reranker-8B, spec: {head: qwen3-reranker}}
+- {key: qwen3-reranker-4b, family: Qwen, title: Qwen3-Reranker-4B, plan: retrieval, base: Qwen/Qwen3-Reranker-4B, spec: {head: qwen3-reranker}}
+- {key: qwen3-reranker-0p6b, family: Qwen, title: Qwen3-Reranker-0.6B, plan: retrieval, base: Qwen/Qwen3-Reranker-0.6B, spec: {head: qwen3-reranker}}
+- {key: qwen3-asr-1p7b, family: Qwen, title: Qwen3-ASR-1.7B, plan: asr, base: Qwen/Qwen3-ASR-1.7B, spec: {engine: transformers-pipeline}}
+- {key: qwen-image-2p1, family: Qwen, title: Qwen-Image-2.1, plan: diffusers, base: Qwen/Qwen-Image-2.1,
+   spec: {kind: image, steps: 30, size: 1024, guidance: 4.0}}
+
+# ---------------------------------------------------------------- Google Gemma
+- {key: gemma4-31b-it, family: Google Gemma, title: gemma-4-31B-it, plan: llamacpp, base: google/gemma-4-31B-it, gguf: [google/gemma-4-31B-it-qat-q4_0-gguf], quant: Q4_0}
+- {key: gemma4-26b-a4b-it, family: Google Gemma, title: gemma-4-26B-A4B-it, plan: llamacpp, base: google/gemma-4-26B-A4B-it, gguf: [google/gemma-4-26B-A4B-it-qat-q4_0-gguf], quant: Q4_0}
+- {key: gemma4-12b-it, family: Google Gemma, title: gemma-4-12B-it, plan: llamacpp, base: google/gemma-4-12B-it, gguf: [google/gemma-4-12B-it-qat-q4_0-gguf], quant: Q4_0}
+- {key: gemma4-e2b-it, family: Google Gemma, title: gemma-4-E2B-it, plan: llamacpp, base: google/gemma-4-E2B-it, gguf: [google/gemma-4-E2B-it-qat-q4_0-gguf], quant: Q4_0}
+- {key: gemma3-27b-it, family: Google Gemma, title: gemma-3-27b-it, plan: llamacpp, base: google/gemma-3-27b-it, licence_text: "https://ai.google.dev/gemma/terms", gguf: [google/gemma-3-27b-it-qat-q4_0-gguf],
+   block: "gated (manual); Gemma Terms of Use"}
+
+# ---------------------------------------------------------------- Mistral
+- {key: mistral-large-3-675b-instruct-2512, family: Mistral, title: Mistral-Large-3-675B-Instruct-2512, plan: llamacpp, base: mistralai/Mistral-Large-3-675B-Instruct-2512}
+- {key: mistral-medium-3p5-128b, family: Mistral, title: Mistral-Medium-3.5-128B, plan: llamacpp, base: mistralai/Mistral-Medium-3.5-128B}
+- {key: mistral-small-4-119b-2603, family: Mistral, title: Mistral-Small-4-119B-2603, plan: llamacpp, base: mistralai/Mistral-Small-4-119B-2603}
+- {key: devstral-2-123b-2512, family: Mistral, title: Devstral-2-123B-Instruct-2512, plan: llamacpp, base: mistralai/Devstral-2-123B-Instruct-2512}
+- {key: devstral-small-2-24b-2512, family: Mistral, title: Devstral-Small-2-24B-Instruct-2512, plan: llamacpp, base: mistralai/Devstral-Small-2-24B-Instruct-2512}
+- {key: ministral-3-14b-instruct-2512, family: Mistral, title: Ministral-3-14B-Instruct-2512, plan: llamacpp, base: mistralai/Ministral-3-14B-Instruct-2512, gguf: [mistralai/Ministral-3-14B-Instruct-2512-GGUF]}
+- {key: ministral-3-14b-reasoning-2512, family: Mistral, title: Ministral-3-14B-Reasoning-2512, plan: llamacpp, base: mistralai/Ministral-3-14B-Reasoning-2512, gguf: [mistralai/Ministral-3-14B-Reasoning-2512-GGUF]}
+- {key: magistral-small-2509, family: Mistral, title: Magistral-Small-2509, plan: llamacpp, base: mistralai/Magistral-Small-2509, gguf: [mistralai/Magistral-Small-2509-GGUF]}
+- {key: mixtral-8x22b-instruct-v01, family: Mistral, title: Mixtral-8x22B-Instruct-v0.1, plan: llamacpp, base: mistralai/Mixtral-8x22B-Instruct-v0.1,
+   gguf: [MaziyarPanahi/Mixtral-8x22B-Instruct-v0.1-GGUF, bartowski/Mixtral-8x22B-Instruct-v0.1-GGUF, mradermacher/Mixtral-8x22B-Instruct-v0.1-GGUF]}
+- {key: codestral-22b-v01, family: Mistral, title: Codestral-22B-v0.1, plan: llamacpp, base: mistralai/Codestral-22B-v0.1,
+   gguf: [bartowski/Codestral-22B-v0.1-GGUF, lmstudio-community/Codestral-22B-v0.1-GGUF]}
+- {key: mistral-large-instruct-2411, family: Mistral, title: Mistral-Large-Instruct-2411, plan: llamacpp, base: mistralai/Mistral-Large-Instruct-2411,
+   gguf: [bartowski/Mistral-Large-Instruct-2411-GGUF, lmstudio-community/Mistral-Large-Instruct-2411-GGUF]}
+- {key: pixtral-12b-2409, family: Mistral, title: Pixtral-12B-2409 (HF-format conversion), plan: vlm, base: mistral-community/pixtral-12b, licence_from: mistralai/Pixtral-12B-2409,
+   spec: {image: astronaut, dtype: bfloat16}}
+- {key: pixtral-large-instruct-2411, family: Mistral, title: Pixtral-Large-Instruct-2411, plan: vllm, base: mistralai/Pixtral-Large-Instruct-2411,
+   spec: {mistral_format: true}}
+
+# ---------------------------------------------------------------- OpenAI gpt-oss
+- {key: gpt-oss-120b, family: OpenAI gpt-oss, title: gpt-oss-120b, plan: llamacpp, base: openai/gpt-oss-120b, gguf: [ggml-org/gpt-oss-120b-GGUF], quant: MXFP4}
+- {key: gpt-oss-120b-vllm, family: OpenAI gpt-oss, title: gpt-oss-120b (vLLM; official MXFP4 weights), plan: vllm, base: openai/gpt-oss-120b,
+   allow: ['^model-\d{5}-of-\d{5}\.safetensors$']}
+
+# ---------------------------------------------------------------- GLM
+- {key: glm53, family: GLM, title: GLM-5.3, plan: llamacpp, base: zai-org/GLM-5.3}
+- {key: glm53-flash, family: GLM, title: GLM-5.3-Flash, plan: llamacpp, base: zai-org/GLM-5.3-Flash}
+- {key: glm52, family: GLM, title: GLM-5.2, plan: llamacpp, base: zai-org/GLM-5.2}
+- {key: glm47, family: GLM, title: GLM-4.7, plan: llamacpp, base: zai-org/GLM-4.7}
+- {key: glm47-flash, family: GLM, title: GLM-4.7-Flash, plan: llamacpp, base: zai-org/GLM-4.7-Flash}
+- {key: glm46v, family: GLM, title: GLM-4.6V, plan: vlm, base: zai-org/GLM-4.6V, spec: {image: astronaut, dtype: bfloat16}}
+- {key: glm-ocr, family: GLM, title: GLM-OCR, plan: vlm, base: zai-org/GLM-OCR, spec: {image: text, dtype: bfloat16, prompt: "Text Recognition:", new: 48}}
+
+# ---------------------------------------------------------------- Kimi
+- {key: kimi-k3, family: Kimi, title: Kimi-K3, plan: llamacpp, base: moonshotai/Kimi-K3}
+- {key: kimi-k26, family: Kimi, title: Kimi-K2.6, plan: llamacpp, base: moonshotai/Kimi-K2.6}
+- {key: kimi-k27-code, family: Kimi, title: Kimi-K2.7-Code, plan: llamacpp, base: moonshotai/Kimi-K2.7-Code}
+- {key: kimi-k2-thinking, family: Kimi, title: Kimi-K2-Thinking, plan: llamacpp, base: moonshotai/Kimi-K2-Thinking}
+- {key: kimi-linear-48b-a3b-instruct, family: Kimi, title: Kimi-Linear-48B-A3B-Instruct, plan: llamacpp, base: moonshotai/Kimi-Linear-48B-A3B-Instruct}
+
+# ---------------------------------------------------------------- Cohere
+- {key: command-a-plus-05-2026, family: Cohere, title: command-a-plus-05-2026, plan: llamacpp, base: CohereLabs/command-a-plus-05-2026-bf16}
+- {key: north-mini-code-1p0, family: Cohere, title: North-Mini-Code-1.0, plan: llamacpp, base: CohereLabs/North-Mini-Code-1.0}
+- {key: command-a-03-2025, family: Cohere, title: c4ai-command-a-03-2025, plan: llamacpp, base: CohereLabs/c4ai-command-a-03-2025}
+- {key: command-r-plus-08-2024, family: Cohere, title: c4ai-command-r-plus-08-2024, plan: llamacpp, base: CohereLabs/c4ai-command-r-plus-08-2024}
+- {key: command-r-08-2024, family: Cohere, title: c4ai-command-r-08-2024, plan: llamacpp, base: CohereLabs/c4ai-command-r-08-2024}
+
+# ---------------------------------------------------------------- Falcon
+- {key: falcon-h1-34b-instruct, family: Falcon, title: Falcon-H1-34B-Instruct, plan: llamacpp, base: tiiuae/Falcon-H1-34B-Instruct}
+- {key: falcon-h1r-7b, family: Falcon, title: Falcon-H1R-7B, plan: llamacpp, base: tiiuae/Falcon-H1R-7B}
+- {key: falcon3-10b-instruct, family: Falcon, title: Falcon3-10B-Instruct, plan: llamacpp, base: tiiuae/Falcon3-10B-Instruct}
+- {key: falcon-ocr, family: Falcon, title: Falcon-OCR, plan: vlm, base: tiiuae/Falcon-OCR, spec: {image: text, dtype: bfloat16, prompt: "Read all the text in the image.", new: 48}}
+
+# ---------------------------------------------------------------- Microsoft Phi
+- {key: phi4-reasoning-plus, family: Microsoft Phi, title: Phi-4-reasoning-plus, plan: llamacpp, base: microsoft/Phi-4-reasoning-plus}
+- {key: phi4-mini-instruct, family: Microsoft Phi, title: Phi-4-mini-instruct, plan: llamacpp, base: microsoft/Phi-4-mini-instruct}
+
+# ---------------------------------------------------------------- NVIDIA Nemotron
+- {key: nemotron-3-ultra-550b-a55b, family: NVIDIA Nemotron, title: NVIDIA-Nemotron-3-Ultra-550B-A55B, plan: llamacpp, base: nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16}
+- {key: nemotron-3-super-120b-a12b, family: NVIDIA Nemotron, title: NVIDIA-Nemotron-3-Super-120B-A12B, plan: llamacpp, base: nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16}
+- {key: nemotron-3-nano-30b-a3b, family: NVIDIA Nemotron, title: NVIDIA-Nemotron-3-Nano-30B-A3B, plan: llamacpp, base: nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16}
+- {key: nemotron-3p5-lightning-30b-a3b, family: NVIDIA Nemotron, title: NVIDIA-Nemotron-3.5-Lightning-30B-A3B, plan: llamacpp, base: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16}
+- {key: nemotron-nano-9b-v2, family: NVIDIA Nemotron, title: NVIDIA-Nemotron-Nano-9B-v2, plan: llamacpp, base: nvidia/NVIDIA-Nemotron-Nano-9B-v2}
+
+# ---------------------------------------------------------------- MiniMax
+- {key: minimax-m3, family: MiniMax, title: MiniMax-M3, plan: llamacpp, base: MiniMaxAI/MiniMax-M3}
+- {key: minimax-m2p7, family: MiniMax, title: MiniMax-M2.7, plan: llamacpp, base: MiniMaxAI/MiniMax-M2.7}
+- {key: minimax-m2p5, family: MiniMax, title: MiniMax-M2.5, plan: llamacpp, base: MiniMaxAI/MiniMax-M2.5}
+
+# ---------------------------------------------------------------- Other families worth tracking
+- {key: hy3, family: Other LLMs, title: Tencent Hy3, plan: llamacpp, base: tencent/Hy3}
+- {key: hy4-preview, family: Other LLMs, title: Tencent Hy4-preview, plan: vllm, base: tencent/Hy4-preview,
+   note: "no GGUF was found for it on the Hub; vLLM v0.30.0 lists HYV4ForCausalLM"}
+- {key: step-3p7-flash, family: Other LLMs, title: Step-3.7-Flash, plan: llamacpp, base: stepfun-ai/Step-3.7-Flash, gguf: [stepfun-ai/Step-3.7-Flash-GGUF]}
+- {key: trinity-large-thinking, family: Other LLMs, title: Trinity-Large-Thinking, plan: llamacpp, base: arcee-ai/Trinity-Large-Thinking, gguf: [arcee-ai/Trinity-Large-Thinking-GGUF]}
+- {key: exaone-4p5-33b, family: Other LLMs, title: EXAONE-4.5-33B, plan: llamacpp, base: LGAI-EXAONE/EXAONE-4.5-33B, gguf: [LGAI-EXAONE/EXAONE-4.5-33B-GGUF]}
+- {key: orpheus-3b-0p1-ft, family: Speech, title: Orpheus 3B 0.1 ft (text to speech tokens), plan: llamacpp, base: canopylabs/orpheus-3b-0.1-ft,
+   gguf: [isaiahbjork/orpheus-3b-0.1-ft-Q4_K_M-GGUF, lex-au/Orpheus-3b-FT-Q8_0.gguf]}
+
+# ---------------------------------------------------------------- Image generation
+- {key: flux1-schnell, family: Image generation, title: FLUX.1-schnell (unsloth mirror of the gated official repo), plan: diffusers, base: black-forest-labs/FLUX.1-schnell, repo: unsloth/FLUX.1-schnell,
+   spec: {kind: image, steps: 4, size: 1024, guidance: 0.0}}
+- {key: flux1-dev, family: Image generation, title: FLUX.1-dev, plan: diffusers, base: black-forest-labs/FLUX.1-dev, spec: {kind: image, steps: 28, size: 1024, guidance: 3.5}}
+- {key: flux1-krea-dev, family: Image generation, title: FLUX.1-Krea-dev, plan: diffusers, base: black-forest-labs/FLUX.1-Krea-dev, spec: {kind: image, steps: 28, size: 1024, guidance: 4.5}}
+- {key: flux2-dev, family: Image generation, title: FLUX.2-dev, plan: diffusers, base: black-forest-labs/FLUX.2-dev, spec: {kind: image, steps: 28, size: 1024, guidance: 4.0}}
+- {key: flux2-klein-4b, family: Image generation, title: FLUX.2-klein-4B, plan: diffusers, base: black-forest-labs/FLUX.2-klein-4B, spec: {kind: image, steps: 4, size: 1024, guidance: 1.0}}
+- {key: flux2-klein-9b, family: Image generation, title: FLUX.2-klein-9B, plan: diffusers, base: black-forest-labs/FLUX.2-klein-9B, spec: {kind: image, steps: 4, size: 1024, guidance: 1.0}}
+- {key: sd35-large, family: Image generation, title: Stable Diffusion 3.5 Large, plan: diffusers, base: stabilityai/stable-diffusion-3.5-large, spec: {kind: image, steps: 28, size: 1024, guidance: 3.5}}
+- {key: sd35-medium, family: Image generation, title: Stable Diffusion 3.5 Medium, plan: diffusers, base: stabilityai/stable-diffusion-3.5-medium, spec: {kind: image, steps: 28, size: 1024, guidance: 4.5}}
+- {key: hidream-i1-full, family: Image generation, title: HiDream-I1-Full, plan: diffusers, base: HiDream-ai/HiDream-I1-Full, spec: {kind: image, steps: 50, size: 1024, guidance: 5.0},
+   block: "the pipeline loads a Llama-3.1-8B-Instruct text encoder and tokenizer from the gated meta-llama repository (HiDream's model card), which this repo cannot fetch without credentials"}
+
+# ---------------------------------------------------------------- Video generation
+- {key: wan22-t2v-a14b, family: Video generation, title: Wan2.2-T2V-A14B, plan: diffusers, base: Wan-AI/Wan2.2-T2V-A14B-Diffusers, spec: {kind: video, steps: 30, width: 832, height: 480, frames: 33, guidance: 4.0}}
+- {key: wan22-ti2v-5b, family: Video generation, title: Wan2.2-TI2V-5B, plan: diffusers, base: Wan-AI/Wan2.2-TI2V-5B-Diffusers, spec: {kind: video, steps: 30, width: 832, height: 480, frames: 33, guidance: 5.0}}
+- {key: wan21-t2v-14b, family: Video generation, title: Wan2.1-T2V-14B, plan: diffusers, base: Wan-AI/Wan2.1-T2V-14B-Diffusers, spec: {kind: video, steps: 30, width: 832, height: 480, frames: 33, guidance: 5.0}}
+- {key: wan21-t2v-1p3b, family: Video generation, title: Wan2.1-T2V-1.3B, plan: diffusers, base: Wan-AI/Wan2.1-T2V-1.3B-Diffusers, spec: {kind: video, steps: 30, width: 832, height: 480, frames: 33, guidance: 5.0}}
+- {key: hunyuanvideo, family: Video generation, title: HunyuanVideo (diffusers conversion), plan: diffusers, base: hunyuanvideo-community/HunyuanVideo, licence_from: tencent/HunyuanVideo, spec: {kind: video, steps: 30, width: 848, height: 480, frames: 33, guidance: 1.0}}
+- {key: hunyuanvideo-15-720p-t2v, family: Video generation, title: HunyuanVideo-1.5 720p T2V, plan: diffusers, base: hunyuanvideo-community/HunyuanVideo-1.5-Diffusers-720p_t2v, licence_from: tencent/HunyuanVideo-1.5, spec: {kind: video, steps: 30, width: 848, height: 480, frames: 33, guidance: 6.0}}
+- {key: cogvideox-2b, family: Video generation, title: CogVideoX-2b, plan: diffusers, base: zai-org/CogVideoX-2b, spec: {kind: video, steps: 30, width: 720, height: 480, frames: 49, guidance: 6.0}}
+- {key: cogvideox-5b, family: Video generation, title: CogVideoX-5b, plan: diffusers, base: zai-org/CogVideoX-5b, spec: {kind: video, steps: 30, width: 720, height: 480, frames: 49, guidance: 6.0}}
+- {key: cogvideox15-5b, family: Video generation, title: CogVideoX1.5-5B, plan: diffusers, base: zai-org/CogVideoX1.5-5B, spec: {kind: video, steps: 30, width: 1360, height: 768, frames: 33, guidance: 6.0}}
+- {key: mochi-1-preview, family: Video generation, title: Mochi 1 preview, plan: diffusers, base: genmo/mochi-1-preview, spec: {kind: video, steps: 30, width: 848, height: 480, frames: 31, guidance: 4.5}}
+- {key: ltx-video, family: Video generation, title: LTX-Video 0.9.x, plan: diffusers, base: Lightricks/LTX-Video, spec: {kind: video, steps: 30, width: 704, height: 480, frames: 49, guidance: 3.0}}
+- {key: minimax-h3, family: Video generation, title: MiniMax-H3, plan: diffusers, base: MiniMaxAI/MiniMax-H3, spec: {kind: video, steps: 30, width: 832, height: 480, frames: 33, guidance: 5.0},
+   block: "own inference code (library minimax-h3 on its card; per-task FL2VA / Ref2VA directories, no model_index.json), not a diffusers pipeline"}
+- {key: ltx-2p3, family: Video generation, title: LTX-2.3, plan: diffusers, base: Lightricks/LTX-2.3,
+   block: "the repository has no diffusers layout (no model_index.json; single-file checkpoints for ComfyUI), so diffusers' from_pretrained cannot load it"}
+- {key: ltx-2p5, family: Video generation, title: LTX-2.5, plan: diffusers, base: Lightricks/LTX-2.5, block: "gated (auto) and single-file layout"}
+
+# ---------------------------------------------------------------- Speech
+- {key: whisper-large-v3-turbo, family: Speech, title: Whisper large-v3-turbo (whisper.cpp ggml), plan: whispercpp, base: openai/whisper-large-v3-turbo, repo: ggerganov/whisper.cpp,
+   allow: ['^ggml-large-v3-turbo\.bin$']}
+- {key: parakeet-tdt-0p6b-v3, family: Speech, title: parakeet-tdt-0.6b-v3, plan: asr, base: nvidia/parakeet-tdt-0.6b-v3, spec: {engine: transformers-pipeline}}
+- {key: canary-1b-v2, family: Speech, title: canary-1b-v2, plan: asr, base: nvidia/canary-1b-v2, spec: {engine: nemo}}
+- {key: chatterbox, family: Speech, title: Chatterbox (Resemble AI), plan: tts, base: ResembleAI/chatterbox, spec: {engine: chatterbox},
+   allow: ['^ve\.safetensors$', '^t3_cfg\.safetensors$', '^s3gen\.safetensors$', '^tokenizer\.json$', '^conds\.pt$']}
+- {key: f5-tts, family: Speech, title: F5-TTS (v1 Base), plan: tts, base: SWivid/F5-TTS, spec: {engine: f5-tts},
+   allow: ['^F5TTS_v1_Base/model_1250000\.safetensors$', '^F5TTS_v1_Base/vocab\.txt$']}
+
+# ---------------------------------------------------------------- Retrieval
+- {key: bge-m3, family: Retrieval, title: BGE-M3 (dense head), plan: retrieval, base: BAAI/bge-m3, spec: {head: embed-cls}}
+- {key: bge-reranker-v2-m3, family: Retrieval, title: bge-reranker-v2-m3, plan: retrieval, base: BAAI/bge-reranker-v2-m3, spec: {head: seqcls}}
+- {key: bge-reranker-large, family: Retrieval, title: bge-reranker-large, plan: retrieval, base: BAAI/bge-reranker-large, spec: {head: seqcls}}
+
+# ---------------------------------------------------------------- Vision encoders, segmentation, depth
+- {key: siglip2-so400m-patch16-512, family: Vision, title: SigLIP 2 so400m patch16 512, plan: vision, base: google/siglip2-so400m-patch16-512, spec: {head: siglip2}}
+- {key: siglip2-giant-opt-patch16-384, family: Vision, title: SigLIP 2 giant-opt patch16 384, plan: vision, base: google/siglip2-giant-opt-patch16-384, spec: {head: siglip2}}
+- {key: dinov3-vit7b16, family: Vision, title: DINOv3 ViT-7B/16, plan: vision, base: facebook/dinov3-vit7b16-pretrain-lvd1689m, spec: {head: dino}}
+- {key: dinov2-giant, family: Vision, title: DINOv2 giant, plan: vision, base: facebook/dinov2-giant, spec: {head: dino}}
+- {key: sam2p1-hiera-large, family: Vision, title: SAM 2.1 Hiera Large, plan: vision, base: facebook/sam2.1-hiera-large, spec: {head: sam2}}
+- {key: sam3, family: Vision, title: SAM 3, plan: vision, base: facebook/sam3, spec: {head: sam3}}
+- {key: depth-anything-v2-large, family: Vision, title: Depth Anything V2 Large, plan: vision, base: depth-anything/Depth-Anything-V2-Large-hf, spec: {head: depth}}
+- {key: depth-anything-v2-small, family: Vision, title: Depth Anything V2 Small, plan: vision, base: depth-anything/Depth-Anything-V2-Small-hf, spec: {head: depth}}
+
+# ---------------------------------------------------------------- OCR and document models (vlm plan, text image)
+- {key: olmocr-2-7b, family: OCR and documents, title: olmOCR-2-7B-1025, plan: vlm, base: allenai/olmOCR-2-7B-1025, spec: {image: text, dtype: bfloat16, prompt: "Read all the text in the image.", new: 48}}
+- {key: paddleocr-vl, family: OCR and documents, title: PaddleOCR-VL, plan: vlm, base: PaddlePaddle/PaddleOCR-VL, spec: {image: text, dtype: bfloat16, prompt: "OCR:", new: 48}}
+- {key: dots-ocr, family: OCR and documents, title: dots.ocr, plan: vlm, base: rednote-hilab/dots.ocr, spec: {image: text, dtype: bfloat16},
+   block: "custom model code (auto_map, library dots_ocr): not in transformers 5.19.0"}
+
+# ---------------------------------------------------------------- Time series
+- {key: chronos-bolt-base, family: Time series, title: Chronos-Bolt Base, plan: timeseries, base: amazon/chronos-bolt-base, spec: {pipeline: bolt}}
+- {key: chronos-2, family: Time series, title: Chronos-2, plan: timeseries, base: amazon/chronos-2, spec: {pipeline: chronos2}}
+- {key: chronos-t5-large, family: Time series, title: Chronos T5 Large, plan: timeseries, base: amazon/chronos-t5-large, spec: {pipeline: t5}}

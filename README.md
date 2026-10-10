@@ -167,8 +167,13 @@ Honest caveats:
 - `loadgen-plumbing-check` runs MLCommons LoadGen against a toy CPU system under test. It is **not an MLPerf
   result** ([`docs/mlperf.md`](docs/mlperf.md)).
 - Trace capture is designed only ([`docs/trace-schema.md`](docs/trace-schema.md) is a draft).
+- The **Model catalog** group ([`docs/model-registry.md`](docs/model-registry.md)) holds workloads for open-weight models of any size
+  (DeepSeek V4, Kimi K3, Qwen3.8, GLM-5.3, Llama, Mistral, FLUX, Wan, Whisper, ...), written from Hugging Face metadata on 2026-10-09:
+  **none has been run**, none has a reference or a bench record, and each declares in `requires:` the GPUs it needs (up to 8 x 256 GiB), so
+  `bin/pw` skips it on a smaller host. Gated repositories are listed there as blocked, with the access route.
 
-Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
+Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every tracked model, its pin, licence, runtime and hardware need),
+[`docs/models.md`](docs/models.md) (what ran and what has not),
 [`docs/pretrained-reachable.md`](docs/pretrained-reachable.md) (licence evidence, pins, what was rejected),
 [`docs/arch-coverage.md`](docs/arch-coverage.md), [`docs/lib-coverage.md`](docs/lib-coverage.md),
 [`docs/llamacpp.md`](docs/llamacpp.md), [`docs/llamacpp-synth.md`](docs/llamacpp-synth.md),
@@ -347,6 +352,269 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | whisper-cpp-large-v3 | functional | whisper.cpp | gpu | any | yes (gpu) | MIT | yes | no | no |
 | whisper-cpp-tiny-en | functional | whisper.cpp | cpu, gpu | any | yes (gpu) | MIT | yes | no | no |
 
+#### Model catalog: written from Hub metadata, never run (docs/model-registry.md); models of any size, each gated by `requires`: 258
+
+| Workload | Kind | Runtime | Targets | Needs | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| bge-m3-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | MIT | yes | no | no |
+| bge-m3-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | MIT | yes | no | no |
+| bge-reranker-large-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | MIT | yes | no | no |
+| bge-reranker-large-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | MIT | yes | no | no |
+| bge-reranker-v2-m3-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| bge-reranker-v2-m3-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| canary-1b-v2-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | CC-BY-4.0 | yes | no | no |
+| canary-1b-v2-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | CC-BY-4.0 | yes | no | no |
+| chatterbox-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | MIT | yes | no | no |
+| chatterbox-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | MIT | yes | no | no |
+| chronos-2-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| chronos-2-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| chronos-bolt-base-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| chronos-bolt-base-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| chronos-t5-large-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| chronos-t5-large-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| cogvideox-2b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | no |
+| cogvideox-2b-diffusers | functional | pytorch | gpu | 1 x 40 GiB | no | Apache-2.0 | yes | no | no |
+| cogvideox-5b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | custom licence (restricted) | yes | no | no |
+| cogvideox-5b-diffusers | functional | pytorch | gpu | 1 x 40 GiB | no | custom licence (restricted) | yes | no | no |
+| cogvideox15-5b-bench | benchmark | pytorch | gpu | 1 x 48 GiB | n/a | custom licence (restricted) | yes | no | no |
+| cogvideox15-5b-diffusers | functional | pytorch | gpu | 1 x 48 GiB | no | custom licence (restricted) | yes | no | no |
+| depth-anything-v2-large-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | CC-BY-NC-4.0 (restricted) | yes | no | no |
+| depth-anything-v2-large-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | CC-BY-NC-4.0 (restricted) | yes | no | no |
+| depth-anything-v2-small-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| depth-anything-v2-small-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| dinov2-giant-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| dinov2-giant-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| f5-tts-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | CC-BY-NC-4.0 (restricted) | yes | no | no |
+| f5-tts-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | CC-BY-NC-4.0 (restricted) | yes | no | no |
+| flux1-schnell-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | no |
+| flux1-schnell-diffusers | functional | pytorch | gpu | 1 x 40 GiB | no | Apache-2.0 | yes | no | no |
+| flux2-klein-4b-bench | benchmark | pytorch | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| flux2-klein-4b-diffusers | functional | pytorch | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| glm-ocr-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | MIT | yes | no | no |
+| glm-ocr-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | MIT | yes | no | no |
+| glm46v-bench | benchmark | pytorch | gpu | 4 x 80 GiB | n/a | MIT | yes | no | no |
+| glm46v-pytorch | functional | pytorch | gpu | 4 x 80 GiB | no | MIT | yes | no | no |
+| hunyuanvideo-15-720p-t2v-bench | benchmark | pytorch | gpu | 1 x 44 GiB | n/a | Tencent Hunyuan Community License (restricted) | yes | no | no |
+| hunyuanvideo-15-720p-t2v-diffusers | functional | pytorch | gpu | 1 x 44 GiB | no | Tencent Hunyuan Community License (restricted) | yes | no | no |
+| hunyuanvideo-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Tencent Hunyuan Community License (restricted) | yes | no | no |
+| hunyuanvideo-diffusers | functional | pytorch | gpu | 1 x 80 GiB | no | Tencent Hunyuan Community License (restricted) | yes | no | no |
+| llamacpp-bench-codestral-22b-v01 | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | Mistral AI Non-Production License (restricted) | yes | no | no |
+| llamacpp-bench-command-a-03-2025 | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | CC-BY-NC-4.0 (restricted) | yes | no | no |
+| llamacpp-bench-command-a-plus-05-2026 | benchmark | llama.cpp | gpu | 2 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-command-r-08-2024 | benchmark | llama.cpp | gpu | 1 x 24 GiB | n/a | CC-BY-NC-4.0 (restricted) | yes | no | no |
+| llamacpp-bench-command-r-plus-08-2024 | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | CC-BY-NC-4.0 (restricted) | yes | no | no |
+| llamacpp-bench-deepseek-r1-0528 | benchmark | llama.cpp | gpu | 8 x 80 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-deepseek-r1-distill-llama-70b | benchmark | llama.cpp | gpu | 1 x 48 GiB | n/a | Llama 3.3 Community Licence (restricted) | yes | no | no |
+| llamacpp-bench-deepseek-r1-distill-llama-8b | benchmark | llama.cpp | gpu | 1 x 15 GiB | n/a | Llama 3.1 Community Licence (restricted) | yes | no | no |
+| llamacpp-bench-deepseek-r1-distill-qwen-14b | benchmark | llama.cpp | gpu | 1 x 15 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-deepseek-r1-distill-qwen-32b | benchmark | llama.cpp | gpu | 1 x 24 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-deepseek-v3p1-terminus | benchmark | llama.cpp | gpu | 8 x 80 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-deepseek-v3p2 | benchmark | llama.cpp | gpu | 8 x 80 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-deepseek-v4-flash-0731 | benchmark | llama.cpp | gpu | 4 x 44 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-deepseek-v4-pro-0813 | benchmark | llama.cpp | gpu | 4 x 256 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-devstral-2-123b-2512 | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | custom licence (restricted) | yes | no | no |
+| llamacpp-bench-devstral-small-2-24b-2512 | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-exaone-4p5-33b | benchmark | llama.cpp | gpu | 1 x 24 GiB | n/a | EXAONE AI Model License Agreement (restricted) | yes | no | no |
+| llamacpp-bench-falcon-h1-34b-instruct | benchmark | llama.cpp | gpu | 1 x 24 GiB | n/a | Falcon LLM License (restricted) | yes | no | no |
+| llamacpp-bench-falcon-h1r-7b | benchmark | llama.cpp | gpu | 1 x 15 GiB | n/a | Falcon LLM License (restricted) | yes | no | no |
+| llamacpp-bench-falcon3-10b-instruct | benchmark | llama.cpp | gpu | 1 x 15 GiB | n/a | Falcon LLM License (restricted) | yes | no | no |
+| llamacpp-bench-gemma4-12b-it | benchmark | llama.cpp | gpu | 1 x 15 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-gemma4-26b-a4b-it | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-gemma4-31b-it | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-gemma4-e2b-it | benchmark | llama.cpp | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-glm47 | benchmark | llama.cpp | gpu | 4 x 80 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-glm47-flash | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-glm52 | benchmark | llama.cpp | gpu | 8 x 80 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-glm53 | benchmark | llama.cpp | gpu | 8 x 80 GiB | n/a | GLM-5.3 License (restricted) | yes | no | no |
+| llamacpp-bench-glm53-flash | benchmark | llama.cpp | gpu | 4 x 80 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-gpt-oss-120b | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-hy3 | benchmark | llama.cpp | gpu | 4 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-kimi-k2-thinking | benchmark | llama.cpp | gpu | 4 x 180 GiB | n/a | Modified MIT (restricted) | yes | no | no |
+| llamacpp-bench-kimi-k26 | benchmark | llama.cpp | gpu | 8 x 80 GiB | n/a | Modified MIT (restricted) | yes | no | no |
+| llamacpp-bench-kimi-k27-code | benchmark | llama.cpp | gpu | 8 x 80 GiB | n/a | Modified MIT (restricted) | yes | no | no |
+| llamacpp-bench-kimi-k3 | benchmark | llama.cpp | gpu | 8 x 192 GiB | n/a | Kimi K3 License (restricted) | yes | no | no |
+| llamacpp-bench-kimi-linear-48b-a3b-instruct | benchmark | llama.cpp | gpu | 1 x 40 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-llama31-405b-instruct | benchmark | llama.cpp | gpu | 4 x 80 GiB | n/a | Llama 3.1 Community Licence (restricted) | yes | no | no |
+| llamacpp-bench-llama31-70b-instruct | benchmark | llama.cpp | gpu | 1 x 48 GiB | n/a | Llama 3.1 Community Licence (restricted) | yes | no | no |
+| llamacpp-bench-llama31-8b-instruct | benchmark | llama.cpp | gpu | 1 x 15 GiB | n/a | Llama 3.1 Community Licence (restricted) | yes | no | no |
+| llamacpp-bench-llama33-70b-instruct | benchmark | llama.cpp | gpu | 1 x 48 GiB | n/a | Llama 3.3 Community Licence (restricted) | yes | no | no |
+| llamacpp-bench-llama4-maverick-17b-128e-instruct | benchmark | llama.cpp | gpu | 4 x 80 GiB | n/a | Llama 4 Community License (restricted) | yes | no | no |
+| llamacpp-bench-llama4-scout-17b-16e-instruct | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | Llama 4 Community License (restricted) | yes | no | no |
+| llamacpp-bench-magistral-small-2509 | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-minimax-m2p5 | benchmark | llama.cpp | gpu | 2 x 80 GiB | n/a | Modified MIT (restricted) | yes | no | no |
+| llamacpp-bench-minimax-m2p7 | benchmark | llama.cpp | gpu | 2 x 80 GiB | n/a | custom licence (restricted) | yes | no | no |
+| llamacpp-bench-minimax-m3 | benchmark | llama.cpp | gpu | 4 x 80 GiB | n/a | minimax-community (restricted) | yes | no | no |
+| llamacpp-bench-ministral-3-14b-instruct-2512 | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-ministral-3-14b-reasoning-2512 | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-mistral-large-3-675b-instruct-2512 | benchmark | llama.cpp | gpu | 8 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-mistral-large-instruct-2411 | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | Mistral Research License (restricted) | yes | no | no |
+| llamacpp-bench-mistral-medium-3p5-128b | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | custom licence (restricted) | yes | no | no |
+| llamacpp-bench-mistral-small-4-119b-2603 | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-mixtral-8x22b-instruct-v01 | benchmark | llama.cpp | gpu | 2 x 48 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-nemotron-3-nano-30b-a3b | benchmark | llama.cpp | gpu | 1 x 40 GiB | n/a | NVIDIA Nemotron Open Model License (restricted) | yes | no | no |
+| llamacpp-bench-nemotron-3-super-120b-a12b | benchmark | llama.cpp | gpu | 2 x 48 GiB | n/a | NVIDIA Nemotron Open Model License (restricted) | yes | no | no |
+| llamacpp-bench-nemotron-3-ultra-550b-a55b | benchmark | llama.cpp | gpu | 8 x 48 GiB | n/a | OpenMDW-1.1 (restricted) | yes | no | no |
+| llamacpp-bench-nemotron-3p5-lightning-30b-a3b | benchmark | llama.cpp | gpu | 1 x 40 GiB | n/a | OpenMDW-1.1 (restricted) | yes | no | no |
+| llamacpp-bench-nemotron-nano-9b-v2 | benchmark | llama.cpp | gpu | 1 x 15 GiB | n/a | NVIDIA Open Model License (restricted) | yes | no | no |
+| llamacpp-bench-north-mini-code-1p0 | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-orpheus-3b-0p1-ft | benchmark | llama.cpp | gpu | 1 x 10 GiB | n/a | Apache-2.0 (restricted) | yes | no | no |
+| llamacpp-bench-phi4-mini-instruct | benchmark | llama.cpp | gpu | 1 x 10 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-phi4-reasoning-plus | benchmark | llama.cpp | gpu | 1 x 15 GiB | n/a | MIT | yes | no | no |
+| llamacpp-bench-qwen25-72b-instruct | benchmark | llama.cpp | gpu | 1 x 48 GiB | n/a | Qwen License (restricted) | yes | no | no |
+| llamacpp-bench-qwen25-coder-32b-instruct | benchmark | llama.cpp | gpu | 1 x 24 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen3-235b-a22b-instruct-2507 | benchmark | llama.cpp | gpu | 2 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen3-235b-a22b-thinking-2507 | benchmark | llama.cpp | gpu | 2 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen3-32b | benchmark | llama.cpp | gpu | 1 x 24 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen3-coder-30b-a3b-instruct | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen3-coder-480b-a35b-instruct | benchmark | llama.cpp | gpu | 4 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen3-coder-next | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen3-embedding-8b | benchmark | llama.cpp | gpu | 1 x 15 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen3-next-80b-a3b-instruct | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen35-122b-a10b | benchmark | llama.cpp | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen35-397b-a17b | benchmark | llama.cpp | gpu | 4 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen35-9b | benchmark | llama.cpp | gpu | 1 x 15 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen36-27b | benchmark | llama.cpp | gpu | 1 x 24 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen36-35b-a3b | benchmark | llama.cpp | gpu | 1 x 24 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen38-27b | benchmark | llama.cpp | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-qwen38-2p4t-a95b | benchmark | llama.cpp | gpu | 8 x 180 GiB | n/a | qwen3.8-max (restricted) | yes | no | no |
+| llamacpp-bench-qwen38-flash-next | benchmark | llama.cpp | gpu | 2 x 80 GiB | n/a | Qwen Community License 1.0 (restricted) | yes | no | no |
+| llamacpp-bench-step-3p7-flash | benchmark | llama.cpp | gpu | 2 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| llamacpp-bench-trinity-large-thinking | benchmark | llama.cpp | gpu | 4 x 80 GiB | n/a | OpenMDW-1.1 (restricted) | yes | no | no |
+| llamacpp-codestral-22b-v01 | functional | llama.cpp | gpu | 1 x 22 GiB | no | Mistral AI Non-Production License (restricted) | yes | no | no |
+| llamacpp-command-a-03-2025 | functional | llama.cpp | gpu | 1 x 80 GiB | no | CC-BY-NC-4.0 (restricted) | yes | no | no |
+| llamacpp-command-a-plus-05-2026 | functional | llama.cpp | gpu | 2 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-command-r-08-2024 | functional | llama.cpp | gpu | 1 x 24 GiB | no | CC-BY-NC-4.0 (restricted) | yes | no | no |
+| llamacpp-command-r-plus-08-2024 | functional | llama.cpp | gpu | 1 x 80 GiB | no | CC-BY-NC-4.0 (restricted) | yes | no | no |
+| llamacpp-deepseek-r1-0528 | functional | llama.cpp | gpu | 8 x 80 GiB | no | MIT | yes | no | no |
+| llamacpp-deepseek-r1-distill-llama-70b | functional | llama.cpp | gpu | 1 x 48 GiB | no | Llama 3.3 Community Licence (restricted) | yes | no | no |
+| llamacpp-deepseek-r1-distill-llama-8b | functional | llama.cpp | gpu | 1 x 15 GiB | no | Llama 3.1 Community Licence (restricted) | yes | no | no |
+| llamacpp-deepseek-r1-distill-qwen-14b | functional | llama.cpp | gpu | 1 x 15 GiB | no | MIT | yes | no | no |
+| llamacpp-deepseek-r1-distill-qwen-32b | functional | llama.cpp | gpu | 1 x 24 GiB | no | MIT | yes | no | no |
+| llamacpp-deepseek-v3p1-terminus | functional | llama.cpp | gpu | 8 x 80 GiB | no | MIT | yes | no | no |
+| llamacpp-deepseek-v3p2 | functional | llama.cpp | gpu | 8 x 80 GiB | no | MIT | yes | no | no |
+| llamacpp-deepseek-v4-flash-0731 | functional | llama.cpp | gpu | 4 x 44 GiB | no | MIT | yes | no | no |
+| llamacpp-deepseek-v4-pro-0813 | functional | llama.cpp | gpu | 4 x 256 GiB | no | MIT | yes | no | no |
+| llamacpp-devstral-2-123b-2512 | functional | llama.cpp | gpu | 1 x 80 GiB | no | custom licence (restricted) | yes | no | no |
+| llamacpp-devstral-small-2-24b-2512 | functional | llama.cpp | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-exaone-4p5-33b | functional | llama.cpp | gpu | 1 x 24 GiB | no | EXAONE AI Model License Agreement (restricted) | yes | no | no |
+| llamacpp-falcon-h1-34b-instruct | functional | llama.cpp | gpu | 1 x 24 GiB | no | Falcon LLM License (restricted) | yes | no | no |
+| llamacpp-falcon-h1r-7b | functional | llama.cpp | gpu | 1 x 15 GiB | no | Falcon LLM License (restricted) | yes | no | no |
+| llamacpp-falcon3-10b-instruct | functional | llama.cpp | gpu | 1 x 15 GiB | no | Falcon LLM License (restricted) | yes | no | no |
+| llamacpp-gemma4-12b-it | functional | llama.cpp | gpu | 1 x 15 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-gemma4-26b-a4b-it | functional | llama.cpp | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-gemma4-31b-it | functional | llama.cpp | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-gemma4-e2b-it | functional | llama.cpp | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-glm47 | functional | llama.cpp | gpu | 4 x 80 GiB | no | MIT | yes | no | no |
+| llamacpp-glm47-flash | functional | llama.cpp | gpu | 1 x 22 GiB | no | MIT | yes | no | no |
+| llamacpp-glm52 | functional | llama.cpp | gpu | 8 x 80 GiB | no | MIT | yes | no | no |
+| llamacpp-glm53 | functional | llama.cpp | gpu | 8 x 80 GiB | no | GLM-5.3 License (restricted) | yes | no | no |
+| llamacpp-glm53-flash | functional | llama.cpp | gpu | 4 x 80 GiB | no | MIT | yes | no | no |
+| llamacpp-gpt-oss-120b | functional | llama.cpp | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-hy3 | functional | llama.cpp | gpu | 4 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-kimi-k2-thinking | functional | llama.cpp | gpu | 4 x 180 GiB | no | Modified MIT (restricted) | yes | no | no |
+| llamacpp-kimi-k26 | functional | llama.cpp | gpu | 8 x 80 GiB | no | Modified MIT (restricted) | yes | no | no |
+| llamacpp-kimi-k27-code | functional | llama.cpp | gpu | 8 x 80 GiB | no | Modified MIT (restricted) | yes | no | no |
+| llamacpp-kimi-k3 | functional | llama.cpp | gpu | 8 x 192 GiB | no | Kimi K3 License (restricted) | yes | no | no |
+| llamacpp-kimi-linear-48b-a3b-instruct | functional | llama.cpp | gpu | 1 x 40 GiB | no | MIT | yes | no | no |
+| llamacpp-llama31-405b-instruct | functional | llama.cpp | gpu | 4 x 80 GiB | no | Llama 3.1 Community Licence (restricted) | yes | no | no |
+| llamacpp-llama31-70b-instruct | functional | llama.cpp | gpu | 1 x 48 GiB | no | Llama 3.1 Community Licence (restricted) | yes | no | no |
+| llamacpp-llama31-8b-instruct | functional | llama.cpp | gpu | 1 x 15 GiB | no | Llama 3.1 Community Licence (restricted) | yes | no | no |
+| llamacpp-llama33-70b-instruct | functional | llama.cpp | gpu | 1 x 48 GiB | no | Llama 3.3 Community Licence (restricted) | yes | no | no |
+| llamacpp-llama4-maverick-17b-128e-instruct | functional | llama.cpp | gpu | 4 x 80 GiB | no | Llama 4 Community License (restricted) | yes | no | no |
+| llamacpp-llama4-scout-17b-16e-instruct | functional | llama.cpp | gpu | 1 x 80 GiB | no | Llama 4 Community License (restricted) | yes | no | no |
+| llamacpp-magistral-small-2509 | functional | llama.cpp | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-minimax-m2p5 | functional | llama.cpp | gpu | 2 x 80 GiB | no | Modified MIT (restricted) | yes | no | no |
+| llamacpp-minimax-m2p7 | functional | llama.cpp | gpu | 2 x 80 GiB | no | custom licence (restricted) | yes | no | no |
+| llamacpp-minimax-m3 | functional | llama.cpp | gpu | 4 x 80 GiB | no | minimax-community (restricted) | yes | no | no |
+| llamacpp-ministral-3-14b-instruct-2512 | functional | llama.cpp | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-ministral-3-14b-reasoning-2512 | functional | llama.cpp | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-mistral-large-3-675b-instruct-2512 | functional | llama.cpp | gpu | 8 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-mistral-large-instruct-2411 | functional | llama.cpp | gpu | 1 x 80 GiB | no | Mistral Research License (restricted) | yes | no | no |
+| llamacpp-mistral-medium-3p5-128b | functional | llama.cpp | gpu | 1 x 80 GiB | no | custom licence (restricted) | yes | no | no |
+| llamacpp-mistral-small-4-119b-2603 | functional | llama.cpp | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-mixtral-8x22b-instruct-v01 | functional | llama.cpp | gpu | 2 x 48 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-nemotron-3-nano-30b-a3b | functional | llama.cpp | gpu | 1 x 40 GiB | no | NVIDIA Nemotron Open Model License (restricted) | yes | no | no |
+| llamacpp-nemotron-3-super-120b-a12b | functional | llama.cpp | gpu | 2 x 48 GiB | no | NVIDIA Nemotron Open Model License (restricted) | yes | no | no |
+| llamacpp-nemotron-3-ultra-550b-a55b | functional | llama.cpp | gpu | 8 x 48 GiB | no | OpenMDW-1.1 (restricted) | yes | no | no |
+| llamacpp-nemotron-3p5-lightning-30b-a3b | functional | llama.cpp | gpu | 1 x 40 GiB | no | OpenMDW-1.1 (restricted) | yes | no | no |
+| llamacpp-nemotron-nano-9b-v2 | functional | llama.cpp | gpu | 1 x 15 GiB | no | NVIDIA Open Model License (restricted) | yes | no | no |
+| llamacpp-north-mini-code-1p0 | functional | llama.cpp | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-orpheus-3b-0p1-ft | functional | llama.cpp | gpu | 1 x 10 GiB | no | Apache-2.0 (restricted) | yes | no | no |
+| llamacpp-phi4-mini-instruct | functional | llama.cpp | gpu | 1 x 10 GiB | no | MIT | yes | no | no |
+| llamacpp-phi4-reasoning-plus | functional | llama.cpp | gpu | 1 x 15 GiB | no | MIT | yes | no | no |
+| llamacpp-qwen25-72b-instruct | functional | llama.cpp | gpu | 1 x 48 GiB | no | Qwen License (restricted) | yes | no | no |
+| llamacpp-qwen25-coder-32b-instruct | functional | llama.cpp | gpu | 1 x 24 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen3-235b-a22b-instruct-2507 | functional | llama.cpp | gpu | 2 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen3-235b-a22b-thinking-2507 | functional | llama.cpp | gpu | 2 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen3-32b | functional | llama.cpp | gpu | 1 x 24 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen3-coder-30b-a3b-instruct | functional | llama.cpp | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen3-coder-480b-a35b-instruct | functional | llama.cpp | gpu | 4 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen3-coder-next | functional | llama.cpp | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen3-embedding-8b | functional | llama.cpp | gpu | 1 x 15 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen3-next-80b-a3b-instruct | functional | llama.cpp | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen35-122b-a10b | functional | llama.cpp | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen35-397b-a17b | functional | llama.cpp | gpu | 4 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen35-9b | functional | llama.cpp | gpu | 1 x 15 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen36-27b | functional | llama.cpp | gpu | 1 x 24 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen36-35b-a3b | functional | llama.cpp | gpu | 1 x 24 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen38-27b | functional | llama.cpp | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-qwen38-2p4t-a95b | functional | llama.cpp | gpu | 8 x 180 GiB | no | qwen3.8-max (restricted) | yes | no | no |
+| llamacpp-qwen38-flash-next | functional | llama.cpp | gpu | 2 x 80 GiB | no | Qwen Community License 1.0 (restricted) | yes | no | no |
+| llamacpp-step-3p7-flash | functional | llama.cpp | gpu | 2 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| llamacpp-trinity-large-thinking | functional | llama.cpp | gpu | 4 x 80 GiB | no | OpenMDW-1.1 (restricted) | yes | no | no |
+| ltx-video-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | custom licence (restricted) | yes | no | no |
+| ltx-video-diffusers | functional | pytorch | gpu | 1 x 40 GiB | no | custom licence (restricted) | yes | no | no |
+| mochi-1-preview-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| mochi-1-preview-diffusers | functional | pytorch | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| olmocr-2-7b-bench | benchmark | pytorch | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| olmocr-2-7b-pytorch | functional | pytorch | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| paddleocr-vl-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| paddleocr-vl-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| parakeet-tdt-0p6b-v3-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | CC-BY-4.0 | yes | no | no |
+| parakeet-tdt-0p6b-v3-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | CC-BY-4.0 | yes | no | no |
+| pixtral-12b-2409-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | no |
+| pixtral-12b-2409-pytorch | functional | pytorch | gpu | 1 x 40 GiB | no | Apache-2.0 | yes | no | no |
+| qwen-image-2p1-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Qwen Research License (restricted) | yes | no | no |
+| qwen-image-2p1-diffusers | functional | pytorch | gpu | 1 x 40 GiB | no | Qwen Research License (restricted) | yes | no | no |
+| qwen25-vl-72b-bench | benchmark | pytorch | gpu | 4 x 44 GiB | n/a | Qwen License (restricted) | yes | no | no |
+| qwen25-vl-72b-pytorch | functional | pytorch | gpu | 4 x 44 GiB | no | Qwen License (restricted) | yes | no | no |
+| qwen3-asr-1p7b-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| qwen3-asr-1p7b-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| qwen3-reranker-0p6b-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| qwen3-reranker-0p6b-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| qwen3-reranker-4b-bench | benchmark | pytorch | gpu | 1 x 15 GiB | n/a | Apache-2.0 | yes | no | no |
+| qwen3-reranker-4b-pytorch | functional | pytorch | gpu | 1 x 15 GiB | no | Apache-2.0 | yes | no | no |
+| qwen3-reranker-8b-bench | benchmark | pytorch | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | no |
+| qwen3-reranker-8b-pytorch | functional | pytorch | gpu | 1 x 22 GiB | no | Apache-2.0 | yes | no | no |
+| qwen3-vl-235b-a22b-bench | benchmark | pytorch | gpu | 8 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| qwen3-vl-235b-a22b-pytorch | functional | pytorch | gpu | 8 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| qwen3-vl-32b-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| qwen3-vl-32b-pytorch | functional | pytorch | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| sam2p1-hiera-large-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| sam2p1-hiera-large-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| siglip2-giant-opt-patch16-384-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| siglip2-giant-opt-patch16-384-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| siglip2-so400m-patch16-512-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | no |
+| siglip2-so400m-patch16-512-pytorch | functional | pytorch | gpu | 1 x 10 GiB | no | Apache-2.0 | yes | no | no |
+| vllm-bench-deepseek-v4p1-flash | benchmark | vllm | gpu | 8 x 80 GiB | n/a | MIT | yes | no | no |
+| vllm-bench-gpt-oss-120b-vllm | benchmark | vllm | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| vllm-bench-hy4-preview | benchmark | vllm | gpu | 8 x 256 GiB | n/a | Apache-2.0 | yes | no | no |
+| vllm-bench-pixtral-large-instruct-2411 | benchmark | vllm | gpu | 4 x 80 GiB | n/a | Mistral Research License (restricted) | yes | no | no |
+| vllm-deepseek-v4p1-flash | functional | vllm | gpu | 8 x 80 GiB | no | MIT | yes | no | no |
+| vllm-gpt-oss-120b-vllm | functional | vllm | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| vllm-hy4-preview | functional | vllm | gpu | 8 x 256 GiB | no | Apache-2.0 | yes | no | no |
+| vllm-pixtral-large-instruct-2411 | functional | vllm | gpu | 4 x 80 GiB | no | Mistral Research License (restricted) | yes | no | no |
+| wan21-t2v-14b-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| wan21-t2v-14b-diffusers | functional | pytorch | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| wan21-t2v-1p3b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | no |
+| wan21-t2v-1p3b-diffusers | functional | pytorch | gpu | 1 x 40 GiB | no | Apache-2.0 | yes | no | no |
+| wan22-t2v-a14b-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
+| wan22-t2v-a14b-diffusers | functional | pytorch | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
+| wan22-ti2v-5b-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | Apache-2.0 | yes | no | no |
+| wan22-ti2v-5b-diffusers | functional | pytorch | gpu | 1 x 40 GiB | no | Apache-2.0 | yes | no | no |
+| whisper-cpp-bench-large-v3-turbo | benchmark | whisper.cpp | gpu | 1 x 10 GiB | n/a | MIT | yes | no | no |
+| whisper-cpp-large-v3-turbo | functional | whisper.cpp | gpu | 1 x 10 GiB | no | MIT | yes | no | no |
+
 #### Totals
 
 | Family | Workloads | Functional | Benchmark | Reference recorded | Model sha256-pinned | Sim-validated | GPU-validated |
@@ -357,7 +625,8 @@ Further reading: [`docs/models.md`](docs/models.md) (what ran and what has not),
 | lib | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | train | 3 | 2 | 1 | 2 | 0 | 2 | 1 |
 | other | 23 | 15 | 8 | 15 | 19 | 3 | 13 |
-| **all** | 141 | 84 | 57 | 84 | 116 | 15 | 62 |
+| catalog | 258 | 129 | 129 | 0 | 258 | 0 | 0 |
+| **all** | 399 | 213 | 186 | 84 | 374 | 15 | 62 |
 
 <!-- coverage:end -->
 

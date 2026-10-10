@@ -205,7 +205,9 @@ Blocked or deferred (nothing here was run):
 | Stable Diffusion 3 medium | `stabilityai/stable-diffusion-3-medium-diffusers` is gated (`gated: auto`; login and acceptance of Stability's community licence needed; card names `stabilityai-nc-research-community`, the LICENSE file is behind the gate). No Hugging Face credentials were available and no ungated copy whose card carries the licence text was looked for. Blocked |
 | Llama 3.2 Vision 11B | The official `meta-llama/Llama-3.2-11B-Vision-Instruct` is gated (manual). The only ungated route found is `unsloth/Llama-3.2-11B-Vision-Instruct-bnb-4bit` (about 7.2 GB, would fit in 4-bit), but its card only links the Llama 3.2 Community Licence instead of carrying the text, which fails the rule for community conversions. In fp16 the weights alone are about 21 GB, which does not leave room for the vision activations on one A10G; not tried. Recorded as: deferred, blocked on a readable licence, does not fit one A10G in fp16 |
 
-Out of scope for one A10G (deferred, needs a bigger rig). Nothing larger than one A10G was launched:
+Out of scope for one A10G (deferred, needs a bigger rig). Nothing larger than one A10G was launched. **Update 2026-10-09:** model size no longer limits what
+the repository holds. These models, and many more, are in [`docs/model-registry.md`](docs/model-registry.md) as workloads that are written from Hub metadata, never
+run, and gated by a `requires:` block that SKIPs them on a host without the GPUs. The table below is the state before that and is kept as it was:
 
 | Model | Reason |
 | --- | --- |
