@@ -102,7 +102,7 @@ needs on a host without GPUs (one per plan); and `tools/hwcheck.py` counts cards
 
 ## Running one
 
-Name the workload; it is left out of every default selection when restricted. The disk needs the weights size under `PW_CACHE`
+Name the workload; it is left out of every default selection when restricted or heavy (total GPU memory over 160 GiB, or weights over 150 GiB; `--include-heavy` or `PW_INCLUDE_HEAVY=1` adds heavy ones, docs/manifest.md). The disk needs the weights size under `PW_CACHE`
 (`run.sh` exits 77 with the figure when it does not fit). Multi-hundred-GiB downloads are resumable and verified file by file against
 `model.sha256`, so a re-run continues. Big timeouts follow the weights size (12 s per GiB plus an hour).
 

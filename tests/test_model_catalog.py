@@ -387,11 +387,13 @@ class RunScripts(unittest.TestCase):
         self.assertEqual(result, "SKIP")
         self.assertIn("needs 8 GPUs with >= 192 GiB each", detail)
 
-    def test_restricted_workloads_are_left_out_of_default_selections(self):
-        default = set(pw.default_names())
+    def test_restricted_and_heavy_workloads_are_left_out_of_default_selections(self):
+        with mock.patch.dict(os.environ, {k: v for k, v in os.environ.items() if k != "PW_INCLUDE_HEAVY"}, clear=True):
+            default = set(pw.default_names())
         for r in WRITTEN:
+            heavy = r["hw"]["gpus"] * r["hw"]["gpu_memory_gb"] > 160 or r["weights_gib"] > 150
             for name in pairs(r):
-                self.assertEqual(name in default, not r["licence"]["restricted"], name)
+                self.assertEqual(name in default, not (r["licence"]["restricted"] or heavy), name)
 
 
 class HwCheck(unittest.TestCase):
