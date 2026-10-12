@@ -20,6 +20,23 @@ def is_restricted(manifest):
     return isinstance(manifest, dict) and manifest.get("restricted") is True
 
 
+HEAVY_GIB = 160   # a workload is heavy when requires.gpus x requires.gpu_memory_gb exceeds this (docs/manifest.md)
+
+
+def is_heavy(manifest):
+    """True for a workload left out of implicit selections: `heavy: true`, or `requires` totalling more than
+    HEAVY_GIB of GPU memory (gpus x gpu_memory_gb). Naming the workload always runs it."""
+    if not isinstance(manifest, dict):
+        return False
+    if manifest.get("heavy") is True:
+        return True
+    req = requirements(manifest)
+    mem = req.get("gpu_memory_gb") if req else None
+    if isinstance(mem, bool) or not isinstance(mem, (int, float)) or not isinstance(req.get("gpus"), int):
+        return False
+    return req["gpus"] * mem > HEAVY_GIB
+
+
 REQUIRES_KEYS = {"gpus", "gpu_memory_gb", "min_compute_capability", "vendor", "interconnect", "notes"}
 VENDORS = {"nvidia", "amd"}
 CAPABILITY = re.compile(r"^\d+\.\d+$")
@@ -107,6 +124,12 @@ def check(path):
             errors.append("restricted: true needs a 'model' (the restriction is the model's licence)")
         elif m["restricted"] and not m.get("notes"):
             errors.append("restricted: true needs 'notes' saying which licence or gate applies and what was read")
+
+    if "heavy" in m:
+        if not isinstance(m["heavy"], bool):
+            errors.append("heavy must be true or false")
+        elif m["heavy"] and not m.get("notes"):
+            errors.append("heavy: true needs 'notes' saying why (for example the weights size)")
 
     if "requires" in m:
         errors += check_requires(m["requires"])

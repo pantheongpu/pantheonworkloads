@@ -17,8 +17,25 @@ Every workload directory has one. `bin/pw validate` checks them against these ru
 | `unsupported_ok` | no | List of top-level `output` keys (or a mapping `{<target pattern>: [keys]}` for ops only some targets lack, e.g. `sim:nvidia/t4`). The lib-* workloads report an op the backend has no kernel for as the string `"unsupported"`. When the *reference* says `unsupported` and the target returns numbers, that key is unchecked (counted in the run's detail: `unchecked: N ops`). When the reference has numbers and the target says `unsupported`, the run FAILS, unless the key is listed here (an op that real GPUs lack too, e.g. FlashAttention in fp32). |
 | `restricted` | no | `true` for a model under a non-permissive or gated licence (Llama community licence, Gemma terms, OpenRAIL++-M, SD3 community licence, anything gated). Needs `notes` saying which licence applies and what was read. A restricted workload is allowed in `bin/pw list/run/validate` and is marked `restricted` in the coverage table, but is **left out of every default selection**: `bin/pw list --default`, `bin/pw matrix` (unless `--include-restricted`) and anything that runs "all workloads" (use `default_names()` in `bin/pw`, or `validate.is_restricted`). Name it explicitly to run it. Default `false`. |
 | `requires` | no | What a workload needs from the GPU host, so size never limits which models the repo holds. A mapping, all keys optional: `gpus` (minimum number of GPUs, integer >= 1, default 1), `gpu_memory_gb` (GiB required **on each** of those GPUs, number > 0; default no requirement; a card counts when it reports at least 98% of it, because drivers report slightly less than the marketing size: an 80 GB H100 shows 79.6 GiB), `min_compute_capability` (NVIDIA only, a string `"major.minor"` such as `"9.0"`), `vendor` (`nvidia` or `amd`), `interconnect` (free text such as `nvlink`; recorded, never enforced), `notes` (free text). Only `--target gpu` checks it: `bin/pw` detects the host's GPUs (`nvidia-smi`, then `rocm-smi`/sysfs for AMD) and, when the requirement is not met or the host cannot be inspected, reports SKIP with the reason (for example `needs 8 GPUs with >= 80 GiB each (compute capability >= 9.0); this host has 1 x NVIDIA A10G 22 GiB`). `cpu` and `sim:` targets ignore it. `PW_IGNORE_REQUIRES=1` turns the check off for debugging. `bin/pw list` shows it, `bin/pw list --runnable` lists what this host can run, and the coverage table has a **Needs** column (`any` when absent). The requirement only gates the run; which GPUs the workload then uses is `run.sh`'s business. |
+| `heavy` | no | `true` marks a workload as heavy by hand. Needs `notes`. See **Heavy workloads** below; set it for any workload whose weight download exceeds 150 GiB even when `requires` totals 160 GiB or less (the catalog generator, `tools/catalog/generate.py`, writes it from the registry's weights size). |
 | `timeout_s` | no | Default 600. |
 | `notes` | no | Anything a reader should know before trusting a result. |
 
 A manifest with `model.revision: null` is **unpinned**: `validate` warns, and results from it
 are not reproducible until the revision is filled in.
+
+## Heavy workloads
+
+A workload is **heavy** when its `requires` total GPU memory (`gpus` x `gpu_memory_gb`) exceeds **160 GiB**, or when
+it sets `heavy: true` (for a weight download over 150 GiB that still fits fewer GPUs). Heavy workloads need
+hundreds of GiB of weights and a multi-GPU rig, so no implicit selection runs them:
+
+- `bin/pw run --all` (every default workload), `bin/pw list --default` and `bin/pw matrix` leave them out.
+- **Naming a heavy workload always runs it**: `bin/pw run llamacpp-kimi-k3 --target gpu`.
+- `--include-heavy` (on `run --all`, `list --default`, `matrix`), or `PW_INCLUDE_HEAVY=1` in the environment, adds
+  them to those implicit selections.
+- `bin/pw list` marks them `[heavy]`; the coverage table keeps listing them (its **Needs** column shows why).
+- `restricted` and heavy are independent filters, each with its own opt-in: a workload that is both stays out of
+  implicit selections unless you also pass `--include-restricted` where it exists (`matrix`); `run --all` never
+  includes a restricted workload, so name it.
+- The CI workflows name their workloads and never expand a selection; `tests/test_heavy.py` enforces that.

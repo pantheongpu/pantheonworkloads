@@ -112,6 +112,14 @@ def common_notes(r, bench):
     return " ".join(parts)
 
 
+HEAVY_WEIGHTS_GIB = 150   # docs/manifest.md: heavy when the weight download exceeds this, or requires total more than 160 GiB
+HEAVY_TOTAL_GIB = 160
+
+
+def is_heavy_by_requires(hw):
+    return hw["gpus"] * hw["gpu_memory_gb"] > HEAVY_TOTAL_GIB
+
+
 def requires_block(r):
     hw = r["hw"]
     note = f"weights {r['weights_gib']:.1f} GiB; {hw['arithmetic']}"
@@ -132,6 +140,8 @@ def manifest(r, bench, name, extra):
     out.append(f"timeout_s: {timeout_s(r, bench)}")
     if r["licence"]["restricted"]:
         out.append("restricted: true")
+    if r["weights_gib"] > HEAVY_WEIGHTS_GIB and not is_heavy_by_requires(r["hw"]):
+        out.append("heavy: true")   # weights over 150 GiB although the GPUs total 160 GiB or less (docs/manifest.md)
     out.append(requires_block(r).rstrip("\n"))
     out += ["model:", f"  id: {q(extra['model_id'])}", f"  revision: {q(extra['revision'])}", f"  licence: {q(r['licence']['label'])}",
             f"  source_url: {EXAMPLES}{r['repo']}", f"notes: {q(extra['notes'])}"]

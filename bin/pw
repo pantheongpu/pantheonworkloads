@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """pantheonworkloads runner.
 
-    pw list [--default] [--runnable]
+    pw list [--default] [--runnable] [--include-heavy]
     pw validate [workload ...]
-    pw run <workload ...> --target cpu|gpu|sim:<vendor>/<profile> [--out DIR]
+    pw run <workload ... | --all [--include-heavy]> --target cpu|gpu|sim:<vendor>/<profile> [--out DIR]
     pw record <workload> --target T
     pw run <workload ...> --target gpu --bench [--repeat N] [--device NAME]   record to bench/
-    pw matrix <results-dir> [--include-restricted]
+    pw matrix <results-dir> [--include-restricted] [--include-heavy]
     pw bench-table [bench-dir]
 
 See README.md and docs/workload-contract.md.
@@ -38,9 +38,22 @@ def names():
     return sorted(p.parent.name for p in WORKLOADS.glob("*/manifest.yaml"))
 
 
-def default_names():
-    """The workloads an 'all workloads' selection runs: every one except those marked `restricted: true`."""
-    return [n for n in names() if not validate.is_restricted(validate.load(WORKLOADS / n / "manifest.yaml"))]
+def include_heavy_env():
+    return os.environ.get("PW_INCLUDE_HEAVY", "").strip().lower() not in ("", "0", "false", "no")
+
+
+def default_names(include_heavy=None):
+    """The workloads an implicit ('all workloads') selection runs: every one except those marked `restricted: true`
+    and, unless include_heavy (or PW_INCLUDE_HEAVY=1), the heavy ones (docs/manifest.md). Naming a workload bypasses this."""
+    if include_heavy is None:
+        include_heavy = include_heavy_env()
+    out = []
+    for n in names():
+        m = validate.load(WORKLOADS / n / "manifest.yaml")
+        if validate.is_restricted(m) or (validate.is_heavy(m) and not include_heavy):
+            continue
+        out.append(n)
+    return out
 
 
 def target_ok(target, patterns):
@@ -380,11 +393,12 @@ def runnable_here(manifest, gpus):
 
 def cmd_list(a):
     gpus = detect_gpus() if a.runnable else None
-    for n in (default_names() if a.default else names()):
+    for n in (default_names(a.include_heavy or None) if a.default else names()):
         m = validate.load(WORKLOADS / n / "manifest.yaml")
         if a.runnable and not runnable_here(m, gpus):
             continue
         flag = " [restricted]" if validate.is_restricted(m) else ""
+        flag += " [heavy]" if validate.is_heavy(m) else ""
         if m.get("requires"):
             flag += f" [needs {validate.needs_text(validate.requirements(m))}]"
         print(f"{n}\t{m.get('kind')}\t{','.join(m.get('targets', []))}\t{m.get('description', '')}{flag}")
@@ -407,6 +421,14 @@ def cmd_validate(a):
 def cmd_run(a):
     if a.bench and a.target.startswith("sim:"):
         print("--bench is for real targets only: a simulated GPU's time is not GPU time", file=sys.stderr)
+        return 2
+    if a.all:
+        if a.workload:
+            print("--all and workload names are exclusive", file=sys.stderr)
+            return 2
+        a.workload = default_names(a.include_heavy or None)
+    elif not a.workload:
+        print("name the workloads to run, or pass --all (heavy and restricted ones are left out unless named; --include-heavy adds heavy)", file=sys.stderr)
         return 2
     reps = a.repeat if a.bench else 1
     run_id = time.strftime("%Y%m%dT%H%M%S") + "-" + a.target.replace("/", "-").replace(":", "-")
@@ -518,9 +540,16 @@ def cmd_matrix(a):
         print("No results found.")
         return 1
     workloads = sorted({w for _, rows in machines for w in rows})
-    if not a.include_restricted:
-        keep = set(default_names())
-        workloads = [w for w in workloads if w in keep or not (WORKLOADS / w / "manifest.yaml").exists()]
+    show_heavy = a.include_heavy or include_heavy_env()
+    if not (a.include_restricted and show_heavy):
+        def shown(w):
+            path = WORKLOADS / w / "manifest.yaml"
+            if not path.exists():
+                return True
+            m = validate.load(path)
+            return ((a.include_restricted or not validate.is_restricted(m))
+                    and (show_heavy or not validate.is_heavy(m)))
+        workloads = [w for w in workloads if shown(w)]
     print("| Workload | " + " | ".join(label for label, _ in machines) + " |")
     print("| --- |" + " :---: |" * len(machines))
     for w in workloads:
@@ -566,11 +595,14 @@ def cmd_coverage(a):
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="pw")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    ls = sub.add_parser("list"); ls.add_argument("--default", action="store_true", help="leave out restricted workloads")
+    ls = sub.add_parser("list"); ls.add_argument("--default", action="store_true", help="leave out restricted and heavy workloads")
+    ls.add_argument("--include-heavy", action="store_true", help="with --default, keep heavy workloads (also PW_INCLUDE_HEAVY=1)")
     ls.add_argument("--runnable", action="store_true", help="only what this host can run (gpu workloads whose `requires` this host meets)")
     ls.set_defaults(fn=cmd_list)
     v = sub.add_parser("validate"); v.add_argument("workload", nargs="*"); v.set_defaults(fn=cmd_validate)
-    r = sub.add_parser("run"); r.add_argument("workload", nargs="+"); r.add_argument("--target", required=True)
+    r = sub.add_parser("run"); r.add_argument("workload", nargs="*"); r.add_argument("--target", required=True)
+    r.add_argument("--all", action="store_true", help="run every default workload (not restricted, not heavy)")
+    r.add_argument("--include-heavy", action="store_true", help="with --all, also the heavy workloads (also PW_INCLUDE_HEAVY=1)")
     r.add_argument("--out")
     r.add_argument("--bench", action="store_true", help="record the metrics under bench/ (real targets only)")
     r.add_argument("--repeat", type=int, default=3, help="runs per workload with --bench (default 3)")
@@ -580,6 +612,7 @@ def main(argv=None):
     c.set_defaults(fn=cmd_record)
     m = sub.add_parser("matrix"); m.add_argument("results")
     m.add_argument("--include-restricted", action="store_true", help="also show workloads marked restricted: true")
+    m.add_argument("--include-heavy", action="store_true", help="also show heavy workloads")
     m.set_defaults(fn=cmd_matrix)
     b = sub.add_parser("bench-table"); b.add_argument("dir", nargs="?"); b.set_defaults(fn=cmd_bench_table)
     cv = sub.add_parser("coverage", help="markdown coverage table derived from the repository")

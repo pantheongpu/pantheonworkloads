@@ -181,7 +181,7 @@ metadata, card front matter, LICENSE files, fetched with no Hugging Face credent
 Every file's sha256 is the Hub's LFS oid at the pinned commit and is verified on every run. References were recorded on the A10G
 (llama.cpp b11447 with CUDA sm_86, `-ngl 99`; PyTorch 2.10.0+cu130, transformers 5.19.0, diffusers 0.41.0) and checked in 3 further
 consecutive runs (all identical). `restricted: true` workloads (docs/manifest.md) are skipped by `bin/pw list --default`,
-`bin/pw matrix` and every default selection; name them to run them.
+`bin/pw matrix` and every default selection; name them to run them. Heavy workloads (over 160 GiB of GPU memory, or weights over 150 GiB) are skipped the same way unless `--include-heavy` or `PW_INCLUDE_HEAVY=1` is given.
 
 | Model | Workloads | Licence as read | Restricted | Pin |
 | --- | --- | --- | --- | --- |
