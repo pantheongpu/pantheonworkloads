@@ -21,12 +21,11 @@ def cache_root():
 def fetch_snapshot(model_id, revision, extra=()):
     """Download the pinned files of the workload (what model.sha256 lists, plus small configs), verify every sha256
     (a mismatch fails the run; PW_HF_REVISION skips the pin), return the local directory."""
-    from huggingface_hub import snapshot_download
     rev = os.environ.get("PW_HF_REVISION") or revision
     sums_path = os.path.join(os.environ["PW_WORKLOAD_DIR"], "model.sha256")
     sums = pinned.read_sums(sums_path)
     allow = [*SMALL_FILES, *extra, *sums]
-    path = common.hf_load(lambda m, r, c: snapshot_download(m, revision=r, cache_dir=c, allow_patterns=allow), model_id, rev)
+    path = common.hf_load(lambda m, r, c: pinned.snapshot(m, r, c, allow), model_id, rev)
     if not os.environ.get("PW_HF_REVISION"):
         pinned.verify_snapshot(path, sums_path)
     return path

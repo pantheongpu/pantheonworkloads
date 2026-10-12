@@ -1,0 +1,243 @@
+#!/usr/bin/env python3
+"""A fake `aws` for the rig tests: EC2 and S3 just enough for tools/rig, state in a JSON file ($FAKE_AWS_STATE), S3 in a
+directory ($FAKE_S3_ROOT: s3://bucket/key is $FAKE_S3_ROOT/bucket/key). Every call is appended to $FAKE_AWS_STATE.calls.
+It never touches the network. State knobs a test may set before running:
+  capacity_fail_azs  AZs whose run-instances answers InsufficientInstanceCapacity
+  run_error          an error code every run-instances answers (e.g. VcpuLimitExceeded)
+  leak_volume        terminate keeps the volumes (they become 'available')
+  sg_busy            delete-security-group answers DependencyViolation this many times first
+  now                epoch used for LaunchTime and the termination reason (default: real time)
+  extra_instances    instances to list as they are (for status tests)
+"""
+import json
+import os
+import pathlib
+import shutil
+import sys
+import time
+
+STATE = pathlib.Path(os.environ["FAKE_AWS_STATE"])
+args = sys.argv[1:]
+with open(str(STATE) + ".calls", "a") as f:
+    f.write(json.dumps(args) + "\n")
+
+
+def load():
+    if STATE.exists():
+        return json.loads(STATE.read_text())
+    return {}
+
+
+def save(s):
+    STATE.write_text(json.dumps(s, indent=1))
+
+
+def fail(code, msg, status=254):
+    sys.stderr.write(f"\nAn error occurred ({code}) when calling the operation: {msg}\n")
+    sys.exit(status)
+
+
+def opt(name, default=None):
+    if name in args:
+        return args[args.index(name) + 1]
+    return default
+
+
+def filters():
+    out = {}
+    if "--filters" in args:
+        i = args.index("--filters") + 1
+        while i < len(args) and not args[i].startswith("--"):
+            head, _, vals = args[i].partition(",Values=")
+            out[head.replace("Name=", "", 1)] = vals.split(",")
+            i += 1
+    return out
+
+
+def ids_after(flag):
+    out = []
+    for a in args[args.index(flag) + 1:]:
+        if a.startswith("--"):
+            break
+        out.append(a)
+    return out
+
+
+def match(glob, value):
+    import fnmatch
+    return any(fnmatch.fnmatchcase(value or "", g) for g in glob)
+
+
+def tagmap(tags):
+    return {t["Key"]: t["Value"] for t in tags}
+
+
+def now(s):
+    return float(s.get("now") or time.time())
+
+
+def iso(t):
+    return time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(t))
+
+
+def out(obj):
+    print(json.dumps(obj))
+    sys.exit(0)
+
+
+svc, op = args[0], args[1]
+s = load()
+s.setdefault("instances", {}); s.setdefault("volumes", {}); s.setdefault("sgs", {}); s.setdefault("keys", {}); s.setdefault("seq", 0)
+
+
+def nid(prefix):
+    s["seq"] += 1
+    return f"{prefix}-{s['seq']:08x}"
+
+
+if svc == "s3":
+    root = pathlib.Path(os.environ["FAKE_S3_ROOT"])
+
+    def loc(x):
+        return root / x[len("s3://"):] if x.startswith("s3://") else pathlib.Path(x)
+    if op == "cp":
+        paths = [a for a in args[2:] if not a.startswith("--")]
+        src, dst = paths[0], paths[1]
+        if dst == "-":
+            p = loc(src)
+            if not p.is_file():
+                sys.stderr.write(f"download failed: {src} An error occurred (404) when calling the HeadObject operation: Key not found\n")
+                sys.exit(1)
+            sys.stdout.write(p.read_text())
+            sys.exit(0)
+        if os.environ.get("FAKE_S3_FAIL") and os.environ["FAKE_S3_FAIL"] in src:
+            sys.stderr.write("fatal error: connection reset\n")
+            sys.exit(1)
+        d = loc(dst)
+        d.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(loc(src), d)
+        if os.environ.get("FAKE_S3_CORRUPT") and os.environ["FAKE_S3_CORRUPT"] in src:
+            with open(d, "ab") as f:
+                f.write(b"X")      # bit rot in the mirror
+        sys.exit(0)
+    fail("NotImplemented", f"s3 {op}")
+
+if svc != "ec2":
+    fail("NotImplemented", f"{svc} {op}")
+
+if op == "describe-images":
+    out({"Images": s.get("images", [{"ImageId": "ami-old", "Name": "DLAMI old", "CreationDate": "2026-01-01T00:00:00.000Z"},
+                                  {"ImageId": "ami-new", "Name": "DLAMI new", "CreationDate": "2026-10-01T00:00:00.000Z"}])})
+if op == "describe-subnets":
+    subs = s.get("subnets") or [{"SubnetId": f"subnet-{z}", "AvailabilityZone": f"us-east-1{z}", "VpcId": "vpc-1"} for z in "abcdf"]
+    out({"Subnets": subs})
+if op == "create-key-pair":
+    name = opt("--key-name")
+    if name in s["keys"]:
+        fail("InvalidKeyPair.Duplicate", f"The keypair '{name}' already exists.")
+    s["keys"][name] = True
+    save(s)
+    out({"KeyName": name, "KeyMaterial": "-----BEGIN OPENSSH PRIVATE KEY-----\nFAKE\n-----END OPENSSH PRIVATE KEY-----\n"})
+if op == "delete-key-pair":
+    s["keys"].pop(opt("--key-name"), None)
+    save(s)
+    out({})
+if op == "create-security-group":
+    gid = nid("sg")
+    s["sgs"][gid] = {"GroupId": gid, "GroupName": opt("--group-name"), "ingress": [], "busy": s.get("sg_busy", 0)}
+    save(s)
+    out({"GroupId": gid})
+if op == "authorize-security-group-ingress":
+    s["sgs"][opt("--group-id")]["ingress"].append({"port": opt("--port"), "cidr": opt("--cidr")})
+    save(s)
+    out({"Return": True})
+if op == "describe-security-groups":
+    f = filters()
+    out({"SecurityGroups": [g for g in s["sgs"].values() if match(f.get("group-name", ["*"]), g["GroupName"])]})
+if op == "delete-security-group":
+    gid = opt("--group-id")
+    g = s["sgs"].get(gid)
+    if g is None:
+        fail("InvalidGroup.NotFound", f"The security group '{gid}' does not exist")
+    if g["busy"] > 0:
+        g["busy"] -= 1
+        save(s)
+        fail("DependencyViolation", f"resource {gid} has a dependent object")
+    del s["sgs"][gid]
+    save(s)
+    out({})
+if op == "run-instances":
+    subnet = opt("--subnet-id")
+    az = {x["SubnetId"]: x["AvailabilityZone"] for x in (s.get("subnets") or [{"SubnetId": f"subnet-{z}", "AvailabilityZone": f"us-east-1{z}"} for z in "abcdf"])}[subnet]
+    if s.get("run_error"):
+        fail(s["run_error"], "fake error")
+    if az in s.get("capacity_fail_azs", []):
+        fail("InsufficientInstanceCapacity", f"We currently do not have sufficient {opt('--instance-type')} capacity in the Availability Zone you requested ({az}).")
+    specs = {sp["ResourceType"]: tagmap(sp["Tags"]) for sp in json.loads(opt("--tag-specifications"))}
+    bdm = json.loads(opt("--block-device-mappings"))[0]["Ebs"]
+    iid, vid = nid("i"), nid("vol")
+    s["instances"][iid] = {"InstanceId": iid, "InstanceType": opt("--instance-type"), "State": {"Name": "pending"},
+                           "PublicIpAddress": "203.0.113.10", "LaunchTime": iso(now(s)), "AZ": az,
+                           "Tags": [{"Key": k, "Value": v} for k, v in specs["instance"].items()],
+                           "ShutdownBehavior": opt("--instance-initiated-shutdown-behavior"), "UserData": opt("--user-data"),
+                           "Sg": opt("--security-group-ids"), "Key": opt("--key-name"), "Ebs": bdm, "Volume": vid,
+                           "MetadataOptions": opt("--metadata-options")}
+    s["volumes"][vid] = {"VolumeId": vid, "State": "in-use", "Size": bdm["VolumeSize"], "Instance": iid,
+                         "Tags": [{"Key": k, "Value": v} for k, v in specs["volume"].items()]}
+    save(s)
+    out({"Instances": [{"InstanceId": iid}]})
+if op == "describe-instances":
+    f = filters()
+    ids = []
+    if "--instance-ids" in args:
+        ids = ids_after("--instance-ids")
+    found = []
+    for i in list(s["instances"].values()) + s.get("extra_instances", []):
+        if ids and i["InstanceId"] not in ids:
+            continue
+        if "tag:Name" in f and not match(f["tag:Name"], tagmap(i["Tags"]).get("Name")):
+            continue
+        if "instance-state-name" in f and i["State"]["Name"] not in f["instance-state-name"]:
+            continue
+        # the first describe after run-instances shows it running (a real one takes a while)
+        if i["State"]["Name"] == "pending" and not ids:
+            pass
+        found.append(i)
+    for i in found:
+        if i["State"]["Name"] == "pending" and ids:
+            s["instances"][i["InstanceId"]]["State"]["Name"] = "running"
+            i["State"] = {"Name": "running"}
+    save(s)
+    out({"Reservations": [{"Instances": [dict(i) for i in found]}] if found else []})
+if op == "terminate-instances":
+    ids = ids_after("--instance-ids")
+    for iid in ids:
+        i = s["instances"][iid]
+        i["State"] = {"Name": "terminated"}
+        i["StateTransitionReason"] = "User initiated (" + time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(now(s))) + " GMT)"
+        v = s["volumes"].get(i["Volume"])
+        if v:
+            if s.get("leak_volume"):
+                v["State"] = "available"
+            else:
+                del s["volumes"][i["Volume"]]
+    save(s)
+    out({"TerminatingInstances": [{"InstanceId": i} for i in ids]})
+if op == "describe-volumes":
+    f = filters()
+    out({"Volumes": [v for v in s["volumes"].values() if match(f.get("tag:Name", ["*"]), tagmap(v["Tags"]).get("Name"))]})
+if op == "delete-volume":
+    s["volumes"].pop(opt("--volume-id"), None)
+    save(s)
+    out({})
+if op == "create-tags":
+    rid = args[args.index("--resources") + 1]
+    tags = [a for a in args[args.index("--tags") + 1:] if a.startswith("Key=")]
+    inst = s["instances"][rid]
+    for t in tags:
+        k, v = t.split(",Value=")
+        k = k[4:]
+        inst["Tags"] = [x for x in inst["Tags"] if x["Key"] != k] + [{"Key": k, "Value": v}]
+    save(s)
+    out({})
+fail("NotImplemented", f"ec2 {op}")

@@ -11,6 +11,9 @@
 #   PW_MODEL_FILE         use this local GGUF instead of downloading
 #   PW_NGL                layers offloaded (default 99 on gpu targets, 0 on cpu)
 #   PW_THREADS            CPU threads (default 2)
+#   PW_MODEL_MIRROR       s3://bucket/pw-weights or a directory: lc_fetch_shards copies the shards from there (tools/rig/mirror.py,
+#                         docs/rigs.md), sha256-verified against model.sha256, instead of downloading from the Hub. A model the mirror
+#                         lacks falls back to the Hub, or SKIPs when PW_MODEL_MIRROR_STRICT=1. PW_MIRROR_JOBS: parallel copies (8)
 # The simulated targets are wired from pantheonsim's tests/e2e/run_ollama.sh and
 # amd/tests/e2e/run_ollama_amd.sh and have NOT been run (no GPU toolchain was available).
 
@@ -142,6 +145,24 @@ lc_fetch_shards() {
   dir="$PW_CACHE/models/$(basename "$(dirname "$sums")")"
   mkdir -p "$dir"
   LC_MODEL=""
+  if [[ -n "${PW_MODEL_MIRROR:-}" ]]; then
+    # One directory per repository and commit, shared by a workload and its bench twin (the Hub path below keeps one per workload).
+    local rest="${base#https://huggingface.co/}" repo rev st first mdir
+    repo="${rest%%/resolve/*}"; rev="${rest##*/resolve/}"
+    mdir="$PW_CACHE/models/mirror/${repo//\//__}-$rev"
+    mkdir -p "$mdir"
+    first=$(awk '!/^#/ && NF >= 2 {print $2; exit}' "$sums")
+    if [[ -n "$first" && ! -f "$mdir/$(basename "$first")" ]]; then
+      free=$(df -P --block-size=1G "$mdir" | awk 'NR==2 {print $4}')
+      (( free >= need + 2 )) || lc_skip "needs about $need GiB free under $mdir; $free GiB are free (set PW_CACHE to a bigger disk)"
+    fi
+    python3 -I "$LC_ROOT/../rig/mirror.py" fetch --mirror "$PW_MODEL_MIRROR" --repo "$repo" --rev "$rev" --sums "$sums" --dest "$mdir" --flat >&2
+    st=$?
+    if (( st == 0 )); then LC_MODEL="$mdir/$(basename "$first")"; return 0; fi
+    (( st == 3 )) || { echo "copy from the model mirror $PW_MODEL_MIRROR failed (sha256 mismatch or copy error)" >&2; exit 1; }
+    [[ "${PW_MODEL_MIRROR_STRICT:-0}" != 1 ]] || lc_skip "$repo@$rev is not in the model mirror $PW_MODEL_MIRROR (PW_MODEL_MIRROR_STRICT=1)"
+    echo "warning: $repo@$rev is not in the model mirror; downloading from the Hub" >&2
+  fi
   while read -r sha path; do
     [[ -z "$sha" || "$sha" == \#* ]] && continue
     f="$dir/$(basename "$path")"
