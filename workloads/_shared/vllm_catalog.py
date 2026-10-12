@@ -44,18 +44,44 @@ def sha256_file(path):
     return h.hexdigest()
 
 
-def snapshot():
+def mirror_snapshot(model, revision, cache, patterns, sums):
+    """PW_MODEL_MIRROR (tools/rig/mirror.py): the pinned files copied from the mirror and verified; None when it is not set or
+    does not have the model (the Hub is then used, unless PW_MODEL_MIRROR_STRICT=1). A sha256 mismatch fails the run."""
+    mirror = os.environ.get("PW_MODEL_MIRROR")
+    if not mirror:
+        return None
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("pw_rig_mirror", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "tools", "rig", "mirror.py"))
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["pw_rig_mirror"] = mod
+    spec.loader.exec_module(mod)
     try:
-        from huggingface_hub import snapshot_download
-    except ImportError as e:
-        skip(f"huggingface_hub is not installed ({e})")
+        return str(mod.fetch(mirror, model, revision, os.path.join(cache, "pw-mirror", model.replace("/", "--"), revision),
+                             patterns=patterns, expected=sums, jobs=int(os.environ.get("PW_MIRROR_JOBS", "8"))))
+    except mod.Miss as e:
+        if os.environ.get("PW_MODEL_MIRROR_STRICT") == "1":
+            skip(f"{model}@{revision} is not in the model mirror {mirror} ({e})")
+        print(f"warning: {model}@{revision[:8]} is not in the model mirror ({e}); downloading from the Hub", file=sys.stderr)
+    except (mod.Mismatch, OSError) as e:
+        sys.exit(f"copy from the model mirror {mirror} failed: {e}")
+    return None
+
+
+def snapshot():
     model, revision = os.environ["PW_VLLM_MODEL"], os.environ["PW_VLLM_REVISION"]
     sums_path = os.path.join(os.environ["PW_WORKLOAD_DIR"], "model.sha256")
     sums = read_sums(sums_path)
     small = ["*.json", "*.txt", "*.model", "*.jinja", "*.tiktoken", "tokenizer*", "tekken.json"]
     cache = os.path.join(os.environ.get("PW_CACHE", os.path.expanduser("~/.cache/pantheonworkloads")), "hf")
+    path = mirror_snapshot(model, revision, cache, [*small, *sums], sums)
+    if path is None:
+        try:
+            from huggingface_hub import snapshot_download
+        except ImportError as e:
+            skip(f"huggingface_hub is not installed ({e})")
     try:
-        path = snapshot_download(model, revision=revision, cache_dir=cache, allow_patterns=[*small, *sums])
+        if path is None:
+            path = snapshot_download(model, revision=revision, cache_dir=cache, allow_patterns=[*small, *sums])
     except Exception as e:   # noqa: BLE001  no network, gated, no such revision: not a failure of the GPU
         skip(f"cannot fetch {model}@{revision} ({type(e).__name__}: {str(e).splitlines()[0][:150]})")
     for name, want in sums.items():

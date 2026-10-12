@@ -54,7 +54,6 @@ def run(model_id, revision, dtype="float16", new=32, margin=0.1, label=None, pro
     if common.DEVICE == "cpu":
         common.skip("this vision-language model is run on a GPU only")
     common.setup()
-    from huggingface_hub import snapshot_download
     from PIL import Image
     from transformers import AutoModelForImageTextToText, AutoProcessor
 
@@ -62,8 +61,8 @@ def run(model_id, revision, dtype="float16", new=32, margin=0.1, label=None, pro
     cache_root = os.environ.get("PW_CACHE", os.path.expanduser("~/.cache/pantheonworkloads"))
     # exact_weights (the model-catalog workloads): download only the weights files model.sha256 lists, not every *.safetensors of the repository
     exact = [n for n in pinned.read_sums(os.path.join(os.environ["PW_WORKLOAD_DIR"], "model.sha256")) if n.endswith(".safetensors")] if exact_weights else []
-    path = common.hf_load(lambda m, r, c: snapshot_download(
-        m, revision=r, cache_dir=c, allow_patterns=["*.json", "*.txt", *(exact if exact_weights and not os.environ.get("PW_HF_REVISION") else ["*.safetensors"]), *extra_allow]), model_id, rev)
+    path = common.hf_load(lambda m, r, c: pinned.snapshot(
+        m, r, c, ["*.json", "*.txt", *(exact if exact_weights and not os.environ.get("PW_HF_REVISION") else ["*.safetensors"]), *extra_allow]), model_id, rev)
     if not os.environ.get("PW_HF_REVISION"):
         for name, want in pinned.read_sums(os.path.join(os.environ["PW_WORKLOAD_DIR"], "model.sha256")).items():
             if name.endswith(".safetensors"):

@@ -54,13 +54,12 @@ def run(model_id, revision, kind, steps, guidance, size=None, width=None, height
         common.skip("this diffusion model is run on a GPU only")
     common.setup()
     from diffusers import DiffusionPipeline
-    from huggingface_hub import snapshot_download
 
     rev = os.environ.get("PW_HF_REVISION") or revision
     sums_path = os.path.join(os.environ["PW_WORKLOAD_DIR"], "model.sha256")
     sums = pinned.read_sums(sums_path)
     allow = ["*.json", "*.txt", "*.model", "*.jinja", "*.tiktoken", "tokenizer*/*", *sums]
-    path = common.hf_load(lambda m, r, c: snapshot_download(m, revision=r, cache_dir=c, allow_patterns=allow), model_id, rev)
+    path = common.hf_load(lambda m, r, c: pinned.snapshot(m, r, c, allow), model_id, rev)
     if not os.environ.get("PW_HF_REVISION"):
         pinned.verify_snapshot(path, sums_path)
 

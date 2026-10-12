@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Fake nvidia-smi: $FAKE_GPUS (csv lines) or 8 x A100 80 GB.
+if [[ -n "${FAKE_GPUS:-}" ]]; then printf '%s\n' "$FAKE_GPUS"; exit 0; fi
+for i in 0 1 2 3 4 5 6 7; do echo "NVIDIA A100-SXM4-80GB, 81920, 8.0, 580.82"; done
