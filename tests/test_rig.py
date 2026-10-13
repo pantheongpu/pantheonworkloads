@@ -105,6 +105,33 @@ class TestCapMath(unittest.TestCase):
         self.assertIn("p4de.24xlarge", rig.RATES)
 
 
+class TestRealAwsShapes(unittest.TestCase):
+    """Bugs the first real AWS launch (2026-10-13) found, which the fake aws could not."""
+
+    # the keys the real RunInstances MetadataOptions accepts (from the CLI's own validation message)
+    METADATA_KEYS = {"HttpTokens", "HttpPutResponseHopLimit", "HttpEndpoint", "HttpProtocolIpv6", "InstanceMetadataTags"}
+
+    def test_run_instances_metadata_options_use_keys_the_real_cli_accepts(self):
+        src = (ROOT / "tools" / "rig" / "rig.py").read_text()
+        m = re.search(r'"--metadata-options", "([^"]+)"', src)
+        self.assertTrue(m)
+        keys = {kv.split("=")[0] for kv in m.group(1).split(",")}
+        self.assertLessEqual(keys, self.METADATA_KEYS)
+        self.assertIn("HttpTokens=required", m.group(1))
+
+    def test_a_multi_line_cli_error_keeps_its_cause(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fake = pathlib.Path(tmp) / "aws"
+            fake.write_text("#!/bin/sh\necho 'aws: [ERROR]: An error occurred (ParamValidation): Parameter validation failed:' >&2\n"
+                            "echo 'Unknown parameter in MetadataOptions: \"Bogus\", must be one of: HttpTokens' >&2\nexit 252\n")
+            fake.chmod(0o755)
+            with mock.patch.dict(os.environ, {"PW_AWS": str(fake)}):
+                with self.assertRaises(rig.AwsError) as cm:
+                    rig.aws(["ec2", "run-instances"], "us-east-1")
+        self.assertEqual(cm.exception.code, "ParamValidation")
+        self.assertIn("Unknown parameter in MetadataOptions", str(cm.exception))
+
+
 class TestHomeSafety(RigCase):
     def test_a_scratchpad_is_refused(self):
         os.environ.pop("PW_RIGS_ALLOW_UNSAFE_HOME")
