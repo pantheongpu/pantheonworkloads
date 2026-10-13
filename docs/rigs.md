@@ -6,7 +6,7 @@ their bench twins) on **one** 8 x A100 80 GB node, whose hours are expensive and
 reusable, tested version. Everything here is driven by the `aws` CLI and `ssh`; the tests (`tests/test_rig*.py`) run all of it against a fake `aws`,
 `ssh`, `scp`, `curl` and `nvidia-smi` (`tests/rig_fakes/`) and need no AWS account.
 
-**What has not been exercised against real AWS is listed at the end. Read it before trusting a rig to this tooling.**
+**What has and has not been exercised against real AWS is listed at the end. Read it before trusting a rig to this tooling.**
 
 | Script | Does |
 | --- | --- |
@@ -149,14 +149,18 @@ The rig needs this repository checked out at `--remote-dir` (default `~/pantheon
 
 `tests/test_rig.py` (cap and deadline arithmetic, key placement and mode, the scratchpad refusal, AZ fallback and cleanup, user-data contents, timer verification, ledger lines, teardown idempotence, leaked volumes, security-group retries, foreign instances, status over-cap / past-deadline / no-cap / orphan volume, extend), `tests/test_rig_mirror.py` (plan, resumable staging, corrupt download, sha256 mismatch on every consumer path, miss vs mismatch, `lc_fetch_shards` end to end, `pinned.snapshot`, the real catalog's 2b pins) and `tests/test_rig_batch.py` (requires skips, one-at-a-time, disjoint `--pack` sets, timeout, busy GPU, results copy-back, deadline guard). They run in CI with `python3 -m unittest discover -s tests`.
 
-**Untested against real AWS or real hardware** (the AWS CLI was not available when this was written; no instance was launched):
+**Exercised on real AWS (2026-10-13, us-east-1, a g5.xlarge for ~7 minutes and a t3.small for ~8 minutes, about $0.03 in all):**
 
-* every `aws` call and its real JSON and error shapes: the fake implements what the code reads, so an argument the real CLI rejects (`--tag-specifications` quoting, `--metadata-options`, `create-key-pair --key-format`, the ed25519 key type with these AMIs, `run-instances --user-data` size) would only show up on the first real launch; use `launch.sh --dry-run` first, and run the first real launch on a small instance type with `--max-hours 1`;
-* that `InsufficientInstanceCapacity` (and `Unsupported`) are the codes real capacity failures use, and that other errors (quota: `VcpuLimitExceeded`, `MaxSpotInstanceCountExceeded`) should indeed stop rather than fall through;
-* the cloud-init script and systemd units on the Deep Learning AMI (does `chattr` exist and work on its filesystem, does `systemctl enable --now` run during cloud-init, is `/sbin/shutdown` there); the timer is only verified by reading the file back and `systemctl is-active`, never by waiting for a real termination;
-* that `shutdown -h now` with `InstanceInitiatedShutdownBehavior=terminate` terminates a p4de (it does for other families; not seen here);
-* `StateTransitionReason` timestamps (used for the teardown cost when an instance had already terminated itself) in the format the fake uses;
-* the default subnet / AZ lookup, `p4de.24xlarge` availability and quota in any region, and the rate table;
+* a dry run, a real launch (AMI search, key pair, security group limited to the caller's address, `run-instances`, AZ loop, wait for the address, ssh), the on-box timer check, `status.sh`, the extend refusals (reason too short; projected cost over the cap), and a full `teardown.sh` that verified terminated / no volumes / key pair and group gone;
+* the on-box watchdog: a rig launched with `--max-hours 0.1` terminated itself about a minute after its absolute deadline, AWS reported `Client.InstanceInitiatedShutdown: Instance initiated shutdown`, and CloudTrail showed only `RunInstances` (no `TerminateInstances` call), so the `shutdown -h now` with shutdown behaviour `terminate` path works, including `chattr +i`, `systemctl enable --now` in cloud-init and `/sbin/shutdown` on the Deep Learning AMI (Ubuntu 22.04, 20261009);
+* two bugs only the real CLI could show, both fixed with regression tests (`TestRealAwsShapes`): `--metadata-options` used `HttpEndpointEnabled` (the key is `HttpEndpoint`), and a multi-line CLI error kept only its first line ("Parameter validation failed:") and hid the cause. The AMI also needs a root volume of at least 75 GiB; `launch.sh` now reports that error in full.
+
+**Still untested against real AWS or real hardware:**
+
+* the `InsufficientInstanceCapacity` / `Unsupported` AZ fallback and the quota errors (`VcpuLimitExceeded`, `MaxSpotInstanceCountExceeded`) with real codes: no launch hit a capacity error in these tests, and `p4de.24xlarge` and the other P types have never been launched with this tooling;
+* `shutdown -h now` terminating a p4de specifically (it does for g5 and t3 here);
+* `StateTransitionReason` timestamps for the teardown cost when an instance had already terminated itself (the t3.small had; the ledger recorded it, but the exact cost it computed is an estimate from the rate table, not a bill);
+* the rate table: typed from memory of the on-demand list prices, and only used for caps and estimates;
 * `aws s3 cp` against a real bucket (multi-part behaviour for 50 GiB shards, credentials on the rig and the CPU box), real Hub downloads with `curl -C -` (xet-backed files, redirects, rate limits, `HF_TOKEN` for gated repositories);
 * the consumers on real runtimes: `pinned.snapshot` replaced four `snapshot_download` call sites and was exercised only with a fake `huggingface_hub`; `lc_fetch_shards` was exercised with tiny files;
 * `run_batch.sh` against a real bin/pw run on a real rig: the `flock`, `timeout -k` and `$HOME` quoting were run on this machine's bash only; the real `bin/pw` writes `<w>.json` as the fake does (read from `cmd_run`), but no real batch was run.

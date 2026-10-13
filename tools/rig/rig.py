@@ -162,8 +162,10 @@ def aws(args, region):
     except FileNotFoundError:
         raise RigError(f"the aws CLI ({cmd[0]}) is not installed or not on PATH")
     if p.returncode != 0:
-        m = re.search(r"An error occurred \((\w[\w.]*)\)[^:]*: ?(.*)", p.stderr or "")
-        raise AwsError(args, m.group(1) if m else "Error", (m.group(2) if m else (p.stderr or "").strip())[:300])
+        # the whole message, not its first line: ParamValidation puts the cause on the following lines
+        m = re.search(r"An error occurred \((\w[\w.]*)\)[^:]*: ?(.*)", p.stderr or "", re.S)
+        text = " ".join((m.group(2) if m else (p.stderr or "")).split())
+        raise AwsError(args, m.group(1) if m else "Error", text[:400])
     return json.loads(p.stdout) if p.stdout.strip() else {}
 
 
@@ -360,7 +362,7 @@ def cmd_launch(a):
                 r = aws(["ec2", "run-instances", "--image-id", ami, "--instance-type", a.instance_type, "--count", "1",
                          "--key-name", tag, "--security-group-ids", sg["GroupId"], "--subnet-id", by_az[az]["SubnetId"],
                          "--instance-initiated-shutdown-behavior", "terminate",
-                         "--metadata-options", "HttpTokens=required,HttpEndpointEnabled=enabled",
+                         "--metadata-options", "HttpTokens=required,HttpEndpoint=enabled",
                          "--block-device-mappings", json.dumps(bdm),
                          "--tag-specifications", json.dumps([tagspec("instance", tags), tagspec("volume", {"Name": tag, TOOL_TAG: 1})]),
                          "--user-data", user_data(tag, deadline)], region)
