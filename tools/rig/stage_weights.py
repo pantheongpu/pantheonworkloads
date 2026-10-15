@@ -18,8 +18,10 @@ functional workload and its bench twin) are staged once.
 
 Polite mode, for a shared box (docs/rigs.md "Staging from a shared box"): curl and aws run under `nice -n 19` and
 `ionice -c3` (--no-nice to disable), --threads files at once, --rate-limit MB/s total for downloads and uploads,
---aws-max-concurrent uploads at once; everything pauses (partial files kept) while a GitHub Actions `Runner.Worker`
-runs, the 1-minute load average is above --max-load, or free space is below --min-free-gb; at most --batch-gb is staged
+--aws-max-concurrent uploads at once; while a GitHub Actions `Runner.Worker` runs, transfers are throttled to --busy-rate
+(--strict-ci-pause stops them instead); everything pauses (partial files kept) while
+the 1-minute load average is above --max-load or free space is below --min-free-gb; transient network/S3 errors are
+retried per file with backoff (--retries); at most --batch-gb is staged
 but not yet uploaded; a local copy is deleted once S3 holds an object of the same size. tools/rig/stage_supervisor.sh
 restarts it, single-instance, from cron.
 
@@ -34,6 +36,7 @@ import logging
 import logging.handlers
 import os
 import pathlib
+import re
 import shutil
 import signal
 import subprocess
@@ -115,8 +118,18 @@ class Stopped(Exception):
     """SIGTERM/SIGINT: leave partial files in place and unwind."""
 
 
+class Transient(OSError):
+    """A failure worth retrying (network reset, CDN stream cancel, 5xx, S3 hiccup); the partial file is kept."""
+
+
+# curl exits that are network or CDN trouble, not a property of the file: DNS, connect, timeout, HTTP/2 framing/stream
+# (92 is the Hub CDN cancelling a stream), TLS, send/recv failures
+TRANSIENT_CURL = {6, 7, 16, 18, 28, 35, 52, 55, 56, 92}
+PERMANENT_S3 = ("AccessDenied", "403", "NoSuchBucket", "InvalidAccessKeyId", "SignatureDoesNotMatch", "ExpiredToken")
+
+
 class Ctx:
-    """Everything the transfer functions need: politeness settings, the gate, logging, shared progress."""
+    """Everything the transfer functions need: politeness settings, the gate, the throttle, logging, shared progress."""
 
     def __init__(self, a, scratch, state_dir):
         self.mirror = a.mirror
@@ -124,18 +137,25 @@ class Ctx:
         self.scratch = pathlib.Path(scratch)
         self.state_dir = pathlib.Path(state_dir)
         self.poll = a.poll_s
+        self.tick = min(a.poll_s, 5)           # how often a running transfer rechecks the gates and the throttle
         self.rate = a.rate_limit               # MiB/s over all downloads (and over all uploads); 0 = unlimited
+        self.busy_rate = a.busy_rate           # MiB/s while a Runner.Worker exists (0 = no throttle)
+        self.strict_ci = a.strict_ci_pause
         self.threads = max(1, a.threads)
         self.aws_max = max(1, a.aws_max_concurrent)
         self.max_load = a.max_load
         self.min_free = a.min_free_gb * 2**30
         self.nice = a.nice
+        self.retries = max(1, a.retries)
+        self.retry_base = a.retry_base_s
+        self.retry_max = a.retry_max_s
         self.stop = threading.Event()
+        self.monitor_stop = threading.Event()
         self.lock = threading.RLock()
         self.upload_sem = threading.Semaphore(self.aws_max)
-        self.paused = None                     # (reason, since_monotonic) while the gate is closed
+        self.paused = None                     # (reason, since_monotonic) while a pause gate is closed
         self.paused_total = 0.0
-        self.aws_env = None
+        self.busy = 0                          # Runner.Worker processes the throttle monitor last saw
         self.active = {}                       # path -> {"phase", "size", "part"}
         self.logger = None
 
@@ -154,15 +174,16 @@ class Ctx:
             p += ["ionice", "-c3"]
         return p
 
-    # gate: pause while CI runs, the box is loaded, or the disk is nearly full
     def workers_running(self):
         p = subprocess.run([os.environ.get("PW_PGREP") or "pgrep", "-x", "Runner.Worker"], capture_output=True, text=True)
         return len(p.stdout.split()) if p.returncode == 0 else 0
 
+    # pause gates: load and disk always; CI only with --strict-ci-pause (otherwise CI throttles, see rate_now)
     def reason(self):
-        n = self.workers_running()
-        if n:
-            return f"{n} Runner.Worker process(es) running (CI goes first)"
+        if self.strict_ci:
+            n = self.workers_running()
+            if n:
+                return f"{n} Runner.Worker process(es) running (CI goes first)"
         load = os.getloadavg()[0]
         if load > self.max_load:
             return f"1-minute load average {load:.1f} is above --max-load {self.max_load:g}"
@@ -186,7 +207,7 @@ class Ctx:
                 self.paused = None
 
     def wait_gate(self):
-        """Block while any gate is closed, rechecking every poll seconds."""
+        """Block while any pause gate is closed, rechecking every poll seconds."""
         while True:
             if self.stop.is_set():
                 raise Stopped()
@@ -196,40 +217,85 @@ class Ctx:
                 return
             self.stop.wait(self.poll)
 
+    # throttle: while CI runs, transfers slow to --busy-rate instead of stopping
+    def rate_now(self):
+        if self.busy and not self.strict_ci and self.busy_rate > 0 and (not self.rate or self.busy_rate < self.rate):
+            return self.busy_rate
+        return self.rate
+
+    def throttle_state(self):
+        if self.strict_ci:
+            return "strict-pause"
+        return "busy" if self.busy and self.busy_rate > 0 else "free"
+
+    def set_busy(self, n):
+        with self.lock:
+            was, self.busy = self.busy, n
+        if self.strict_ci or bool(n) == bool(was):
+            return
+        full = f"{self.rate:g} MiB/s" if self.rate else "unlimited"
+        if n:
+            self.log(f"THROTTLE busy: {n} Runner.Worker process(es) running; downloads and uploads limited to "
+                     f"{self.rate_now():g} MiB/s (was {full})")
+        else:
+            self.log(f"THROTTLE free: no Runner.Worker; downloads and uploads back to {full}")
+
+    def monitor(self):
+        while not self.monitor_stop.wait(self.tick):
+            try:
+                self.set_busy(self.workers_running())
+            except OSError:
+                pass
+
     def share(self, n):
-        """Per-process bandwidth cap in KiB/s so n processes together stay within --rate-limit; 0 = none."""
-        return max(1, int(self.rate * 1024 / n)) if self.rate else 0
+        """Per-process bandwidth cap in KiB/s so n processes together stay within the current rate; 0 = none."""
+        r = self.rate_now()
+        return max(1, int(r * 1024 / n)) if r else 0
 
     def aws_cmd(self, args):
         return self.prefix() + [os.environ.get("PW_AWS") or "aws", *args]
 
+    def aws_env(self):
+        """(env, kib) for an aws process started now: an AWS config holding the current upload bandwidth share."""
+        kib = self.share(self.aws_max)
+        path = self.state_dir / f"aws-config.{kib}"
+        with self.lock:
+            if not path.exists():
+                s3 = f"  max_concurrent_requests = {min(4, self.aws_max)}\n  preferred_transfer_client = classic\n"
+                if kib:
+                    s3 += f"  max_bandwidth = {kib}KB/s\n"
+                region = os.environ.get("AWS_DEFAULT_REGION") or os.environ.get("AWS_REGION")
+                body = ""
+                for head in ("default", f"profile {os.environ['AWS_PROFILE']}" if os.environ.get("AWS_PROFILE") else None):
+                    if head:
+                        body += f"[{head}]\n" + (f"region = {region}\n" if region else "") + "s3 =\n" + s3
+                tmp = path.with_suffix(f".{os.getpid()}.tmp")
+                tmp.write_text(body)
+                os.replace(tmp, path)
+        env = dict(os.environ)
+        env["AWS_CONFIG_FILE"] = str(path)
+        return env, kib
 
-def write_aws_config(ctx):
-    """An AWS config for the upload processes: bandwidth share and request concurrency. Returns the env for aws."""
-    path = ctx.state_dir / "aws-config"
-    kib = ctx.share(ctx.aws_max)
-    s3 = f"  max_concurrent_requests = {min(4, max(1, ctx.aws_max))}\n  preferred_transfer_client = classic\n"
-    if kib:
-        s3 += f"  max_bandwidth = {kib}KB/s\n"
-    region = os.environ.get("AWS_DEFAULT_REGION") or os.environ.get("AWS_REGION")
-    body = ""
-    for head in ("default", f"profile {os.environ['AWS_PROFILE']}" if os.environ.get("AWS_PROFILE") else None):
-        if head:
-            body += f"[{head}]\n" + (f"region = {region}\n" if region else "") + "s3 =\n" + s3
-    path.write_text(body)
-    env = dict(os.environ)
-    env["AWS_CONFIG_FILE"] = str(path)
-    return env
 
-
-def run_polled(ctx, cmd, env=None, on_closed="freeze"):
-    """Run cmd, rechecking the gate every poll seconds. on_closed 'kill': terminate the process and return (None, "")
-    (the caller waits and restarts it); 'freeze': SIGSTOP its process group until the gate opens, then SIGCONT.
+def run_polled(ctx, cmd, env=None, on_closed="freeze", n=1, started_kib=0):
+    """Run cmd, rechecking the pause gates and the throttle every ctx.tick seconds.
+    A closed gate: on_closed 'kill' terminates the process and returns (None, "") (the caller waits and restarts it);
+    'freeze' SIGSTOPs its process group until the gate opens, then SIGCONTs.
+    A changed throttle (the process was started with a bandwidth share of started_kib, among n such processes):
+    'kill' mode returns (None, "") so the caller restarts it with the new share (curl -C - resumes the partial file);
+    'freeze' mode cannot change a running aws's cap, so it runs the process on a SIGSTOP/SIGCONT duty cycle of
+    new/started (1 s period) until it ends; later aws processes get the new max_bandwidth.
     Returns (returncode, stderr)."""
     p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True, env=env, start_new_session=True)
+    duty_logged = False
     while True:
+        duty = 1.0
+        if on_closed == "freeze" and started_kib:
+            now = ctx.share(n)
+            if now and now < started_kib:
+                duty = now / started_kib
         try:
-            _, err = p.communicate(timeout=ctx.poll)
+            _, err = p.communicate(timeout=ctx.tick if duty >= 1 else max(0.02, duty))
             return p.returncode, err
         except subprocess.TimeoutExpired:
             if ctx.stop.is_set():
@@ -237,23 +303,50 @@ def run_polled(ctx, cmd, env=None, on_closed="freeze"):
                 p.communicate()
                 raise Stopped()
             r = ctx.reason()
-            if not r:
+            if r:
+                ctx.note(r)
+                if on_closed == "kill":
+                    os.killpg(p.pid, signal.SIGTERM)
+                    p.communicate()
+                    return None, ""
+                os.killpg(p.pid, signal.SIGSTOP)
+                try:
+                    ctx.wait_gate()
+                finally:
+                    os.killpg(p.pid, signal.SIGCONT)
                 continue
-            ctx.note(r)
-            if on_closed == "kill":
+            if on_closed == "kill" and ctx.share(n) != started_kib:
                 os.killpg(p.pid, signal.SIGTERM)
                 p.communicate()
                 return None, ""
-            os.killpg(p.pid, signal.SIGSTOP)
-            try:
-                ctx.wait_gate()
-            finally:
+            if duty < 1:
+                if not duty_logged:
+                    ctx.log(f"THROTTLE: in-flight upload slowed to a {duty:.0%} duty cycle (it started with a larger bandwidth share)")
+                    duty_logged = True
+                os.killpg(p.pid, signal.SIGSTOP)
+                ctx.stop.wait(1 - duty)
                 os.killpg(p.pid, signal.SIGCONT)
 
 
+def with_retry(ctx, label, fn):
+    """Call fn; a Transient failure is retried with exponential backoff (retry_base doubling to retry_max, ctx.retries
+    tries in all). Anything else (404/401/403, sha256 mismatch, disk full) propagates at once."""
+    delay = ctx.retry_base
+    for attempt in range(1, ctx.retries + 1):
+        try:
+            return fn()
+        except Transient as e:
+            if attempt == ctx.retries:
+                raise OSError(f"{label}: giving up after {attempt} tries: {e}")
+            ctx.log(f"RETRY {label} (try {attempt}/{ctx.retries}) in {delay:g}s: {e}")
+            if ctx.stop.wait(delay):
+                raise Stopped()
+            delay = min(delay * 2, ctx.retry_max)
+
+
 def download(ctx, repo, rev, path, dest, expect_size):
+    # the Hub URL is resolved afresh on every call (its CDN redirect is signed and expires), so a retry never reuses one
     url = f"{ctx.hf_base.rstrip('/')}/{repo}/resolve/{rev}/{urllib.parse.quote(path)}"
-    kib = ctx.share(ctx.threads)
     while True:
         if os.path.exists(dest):
             have = os.path.getsize(dest)
@@ -261,20 +354,27 @@ def download(ctx, repo, rev, path, dest, expect_size):
                 break       # an earlier run finished the download but not the upload; the sha256 check follows
             if have > expect_size:
                 os.unlink(dest)
-        cmd = ctx.prefix() + [os.environ.get("PW_CURL") or "curl", "-fL", "--retry", "3", "-C", "-", "-sS", "-o", str(dest)]
+        kib = ctx.share(ctx.threads)
+        cmd = ctx.prefix() + [os.environ.get("PW_CURL") or "curl", "-fL", "-C", "-", "-sS", "-o", str(dest)]
         if kib:
             cmd += ["--limit-rate", f"{kib}k"]
         if os.environ.get("HF_TOKEN"):
             cmd += ["-H", f"Authorization: Bearer {os.environ['HF_TOKEN']}"]
-        rc, err = run_polled(ctx, cmd + [url], on_closed="kill")
-        if rc is None:                       # stopped for the gate; the partial file is kept and curl resumes it
+        rc, err = run_polled(ctx, cmd + [url], on_closed="kill", n=ctx.threads, started_kib=kib)
+        if rc is None:                       # stopped for a pause gate or a new throttle rate; curl resumes the partial file
             ctx.wait_gate()
             continue
         if rc != 0:
-            raise OSError(f"download of {url} failed (curl exit {rc}): {err.strip()[-200:]}; the partial file is kept for a resume")
+            msg = f"download of {url} failed (curl exit {rc}): {err.strip()[-200:]}; the partial file is kept for a resume"
+            status = re.search(r"returned error: (\d+)", err or "")
+            if rc == 22 and status and status.group(1) == "416" and os.path.exists(dest) and os.path.getsize(dest) == expect_size:
+                break                        # asked to resume a file that is already complete
+            if rc in TRANSIENT_CURL or (rc == 22 and status and (int(status.group(1)) >= 500 or status.group(1) in ("408", "429"))):
+                raise Transient(msg)
+            raise OSError(msg)               # 404, 401/403 (gated repo), local write error: permanent
         break
     if os.path.getsize(dest) != expect_size:
-        raise OSError(f"{path}: downloaded {os.path.getsize(dest)} bytes, the catalog says {expect_size}")
+        raise Transient(f"{path}: downloaded {os.path.getsize(dest)} bytes, the catalog says {expect_size}")
 
 
 def remote_size(ctx, repo, rev, name):
@@ -283,8 +383,9 @@ def remote_size(ctx, repo, rev, name):
     if not mirrorlib.is_s3(ctx.mirror):
         return os.path.getsize(loc) if os.path.isfile(loc) else None
     bucket, _, key = loc[len("s3://"):].partition("/")
+    env, _ = ctx.aws_env()
     p = subprocess.run(ctx.aws_cmd(["s3api", "head-object", "--bucket", bucket, "--key", key, "--query", "ContentLength", "--output", "text"]),
-                       capture_output=True, text=True, env=ctx.aws_env)
+                       capture_output=True, text=True, env=env)
     if p.returncode != 0:
         return None
     try:
@@ -296,12 +397,14 @@ def remote_size(ctx, repo, rev, name):
 def put(ctx, repo, rev, name, src):
     dst = mirrorlib.location(ctx.mirror, repo, rev) + "/" + name
     if mirrorlib.is_s3(ctx.mirror):
-        cmd = ctx.aws_cmd(["s3", "cp", "--only-show-errors", str(src), dst])
         with ctx.upload_sem:
             ctx.wait_gate()
-            rc, err = run_polled(ctx, cmd, env=ctx.aws_env, on_closed="freeze")
+            env, kib = ctx.aws_env()
+            rc, err = run_polled(ctx, ctx.aws_cmd(["s3", "cp", "--only-show-errors", str(src), dst]), env=env,
+                                 on_closed="freeze", n=ctx.aws_max, started_kib=kib)
         if rc != 0:
-            raise OSError(f"aws s3 cp {name} failed: {err.strip()[-200:]}")
+            msg = f"aws s3 cp {name} failed: {err.strip()[-200:]}"
+            raise OSError(msg) if any(w in err for w in PERMANENT_S3) else Transient(msg)
     else:
         pathlib.Path(dst).parent.mkdir(parents=True, exist_ok=True)
         tmp = dst + ".part"
@@ -315,7 +418,7 @@ def write_manifest(ctx, repo, rev, files, complete, d):
          "total_bytes": sum(f["size"] for f in files.values()), "files": files}
     tmp = pathlib.Path(d) / "manifest.json"
     tmp.write_text(json.dumps(m, indent=1, sort_keys=True) + "\n")
-    put(ctx, repo, rev, "manifest.json", tmp)
+    with_retry(ctx, f"manifest of {repo}", lambda: put(ctx, repo, rev, "manifest.json", tmp))
 
 
 class Budget:
@@ -366,7 +469,7 @@ class Progress:
         return {"pid": os.getpid(), "running": running, "updated": time.time(), "started": time.time() - (time.monotonic() - self.t0),
                 "mirror": ctx.mirror, "total_bytes": self.total, "done_bytes": self.pre + self.done, "run_bytes": self.done,
                 "models_total": self.n_models, "models_staged": self.n_staged, "current": current, "paused": paused,
-                "paused_seconds": ctx.paused_total, "rate_sustained": sustained, "rate_recent": recent,
+                "paused_seconds": ctx.paused_total, "throttle": {"mode": ctx.throttle_state(), "workers": ctx.busy, "rate": ctx.rate_now()}, "rate_sustained": sustained, "rate_recent": recent,
                 "eta_seconds": (left / sustained) if sustained and left > 0 else (0 if left <= 0 else None), "errors": self.errors}
 
     def write(self, running=True):
@@ -406,6 +509,12 @@ def print_status(state_dir):
         print(f"state: PAUSED for {time.time() - s['paused']['since']:.0f}s: {s['paused']['reason']}")
     else:
         print("state: " + ("transferring" if alive else "stopped"))
+    t = s.get("throttle")
+    if alive and t:
+        lim = f"{t['rate']:g} MiB/s" if t["rate"] else "unlimited"
+        print({"busy": f"throttle: BUSY, {t['workers']} Runner.Worker process(es) running, transfers limited to {lim}",
+               "free": f"throttle: free, no Runner.Worker, transfers limited to {lim}",
+               "strict-pause": f"throttle: off (--strict-ci-pause: transfers stop while a Runner.Worker runs), limit {lim}"}[t["mode"]])
     pct = 100 * s["done_bytes"] / s["total_bytes"] if s["total_bytes"] else 100
     print(f"models staged: {s['models_staged']}/{s['models_total']}")
     print(f"data: {s['done_bytes'] / gib:.1f} / {s['total_bytes'] / gib:.1f} GiB ({pct:.1f}%), {s['run_bytes'] / gib:.1f} GiB by this run")
@@ -437,7 +546,6 @@ def stage_all(ctx, models, budget_bytes, order, total_bytes, n_models_all):
     todo = sum(f["size"] for m in models for f in m["missing"])
     prog = Progress(ctx, total_bytes, total_bytes - todo, n_models_all, n_models_all - len(models))
     budget = Budget(budget_bytes)
-    ctx.aws_env = write_aws_config(ctx) if mirrorlib.is_s3(ctx.mirror) else None
 
     def finish(m):
         """Called with m['lock'] held (or single-threaded) when the last file of a model is done."""
@@ -461,17 +569,20 @@ def stage_all(ctx, models, budget_bytes, order, total_bytes, n_models_all):
             ctx.active[f["path"]] = {"phase": "downloading", "size": f["size"], "part": str(part)}
             ctx.log(f"START {m['repo']} {f['path']} ({f['size'] / 2**30:.2f} GiB)")
             t0 = time.monotonic()
-            download(ctx, m["repo"], m["rev"], f["path"], part, f["size"])
+            with_retry(ctx, f"download {f['path']}", lambda: download(ctx, m["repo"], m["rev"], f["path"], part, f["size"]))
             ctx.active[f["path"]]["phase"] = "hashing"
             got = mirrorlib.sha256_file(part)         # 4 MiB chunks; never the whole file in memory
             if f["sha256"] and got != f["sha256"]:
                 part.unlink(missing_ok=True)   # a corrupt download is not resumed
                 raise ValueError(f"{f['path']}: sha256 of the download is {got}, expected {f['sha256']}; not uploaded")
             ctx.active[f["path"]]["phase"] = "uploading"
-            put(ctx, m["repo"], m["rev"], f["path"], part)
-            rs = remote_size(ctx, m["repo"], m["rev"], f["path"])
-            if rs != f["size"]:
-                raise OSError(f"{f['path']}: the mirror holds {rs} bytes after the upload, expected {f['size']}; local copy kept, not recorded")
+
+            def upload():
+                put(ctx, m["repo"], m["rev"], f["path"], part)
+                rs = remote_size(ctx, m["repo"], m["rev"], f["path"])
+                if rs != f["size"]:
+                    raise Transient(f"{f['path']}: the mirror holds {rs} bytes after the upload, expected {f['size']}; local copy kept, not recorded")
+            with_retry(ctx, f"upload {f['path']}", upload)
             with m["lock"]:
                 m["files"][f["path"]] = {"size": f["size"], "sha256": got, "pinned": f["pinned"],
                                          "source": "pin" if f["pinned"] else ("lfs-oid" if f["sha256"] else "computed")}
@@ -520,6 +631,10 @@ def stage_all(ctx, models, budget_bytes, order, total_bytes, n_models_all):
         while not ticker_stop.wait(10):
             prog.write()
     threading.Thread(target=ticker, daemon=True).start()
+    if not ctx.strict_ci:
+        ctx.set_busy(ctx.workers_running())
+        ctx.log(f"THROTTLE {'busy' if ctx.busy else 'free'} (initial): {ctx.busy} Runner.Worker process(es); limit now {ctx.rate_now():g} MiB/s")
+        threading.Thread(target=ctx.monitor, daemon=True).start()
     try:
         with ThreadPoolExecutor(max_workers=ctx.threads) as ex:
             for m in models:
@@ -527,6 +642,7 @@ def stage_all(ctx, models, budget_bytes, order, total_bytes, n_models_all):
                     ex.submit(work, m, f)
     finally:
         ticker_stop.set()
+        ctx.monitor_stop.set()
         prog.write(running=False)
     sus, _ = prog.rates()
     ctx.log(f"SUMMARY: {prog.done / 2**30:.2f} GiB staged this run in {time.monotonic() - prog.t0:.0f}s "
@@ -565,7 +681,12 @@ def main(argv=None):
     ap.add_argument("--min-free-gb", type=float, default=500, help="pause while the scratch filesystem has less free space (default 500)")
     ap.add_argument("--batch-gb", type=float, default=1500, help="most GiB staged locally and not yet uploaded (default 1500)")
     ap.add_argument("--order", choices=["smallest-first", "manifest"], default="smallest-first")
-    ap.add_argument("--poll-s", type=float, default=30, help="seconds between gate checks while waiting or transferring (default 30)")
+    ap.add_argument("--poll-s", type=float, default=30, help="seconds between pause-gate checks while waiting (default 30; running transfers recheck every min(this, 5) s)")
+    ap.add_argument("--busy-rate", type=float, default=8, metavar="MBPS", help="MiB/s for downloads and uploads while a Runner.Worker exists (default 8; 0 = do not throttle)")
+    ap.add_argument("--strict-ci-pause", action="store_true", help="stop transfers while a Runner.Worker exists instead of throttling to --busy-rate")
+    ap.add_argument("--retries", type=int, default=20, help="tries per file step on a transient network/S3 error (default 20)")
+    ap.add_argument("--retry-base-s", type=float, default=5, help="first retry delay, doubling (default 5 s)")
+    ap.add_argument("--retry-max-s", type=float, default=300, help="longest retry delay (default 300 s)")
     a = ap.parse_args(argv)
     if a.status:
         return print_status(a.state_dir)
@@ -630,7 +751,7 @@ def main(argv=None):
         if threading.current_thread() is threading.main_thread():
             for sig in (signal.SIGTERM, signal.SIGINT):
                 old[sig] = signal.signal(sig, lambda *_: ctx.stop.set())
-        ctx.log(f"start: {len(pending)} model(s) to stage, threads {ctx.threads}, rate limit {ctx.rate:g} MiB/s, "
+        ctx.log(f"start: {len(pending)} model(s) to stage, threads {ctx.threads}, rate limit {ctx.rate:g} MiB/s (busy {ctx.busy_rate:g}{', strict CI pause' if ctx.strict_ci else ''}), "
                 f"aws uploads {ctx.aws_max}, nice {'on' if ctx.nice else 'off'}, max-load {ctx.max_load:g}, min-free {a.min_free_gb:g} GB, "
                 f"batch {a.batch_gb:g} GB, order {a.order}")
         try:

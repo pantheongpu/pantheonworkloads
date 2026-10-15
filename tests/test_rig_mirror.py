@@ -67,7 +67,7 @@ class MirrorCase(unittest.TestCase):
         p = mock.patch.dict(os.environ, env)
         p.start()
         self.addCleanup(p.stop)
-        for k in ("FAKE_S3_TRUNC", "FAKE_S3_SLEEP", "FAKE_CURL_SLEEP", "FAKE_S3_FAIL", "FAKE_S3_CORRUPT", "FAKE_CURL_FAIL", "FAKE_CURL_CORRUPT", "PW_MODEL_MIRROR", "PW_MODEL_MIRROR_STRICT",
+        for k in ("FAKE_CURL_FLAKY_N", "FAKE_S3_FLAKY_N", "FAKE_CURL_FAIL_STATUS", "FAKE_S3_FAIL_MSG", "FAKE_S3_TRUNC", "FAKE_S3_SLEEP", "FAKE_CURL_SLEEP", "FAKE_S3_FAIL", "FAKE_S3_CORRUPT", "FAKE_CURL_FAIL", "FAKE_CURL_CORRUPT", "PW_MODEL_MIRROR", "PW_MODEL_MIRROR_STRICT",
                   "PW_HF_REVISION", "HF_TOKEN"):
             os.environ.pop(k, None)
         pw = mock.patch.object(wl, "WORKLOADS", self.wroot)
@@ -85,7 +85,8 @@ class MirrorCase(unittest.TestCase):
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             rc = stage_weights.main(["llamacpp-toy", "--mirror", mirror_arg or str(self.mir), "--hf-base", "http://fake",
                                      "--scratch", str(self.tmp / "scratch"), "--state-dir", str(self.tmp / "state"), "--poll-s", "0.05",
-                                     "--min-free-gb", "0", "--max-load", "1e9", *extra])
+                                     "--min-free-gb", "0", "--max-load", "1e9",
+                                     "--retries", "2", "--retry-base-s", "0.01", "--retry-max-s", "0.02", *extra])
         return rc, out.getvalue(), err.getvalue()
 
     def curl_urls(self):
@@ -274,7 +275,7 @@ class TestPolite(MirrorCase):
 
     def test_ci_runner_worker_pauses_everything_and_it_resumes(self):
         (self.tmp / "pgrep").write_text("1")
-        t, res = self.run_in_thread()
+        t, res = self.run_in_thread("--strict-ci-pause")
         time.sleep(0.5)
         self.assertEqual(self.curl_urls(), [])                  # nothing started while Runner.Worker exists
         (self.tmp / "pgrep").write_text("0")
@@ -288,7 +289,7 @@ class TestPolite(MirrorCase):
 
     def test_a_worker_appearing_mid_download_stops_curl_and_resumes_it_later(self):
         os.environ["FAKE_CURL_SLEEP"] = "0.6"
-        t, res = self.run_in_thread("--threads", "1")
+        t, res = self.run_in_thread("--threads", "1", "--strict-ci-pause")
         time.sleep(0.3)
         (self.tmp / "pgrep").write_text("2")
         time.sleep(0.5)
@@ -300,6 +301,128 @@ class TestPolite(MirrorCase):
         self.assertIn("RESUME", out)
         self.assertGreater(len(self.curl_urls()), 4)            # the interrupted file was fetched again (curl -C - resumes it)
         self.assertTrue(self.s3_manifest()["complete"])
+
+    def test_dry_run_is_not_throttled_or_paused(self):
+        (self.tmp / "pgrep").write_text("3")
+        self.assertEqual(self.stage("--dry-run")[0], 0)
+
+    def test_ci_throttles_instead_of_pausing(self):
+        (self.tmp / "pgrep").write_text("1")
+        rc, out, err = self.s3()
+        self.assertEqual(rc, 0, err)
+        self.assertNotIn("PAUSE", out)
+        self.assertIn("THROTTLE busy (initial): 1 Runner.Worker process(es); limit now 8 MiB/s", out)
+        curls = read_log(self.tmp / "curl.log")
+        self.assertEqual(len(curls), 4)                          # it transferred, with CI running
+        self.assertTrue(all(c["limit_rate"] == "2048k" for c in curls))     # 8 MiB/s over 4 downloads
+        self.assertIn("max_bandwidth = 4096KB/s", pathlib.Path(self.uploads()[0]["config"]).read_text())   # 8 MiB/s over 2 uploads
+        self.assertTrue(self.s3_manifest()["complete"])
+
+    def test_busy_rate_zero_does_not_throttle(self):
+        (self.tmp / "pgrep").write_text("1")
+        self.assertEqual(self.s3("--busy-rate", "0")[0], 0)
+        self.assertTrue(all(c["limit_rate"] == "5120k" for c in read_log(self.tmp / "curl.log")))
+
+    def test_throttle_follows_ci_live_and_restarts_the_running_curl(self):
+        os.environ["FAKE_CURL_SLEEP"] = "0.8"
+        t, res = self.run_in_thread("--threads", "1")
+        time.sleep(0.3)
+        (self.tmp / "pgrep").write_text("1")                    # CI starts while the first file is downloading
+        time.sleep(0.5)
+        (self.tmp / "pgrep").write_text("0")                    # and ends again
+        t.join(60)
+        rc, out, err = res["r"]
+        self.assertEqual(rc, 0, err)
+        self.assertRegex(out, r"THROTTLE busy: 1 Runner.Worker process\(es\) running; downloads and uploads limited to 8 MiB/s \(was 20 MiB/s\)")
+        self.assertRegex(out, r"THROTTLE free: no Runner.Worker; downloads and uploads back to 20 MiB/s")
+        self.assertNotIn("PAUSE", out)
+        limits = [c["limit_rate"] for c in read_log(self.tmp / "curl.log")]
+        self.assertIn("20480k", limits)                          # threads 1: 20 MiB/s, then 8 MiB/s, then 20 again
+        self.assertIn("8192k", limits)
+        self.assertTrue(self.s3_manifest()["complete"])
+
+    def test_an_upload_in_flight_is_slowed_by_a_duty_cycle_when_ci_starts(self):
+        os.environ["FAKE_S3_SLEEP"] = "1.5"
+        t, res = self.run_in_thread("--threads", "1", "--aws-max-concurrent", "1")
+        time.sleep(0.5)
+        (self.tmp / "pgrep").write_text("1")
+        t.join(60)
+        rc, out, err = res["r"]
+        self.assertEqual(rc, 0, err)
+        self.assertIn("in-flight upload slowed to a 40% duty cycle", out)
+        self.assertTrue(self.s3_manifest()["complete"])
+
+    def test_status_shows_the_throttle(self):
+        (self.tmp / "pgrep").write_text("2")
+        self.s3()
+        out = io.StringIO()
+        st = json.loads((self.tmp / "state" / "status.json").read_text())
+        self.assertEqual(st["throttle"]["mode"], "busy")
+        st["running"] = True
+        st["pid"] = os.getpid()
+        (self.tmp / "state" / "status.json").write_text(json.dumps(st))
+        with contextlib.redirect_stdout(out):
+            stage_weights.main(["--status", "--state-dir", str(self.tmp / "state")])
+        self.assertIn("throttle: BUSY, 2 Runner.Worker process(es) running, transfers limited to 8 MiB/s", out.getvalue())
+
+    def test_transient_curl_errors_are_retried_and_the_run_succeeds(self):
+        os.environ["FAKE_CURL_FLAKY_N"] = "2"                   # exit 92 (CDN stream cancel) twice per file
+        rc, out, err = self.stage("--retries", "5")
+        self.assertEqual(rc, 0, err)
+        self.assertEqual(len(self.curl_urls()), 12)
+        self.assertIn("RETRY download", out)
+        self.assertTrue(self.manifest()["complete"])
+
+    def test_retries_give_up_and_the_run_fails(self):
+        os.environ["FAKE_CURL_FLAKY_N"] = "99"
+        rc, out, err = self.stage("--retries", "3")
+        self.assertEqual(rc, 1)
+        self.assertIn("giving up after 3 tries", err)
+        self.assertEqual(len(self.curl_urls()), 12)
+
+    def test_permanent_http_errors_are_not_retried(self):
+        for status in ("404", "403", "401"):
+            os.environ["FAKE_CURL_FAIL"] = "model-00001"
+            os.environ["FAKE_CURL_FAIL_STATUS"] = status
+            rc, out, err = self.stage("--retries", "5")
+            self.assertEqual(rc, 1)
+            self.assertNotIn("RETRY", out)
+            self.assertIn(f"error: {status}", err)
+        self.assertEqual(sum("model-00001" in u for u in self.curl_urls()), 3)      # one try per run
+
+    def test_a_503_is_transient(self):
+        os.environ["FAKE_CURL_FAIL"] = "model-00001"
+        rc, out, err = self.stage("--retries", "3")
+        self.assertEqual(rc, 1)
+        self.assertEqual(sum("model-00001" in u for u in self.curl_urls()), 3)
+        self.assertIn("RETRY download Q4/model-00001", out)
+
+    def test_curl_restarts_resume_the_partial_file_and_resolve_the_url_again(self):
+        os.environ["FAKE_CURL_FLAKY_N"] = "1"
+        self.stage()
+        for l in read_log(self.tmp / "curl.log"):
+            self.assertTrue(l["url"].startswith("http://fake/org/model-GGUF/resolve/"))   # the resolve URL every time, never a cached CDN URL
+
+    def test_transient_s3_errors_are_retried(self):
+        os.environ["FAKE_S3_FLAKY_N"] = "2"
+        rc, out, err = self.s3("--retries", "5")
+        self.assertEqual(rc, 0, err)
+        self.assertIn("RETRY upload", out)
+        self.assertTrue(self.s3_manifest()["complete"])
+
+    def test_s3_access_denied_is_permanent(self):
+        os.environ["FAKE_S3_FAIL"] = "model-00001"
+        os.environ["FAKE_S3_FAIL_MSG"] = "An error occurred (AccessDenied) when calling the PutObject operation"
+        rc, out, err = self.s3("--retries", "5")
+        self.assertEqual(rc, 1)
+        self.assertNotIn("RETRY upload Q4/model-00001", out)
+        self.assertIn("AccessDenied", err)
+
+    def test_sha256_mismatch_is_permanent(self):
+        os.environ["FAKE_CURL_CORRUPT"] = "model-00001"
+        rc, out, err = self.stage("--retries", "5")
+        self.assertEqual(rc, 1)
+        self.assertNotIn("RETRY", out)
 
     def test_load_gate(self):
         self.load[0] = 50.0

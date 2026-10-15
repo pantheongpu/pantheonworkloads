@@ -9,7 +9,7 @@ It never touches the network. State knobs a test may set before running:
   now                epoch used for LaunchTime and the termination reason (default: real time)
   extra_instances    instances to list as they are (for status tests)
 S3: FAKE_S3_FAIL / FAKE_S3_CORRUPT / FAKE_S3_TRUNC (a source substring: that upload fails / has its first byte flipped / loses its last byte),
-FAKE_S3_SLEEP (seconds each cp takes); `s3api head-object` prints ContentLength.
+FAKE_S3_FAIL_MSG (its error text), FAKE_S3_FLAKY_N (first n uploads of each file fail), FAKE_S3_SLEEP (seconds each cp takes); `s3api head-object` prints ContentLength.
 """
 import json
 import os
@@ -116,8 +116,15 @@ if svc == "s3":
             sys.stdout.write(p.read_text())
             sys.exit(0)
         if os.environ.get("FAKE_S3_FAIL") and os.environ["FAKE_S3_FAIL"] in src:
-            sys.stderr.write("fatal error: connection reset\n")
+            sys.stderr.write(os.environ.get("FAKE_S3_FAIL_MSG", "fatal error: connection reset") + "\n")
             sys.exit(1)
+        if os.environ.get("FAKE_S3_FLAKY_N"):      # the first N cp calls per source file fail (then succeed)
+            cf = str(STATE) + ".flaky-" + src.replace("/", "_")[-60:]
+            n = int(open(cf).read()) if os.path.exists(cf) else 0
+            open(cf, "w").write(str(n + 1))
+            if n < int(os.environ["FAKE_S3_FLAKY_N"]) and "manifest" not in src:
+                sys.stderr.write("fatal error: Connection was closed before we received a valid response\n")
+                sys.exit(1)
         d = loc(dst)
         d.parent.mkdir(parents=True, exist_ok=True)
         time.sleep(float(os.environ.get("FAKE_S3_SLEEP", "0")))
