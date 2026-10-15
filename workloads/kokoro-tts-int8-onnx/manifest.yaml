@@ -26,10 +26,10 @@ notes: >
   stable statistics: sample count (within 1.5 %), RMS (abs 0.003; observed spread
   0.0001), spectral centroid (abs 150 Hz; observed 13 Hz run to run, up to 82 Hz against the reference across CPUs) and the RMS in 100 ms
   windows (abs 0.03). The exact lengths are informational (`n_samples_exact`).
-  Evidence (docs/int8-and-nondeterminism.md): the second sentence's length depends on the CPU. 70800 samples (reference 71400, 0.84 % fewer)
-  came out of every run on an AMD EPYC 7R32 (AVX2, no VNNI; 10 of 10, CPU provider and CUDA EP alike) and on an Intel Xeon 8375C
-  (Ice Lake, AVX512-VNNI; 6 of 6); 71400 on the EPYC with `session.x64quantprecision=1` (tools/ort_tasks.py sets it; PW_ORT_X64QUANT=0
-  removes it; 10 of 10), and in the reference (recorded on a host that is not identified). So the cause is not only AVX2 saturation.
+  Evidence (docs/int8-and-nondeterminism.md): the second sentence's length depends on the CPU kernel path. 70800 samples (the committed reference's
+  value) came out of every run on an AMD EPYC 7R32 (AVX2, no VNNI; 10 of 10, CPU provider and CUDA EP alike), on an Intel Xeon 8375C
+  (Ice Lake, AVX512-VNNI; 6 of 6) and on an AMD Ryzen 9 9950X (Zen 5, AVX512-VNNI; 6 of 6); 71400 (0.85 % more) on the EPYC with `session.x64quantprecision=1`
+  (tools/ort_tasks.py sets it; PW_ORT_X64QUANT=0 removes it; 10 of 10). The reference host is not identified.
   1.5 % is the smallest round value above 0.84 % with a margin. The 100 ms envelope of the second sentence differs from the reference by up to
   0.0224 on the EPYC (0.0200 to 0.0206 in 7-bit mode; the Xeon: 0.0016), so the old bound 0.01 never held on that host; 0.03 is the smallest round value above
   0.0224 with a margin. The model is int8 only: on the gpu target the
