@@ -208,7 +208,7 @@ def write_aws_config(ctx):
     """An AWS config for the upload processes: bandwidth share and request concurrency. Returns the env for aws."""
     path = ctx.state_dir / "aws-config"
     kib = ctx.share(ctx.aws_max)
-    s3 = f"  max_concurrent_requests = {min(4, max(1, ctx.aws_max))}\n"
+    s3 = f"  max_concurrent_requests = {min(4, max(1, ctx.aws_max))}\n  preferred_transfer_client = classic\n"
     if kib:
         s3 += f"  max_bandwidth = {kib}KB/s\n"
     region = os.environ.get("AWS_DEFAULT_REGION") or os.environ.get("AWS_REGION")
