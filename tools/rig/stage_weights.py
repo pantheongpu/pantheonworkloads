@@ -449,6 +449,8 @@ class Progress:
         self.t0 = time.monotonic()
         self.samples = [(self.t0, 0)]
         self.errors = 0
+        self.wlock = threading.Lock()
+        self.final = False
 
     def rates(self):
         now = time.monotonic()
@@ -473,12 +475,16 @@ class Progress:
                 "eta_seconds": (left / sustained) if sustained and left > 0 else (0 if left <= 0 else None), "errors": self.errors}
 
     def write(self, running=True):
-        self.samples.append((time.monotonic(), self.done))
-        self.samples = self.samples[-400:]
-        p = self.ctx.state_dir / "status.json"
-        tmp = p.with_suffix(".tmp")
-        tmp.write_text(json.dumps(self.snapshot(running), indent=1))
-        os.replace(tmp, p)
+        with self.wlock:                  # workers and the ticker thread both write; one writer at a time, nothing after the final write
+            if self.final:
+                return
+            self.final = not running
+            self.samples.append((time.monotonic(), self.done))
+            self.samples = self.samples[-400:]
+            p = self.ctx.state_dir / "status.json"
+            tmp = p.with_suffix(".tmp")
+            tmp.write_text(json.dumps(self.snapshot(running), indent=1))
+            os.replace(tmp, p)
 
 
 def fmt_dur(s):
