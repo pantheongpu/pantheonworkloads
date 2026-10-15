@@ -164,3 +164,45 @@ The rig needs this repository checked out at `--remote-dir` (default `~/pantheon
 * `aws s3 cp` against a real bucket (multi-part behaviour for 50 GiB shards, credentials on the rig and the CPU box), real Hub downloads with `curl -C -` (xet-backed files, redirects, rate limits, `HF_TOKEN` for gated repositories);
 * the consumers on real runtimes: `pinned.snapshot` replaced four `snapshot_download` call sites and was exercised only with a fake `huggingface_hub`; `lc_fetch_shards` was exercised with tiny files;
 * `run_batch.sh` against a real bin/pw run on a real rig: the `flock`, `timeout -k` and `$HOME` quoting were run on this machine's bash only; the real `bin/pw` writes `<w>.json` as the fake does (read from `cmd_run`), but no real batch was run.
+
+## server2 as a CPU test host
+
+server2 (192.168.1.216, Ryzen 9 9950X, Zen 5, 32 threads, `avx2 avx512f avx512_vnni avx_vnni`, no AMX; 29 GiB RAM of which about 14 GiB is free; Ubuntu 24.04) is where CPU-side checks run instead of the WSL machine or server1. **The box is shared**: the multi-day weight-staging job (`~/pw-stage`, `tools/rig/stage_supervisor.sh`) runs there at low priority and pauses when the 1-minute load average exceeds 12 (and throttles to 8 MiB/s while a CI job runs), and two GitHub runner services run CI jobs. Your work must not starve either. Rules that worked (2026-10-15, about 40 minutes in all, load never above 5):
+
+* One directory only: `~/pw-cpu`. The repo goes over ssh with no GitHub credentials on the box: `git archive --prefix=repo/ HEAD | ssh server2 'cd ~/pw-cpu && rm -rf repo && tar x'`. Do not touch `/home/ghrunner`, `~/pw-stage`, `~/.pw-stage`, system units, crontabs; no sudo is needed. No AWS calls.
+* Everything sequential, never two workloads at once, inside one limited scope (`~/pw-cpu/limit.sh`, the same limits as the staging supervisor, with a little more memory):
+
+  ```
+  export XDG_RUNTIME_DIR=/run/user/$(id -u); export OMP_NUM_THREADS=4 MKL_NUM_THREADS=4
+  systemd-run --user --scope -q -p CPUQuota=400% -p MemoryMax=8G -p MemorySwapMax=0 nice -n 19 ionice -c3 "$@"
+  ```
+
+* Etiquette between workloads: `while [ "$(cut -d' ' -f1 /proc/loadavg | cut -d. -f1)" -ge 8 ]; do sleep 30; done`. Look at `~/pw-stage/repo/tools/rig/stage_supervisor.sh status` before and after; the staging log (`~/.pw-stage/logs/stage.log`) shows pauses and `THROTTLE` lines, which are caused by CI jobs, not by you.
+* Python: the system `python3` is 3.12.3 and has `venv`, so `python3 -m venv` works (no uv needed, and `tests/test_arch_coverage.py`'s unreachable-index test runs). The workloads' cp313-only wheel (`sentencepiece-test-model`) needs 3.13: install uv into `~/pw-cpu/uv` (`UV_INSTALL_DIR=... UV_NO_MODIFY_PATH=1`, standalone installer), `uv venv --python 3.13`, install `tools/ort-requirements.txt` into it and run with `PW_ORT_PYTHON=<that python>`.
+* Environment used (`~/pw-cpu/env.sh`): `PW_VENV_ROOT=~/pw-cpu/venvs PW_CACHE=~/pw-cpu/cache PW_PYTHON=$(PW_TORCH_CPU_PREFIX=~/pw-cpu/venv-torch tools/torch-cpu-env.sh) PW_ORT_THREADS=1` (the default: the references were recorded with one ORT thread, so numbers stay comparable with `docs/int8-and-nondeterminism.md`), `TMPDIR=~/pw-cpu/tmp`; llama.cpp builds with `PW_BUILD_JOBS=4`; the Ollama workload with `OLLAMA_MODELS=~/pw-cpu/ollama-models PW_PULL=1` (it starts its own `ollama serve` on a random port and does not touch the box's Ollama service).
+* Unit tests: `$PW_PYTHON -m unittest discover -s tests` (torch 2.14.1+cpu). To run without skips also `pip install opencv-python==5.0.0.93 gguf==0.19.0` into that venv. Result: 468 tests, 74 s, no skips, no failures. With the venv lacking those two packages: 447 tests, 2 skipped (OpenCV, numpy+gguf), which is expected.
+* Workloads: `bin/pw run <w> --target cpu --out ~/pw-cpu/results/<w>`. Never record benchmark numbers here (shared box), and no `-bench` workload has a cpu reference anyway.
+* Tidy up: keep `~/pw-cpu/venv-torch`, `venvs`, `venvs313`, `uv`; delete `cache` (3.3 GB after a full run: weights, ORT assets, llama.cpp and whisper.cpp builds), `uvcache`, `ollama-models`. Kept state is about 3.8 GB.
+
+Results of the first full pass (commit `main` + this change, torch 2.14.1+cpu, transformers 5.19.0, onnxruntime 1.30.0, spaCy 3.8.16, llama.cpp b11447): 63 workloads run, 63 PASS, 0 FAIL, 0 unexpected SKIP. Seconds are wall time under the limits (the first workload of each family includes making its environment or building; downloads included).
+
+| Workload | Result | Seconds | Detail |
+| --- | --- | ---: | --- |
+| `selftest`, `loadgen-plumbing-check`, `py3langid-wheel` | PASS | 0.0, 4.3, 1.9 | |
+| `sentencepiece-test-model` | PASS (on Python 3.13) | 0.7 | SKIPs on 3.12 by design: the pinned wheel is cp313 only (`SKIP: the pinned sentencepiece wheel cannot be imported here`) |
+| `spacy-en-core-web-sm`, `-md`, `spacy-multilingual-sm` | PASS | 14.0, 2.3, 4.8 | spaCy 3.8.16 |
+| `onnx-zoo-bertsquad-int8`, `kokoro-tts-int8-onnx`, `moonshine-tiny-en-onnx` | PASS (3 runs x 2 modes) | 0.8 to 1.2, 4.7, 1.0 | `docs/int8-and-nondeterminism.md`, section 4 |
+| `onnx-zoo-bidaf`, `-efficientnet-lite4`, `-mnist`, `-mobilenetv2`, `-shufflenet-v2`, `-ssd-mobilenetv1` | PASS | 2.1, 5.3, 1.0, 2.2, 2.2, 3.8 | zoo output diffs 0 to 3.9e-09 |
+| `crnn-text-recognition`, `glove-wiki-gigaword-50-knn`, `gtcrn-enhance-onnx`, `kws-zipformer-gigaspeech-onnx`, `minilm-l6-v2-onnx`, `nanodet-object-detection`, `pphumanseg-person-segmentation`, `ppocr-rapidocr`, `sface-face-embedding`, `silero-vad-onnx`, `wespeaker-resnet34-onnx`, `yolox-object-detection`, `yunet-face-detection`, `zipformer-audio-tagging-onnx` | PASS | 1.7, 6.3, 1.3, 4.7, 3.7, 1.8, 1.0, 8.0, 1.6, 1.4, 1.6, 2.0, 0.8, 11.5 | |
+| `arch-encdec`, `arch-llama-family`, `arch-moe`, `arch-ssm`, `arch-vision` | PASS | 3.0, 3.0, 2.6, 2.7, 2.7 | margins 3.0e-3 to 5.1e-2; fp64 deviations at 1e-6 |
+| `bert-base-uncased-pytorch`, `gpt2-small-pytorch` | PASS | 64.7, 25.2 | includes the Hub download |
+| `gpt-train-fp32`, `gpt-train-bf16` | PASS | 2.0, 1.8 | loss 3.583 to 2.976 / 2.978 |
+| `lib-attention-precision`, `-composite-blocks`, `-fft-linalg`, `-rnn-conv`, `-sparse-embedding` | PASS | 1.3, 1.2, 1.2, 1.2, 1.2 | worst error 8.4e-2, 3.9e-2, 7.2e-6, 2.6e-2, 1.3e-6 of rms |
+| `pytorch-microsuite`, `resnet18-randinit-pytorch` | PASS | 1.3, 2.6 | |
+| `llamacpp-synth-llama` | PASS | 322.7 | includes building llama.cpp b11447 (cmake, `-j4`) |
+| the other 12 `llamacpp-synth-*` | PASS | 0.3 to 7.5 | |
+| `llamacpp-qwen25-0p5b`, `llamacpp-smollm2-135m` | PASS | 20.6, 4.8 | model download included |
+| `whisper-cpp-tiny-en` | PASS | 29.1 | builds whisper.cpp; WER 0.000 |
+| `smollm2-135m-ollama` | PASS | 14.1 | pulls the model into `~/pw-cpu/ollama-models` |
+
+Not run: the cpu `-bench` workloads (`arch-bench`, `gpt-train-bench`, `llamacpp-bench-*`, `llamacpp-synth-bench-*`: benchmarks, no reference, and no numbers from a shared box), and every gpu / sim target.
