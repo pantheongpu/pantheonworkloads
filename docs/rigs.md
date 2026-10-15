@@ -97,6 +97,42 @@ s3://MY-BUCKET/pw-weights/unsloth/Kimi-K2.6-GGUF/47c7cab1.../Q4_K_M/....gguf
 
 A local directory works the same way (`--mirror /mnt/weights`), which is also how the tests run.
 
+### Staging from a shared box (polite mode)
+
+`stage_weights.py` is built to run for days on a machine other people use (a CI host). Everything below is on by default.
+
+| Option | Default | Meaning |
+|---|---|---|
+| `--nice` / `--no-nice` | on | curl, aws and the python process itself run under `nice -n 19`; curl and aws also under `ionice -c3` (idle class; the kernel honours it only with the BFQ scheduler, so on `none`/`mq-deadline` disks `nice` and the rate cap are what limit the load) |
+| `--threads N` | 4 | files in flight (download, hash, upload pipeline); the pool works through one global queue of files, models in `--order` |
+| `--rate-limit MBPS` | 20 | MiB/s over all downloads (each curl gets `--limit-rate` of rate/threads) and, separately, over all uploads (the generated `~/.pw-stage/aws-config` sets `s3.max_bandwidth` to rate/`--aws-max-concurrent` per upload process). 0 = unlimited. With fewer files in flight than threads the total is lower |
+| `--aws-max-concurrent N` | 2 | simultaneous `aws s3 cp` processes (each also limited to 4 parallel requests) |
+| `--max-load L` | 12 | pause while the 1-minute load average is above L |
+| `--min-free-gb G` | 500 | pause while the filesystem holding `--scratch` has less than G GiB free |
+| pause on CI | always | pause while any process named exactly `Runner.Worker` exists (`pgrep -x`), i.e. while a GitHub Actions job runs |
+| `--batch-gb G` | 1500 | at most G GiB downloaded and not yet uploaded; a file larger than that runs alone |
+| `--order` | `smallest-first` | models by total size ascending (more models fully staged early), or `manifest` (sorted by repository name) |
+
+Gates are checked before every file, and every `--poll-s` (30) seconds while a transfer runs or the run is waiting. A closed gate stops curl (the partial file is kept and `curl -C -` resumes it) and freezes aws with SIGSTOP (an upload in flight resumes where it was; a pause of many minutes can make S3 drop the connection, in which case the CLI retries the part or the file is uploaded again on the next pass). Each pause and resume is logged with its reason (`PAUSE: 1 Runner.Worker process(es) running (CI goes first)` / `RESUME after 312s (was: ...)`).
+
+Disk discipline: a file is hashed in 4 MiB chunks (never read whole into memory) and compared with its pin before upload; after `aws s3 cp` the object's size is read back with `s3api head-object` and must equal the local size, and only then is it recorded in `manifest.json` and the local copy deleted. A size mismatch keeps the local copy, records nothing, and is retried by the next pass. `manifest.json` stays `complete: false` until the last file of the model is in.
+
+Progress: `stage_weights.py --status` (reads `~/.pw-stage/status.json`, rewritten every 10 s) prints staged models, GiB done/total, the files in flight, the pause state, the **measured** sustained rate (bytes verified in the mirror by this run divided by wall time, pauses included) and the rate over the last 10 minutes, and an ETA computed from the sustained rate (unknown until the first file finishes). The same numbers are logged at every file (`DONE ... sustained X MiB/s`) and at the end (`SUMMARY`). One staging run per state dir (`~/.pw-stage/stage.lock`).
+
+`tools/rig/stage_supervisor.sh` keeps it going without root or systemd system units:
+
+```bash
+S=tools/rig/stage_supervisor.sh
+$S start --tier 2b --mirror s3://BUCKET/pw-weights      # detached; flock makes a second start refuse (exit 9)
+$S status                                              # supervisor up? + stage_weights.py --status
+$S stop                                                # SIGTERM; partial files are kept
+$S run --tier 2b --mirror s3://BUCKET/pw-weights       # same loop in the foreground (what cron runs)
+$S install-cron --tier 2b --mirror s3://BUCKET/pw-weights   # @reboot user crontab entry, marked "# pw-stage-supervisor"
+$S remove-cron                                         # removes exactly that line
+```
+
+It restarts `stage_weights.py` on failure with a growing delay (30 s doubling to 30 min; reset after a run longer than 10 minutes), exits 0 when the plan is complete, and does not retry exit 2 (usage or catalog error) or 4 (run lock held). Logs: `~/.pw-stage/logs/stage.log` (events, rotated at 10 MB, 5 kept), `supervisor.log`, `stage.stderr.log` (rotated at 5 MB). If `~/.pw-stage/credentials` exists it is used as the AWS credentials file with profile `pw-stage`; `aws` is taken from `~/.local/bin` when it is not on the PATH. When `systemd-run --user --scope` works the process runs in a scope with `CPUQuota=400% MemoryMax=6G MemorySwapMax=0`, otherwise only nice/ionice and the rate caps apply; the supervisor log says which (`limits: ...`).
+
 ### Consumer: the rig
 
 ```bash

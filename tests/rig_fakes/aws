@@ -8,6 +8,8 @@ It never touches the network. State knobs a test may set before running:
   sg_busy            delete-security-group answers DependencyViolation this many times first
   now                epoch used for LaunchTime and the termination reason (default: real time)
   extra_instances    instances to list as they are (for status tests)
+S3: FAKE_S3_FAIL / FAKE_S3_CORRUPT / FAKE_S3_TRUNC (a source substring: that upload fails / has its first byte flipped / loses its last byte),
+FAKE_S3_SLEEP (seconds each cp takes); `s3api head-object` prints ContentLength.
 """
 import json
 import os
@@ -20,6 +22,9 @@ STATE = pathlib.Path(os.environ["FAKE_AWS_STATE"])
 args = sys.argv[1:]
 with open(str(STATE) + ".calls", "a") as f:
     f.write(json.dumps(args) + "\n")
+if os.environ.get("FAKE_NICE_LOG"):         # the nice value and AWS_CONFIG_FILE each call ran with
+    with open(os.environ["FAKE_NICE_LOG"], "a") as f:
+        f.write(json.dumps({"args": args, "nice": os.nice(0), "config": os.environ.get("AWS_CONFIG_FILE")}) + "\n")
 
 
 def load():
@@ -115,12 +120,23 @@ if svc == "s3":
             sys.exit(1)
         d = loc(dst)
         d.parent.mkdir(parents=True, exist_ok=True)
+        time.sleep(float(os.environ.get("FAKE_S3_SLEEP", "0")))
         shutil.copyfile(loc(src), d)
-        if os.environ.get("FAKE_S3_CORRUPT") and os.environ["FAKE_S3_CORRUPT"] in src:
-            with open(d, "ab") as f:
-                f.write(b"X")      # bit rot in the mirror
+        if os.environ.get("FAKE_S3_TRUNC") and os.environ["FAKE_S3_TRUNC"] in src:
+            d.write_bytes(d.read_bytes()[:-1])
+        if os.environ.get("FAKE_S3_CORRUPT") and os.environ["FAKE_S3_CORRUPT"] in src and dst.startswith("s3://"):
+            b = bytearray(d.read_bytes())
+            b[0] ^= 0xFF           # bit rot in the mirror: same size, different content
+            d.write_bytes(bytes(b))
         sys.exit(0)
     fail("NotImplemented", f"s3 {op}")
+
+if svc == "s3api" and op == "head-object":
+    p = pathlib.Path(os.environ["FAKE_S3_ROOT"]) / opt("--bucket") / opt("--key")
+    if not p.is_file():
+        fail("404", "Not Found (HeadObject)", 254)
+    print(p.stat().st_size)
+    sys.exit(0)
 
 if svc != "ec2":
     fail("NotImplemented", f"{svc} {op}")

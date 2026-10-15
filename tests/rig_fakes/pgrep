@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+"""Fake pgrep: matches (prints N pids, exit 0) while $FAKE_PGREP_FILE holds a number N > 0; exit 1 otherwise."""
+import os
+import sys
+
+try:
+    n = int(open(os.environ["FAKE_PGREP_FILE"]).read().strip() or 0)
+except (KeyError, OSError, ValueError):
+    n = 0
+for i in range(n):
+    print(1000 + i)
+sys.exit(0 if n else 1)

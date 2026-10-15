@@ -15,6 +15,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 import types
 import unittest
 from unittest import mock
@@ -60,11 +62,12 @@ class MirrorCase(unittest.TestCase):
         self.sums.write_text(f"# {REPO} @ {REV} (test)\n" + "".join(f"{s}  {p}\n" for p, s in self.pins.items()))
         env = {"PW_AWS": str(FAKES / "aws"), "PW_CURL": str(FAKES / "curl"), "FAKE_AWS_STATE": str(self.tmp / "aws.json"),
                "FAKE_S3_ROOT": str(self.tmp / "s3"), "FAKE_HF_ROOT": str(self.hub), "FAKE_CURL_LOG": str(self.tmp / "curl.log"),
+               "PW_PGREP": str(FAKES / "pgrep"), "FAKE_PGREP_FILE": str(self.tmp / "pgrep"), "FAKE_NICE_LOG": str(self.tmp / "nice.log"),
                "PATH": f"{FAKES}:{os.environ['PATH']}"}
         p = mock.patch.dict(os.environ, env)
         p.start()
         self.addCleanup(p.stop)
-        for k in ("FAKE_S3_FAIL", "FAKE_S3_CORRUPT", "FAKE_CURL_FAIL", "FAKE_CURL_CORRUPT", "PW_MODEL_MIRROR", "PW_MODEL_MIRROR_STRICT",
+        for k in ("FAKE_S3_TRUNC", "FAKE_S3_SLEEP", "FAKE_CURL_SLEEP", "FAKE_S3_FAIL", "FAKE_S3_CORRUPT", "FAKE_CURL_FAIL", "FAKE_CURL_CORRUPT", "PW_MODEL_MIRROR", "PW_MODEL_MIRROR_STRICT",
                   "PW_HF_REVISION", "HF_TOKEN"):
             os.environ.pop(k, None)
         pw = mock.patch.object(wl, "WORKLOADS", self.wroot)
@@ -81,7 +84,8 @@ class MirrorCase(unittest.TestCase):
         out, err = io.StringIO(), io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             rc = stage_weights.main(["llamacpp-toy", "--mirror", mirror_arg or str(self.mir), "--hf-base", "http://fake",
-                                     "--scratch", str(self.tmp / "scratch"), *extra])
+                                     "--scratch", str(self.tmp / "scratch"), "--state-dir", str(self.tmp / "state"), "--poll-s", "0.05",
+                                     "--min-free-gb", "0", "--max-load", "1e9", *extra])
         return rc, out.getvalue(), err.getvalue()
 
     def curl_urls(self):
@@ -188,8 +192,266 @@ class TestStage(MirrorCase):
         self.assertTrue((root / "manifest.json").is_file())
         self.assertEqual((root / "config.json").read_bytes(), FILES["config.json"])
         calls = [json.loads(l) for l in pathlib.Path(str(self.tmp / "aws.json") + ".calls").read_text().splitlines()]
-        self.assertTrue(calls and all(c[:2] == ["s3", "cp"] for c in calls))
+        self.assertTrue(calls and all(c[:2] in (["s3", "cp"], ["s3api", "head-object"]) for c in calls))
         self.assertIn("export PW_MODEL_MIRROR=s3://bkt/pw-weights", out)
+
+
+def read_log(path):
+    return [json.loads(l) for l in pathlib.Path(path).read_text().splitlines()] if pathlib.Path(path).exists() else []
+
+
+class TestPolite(MirrorCase):
+    """The shared-box mode: nice/ionice, rate caps, the pause gates, the disk budget, delete-after-verify, status."""
+
+    def setUp(self):
+        super().setUp()
+        self.load = [0.5]                 # what the gates see; tests change these instead of the real machine's
+        self.free = [10 << 40]
+        for target, fn in (("os.getloadavg", lambda: (self.load[0], 1, 1)),
+                           ("shutil.disk_usage", lambda p: types.SimpleNamespace(total=20 << 40, used=0, free=self.free[0]))):
+            pp = mock.patch(target, fn)
+            pp.start()
+            self.addCleanup(pp.stop)
+
+    def uploads(self):
+        """nice.log entries of the upload processes (the ones started with the generated AWS config)."""
+        return [c for c in read_log(self.tmp / "nice.log") if c["config"]]
+
+    def s3(self, *extra):
+        return self.stage(*extra, mirror_arg="s3://bkt/pw-weights")
+
+    def s3_manifest(self):
+        return json.loads((self.tmp / "s3/bkt/pw-weights" / REPO / REV / "manifest.json").read_text())
+
+    def run_in_thread(self, *extra):
+        res = {}
+        t = threading.Thread(target=lambda: res.update(r=self.s3(*extra)))
+        t.start()
+        return t, res
+
+    def test_curl_and_aws_run_niced_and_rate_limited_by_default(self):
+        rc, _, err = self.s3()
+        self.assertEqual(rc, 0, err)
+        curls = read_log(self.tmp / "curl.log")
+        self.assertTrue(curls and all(c["nice"] == 19 for c in curls))
+        calls = self.uploads()
+        self.assertTrue(calls and all(c["nice"] == 19 for c in calls))
+        # default 20 MiB/s over 4 downloads: 5 MiB/s each
+        self.assertTrue(all(c["limit_rate"] == "5120k" for c in curls))
+        cfg = pathlib.Path(calls[0]["config"]).read_text()
+        self.assertIn("max_bandwidth = 10240KB/s", cfg)          # 20 MiB/s over --aws-max-concurrent 2
+        self.assertIn("max_concurrent_requests", cfg)
+
+    def test_no_nice_and_no_rate_limit(self):
+        rc, _, err = self.s3("--no-nice", "--rate-limit", "0")
+        self.assertEqual(rc, 0, err)
+        me = os.nice(0)
+        self.assertTrue(all(c["nice"] == me and c["limit_rate"] is None for c in read_log(self.tmp / "curl.log")))
+        self.assertNotIn("max_bandwidth", pathlib.Path(self.uploads()[0]["config"]).read_text())
+
+    def test_local_copy_is_deleted_only_after_the_upload_is_verified(self):
+        rc, _, err = self.s3()
+        self.assertEqual(rc, 0, err)
+        left = [p for p in (self.tmp / "scratch").rglob("*") if p.is_file()]
+        self.assertEqual([p.name for p in left], ["manifest.json"], left)       # only the tiny manifest staging file
+        heads = [c for c in read_log(self.tmp / "aws.json.calls") if c[:2] == ["s3api", "head-object"]]
+        self.assertEqual(len(heads), 4)
+
+    def test_a_short_object_in_the_mirror_keeps_the_local_copy_and_is_not_recorded(self):
+        os.environ["FAKE_S3_TRUNC"] = "model-00001"
+        rc, _, err = self.s3()
+        self.assertEqual(rc, 1)
+        self.assertIn("mirror holds", err)
+        m = self.s3_manifest()
+        self.assertNotIn("Q4/model-00001-of-00002.gguf", m["files"])
+        self.assertFalse(m["complete"])
+        self.assertTrue(list((self.tmp / "scratch").rglob("*model-00001*.part")))
+        os.environ.pop("FAKE_S3_TRUNC")
+        rc, _, err = self.s3()                       # the retry uploads the kept copy again
+        self.assertEqual(rc, 0, err)
+        self.assertTrue(self.s3_manifest()["complete"])
+        self.assertEqual([p.name for p in (self.tmp / "scratch").rglob("*") if p.is_file()], ["manifest.json"])
+
+    def test_ci_runner_worker_pauses_everything_and_it_resumes(self):
+        (self.tmp / "pgrep").write_text("1")
+        t, res = self.run_in_thread()
+        time.sleep(0.5)
+        self.assertEqual(self.curl_urls(), [])                  # nothing started while Runner.Worker exists
+        (self.tmp / "pgrep").write_text("0")
+        t.join(30)
+        rc, out, err = res["r"]
+        self.assertEqual(rc, 0, err)
+        self.assertRegex(out, r"PAUSE: 1 Runner.Worker process\(es\) running")
+        self.assertRegex(out, r"RESUME after \d+s \(was: 1 Runner.Worker")
+        self.assertLess(out.index("PAUSE"), out.index("RESUME"))
+        self.assertEqual(len(self.curl_urls()), 4)
+
+    def test_a_worker_appearing_mid_download_stops_curl_and_resumes_it_later(self):
+        os.environ["FAKE_CURL_SLEEP"] = "0.6"
+        t, res = self.run_in_thread("--threads", "1")
+        time.sleep(0.3)
+        (self.tmp / "pgrep").write_text("2")
+        time.sleep(0.5)
+        (self.tmp / "pgrep").write_text("0")
+        t.join(60)
+        rc, out, err = res["r"]
+        self.assertEqual(rc, 0, err)
+        self.assertIn("PAUSE: 2 Runner.Worker", out)
+        self.assertIn("RESUME", out)
+        self.assertGreater(len(self.curl_urls()), 4)            # the interrupted file was fetched again (curl -C - resumes it)
+        self.assertTrue(self.s3_manifest()["complete"])
+
+    def test_load_gate(self):
+        self.load[0] = 50.0
+        t, res = self.run_in_thread("--max-load", "12")
+        time.sleep(0.4)
+        self.assertEqual(self.curl_urls(), [])
+        self.load[0] = 1.0
+        t.join(30)
+        self.assertEqual(res["r"][0], 0)
+        self.assertIn("PAUSE: 1-minute load average 50.0 is above --max-load 12", res["r"][1])
+        self.assertIn("RESUME", res["r"][1])
+
+    def test_free_space_gate(self):
+        self.free[0] = 100 << 30
+        t, res = self.run_in_thread("--min-free-gb", "500")
+        time.sleep(0.4)
+        self.assertEqual(self.curl_urls(), [])
+        self.free[0] = 1 << 40
+        t.join(30)
+        self.assertEqual(res["r"][0], 0)
+        self.assertIn("PAUSE: free space 100 GiB is below --min-free-gb 500", res["r"][1])
+
+    def test_dry_run_and_check_never_pause(self):
+        (self.tmp / "pgrep").write_text("3")
+        self.assertEqual(self.stage("--dry-run")[0], 0)
+        self.assertEqual(self.stage("--check")[0], 1)
+
+    def test_batch_budget_serialises_files_that_do_not_fit_together(self):
+        os.environ["FAKE_CURL_SLEEP"] = "0.2"
+        # 107 bytes: each shard (1000, 1200 bytes) runs alone; the two tiny json files (24 + 13) fit together
+        t0 = time.monotonic()
+        rc, _, err = self.stage("--batch-gb", "1e-7", "--threads", "4")
+        self.assertEqual(rc, 0, err)
+        self.assertGreaterEqual(time.monotonic() - t0, 0.55)    # three rounds of 0.2 s, not one
+        self.assertEqual(len(self.curl_urls()), 4)
+
+    def test_smallest_first_orders_models(self):
+        big_repo = "org/big-GGUF"
+        w = self.wroot / "llamacpp-big"
+        shutil.copytree(self.wroot / "llamacpp-toy", w)
+        big = b"B" * 5000
+        f = self.hub / big_repo / REV / "big.gguf"
+        f.parent.mkdir(parents=True)
+        f.write_bytes(big)
+        (w / "model.sha256").write_text(f"# {big_repo} @ {REV} (test)\n{sha(big)}  big.gguf\n")
+        listing = {"big.gguf": {"size": len(big), "lfs": sha(big)}}
+        orig = stage_weights.hub_files
+        with mock.patch.object(stage_weights, "hub_files", lambda r, v: listing if r == big_repo else orig(r, v)):
+            out, err = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                rc = stage_weights.main(["llamacpp-big", "llamacpp-toy", "--mirror", str(self.mir), "--hf-base", "http://fake", "--scratch", str(self.tmp / "sc"),
+                                         "--state-dir", str(self.tmp / "st"), "--threads", "1", "--min-free-gb", "0", "--max-load", "1e9"])
+        self.assertEqual(rc, 0, err.getvalue())
+        started = [l.split()[3] for l in out.getvalue().splitlines() if " START " in l]
+        self.assertEqual(started[0], REPO)                      # the toy model (a few KB) before the 5 KB one... listed first by size
+        self.assertEqual(started[-1], big_repo)
+
+    def test_status_reports_progress_rate_and_eta(self):
+        self.stage()
+        st = json.loads((self.tmp / "state" / "status.json").read_text())
+        self.assertEqual((st["models_staged"], st["models_total"]), (1, 1))
+        self.assertEqual(st["done_bytes"], st["total_bytes"])
+        self.assertIsNotNone(st["rate_sustained"])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = stage_weights.main(["--status", "--state-dir", str(self.tmp / "state")])
+        self.assertEqual(rc, 0)
+        for word in ("NOT RUNNING", "models staged: 1/1", "sustained", "ETA: 0h 0m"):
+            self.assertIn(word, out.getvalue())
+
+    def test_status_with_no_run(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(stage_weights.main(["--status", "--state-dir", str(self.tmp / "none")]), 1)
+
+    def test_a_second_run_in_the_same_state_dir_is_refused(self):
+        import fcntl
+        (self.tmp / "state").mkdir()
+        with open(self.tmp / "state" / "stage.lock", "w") as lk:
+            fcntl.flock(lk, fcntl.LOCK_EX)
+            rc, _, err = self.stage()
+        self.assertEqual(rc, 4)
+        self.assertIn("holds", err)
+
+    def test_log_file_is_written(self):
+        log = self.tmp / "logs" / "stage.log"
+        self.assertEqual(self.stage("--log-file", str(log))[0], 0)
+        self.assertIn("MODEL STAGED", log.read_text())
+
+
+class TestSupervisor(unittest.TestCase):
+    SUP = ROOT / "tools" / "rig" / "stage_supervisor.sh"
+
+    def setUp(self):
+        self.tmp = pathlib.Path(tempfile.mkdtemp(prefix="suptest-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self.env = dict(os.environ, PW_STAGE_HOME=str(self.tmp / "home"), PW_STAGE_NO_SYSTEMD="1", PW_STAGE_BACKOFF_S="0", PW_CRONTAB="/nonexistent-crontab",
+                        PW_STAGE_PY=str(self.tmp / "fake_stage.py"), HOME=str(self.tmp))
+
+    def sup(self, *args):
+        return subprocess.run(["bash", str(self.SUP), *args], capture_output=True, text=True, env=self.env, timeout=60)
+
+    def fake(self, body):
+        (self.tmp / "fake_stage.py").write_text("import sys\n" + body)
+
+    def test_restarts_on_failure_and_exits_when_complete(self):
+        self.fake("import pathlib\np = pathlib.Path(sys.argv[0]).with_name('n')\nn = int(p.read_text()) if p.exists() else 0\n"
+                  "p.write_text(str(n + 1))\nsys.exit(0 if n >= 2 else 1)\n")
+        r = self.sup("run", "--tier", "2b")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual((self.tmp / "n").read_text(), "3")
+        log = (self.tmp / "home" / "logs" / "supervisor.log").read_text()
+        self.assertIn("complete", log)
+        self.assertIn("nice/ionice only", log)                 # systemd-run was disabled for the test
+
+    def test_a_usage_error_is_not_retried(self):
+        self.fake("sys.exit(2)\n")
+        r = self.sup("run", "--tier", "2b")
+        self.assertEqual(r.returncode, 2)
+
+    def test_second_instance_is_refused(self):
+        self.fake("import time\ntime.sleep(30)\n")
+        p = subprocess.Popen(["bash", str(self.SUP), "run"], env=self.env, start_new_session=True)
+        try:
+            for _ in range(100):
+                if (self.tmp / "home" / "supervisor.lock").exists():
+                    break
+                time.sleep(0.05)
+            time.sleep(0.5)
+            r = self.sup("run")
+            self.assertEqual(r.returncode, 9)
+            self.assertIn("already running", r.stderr + r.stdout)
+        finally:
+            os.killpg(p.pid, 15)
+            p.wait()
+
+    def test_cron_install_and_remove(self):
+        bindir = self.tmp / "bin"
+        bindir.mkdir()
+        store = self.tmp / "crontab.txt"
+        (bindir / "crontab").write_text(f'#!/bin/sh\nif [ "$1" = "-l" ]; then cat {store} 2>/dev/null || exit 1; else cat > {store}; fi\n')
+        (bindir / "crontab").chmod(0o755)
+        self.env["PW_CRONTAB"] = str(bindir / "crontab")      # never the real crontab
+        self.assertEqual(self.sup("install-cron", "--tier", "2b", "--mirror", "s3://b/pw-weights").returncode, 0)
+        text = store.read_text()
+        self.assertEqual(text.count("@reboot"), 1)
+        self.assertIn("--mirror s3://b/pw-weights", text)
+        self.sup("install-cron", "--tier", "2b")                 # idempotent: replaces, never duplicates
+        self.assertEqual(store.read_text().count("@reboot"), 1)
+        store.write_text("0 3 * * * other-job\n" + store.read_text())
+        self.assertEqual(self.sup("remove-cron").returncode, 0)
+        self.assertEqual(store.read_text().strip(), "0 3 * * * other-job")
 
 
 class TestFetch(MirrorCase):
