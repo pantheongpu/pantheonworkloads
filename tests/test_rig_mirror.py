@@ -62,12 +62,15 @@ class MirrorCase(unittest.TestCase):
         self.sums.write_text(f"# {REPO} @ {REV} (test)\n" + "".join(f"{s}  {p}\n" for p, s in self.pins.items()))
         env = {"PW_AWS": str(FAKES / "aws"), "PW_CURL": str(FAKES / "curl"), "FAKE_AWS_STATE": str(self.tmp / "aws.json"),
                "FAKE_S3_ROOT": str(self.tmp / "s3"), "FAKE_HF_ROOT": str(self.hub), "FAKE_CURL_LOG": str(self.tmp / "curl.log"),
-               "PW_PGREP": str(FAKES / "pgrep"), "FAKE_PGREP_FILE": str(self.tmp / "pgrep"), "FAKE_NICE_LOG": str(self.tmp / "nice.log"),
+               "PW_PGREP": str(FAKES / "pgrep"), "PW_BOOT_ID_FILE": str(self.tmp / "bootid"), "FAKE_PGREP_FILE": str(self.tmp / "pgrep"), "FAKE_NICE_LOG": str(self.tmp / "nice.log"),
                "PATH": f"{FAKES}:{os.environ['PATH']}"}
+        (self.tmp / "bootid").write_text("boot-1\n")
+        (self.tmp / "state").mkdir(exist_ok=False)
+        (self.tmp / "state" / "boot_id").write_text("boot-1\n")      # the previous run was in this boot
         p = mock.patch.dict(os.environ, env)
         p.start()
         self.addCleanup(p.stop)
-        for k in ("FAKE_CURL_FLAKY_N", "FAKE_S3_FLAKY_N", "FAKE_CURL_FAIL_STATUS", "FAKE_S3_FAIL_MSG", "FAKE_S3_TRUNC", "FAKE_S3_SLEEP", "FAKE_CURL_SLEEP", "FAKE_S3_FAIL", "FAKE_S3_CORRUPT", "FAKE_CURL_FAIL", "FAKE_CURL_CORRUPT", "PW_MODEL_MIRROR", "PW_MODEL_MIRROR_STRICT",
+        for k in ("FAKE_CURL_HALF", "FAKE_CURL_FLAKY_N", "FAKE_S3_FLAKY_N", "FAKE_CURL_FAIL_STATUS", "FAKE_S3_FAIL_MSG", "FAKE_S3_TRUNC", "FAKE_S3_SLEEP", "FAKE_CURL_SLEEP", "FAKE_S3_FAIL", "FAKE_S3_CORRUPT", "FAKE_CURL_FAIL", "FAKE_CURL_CORRUPT", "PW_MODEL_MIRROR", "PW_MODEL_MIRROR_STRICT",
                   "PW_HF_REVISION", "HF_TOKEN"):
             os.environ.pop(k, None)
         pw = mock.patch.object(wl, "WORKLOADS", self.wroot)
@@ -164,7 +167,7 @@ class TestStage(MirrorCase):
     def test_a_corrupt_download_is_never_uploaded(self):
         os.environ["FAKE_CURL_CORRUPT"] = "model-00001"
         rc, _, err = self.stage()
-        self.assertEqual(rc, 1)
+        self.assertEqual(rc, 5)
         self.assertIn("sha256 of the download", err)
         self.assertFalse((self.mir / REPO / REV / "Q4/model-00001-of-00002.gguf").exists())
         self.assertNotIn("Q4/model-00001-of-00002.gguf", self.manifest()["files"])
@@ -385,7 +388,7 @@ class TestPolite(MirrorCase):
             os.environ["FAKE_CURL_FAIL"] = "model-00001"
             os.environ["FAKE_CURL_FAIL_STATUS"] = status
             rc, out, err = self.stage("--retries", "5")
-            self.assertEqual(rc, 1)
+            self.assertEqual(rc, 5)
             self.assertNotIn("RETRY", out)
             self.assertIn(f"error: {status}", err)
         self.assertEqual(sum("model-00001" in u for u in self.curl_urls()), 3)      # one try per run
@@ -414,15 +417,115 @@ class TestPolite(MirrorCase):
         os.environ["FAKE_S3_FAIL"] = "model-00001"
         os.environ["FAKE_S3_FAIL_MSG"] = "An error occurred (AccessDenied) when calling the PutObject operation"
         rc, out, err = self.s3("--retries", "5")
-        self.assertEqual(rc, 1)
+        self.assertEqual(rc, 5)
         self.assertNotIn("RETRY upload Q4/model-00001", out)
         self.assertIn("AccessDenied", err)
 
     def test_sha256_mismatch_is_permanent(self):
         os.environ["FAKE_CURL_CORRUPT"] = "model-00001"
         rc, out, err = self.stage("--retries", "5")
-        self.assertEqual(rc, 1)
+        self.assertEqual(rc, 5)
         self.assertNotIn("RETRY", out)
+
+    # ---- resuming after a crash: damaged tails, boot id, re-download from scratch, permanent failures ----
+    SHARD = "Q4/model-00001-of-00002.gguf"
+
+    def part_path(self, name=None):
+        d = self.tmp / "scratch" / "org__model-GGUF" / REV
+        d.mkdir(parents=True, exist_ok=True)
+        return d / ((name or self.SHARD).replace("/", "__") + ".part")
+
+    def curl_haves(self, needle="model-00001"):
+        return [c["have"] for c in read_log(self.tmp / "curl.log") if needle in c["url"]]
+
+    def test_trim_partial_cuts_the_tail_to_a_4_mib_boundary(self):
+        f = self.tmp / "big"
+        with open(f, "wb") as fh:
+            fh.truncate(100 << 20)
+        self.assertEqual(stage_weights.trim_partial(f, 64 << 20), 36 << 20)
+        self.assertEqual(os.path.getsize(f), 36 << 20)
+        with open(f, "wb") as fh:
+            fh.truncate((100 << 20) + 12345)
+        self.assertEqual(stage_weights.trim_partial(f, 64 << 20), 36 << 20)      # rounded down to a 4 MiB boundary
+        with open(f, "wb") as fh:
+            fh.truncate(10 << 20)
+        self.assertEqual(stage_weights.trim_partial(f, 64 << 20), 0)             # shorter than the tail: start over
+        self.assertEqual(stage_weights.trim_partial(f, 0), 0)
+
+    def test_a_resumed_partial_loses_its_tail_and_the_tail_is_fetched_again(self):
+        good = FILES[self.SHARD]
+        self.part_path().write_bytes(good[:600])
+        rc, out, err = self.stage()                              # default: the last 64 MiB, so the whole 600-byte file
+        self.assertEqual(rc, 0, err)
+        self.assertIn("RESUME-TRIM Q4/model-00001-of-00002.gguf", out)
+        self.assertEqual(self.curl_haves(), [0])
+        self.assertEqual((self.mir / REPO / REV / self.SHARD).read_bytes(), good)
+
+    def test_a_partial_is_resumed_in_place_when_the_trim_is_off(self):
+        good = FILES[self.SHARD]
+        self.part_path().write_bytes(good[:600])
+        rc, out, err = self.stage("--resume-trim-mb", "0")
+        self.assertEqual(rc, 0, err)
+        self.assertEqual(self.curl_haves(), [600])               # curl -C - continued at the file's size
+        self.assertNotIn("RESUME-TRIM", out)
+
+    def test_a_corrupt_resumed_file_is_deleted_and_downloaded_again_from_scratch(self):
+        good = FILES[self.SHARD]
+        self.part_path().write_bytes(good[:10] + b"\0" * 10 + good[20:600])      # damaged inside, before the trim point
+        rc, out, err = self.stage("--resume-trim-mb", "0")
+        self.assertEqual(rc, 0, err)
+        self.assertIn("SHA256 MISMATCH on a resumed file Q4/model-00001-of-00002.gguf", out)
+        self.assertIn("downloading it again from scratch (1/2)", out)
+        self.assertEqual(self.curl_haves(), [600, 0])            # resumed once, then from zero
+        self.assertEqual((self.mir / REPO / REV / self.SHARD).read_bytes(), good)
+        self.assertTrue(self.manifest()["complete"])
+        self.assertFalse(list((self.tmp / "scratch").rglob("*.part")))
+
+    def test_a_mismatch_after_one_clean_pass_is_permanent_at_once(self):
+        os.environ["FAKE_CURL_CORRUPT"] = "model-00001"
+        rc, out, err = self.stage()
+        self.assertEqual(rc, 5)
+        self.assertNotIn("from scratch", out)
+        self.assertIn("(one clean pass)", err)
+        self.assertEqual(self.curl_haves(), [0])
+
+    def test_two_mismatches_after_resumes_are_permanent_and_listed(self):
+        os.environ["FAKE_CURL_CORRUPT"] = "model-00001"
+        os.environ["FAKE_CURL_HALF"] = "1"                       # every pass is interrupted and resumed, so never "clean"
+        rc, out, err = self.stage("--retries", "3")
+        self.assertEqual(rc, 5)
+        self.assertIn("downloading it again from scratch (2/2)", out)
+        self.assertEqual(self.curl_haves(), [0, 500, 0, 500, 0, 500])      # three passes: first plus two from scratch
+        self.assertIn("after 2 re-download(s) from scratch", err)
+        self.assertIn("1 file(s) failed permanently:", err)
+        self.assertIn("org/model-GGUF@aaaaaaaa Q4/model-00001-of-00002.gguf", err)
+        self.assertRegex(out, r"FAILED FILE org/model-GGUF@aaaaaaaa Q4/model-00001-of-00002.gguf: .*sha256")
+        st = json.loads((self.tmp / "state" / "status.json").read_text())
+        self.assertEqual([x["file"] for x in st["failed"]], [self.SHARD])
+        o = io.StringIO()
+        with contextlib.redirect_stdout(o):
+            stage_weights.main(["--status", "--state-dir", str(self.tmp / "state")])
+        self.assertIn("FAILED FILE org/model-GGUF@aaaaaaaa Q4/model-00001-of-00002.gguf", o.getvalue())
+        self.assertFalse(self.part_path().exists())              # the corrupt file is gone, not left to be re-hashed forever
+
+    def test_a_changed_boot_id_refetches_the_last_4_gib_of_every_partial(self):
+        good = FILES[self.SHARD]
+        (self.tmp / "state" / "boot_id").write_text("boot-0\n")  # the previous run was in an earlier boot (the file says boot-1)
+        self.part_path().write_bytes(good[:900])
+        rc, out, err = self.stage("--resume-trim-mb", "0")       # without a reboot nothing would be cut
+        self.assertEqual(rc, 0, err)
+        self.assertIn("boot id changed", out)
+        self.assertIn("machine rebooted", out)
+        self.assertEqual(self.curl_haves(), [0])
+        self.assertEqual((self.tmp / "state" / "boot_id").read_text().strip(), "boot-1")
+
+    def test_the_same_boot_id_keeps_the_partial(self):
+        good = FILES[self.SHARD]
+        self.part_path().write_bytes(good[:900])
+        rc, out, err = self.stage("--resume-trim-mb", "0")
+        self.assertEqual(rc, 0, err)
+        self.assertNotIn("boot id changed", out)
+        self.assertEqual(self.curl_haves(), [900])
 
     def test_load_gate(self):
         self.load[0] = 50.0
@@ -500,7 +603,7 @@ class TestPolite(MirrorCase):
 
     def test_a_second_run_in_the_same_state_dir_is_refused(self):
         import fcntl
-        (self.tmp / "state").mkdir()
+        (self.tmp / "state").mkdir(exist_ok=True)
         with open(self.tmp / "state" / "stage.lock", "w") as lk:
             fcntl.flock(lk, fcntl.LOCK_EX)
             rc, _, err = self.stage()
@@ -537,6 +640,17 @@ class TestSupervisor(unittest.TestCase):
         log = (self.tmp / "home" / "logs" / "supervisor.log").read_text()
         self.assertIn("complete", log)
         self.assertIn("nice/ionice only", log)                 # systemd-run was disabled for the test
+
+    def test_permanent_failures_stop_the_supervisor_with_the_list(self):
+        home = self.tmp / "home"
+        home.mkdir()
+        (home / "status.json").write_text(json.dumps({"failed": [{"model": "org/m@abc", "file": "w.gguf", "reason": "sha256 of the download is x"}]}))
+        self.fake("import pathlib\np = pathlib.Path(sys.argv[0]).with_name('n')\np.write_text(str(int(p.read_text()) + 1 if p.exists() else 1))\nsys.exit(5)\n")
+        r = self.sup("run", "--tier", "2b")
+        self.assertEqual(r.returncode, 5)
+        self.assertEqual((self.tmp / "n").read_text(), "1")                  # not restarted
+        self.assertIn("FAILED FILE org/m@abc w.gguf: sha256 of the download is x", r.stderr)
+        self.assertIn("FAILED FILE org/m@abc w.gguf", (home / "logs" / "supervisor.log").read_text())
 
     def test_a_usage_error_is_not_retried(self):
         self.fake("sys.exit(2)\n")

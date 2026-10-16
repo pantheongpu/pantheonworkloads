@@ -118,6 +118,10 @@ class Stopped(Exception):
     """SIGTERM/SIGINT: leave partial files in place and unwind."""
 
 
+class GaveUp(OSError):
+    """A transient failure that exhausted its retries (restarting the run tries again)."""
+
+
 class Transient(OSError):
     """A failure worth retrying (network reset, CDN stream cancel, 5xx, S3 hiccup); the partial file is kept."""
 
@@ -158,6 +162,9 @@ class Ctx:
         self.busy = 0                          # Runner.Worker processes the throttle monitor last saw
         self.active = {}                       # path -> {"phase", "size", "part"}
         self.logger = None
+        self.failed = []                       # files that failed permanently: {"model", "file", "reason"}
+        self.resume_trim = int(a.resume_trim_mb * 2**20)
+        self.boot_changed = False
 
     def log(self, msg):
         line = f"{time.strftime('%Y-%m-%d %H:%M:%S')} {msg}"
@@ -337,23 +344,58 @@ def with_retry(ctx, label, fn):
             return fn()
         except Transient as e:
             if attempt == ctx.retries:
-                raise OSError(f"{label}: giving up after {attempt} tries: {e}")
+                raise GaveUp(f"{label}: giving up after {attempt} tries: {e}")
             ctx.log(f"RETRY {label} (try {attempt}/{ctx.retries}) in {delay:g}s: {e}")
             if ctx.stop.wait(delay):
                 raise Stopped()
             delay = min(delay * 2, ctx.retry_max)
 
 
-def download(ctx, repo, rev, path, dest, expect_size):
+BOOT_TAIL = 4 << 30      # after a reboot, how much of a partial file's tail is fetched again
+BLOCK = 4 << 20
+
+
+def trim_partial(path, tail):
+    """Truncate a partial file so that its last `tail` bytes (the new size rounded down to a 4 MiB boundary) are
+    fetched again: a crash or power loss can leave the end of a file zeroed or stale although its size says otherwise,
+    and `curl -C -` would resume after the damage. Returns the new size."""
+    size = os.path.getsize(path)
+    if tail <= 0:
+        return size
+    new = max(0, ((size - tail) // BLOCK) * BLOCK)
+    if new < size:
+        os.truncate(path, new)
+    return new
+
+
+def download(ctx, repo, rev, path, dest, expect_size, st=None):
+    """st is shared by the calls that make up one pass over a file: st["resumed"] says the pass continued a partial
+    file (found on disk, or curl restarted); the first call trims the tail of a partial file left by an earlier process."""
+    st = st if st is not None else {}
     # the Hub URL is resolved afresh on every call (its CDN redirect is signed and expires), so a retry never reuses one
     url = f"{ctx.hf_base.rstrip('/')}/{repo}/resolve/{rev}/{urllib.parse.quote(path)}"
+    first = not st.get("seen")
+    st["seen"] = True
     while True:
         if os.path.exists(dest):
             have = os.path.getsize(dest)
-            if have == expect_size:
-                break       # an earlier run finished the download but not the upload; the sha256 check follows
             if have > expect_size:
                 os.unlink(dest)
+            elif have > 0:
+                st["resumed"] = True
+                if first:
+                    tail = BOOT_TAIL if ctx.boot_changed else ctx.resume_trim
+                    new = trim_partial(dest, tail)
+                    if new < have:
+                        ctx.log(f"RESUME-TRIM {path}: partial {have / 2**20:.0f} MiB cut to {new / 2**20:.0f} MiB "
+                                f"(last {(have - new) / 2**20:.0f} MiB fetched again{', machine rebooted' if ctx.boot_changed else ''})")
+                first = False
+                if os.path.getsize(dest) == expect_size:
+                    break   # an earlier run finished the download but not the upload; the sha256 check follows
+        if st.get("started"):
+            st["resumed"] = True          # curl restarted (throttle, gate, error): resumed, not one clean pass
+        st["started"] = True
+        first = False
         kib = ctx.share(ctx.threads)
         cmd = ctx.prefix() + [os.environ.get("PW_CURL") or "curl", "-fL", "-C", "-", "-sS", "-o", str(dest)]
         if kib:
@@ -471,7 +513,7 @@ class Progress:
         return {"pid": os.getpid(), "running": running, "updated": time.time(), "started": time.time() - (time.monotonic() - self.t0),
                 "mirror": ctx.mirror, "total_bytes": self.total, "done_bytes": self.pre + self.done, "run_bytes": self.done,
                 "models_total": self.n_models, "models_staged": self.n_staged, "current": current, "paused": paused,
-                "paused_seconds": ctx.paused_total, "throttle": {"mode": ctx.throttle_state(), "workers": ctx.busy, "rate": ctx.rate_now()}, "rate_sustained": sustained, "rate_recent": recent,
+                "paused_seconds": ctx.paused_total, "failed": list(ctx.failed), "throttle": {"mode": ctx.throttle_state(), "workers": ctx.busy, "rate": ctx.rate_now()}, "rate_sustained": sustained, "rate_recent": recent,
                 "eta_seconds": (left / sustained) if sustained and left > 0 else (0 if left <= 0 else None), "errors": self.errors}
 
     def write(self, running=True):
@@ -530,6 +572,8 @@ def print_status(state_dir):
     def mb(r):
         return "n/a" if r is None else f"{r / 2**20:.1f} MiB/s"
     print(f"rate: sustained {mb(s['rate_sustained'])} (whole run, pauses included), last 10 min {mb(s['rate_recent'])}; paused {s['paused_seconds']:.0f}s so far")
+    for x in s.get("failed", []):
+        print(f"FAILED FILE {x['model']} {x['file']}: {x['reason']}")
     print(f"ETA: {fmt_dur(s['eta_seconds'])} at the sustained rate" + (f"; {s['errors']} file error(s) so far" if s["errors"] else ""))
     return 0
 
@@ -575,12 +619,23 @@ def stage_all(ctx, models, budget_bytes, order, total_bytes, n_models_all):
             ctx.active[f["path"]] = {"phase": "downloading", "size": f["size"], "part": str(part)}
             ctx.log(f"START {m['repo']} {f['path']} ({f['size'] / 2**30:.2f} GiB)")
             t0 = time.monotonic()
-            with_retry(ctx, f"download {f['path']}", lambda: download(ctx, m["repo"], m["rev"], f["path"], part, f["size"]))
-            ctx.active[f["path"]]["phase"] = "hashing"
-            got = mirrorlib.sha256_file(part)         # 4 MiB chunks; never the whole file in memory
-            if f["sha256"] and got != f["sha256"]:
-                part.unlink(missing_ok=True)   # a corrupt download is not resumed
-                raise ValueError(f"{f['path']}: sha256 of the download is {got}, expected {f['sha256']}; not uploaded")
+            scratch_tries = 0
+            while True:
+                st = {}
+                ctx.active[f["path"]]["phase"] = "downloading"
+                with_retry(ctx, f"download {f['path']}", lambda: download(ctx, m["repo"], m["rev"], f["path"], part, f["size"], st))
+                ctx.active[f["path"]]["phase"] = "hashing"
+                got = mirrorlib.sha256_file(part)         # 4 MiB chunks; never the whole file in memory
+                if not f["sha256"] or got == f["sha256"]:
+                    break
+                part.unlink(missing_ok=True)              # a corrupt file is never uploaded and never resumed again
+                if st.get("resumed") and scratch_tries < 2:
+                    scratch_tries += 1
+                    ctx.log(f"SHA256 MISMATCH on a resumed file {f['path']} (got {got[:12]}, expected {f['sha256'][:12]}): "
+                            f"deleted, downloading it again from scratch ({scratch_tries}/2)")
+                    continue
+                raise ValueError(f"{f['path']}: sha256 of the download is {got}, expected {f['sha256']}; not uploaded"
+                                 + (f" (after {scratch_tries} re-download(s) from scratch)" if scratch_tries else " (one clean pass)"))
             ctx.active[f["path"]]["phase"] = "uploading"
 
             def upload():
@@ -606,6 +661,8 @@ def stage_all(ctx, models, budget_bytes, order, total_bytes, n_models_all):
             with m["lock"]:
                 m["errors"].append(str(e))
             prog.errors += 1
+            if not isinstance(e, GaveUp):              # permanent: another pass would fail the same way
+                ctx.failed.append({"model": f"{m['repo']}@{m['rev'][:8]}", "file": f["path"], "reason": str(e)})
             ctx.log(f"ERROR {m['repo']}: {e}")
             print(f"  ERROR {e}", file=sys.stderr, flush=True)
         finally:
@@ -654,6 +711,8 @@ def stage_all(ctx, models, budget_bytes, order, total_bytes, n_models_all):
     ctx.log(f"SUMMARY: {prog.done / 2**30:.2f} GiB staged this run in {time.monotonic() - prog.t0:.0f}s "
             f"(paused {ctx.paused_total:.0f}s), sustained {'n/a' if sus is None else f'{sus / 2**20:.2f} MiB/s'}, "
             f"{prog.n_staged}/{prog.n_models} models staged")
+    for x in ctx.failed:
+        ctx.log(f"FAILED FILE {x['model']} {x['file']}: {x['reason']}")
     return sum(len(m["errors"]) for m in models)
 
 
@@ -690,6 +749,7 @@ def main(argv=None):
     ap.add_argument("--poll-s", type=float, default=30, help="seconds between pause-gate checks while waiting (default 30; running transfers recheck every min(this, 5) s)")
     ap.add_argument("--busy-rate", type=float, default=8, metavar="MBPS", help="MiB/s for downloads and uploads while a Runner.Worker exists (default 8; 0 = do not throttle)")
     ap.add_argument("--strict-ci-pause", action="store_true", help="stop transfers while a Runner.Worker exists instead of throttling to --busy-rate")
+    ap.add_argument("--resume-trim-mb", type=float, default=64, help="when resuming a partial file, cut its last this many MiB (to a 4 MiB boundary) and fetch them again; after a reboot the last 4 GiB (default 64)")
     ap.add_argument("--retries", type=int, default=20, help="tries per file step on a transient network/S3 error (default 20)")
     ap.add_argument("--retry-base-s", type=float, default=5, help="first retry delay, doubling (default 5 s)")
     ap.add_argument("--retry-max-s", type=float, default=300, help="longest retry delay (default 300 s)")
@@ -713,6 +773,7 @@ def main(argv=None):
     if unstageable:
         print(f"not stageable (no `# repo @ commit` header and pins in model.sha256): {', '.join(unstageable)}", file=sys.stderr)
     bad = 0
+    failed = []
     total = todo = 0
     pending = []
     for (repo, rev), e in sorted(g.items()):
@@ -753,6 +814,16 @@ def main(argv=None):
             h = logging.handlers.RotatingFileHandler(a.log_file, maxBytes=10 << 20, backupCount=5)
             h.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
             ctx.logger.addHandler(h)
+        boot_file = os.environ.get("PW_BOOT_ID_FILE") or "/proc/sys/kernel/random/boot_id"
+        try:
+            boot = open(boot_file).read().strip()
+            rec = pathlib.Path(a.state_dir) / "boot_id"
+            ctx.boot_changed = (rec.read_text().strip() if rec.exists() else None) != boot
+            rec.write_text(boot + "\n")
+        except OSError:
+            pass
+        if ctx.boot_changed:
+            ctx.log(f"boot id changed since the last run (or never recorded): partial files lose their last {BOOT_TAIL >> 30} GiB before resuming")
         old = {}
         if threading.current_thread() is threading.main_thread():
             for sig in (signal.SIGTERM, signal.SIGINT):
@@ -762,6 +833,7 @@ def main(argv=None):
                 f"batch {a.batch_gb:g} GB, order {a.order}")
         try:
             bad += stage_all(ctx, pending, int(a.batch_gb * 2**30), a.order, total, len(g))
+            failed = ctx.failed
         finally:
             for sig, h in old.items():
                 signal.signal(sig, h)
@@ -775,6 +847,11 @@ def main(argv=None):
     print(f"total {total / 2**30:.1f} GiB in {len(g)} model(s); {todo / 2**30:.1f} GiB not yet staged")
     if not a.check and not a.dry_run:
         print(f"consumers: export PW_MODEL_MIRROR={a.mirror}")
+    if failed:
+        print(f"{len(failed)} file(s) failed permanently:", file=sys.stderr)
+        for x in failed:
+            print(f"  {x['model']} {x['file']}: {x['reason']}", file=sys.stderr)
+        return 5
     return 1 if bad else 0
 
 

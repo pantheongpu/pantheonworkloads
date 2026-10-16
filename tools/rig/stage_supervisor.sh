@@ -13,7 +13,7 @@
 # Environment: PW_STAGE_HOME (default ~/.pw-stage: logs/, status.json, scratch/, credentials), PW_STAGE_NO_SYSTEMD=1 (skip
 # the systemd-run limits), PW_STAGE_BACKOFF_S (fixed restart delay, for tests), PW_STAGE_PY (stage_weights.py path).
 # If PW_STAGE_HOME/credentials exists it is used as the AWS credentials file with profile pw-stage (unless already set).
-# Exit codes of `run`: 0 plan complete, 2 usage/plan error (not retried), 4 another stage_weights holds the run lock,
+# Exit codes of `run`: 0 plan complete, 5 finished but some files failed permanently (listed in the log and on stderr), 2 usage/plan error (not retried), 4 another stage_weights holds the run lock,
 # 9 another supervisor is running, 143 stopped.
 set -u
 HOME_DIR="${PW_STAGE_HOME:-$HOME/.pw-stage}"
@@ -121,6 +121,13 @@ while :; do
     if [ -n "$stopping" ]; then slog "stopped by signal"; exit 143; fi
     case "$rc" in
         0) slog "plan complete (exit 0 after ${ran}s); nothing left to stage"; exit 0 ;;
+        5) slog "exit 5: everything else is staged but these files failed permanently (a restart would only repeat the failure):"
+           python3 - "$HOME_DIR/status.json" <<'PY' 2>&1 | tee -a "$LOGS/supervisor.log" >&2
+import json, sys
+for x in json.load(open(sys.argv[1])).get("failed", []):
+    print(f"  FAILED FILE {x['model']} {x['file']}: {x['reason']}")
+PY
+           exit 5 ;;
         2|4) slog "exit $rc is not retried (usage/plan error or run lock held); see $LOGS/stage.stderr.log"; exit "$rc" ;;
     esac
     if [ -z "${PW_STAGE_BACKOFF_S:-}" ]; then
