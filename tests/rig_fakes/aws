@@ -204,7 +204,8 @@ if op == "run-instances":
                            "Tags": [{"Key": k, "Value": v} for k, v in specs["instance"].items()],
                            "ShutdownBehavior": opt("--instance-initiated-shutdown-behavior"), "UserData": opt("--user-data"),
                            "Sg": opt("--security-group-ids"), "Key": opt("--key-name"), "Ebs": bdm, "Volume": vid,
-                           "MetadataOptions": opt("--metadata-options")}
+                           "MetadataOptions": opt("--metadata-options"),
+                           "IamProfile": opt("--iam-instance-profile")}
     s["volumes"][vid] = {"VolumeId": vid, "State": "in-use", "Size": bdm["VolumeSize"], "Instance": iid,
                          "Tags": [{"Key": k, "Value": v} for k, v in specs["volume"].items()]}
     save(s)

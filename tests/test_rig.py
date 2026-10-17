@@ -176,6 +176,23 @@ class TestLaunch(RigCase):
         bdm = inst["Ebs"]
         self.assertEqual((bdm["VolumeSize"], bdm["VolumeType"], bdm["DeleteOnTermination"]), (100, "gp3", True))
 
+    def test_an_instance_profile_is_attached_by_name_and_only_when_asked(self):
+        self.launch()
+        (call,) = self.called("run-instances")
+        self.assertNotIn("--iam-instance-profile", call)
+        rc, out, err = self.launch(tag="pw-t2", extra=("--iam-instance-profile", "pw-rig-s3-read"))
+        self.assertEqual(rc, 0, err)
+        call = self.called("run-instances")[-1]
+        self.assertEqual(call[call.index("--iam-instance-profile") + 1], "Name=pw-rig-s3-read")
+        self.assertIn("instance profile pw-rig-s3-read", err)
+        self.assertNotIn("create-instance-profile", [c[1] for c in self.calls()])   # never created or deleted by this tool
+
+    def test_dry_run_mentions_the_profile_and_makes_no_call(self):
+        rc, out, err = self.launch(extra=("--dry-run", "--iam-instance-profile", "pw-rig-s3-read"))
+        self.assertEqual(rc, 0, err)
+        self.assertIn("instance profile pw-rig-s3-read", out)
+        self.assertEqual(self.calls(), [])
+
     def test_security_group_allows_ssh_from_the_callers_address_only(self):
         self.launch()
         (sg,) = self.state()["sgs"].values()

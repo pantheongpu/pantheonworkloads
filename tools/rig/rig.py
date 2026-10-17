@@ -296,7 +296,8 @@ def cmd_launch(a):
     azs = [x for x in a.azs.split(",") if x] if a.azs else [f"{region}{s}" for s in "abcdf"]
     plan = (f"{tag}: {a.instance_type} in {region} (AZs tried in order: {', '.join(azs)}), {a.disk_gib} GiB gp3 "
             f"{a.iops} IOPS {a.throughput} MiB/s, rate ${rate:g}/h from {source}, with disk ${hourly:.3f}/h; "
-            f"lives {hours:.2f} h (limited by {why}); worst case ${hours * hourly:.2f}")
+            f"lives {hours:.2f} h (limited by {why}); worst case ${hours * hourly:.2f}"
+            + (f"; instance profile {a.iam_instance_profile}" if a.iam_instance_profile else ""))
     if a.dry_run:
         print("DRY RUN, no aws call made")
         print(plan)
@@ -365,7 +366,8 @@ def cmd_launch(a):
                          "--metadata-options", "HttpTokens=required,HttpEndpoint=enabled",
                          "--block-device-mappings", json.dumps(bdm),
                          "--tag-specifications", json.dumps([tagspec("instance", tags), tagspec("volume", {"Name": tag, TOOL_TAG: 1})]),
-                         "--user-data", user_data(tag, deadline)], region)
+                         "--user-data", user_data(tag, deadline),
+                         *(["--iam-instance-profile", f"Name={a.iam_instance_profile}"] if a.iam_instance_profile else [])], region)
             except AwsError as e:
                 if e.code in ("InsufficientInstanceCapacity", "Unsupported"):
                     log(f"{az}: {e.code}, trying the next AZ")
@@ -680,6 +682,9 @@ def build_parser():
     l.add_argument("--max-hours", type=float, required=True)
     l.add_argument("--max-dollars", type=float, required=True)
     l.add_argument("--rate", type=float, help="on-demand $/hour (overrides the built-in table)")
+    l.add_argument("--iam-instance-profile", metavar="NAME",
+                   help="an existing instance profile to attach (e.g. one limited to s3:GetObject on the weights mirror), so the "
+                        "rig needs no access key; the profile is never created or deleted by this tool")
     l.add_argument("--my-ip", help="the address ssh is allowed from (default: looked up)")
     l.add_argument("--ssh-wait", type=float, default=300, help="seconds to wait for ssh and verify the timer (0: do not)")
     l.add_argument("--boot-wait", type=float, default=600)
