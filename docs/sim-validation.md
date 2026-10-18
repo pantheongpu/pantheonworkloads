@@ -94,7 +94,7 @@ PyTorch's kernels differ per architecture (SASS per SM). Neither tolerance was c
 ## Nightly
 
 `.github/workflows/sim-nightly.yml` repeats the arch-*, lib-* and gpt-train-fp32 runs every night (05:41 UTC) and on
-`workflow_dispatch` (inputs: `sim-ref`, `workloads`), on hosted `ubuntu-24.04` runners, for `sim:nvidia/{h100, a100, rtx3060, t4, rtx5090}`
+`workflow_dispatch` (inputs: `sim-ref`, `workloads`), on hosted `ubuntu-24.04` runners, for `sim:nvidia/{h100, a100, rtx3060, t4, rtx5090, a10g, l40s}` (the last two are the cards measured on real hardware, compared in [`sim-vs-gpu.md`](sim-vs-gpu.md))
 (one job each, `fail-fast: false`). A change to the workflow or to `tools/sim-env.sh` runs it on the pull request too.
 Each run is checked by `bin/pw` against the CPU reference. The `report` job publishes `bin/pw matrix` as the job summary
 and uploads `results.tsv` (columns: target, workload, result, seconds, detail) and `matrix.md` as the `results` artifact;
