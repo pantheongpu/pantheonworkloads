@@ -17,10 +17,11 @@ import sys
 
 DATA = pathlib.Path("docs") / "data" / "sim-vs-gpu"
 PAGE = pathlib.Path("docs") / "sim-vs-gpu.md"
-PAIR = "a10"                  # the simulated counterpart of the real A10G
+PAIR = "a10g"                 # the simulated counterpart of the real A10G (AWS g5)
+PAIR_L40S = "l40s"            # the simulated counterpart of the real L40S (AWS g6e)
 REAL_GPU = "nvidia-a10g"
-OTHER = ["a100", "h100", "rtx3060", "rtx3080ti", "rtx5090", "t4", "l4", "b200"]
-NIGHTLY_CARDS = ["a100", "h100", "rtx3060", "rtx5090", "t4"]
+OTHER = ["a10", "a100", "h100", "rtx3060", "rtx3080ti", "rtx5090", "t4", "l4", "b200", "l40s"]
+NIGHTLY_CARDS = ["a10g", "l40s", "a100", "h100", "rtx3060", "rtx5090", "t4"]
 CLOSE = 0.10                  # a sim/real ratio inside 1 +- CLOSE is called "same"
 
 
@@ -141,12 +142,16 @@ def render(root="."):
     a("- **Parity** means: the same workload, checked against the same reference with the same tolerance, gives the same verdict on the "
       "real card and on the simulated one, and the deviations from the reference are of the same size. It does not mean the "
       "simulated card is as fast, and PASS on both sides only says both stayed inside the tolerance.")
-    a(f"- **Pairing.** The real card is the NVIDIA A10G (sm_86), paired with `sim:nvidia/{PAIR}`. The L40S has no simulated profile, so "
-      "its workloads can only appear under *no counterpart*. The other simulated profiles are shown as PASS / FAIL / SKIP columns "
-      "for the same workload; `-` / \"not run\" means no result exists, not a pass. `rtx3060` and `rtx3080ti` share the A10G's "
-      "architecture (sm_86) and are the nearest cards with data when `a10` was not run.")
+    a(f"- **Pairing.** The real NVIDIA A10G (AWS g5, sm_86) is paired with `sim:nvidia/{PAIR}`, and the real NVIDIA L40S (AWS g6e, sm_89) "
+      f"with `sim:nvidia/{PAIR_L40S}`; both profiles were characterized on those parts (pantheonsim `nvidia/docs/profiles.md`). The L40S has "
+      "real results only for the stage-2a catalog workloads (llama.cpp and diffusion), while the simulated workloads are the PyTorch "
+      "arch-*, lib-* and training ones, so the L40S pair has no workload in common (see *No counterpart*). The other simulated "
+      "profiles are shown as PASS / FAIL / SKIP columns for the same A10G workload (`a10` is the generic A10, a different profile "
+      "from `a10g`); \"not run\" means no result exists, not a pass.")
     a("- **Same reference and tolerance** is checked from the repository, not assumed: the real run and the simulated run used "
-      "workload directories that are identical (manifest, `reference.json` and scripts) between the two commits named in the data.")
+      "workload directories that are identical (manifest, `reference.json` and scripts) between the two commits named in the data, "
+      "except where the row says otherwise. The simulated a10g / l40s results come from a run of the nightly workflow on the branch "
+      "of the pull request that introduced this page, not from a run on main; it should be re-checked against a scheduled run on main.")
     a("- **Never estimated.** An empty cell is a value the sources do not hold. In particular no per-workload wall-clock of a real "
       "run is recorded anywhere, so the real column of Table 2 and the sim/real ratio are empty.")
     a("- **Software differs a little.** The real re-run used transformers 5.19.0, the nightly simulation 5.18.0 (the version the "
@@ -173,9 +178,9 @@ def render(root="."):
     a("")
     a(f"- Workloads in Table 1 (real A10G result and a simulated result): **{len(pw)}**. Real A10G verdict PASS for {sum(d.real_a10g[w]['result'] == 'PASS' for w in pw)}; "
       f"every simulated result on every profile is PASS or SKIP for {len(pair_ok)}.")
-    a(f"- Pairs with the exact counterpart card (`sim:nvidia/{PAIR}`): **{len(a10_rows)}** ({', '.join(a10_rows) or 'none'}), "
-      f"and for that one only a sub-check, not the whole workload ({len(a10_full)} whole-workload runs). "
-      "The nightly workflow does not include `a10`; the full pairing needs it added (no rig needed).")
+    missing_a10g = [w for w in pw if not d.best(w, PAIR)]
+    a(f"- Workloads of Table 1 run on the exact counterpart card `sim:nvidia/{PAIR}`: **{len(a10_full)}** of {len(pw)}; "
+      f"not run there: {', '.join(missing_a10g) or 'none'} (the nightly workflow's workload list does not include them).")
     ndiff = len(differ)
     a(f"- Deviation figures that can be compared (a real value and a simulated value, {len(ratios)} pairs): "
       f"{ndiff} (workload, metric) combinations differ by more than {int(CLOSE * 100)}% between real and simulated; see Table 1b.")
@@ -184,17 +189,16 @@ def render(root="."):
     # ---- Table 1
     a("## Table 1: functional parity")
     a("")
-    head = ["Workload", "Real A10G", "Real deviation / detail", "Real date", f"Sim {PAIR}", f"Sim {PAIR} detail",
-            "Sim rtx3060 (sm_86) detail", "Same reference and tolerance", "Sim date(s)"] + OTHER
+    head = ["Workload", "Real A10G", "Real deviation / detail", "Real date", f"Sim {PAIR}", f"Sim {PAIR} deviation / detail",
+            "Same reference and tolerance", "Sim date(s)"] + OTHER
     rows = []
     for w in pw:
         r = d.real_a10g[w]
-        pa, p3 = d.best(w, PAIR), d.best(w, "rtx3060")
+        pa = d.best(w, PAIR)
         dates = sorted({b["date"] for b in (d.best(w, p) for p in [PAIR] + OTHER) if b})
         pr = d.pairs.get(w)
         same = (pr["same_reference_and_tolerance"] + f" ({pr['real_commit']} vs {pr['sim_commit']})") if pr else "not checked"
-        rows.append([w, real_cell(d, w), short(r["detail"], 130), r["date"], cell(pa), short(pa["detail"], 110) if pa else "not run",
-                     short(p3["detail"], 90) if p3 else "not run", same, ", ".join(dates)] + [cell(d.best(w, p)) for p in OTHER])
+        rows.append([w, real_cell(d, w), short(r["detail"], 130), r["date"], cell(pa), short(pa["detail"], 110) if pa else "not run", same, ", ".join(dates)] + [cell(d.best(w, p)) for p in OTHER])
     a("\n".join(table(head, rows)))
     a("")
     a("Real deviation / detail is the largest difference from the reference where the source gives one; the arch-* workloads share "
@@ -234,7 +238,7 @@ def render(root="."):
       "real card takes. The nightly times come from a GitHub-hosted runner whose load the artifact does not record.")
     a("")
     head = ["Workload", "Real A10G wall-clock (s)", f"Sim {PAIR}: cost of simulating (CPU time), not GPU performance (s)"] + \
-           [f"Sim {c} (s)" for c in NIGHTLY_CARDS] + ["sim/real", "2026-10-06 shared host (not comparable with the nightly)"]
+           [f"Sim {c} (s)" for c in NIGHTLY_CARDS if c != PAIR] + ["sim/real", "2026-10-06 shared host (not comparable with the nightly)"]
     rows = []
     vals = []
     ratio_vals = []
@@ -246,7 +250,7 @@ def render(root="."):
         if rs and sa is not None:
             ratio_vals.append(sa / rs)
         cells = []
-        for c in NIGHTLY_CARDS:
+        for c in [c for c in NIGHTLY_CARDS if c != PAIR]:
             row = next((r for r in d.sim if r["workload"] == w and r["profile"] == c and r["source"] == "nightly"), None)
             x = num(row["seconds"]) if row else None
             if x is not None:
@@ -272,11 +276,11 @@ def render(root="."):
         a(f"- sim/real ratio ({len(ratio_vals)} pairs): median {g3(statistics.median(ratio_vals))}, range {g3(min(ratio_vals))} to {g3(max(ratio_vals))}.")
     else:
         a("- The sim/real ratio therefore cannot be computed for any pair, and no median or range is given. "
-          f"Also, `sim:nvidia/{PAIR}` has no seconds recorded for any workload, so the ratio needs both a real run and an `{PAIR}` run.")
+          f"The simulated seconds on `sim:nvidia/{PAIR}` exist; the missing half is the real run's.")
     if vals:
         a(f"- What the data does show: one nightly run of these workloads on the simulator took a median of {g3(statistics.median(vals))} s "
           f"(range {g3(min(vals))} to {g3(max(vals))} s, {len(vals)} runs on {len(NIGHTLY_CARDS)} simulated cards, {nightly['date']}). "
-          "That is the host CPU's time, not a property of any GPU.")
+          "That is the host CPU's time, not a property of any GPU; differences between simulated cards in these columns come from the hosted runners (each card was a separate job on its own runner), not from the cards.")
     a("- Known caveat of the 2026-10-06 times: the host was shared with other jobs (load average 6 to 8), and `arch-ssm` took 406 s "
       "on the first card (rtx5090, under load from other jobs) against 24 s on the last (t4). The time depends on the host's load, so "
       "that column is not a measurement of the simulator.")
@@ -286,23 +290,26 @@ def render(root="."):
     a("## No counterpart")
     a("")
     pwset = set(pw)
+    l40s_sim = sorted({r["workload"] for r in d.sim if r["profile"] == PAIR_L40S})
+    real_l40s = sorted({r["workload"] for r in d.real if r["gpu"] == "nvidia-l40s"})
     rows = []
     counts = {}
     for r in d.real:
         if r["note"].startswith("superseded") or r["workload"] in pwset and r["gpu"] == REAL_GPU:
             continue
         n = next((x for x in d.nocp if x["workload"] == r["workload"]), None)
-        if r["gpu"] != REAL_GPU:
-            code, why = "no-sim-profile", "no `sim:nvidia/l40s` profile (the L40S has no simulated counterpart)"
-        elif n:
+        if n:
             code, why = n["code"], n["reason"]
+            if r["gpu"] != REAL_GPU:
+                why += f"; `sim:nvidia/{PAIR_L40S}` exists and ran {len(l40s_sim)} other workloads, none of them has a real L40S result"
         else:
             code, why = "unlisted", "no reason recorded"
         counts[code] = counts.get(code, 0) + 1
         rows.append([r["workload"], r["gpu"], r["result"], r["date"], code, why])
     a(f"{len(rows)} workloads have a real-GPU result but no simulated one. By reason: " +
       ", ".join(f"{k} {v}" for k, v in sorted(counts.items())) + ". `sim-not-run` means the manifest lists a sim target but no "
-      "simulated result exists; `no-sim-target` means the manifest does not list one; `no-sim-profile` means the card has no profile.")
+      "simulated result exists; `no-sim-target` means the manifest does not list one. The L40S rows are the stage-2a Tier B workloads: "
+      f"{len(real_l40s)} with a real L40S result, {len(set(real_l40s) & set(l40s_sim))} of them run on `sim:nvidia/{PAIR_L40S}`.")
     a("")
     a("\n".join(table(["Workload", "Real GPU", "Real result", "Real date", "Reason code", "Reason"], rows)))
     a("")
@@ -322,14 +329,15 @@ def render(root="."):
     a("1. **Real wall-clock seconds** for all " + str(len(pw)) + " workloads (`results.tsv` of `bin/pw run` records them). Missing today for "
       f"{len(pw) - nreal} of {len(pw)}; without them Table 2 has no ratio.")
     a(f"2. **Per-workload deviation figures** where the docs give none or one shared figure: {', '.join(no_dev) or 'none'}.")
-    a("3. **The same commit on both sides**: the real run used 479c1c7 and the nightly 5c2f647 (identical workload directories, "
+    a("3. **The same commit on both sides**: the real run used 479c1c7 and the simulated run f65df00 (identical workload directories apart from the allow-list noted in Table 1, "
       "but a rerun makes that a fact of one run rather than of a diff).")
-    a(f"4. A real record to put next to the *whole-workload* `sim:nvidia/{PAIR}` runs, which do not exist yet. The rig cannot "
-      f"produce them: add `{PAIR}` to the nightly workflow's matrix (a CPU-only hosted job, no rig) and the pairing columns fill "
-      f"in {len(pw) - len(a10_full)} workloads at once, including the seconds Table 2 needs on the simulated side.")
+    a(f"4. The simulated side of the pair already exists ({len(a10_full)} of {len(pw)} workloads on `sim:nvidia/{PAIR}`, from the nightly workflow), so the "
+      "rerun only has to supply the real side.")
     a("")
-    a("A rig adds nothing for the *no counterpart* workloads whose reason is `sim-not-run` or `no-sim-profile`: their missing side "
-      "is the simulated one (a hosted run for the workloads that need a model download, or a new profile for the L40S).")
+    a("A rig adds nothing for the *no counterpart* workloads whose reason is `sim-not-run`: their missing side "
+      "is the simulated one (a hosted run for the workloads that need a model download). The L40S workloads have no sim target in "
+      "their manifests; giving them one is a workload change, and a real L40S run of the nightly PyTorch workloads would be needed "
+      "to pair `l40s` at all.")
     a("")
     return "\n".join(out)
 

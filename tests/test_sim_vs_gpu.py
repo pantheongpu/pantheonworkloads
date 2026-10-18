@@ -44,7 +44,7 @@ def make_root(tmp, real_seconds="", a10_seconds=""):
         ["w-c", "nvidia-a10g", "PASS", "2026-01-01", "x", "ok", "ref", "", "", "", "doc B"],
         ["w-d", "nvidia-l40s", "PASS", "2026-01-02", "x", "ok", "rec", "", "", "", "doc C"]])
     put(tmp, "sim_results.tsv", SIM_H, [
-        ["w-a", "a10", "full", "PASS", a10_seconds, "", "d", "2026-01-05", "nightly", "host", "run 1"],
+        ["w-a", "a10g", "full", "PASS", a10_seconds, "", "d", "2026-01-05", "nightly", "host", "run 1"],
         ["w-a", "a100", "full", "PASS", "12", "", "d", "2026-01-05", "nightly", "host", "run 1"],
         ["w-b", "a100", "fp8 sub-check", "PASS", "", "", "d", "2026-01-03", "doc", "host", "doc S"],
         ["w-b", "a100", "full", "FAIL", "7", "", "d", "2026-01-04", "doc", "host", "doc S"]])
@@ -88,6 +88,13 @@ class CommittedPage(unittest.TestCase):
         for r in rows("no_counterpart.tsv"):
             self.assertNotIn(r["workload"], sim)
 
+    def test_l40s_has_a_profile_and_the_page_does_not_deny_it(self):
+        text = (ROOT / "docs" / "sim-vs-gpu.md").read_text(encoding="utf-8")
+        self.assertNotIn("no simulated profile", text)
+        self.assertNotIn("no-sim-profile", text)
+        self.assertIn("sim:nvidia/l40s", text)
+        self.assertEqual(svg.PAIR, "a10g")
+
     def test_page_states_the_rule(self):
         text = (ROOT / "docs" / "sim-vs-gpu.md").read_text(encoding="utf-8")
         self.assertIn("no timing model", text)
@@ -115,7 +122,7 @@ class Generator(unittest.TestCase):
         tail = text.split("## No counterpart")[1]
         self.assertIn("| w-c | nvidia-a10g", tail)
         self.assertIn("| w-d | nvidia-l40s", tail)
-        self.assertIn("no-sim-profile", tail)
+        self.assertNotIn("no-sim-profile", tail)
 
     def test_superseded_real_record_is_a_note_not_the_verdict(self):
         make_root(self.tmp)
