@@ -8,6 +8,8 @@ is `bin/pw run <workload> --target sim:nvidia/<gpu>` with the environment from `
 The references are the CPU recordings (`reference.json`); the runs are checked by `bin/pw`'s own
 comparison, not by eye.
 
+A side-by-side of these results with the real A10G's (parity of verdicts and deviations, and the CPU-time cost of simulating, which is not GPU performance) is generated in [`sim-vs-gpu.md`](sim-vs-gpu.md).
+
 ## Setting up
 
 ```bash

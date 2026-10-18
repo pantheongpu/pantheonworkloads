@@ -1,0 +1,11 @@
+profile	real_counterpart	architecture	provenance
+a10	NVIDIA A10G (g5, sm_86)	sm_86	pairing chosen by the maintainer (task statement 2026-10-18); docs/sim-validation.md row 'lib-attention-precision (fp8 casts)' is the only a10 run in the docs
+a100	NVIDIA A100 (no real run in the docs)	sm_80	docs/sim-validation.md
+h100	NVIDIA H100 (no real run in the docs)	sm_90	docs/sim-validation.md
+rtx3060	none	sm_86 (same architecture as the A10G)	docs/sim-validation.md; architecture from NVIDIA's public compute-capability table, not from this repository
+rtx3080ti	none	sm_86 (same architecture as the A10G)	docs/sim-validation.md; architecture from NVIDIA's public compute-capability table
+rtx5090	none	sm_120	docs/sim-validation.md
+t4	none	sm_75	docs/sim-validation.md
+l4	none (an L4 was only used for the fp8 cast probe, docs/fp8-cast-semantics.md)	sm_89	docs/sim-validation.md
+b200	none	sm_100	docs/sim-validation.md
+l40s-note	NVIDIA L40S (sm_89)	sm_89	no sim:nvidia/l40s profile exists (maintainer, task statement 2026-10-18); the nearest by architecture is l4 (sm_89), which is not the same card

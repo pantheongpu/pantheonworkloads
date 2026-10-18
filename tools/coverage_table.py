@@ -15,6 +15,7 @@ import json
 import pathlib
 import re
 
+import sim_vs_gpu
 import validate
 
 START = "<!-- coverage:start -->"
@@ -288,6 +289,8 @@ def check(root, readme=None):
         results = root / "docs" / "results.md"
         if not results.exists() or results.read_text(encoding="utf-8") != render_results(root):
             problems.append("docs/results.md is stale; run `bin/pw coverage --write`")
+        if (root / sim_vs_gpu.DATA).is_dir():      # a synthetic repository in a test has no data
+            problems += sim_vs_gpu.check(root)
     return problems
 
 
@@ -303,4 +306,6 @@ def write(root, readme=None):
             text = b[0] + bench_block(root) + b[2]
         (root / "docs").mkdir(exist_ok=True)
         (root / "docs" / "results.md").write_text(render_results(root), encoding="utf-8")
+        if (root / sim_vs_gpu.DATA).is_dir():
+            sim_vs_gpu.write(root)
     path.write_text(text, encoding="utf-8")

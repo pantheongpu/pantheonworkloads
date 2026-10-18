@@ -1,0 +1,97 @@
+workload	code	reason	provenance
+bert-base-uncased-pytorch	sim-not-run	sim run SKIPped on 2026-10-06: no weights (huggingface.co blocked on the sim host)	docs/sim-validation.md, Results SKIP rows; workloads/bert-base-uncased-pytorch/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+bge-m3-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/bge-m3-pytorch/manifest.yaml targets
+bge-reranker-large-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/bge-reranker-large-pytorch/manifest.yaml targets
+bge-reranker-v2-m3-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/bge-reranker-v2-m3-pytorch/manifest.yaml targets
+blip2-opt-2p7b-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/blip2-opt-2p7b-pytorch/manifest.yaml targets
+canary-1b-v2-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/canary-1b-v2-pytorch/manifest.yaml targets
+chatterbox-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/chatterbox-pytorch/manifest.yaml targets
+chronos-2-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/chronos-2-pytorch/manifest.yaml targets
+chronos-bolt-base-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/chronos-bolt-base-pytorch/manifest.yaml targets
+chronos-t5-large-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/chronos-t5-large-pytorch/manifest.yaml targets
+cogvideox-2b-diffusers	no-sim-target	manifest targets are gpu; no sim target	workloads/cogvideox-2b-diffusers/manifest.yaml targets
+cogvideox-5b-diffusers	no-sim-target	manifest targets are gpu; no sim target	workloads/cogvideox-5b-diffusers/manifest.yaml targets
+depth-anything-v2-large-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/depth-anything-v2-large-pytorch/manifest.yaml targets
+depth-anything-v2-small-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/depth-anything-v2-small-pytorch/manifest.yaml targets
+dinov2-giant-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/dinov2-giant-pytorch/manifest.yaml targets
+f5-tts-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/f5-tts-pytorch/manifest.yaml targets
+flux1-schnell-diffusers	no-sim-target	manifest targets are gpu; no sim target	workloads/flux1-schnell-diffusers/manifest.yaml targets
+flux2-klein-4b-diffusers	no-sim-target	manifest targets are gpu; no sim target	workloads/flux2-klein-4b-diffusers/manifest.yaml targets
+glm-ocr-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/glm-ocr-pytorch/manifest.yaml targets
+gpt2-small-pytorch	sim-not-run	sim run SKIPped on 2026-10-06: no weights (huggingface.co blocked on the sim host)	docs/sim-validation.md, Results SKIP rows; workloads/gpt2-small-pytorch/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+hunyuanvideo-15-720p-t2v-diffusers	no-sim-target	manifest targets are gpu; no sim target	workloads/hunyuanvideo-15-720p-t2v-diffusers/manifest.yaml targets
+kokoro-tts-int8-onnx	no-sim-target	manifest targets are cpu, gpu; no sim target	workloads/kokoro-tts-int8-onnx/manifest.yaml targets
+llamacpp-codestral-22b-v01	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-codestral-22b-v01/manifest.yaml targets
+llamacpp-command-r-08-2024	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-command-r-08-2024/manifest.yaml targets
+llamacpp-deepseek-r1-distill-llama-8b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-deepseek-r1-distill-llama-8b/manifest.yaml targets
+llamacpp-deepseek-r1-distill-qwen-14b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-deepseek-r1-distill-qwen-14b/manifest.yaml targets
+llamacpp-deepseek-r1-distill-qwen-32b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-deepseek-r1-distill-qwen-32b/manifest.yaml targets
+llamacpp-devstral-small-2-24b-2512	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-devstral-small-2-24b-2512/manifest.yaml targets
+llamacpp-exaone-4p5-33b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-exaone-4p5-33b/manifest.yaml targets
+llamacpp-falcon-h1-34b-instruct	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-falcon-h1-34b-instruct/manifest.yaml targets
+llamacpp-falcon-h1r-7b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-falcon-h1r-7b/manifest.yaml targets
+llamacpp-falcon3-10b-instruct	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-falcon3-10b-instruct/manifest.yaml targets
+llamacpp-gemma4-12b-it	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-gemma4-12b-it/manifest.yaml targets
+llamacpp-gemma4-26b-a4b-it	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-gemma4-26b-a4b-it/manifest.yaml targets
+llamacpp-gemma4-31b-it	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-gemma4-31b-it/manifest.yaml targets
+llamacpp-gemma4-e2b-it	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-gemma4-e2b-it/manifest.yaml targets
+llamacpp-glm47-flash	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-glm47-flash/manifest.yaml targets
+llamacpp-kimi-linear-48b-a3b-instruct	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-kimi-linear-48b-a3b-instruct/manifest.yaml targets
+llamacpp-llama31-8b-instruct	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-llama31-8b-instruct/manifest.yaml targets
+llamacpp-magistral-small-2509	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-magistral-small-2509/manifest.yaml targets
+llamacpp-ministral-3-14b-instruct-2512	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-ministral-3-14b-instruct-2512/manifest.yaml targets
+llamacpp-ministral-3-14b-reasoning-2512	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-ministral-3-14b-reasoning-2512/manifest.yaml targets
+llamacpp-nemotron-3-nano-30b-a3b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-nemotron-3-nano-30b-a3b/manifest.yaml targets
+llamacpp-nemotron-3p5-lightning-30b-a3b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-nemotron-3p5-lightning-30b-a3b/manifest.yaml targets
+llamacpp-nemotron-nano-9b-v2	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-nemotron-nano-9b-v2/manifest.yaml targets
+llamacpp-north-mini-code-1p0	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-north-mini-code-1p0/manifest.yaml targets
+llamacpp-orpheus-3b-0p1-ft	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-orpheus-3b-0p1-ft/manifest.yaml targets
+llamacpp-phi4-mini-instruct	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-phi4-mini-instruct/manifest.yaml targets
+llamacpp-phi4-reasoning-plus	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-phi4-reasoning-plus/manifest.yaml targets
+llamacpp-qwen25-coder-32b-instruct	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-qwen25-coder-32b-instruct/manifest.yaml targets
+llamacpp-qwen3-32b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-qwen3-32b/manifest.yaml targets
+llamacpp-qwen3-coder-30b-a3b-instruct	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-qwen3-coder-30b-a3b-instruct/manifest.yaml targets
+llamacpp-qwen3-embedding-8b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-qwen3-embedding-8b/manifest.yaml targets
+llamacpp-qwen35-9b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-qwen35-9b/manifest.yaml targets
+llamacpp-qwen36-27b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-qwen36-27b/manifest.yaml targets
+llamacpp-qwen36-35b-a3b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-qwen36-35b-a3b/manifest.yaml targets
+llamacpp-qwen38-27b	no-sim-target	manifest targets are gpu; no sim target	workloads/llamacpp-qwen38-27b/manifest.yaml targets
+llamacpp-smollm2-135m	sim-not-run	sim run SKIPped on 2026-10-06: llama.cpp could not be built for cuda there (no nvcc; model on Hugging Face)	docs/sim-validation.md, Results SKIP rows; workloads/llamacpp-smollm2-135m/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-gemma	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-gemma/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-llama	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-llama/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-mistral	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-mistral/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-mixtral	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-mixtral/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-phi3	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-phi3/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-quant-float	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-quant-float/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-quant-iquant	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-quant-iquant/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-quant-iquant-imatrix	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-quant-iquant-imatrix/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-quant-kquant	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-quant-kquant/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-quant-legacy	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-quant-legacy/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-quant-lowbit	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-quant-lowbit/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-quant-moe	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-quant-moe/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+llamacpp-synth-qwen2	sim-not-run	no sim run: docs/sim-validation.md says the llama.cpp workloads were not run on the sim host (a CUDA build needs nvcc, which it lacks)	docs/sim-validation.md, section Setting up (Weights are not obtainable); workloads/llamacpp-synth-qwen2/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*', 'sim:amd/*']
+ltx-video-diffusers	no-sim-target	manifest targets are gpu; no sim target	workloads/ltx-video-diffusers/manifest.yaml targets
+moonshine-tiny-en-onnx	no-sim-target	manifest targets are cpu, gpu; no sim target	workloads/moonshine-tiny-en-onnx/manifest.yaml targets
+olmocr-2-7b-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/olmocr-2-7b-pytorch/manifest.yaml targets
+onnx-zoo-bertsquad-int8	no-sim-target	manifest targets are cpu, gpu; no sim target	workloads/onnx-zoo-bertsquad-int8/manifest.yaml targets
+paddleocr-vl-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/paddleocr-vl-pytorch/manifest.yaml targets
+parakeet-tdt-0p6b-v3-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/parakeet-tdt-0p6b-v3-pytorch/manifest.yaml targets
+pixtral-12b-2409-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/pixtral-12b-2409-pytorch/manifest.yaml targets
+qwen-image-2p1-diffusers	no-sim-target	manifest targets are gpu; no sim target	workloads/qwen-image-2p1-diffusers/manifest.yaml targets
+qwen3-asr-1p7b-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/qwen3-asr-1p7b-pytorch/manifest.yaml targets
+qwen3-reranker-0p6b-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/qwen3-reranker-0p6b-pytorch/manifest.yaml targets
+qwen3-reranker-4b-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/qwen3-reranker-4b-pytorch/manifest.yaml targets
+qwen3-reranker-8b-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/qwen3-reranker-8b-pytorch/manifest.yaml targets
+sam2p1-hiera-large-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/sam2p1-hiera-large-pytorch/manifest.yaml targets
+sdxl-base-diffusers	no-sim-target	manifest targets are gpu; no sim target	workloads/sdxl-base-diffusers/manifest.yaml targets
+siglip2-giant-opt-patch16-384-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/siglip2-giant-opt-patch16-384-pytorch/manifest.yaml targets
+siglip2-so400m-patch16-512-pytorch	no-sim-target	manifest targets are gpu; no sim target	workloads/siglip2-so400m-patch16-512-pytorch/manifest.yaml targets
+smollm2-135m-ollama	sim-not-run	sim run SKIPped on 2026-10-06: ollama not installed there (ollama.com blocked)	docs/sim-validation.md, Results SKIP rows; workloads/smollm2-135m-ollama/manifest.yaml targets ['cpu', 'gpu', 'sim:nvidia/*']
+spacy-en-core-web-md	no-sim-target	manifest targets are cpu, gpu; no sim target	workloads/spacy-en-core-web-md/manifest.yaml targets
+spacy-en-core-web-sm	no-sim-target	manifest targets are cpu, gpu; no sim target	workloads/spacy-en-core-web-sm/manifest.yaml targets
+spacy-multilingual-sm	no-sim-target	manifest targets are cpu, gpu; no sim target	workloads/spacy-multilingual-sm/manifest.yaml targets
+vllm-greedy-smollm2-135m	sim-not-run	sim run SKIPped on 2026-10-06 (sim:amd/mi300x only): no Python with vLLM for ROCm	docs/sim-validation.md, Results SKIP rows; workloads/vllm-greedy-smollm2-135m/manifest.yaml targets ['gpu', 'sim:amd/*']
+wan21-t2v-1p3b-diffusers	no-sim-target	manifest targets are gpu; no sim target	workloads/wan21-t2v-1p3b-diffusers/manifest.yaml targets
+wan22-ti2v-5b-diffusers	no-sim-target	manifest targets are gpu; no sim target	workloads/wan22-ti2v-5b-diffusers/manifest.yaml targets
+whisper-cpp-large-v3-turbo	no-sim-target	manifest targets are gpu; no sim target	workloads/whisper-cpp-large-v3-turbo/manifest.yaml targets
+whisper-cpp-tiny-en	no-sim-target	manifest targets are cpu, gpu; no sim target	workloads/whisper-cpp-tiny-en/manifest.yaml targets
