@@ -8,6 +8,8 @@ is `bin/pw run <workload> --target sim:nvidia/<gpu>` with the environment from `
 The references are the CPU recordings (`reference.json`); the runs are checked by `bin/pw`'s own
 comparison, not by eye.
 
+A side-by-side of these results with the real A10G's (parity of verdicts and deviations, and the CPU-time cost of simulating, which is not GPU performance) is generated in [`sim-vs-gpu.md`](sim-vs-gpu.md).
+
 ## Setting up
 
 ```bash
@@ -92,7 +94,7 @@ PyTorch's kernels differ per architecture (SASS per SM). Neither tolerance was c
 ## Nightly
 
 `.github/workflows/sim-nightly.yml` repeats the arch-*, lib-* and gpt-train-fp32 runs every night (05:41 UTC) and on
-`workflow_dispatch` (inputs: `sim-ref`, `workloads`), on hosted `ubuntu-24.04` runners, for `sim:nvidia/{h100, a100, rtx3060, t4, rtx5090}`
+`workflow_dispatch` (inputs: `sim-ref`, `workloads`), on hosted `ubuntu-24.04` runners, for `sim:nvidia/{h100, a100, rtx3060, t4, rtx5090}`, `sim:nvidia/a10g` and `sim:nvidia/l40s` (the last two are the cards measured on real hardware, compared in [`sim-vs-gpu.md`](sim-vs-gpu.md))
 (one job each, `fail-fast: false`). A change to the workflow or to `tools/sim-env.sh` runs it on the pull request too.
 Each run is checked by `bin/pw` against the CPU reference. The `report` job publishes `bin/pw matrix` as the job summary
 and uploads `results.tsv` (columns: target, workload, result, seconds, detail) and `matrix.md` as the `results` artifact;

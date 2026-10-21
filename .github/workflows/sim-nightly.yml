@@ -114,8 +114,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Hopper, Ampere (data centre and consumer), Turing (no bf16, no FlashAttention) and Blackwell.
-        gpu: [h100, a100, rtx3060, t4, rtx5090]
+        # Hopper, Ampere (data centre and consumer), Turing (no bf16, no FlashAttention) and Blackwell, plus the two
+        # cards measured on real hardware (docs/sim-vs-gpu.md): a10g (AWS g5, sm_86) and l40s (AWS g6e, sm_89).
+        gpu: [h100, a100, rtx3060, t4, rtx5090, a10g, l40s]
     steps:
       - uses: actions/checkout@v4
 

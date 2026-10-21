@@ -55,6 +55,8 @@ unsupported_ok:
   "*": [sdpa_flash_fp32_causal, dynamic_quantized_linear]
   "gpu": [fp8_scaled_mm_e4m3]   # real cards: A10G (sm_86) measured "unsupported"; Hopper/Ada and newer run it, and then it is checked as usual only if the reference has a number
   "sim:nvidia/a100": [fp8_scaled_mm_e4m3]
+  "sim:nvidia/a10": [fp8_scaled_mm_e4m3]    # sm_86, like the real A10G above
+  "sim:nvidia/a10g": [fp8_scaled_mm_e4m3]   # sm_86, like the real A10G above
   "sim:nvidia/rtx3060": [fp8_scaled_mm_e4m3]
   "sim:nvidia/rtx3080ti": [fp8_scaled_mm_e4m3]
   "sim:nvidia/t4": [fp8_scaled_mm_e4m3, sdpa_flash_fp16_plain, sdpa_flash_fp16_causal, sdpa_flash_fp16_gqa_causal,

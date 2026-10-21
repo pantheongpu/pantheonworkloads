@@ -1,0 +1,12 @@
+profile	real_counterpart	architecture	provenance
+a10g	NVIDIA A10G (AWS g5)	sm_86	pantheonsim nvidia/docs/profiles.md and nvidia/profiles/a10g.yaml (characterized from a physical A10G); the pairing used by this page
+l40s	NVIDIA L40S (AWS g6e)	sm_89	pantheonsim nvidia/docs/profiles.md and nvidia/profiles/l40s.yaml (verified against an AWS g6e.2xlarge, 2026-10-09); the pairing used by this page
+a10	none measured (the generic A10, not the AWS part)	sm_86	pantheonsim nvidia/profiles/a10.yaml; docs/sim-validation.md row 'lib-attention-precision (fp8 casts)' is its only run in the docs
+a100	none measured	sm_80	docs/sim-validation.md
+h100	none measured	sm_90	docs/sim-validation.md
+rtx3060	none measured	sm_86 (same architecture as the A10G)	docs/sim-validation.md; architecture from pantheonsim nvidia/docs/profiles.md
+rtx3080ti	none measured	sm_86 (same architecture as the A10G)	docs/sim-validation.md; architecture from pantheonsim nvidia/docs/profiles.md
+rtx5090	none measured	sm_120	docs/sim-validation.md
+t4	none measured	sm_75	docs/sim-validation.md
+l4	none measured (an L4 was only used for the fp8 cast probe, docs/fp8-cast-semantics.md)	sm_89	docs/sim-validation.md
+b200	none measured	sm_100	docs/sim-validation.md
