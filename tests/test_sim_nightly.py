@@ -41,6 +41,9 @@ class SimNightly(unittest.TestCase):
         # the point of the workflow
         for prefix in ("arch-", "lib-"):
             self.assertTrue(any(n.startswith(prefix) for n in names))
+        # the workloads docs/sim-vs-gpu.md pairs with a real A10G
+        for n in ("gpt-train-fp32", "gpt-train-bf16", "pytorch-microsuite", "resnet18-randinit-pytorch"):
+            self.assertIn(n, names)
 
     def test_functional_workloads_only(self):
         """A benchmark has no CPU reference to check against and is not a simulator target."""
