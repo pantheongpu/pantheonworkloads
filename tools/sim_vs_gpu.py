@@ -191,7 +191,7 @@ def render(root="."):
       f"every simulated result on every profile is PASS or SKIP for {len(pair_ok)}.")
     missing_a10g = [w for w in pw if not d.best(w, PAIR)]
     a(f"- Workloads of Table 1 run on the exact counterpart card `sim:nvidia/{PAIR}`: **{len(a10_full)}** of {len(pw)}; "
-      f"not run there: {', '.join(missing_a10g) or 'none'} (the nightly workflow's workload list does not include them).")
+      f"not run there: {', '.join(missing_a10g) or 'none'}" + (" (the nightly workflow's workload list does not include them)." if missing_a10g else "."))
     ndiff = len(differ)
     a(f"- Deviation figures that can be compared (a real value and a simulated value, {len(ratios)} pairs): "
       f"{ndiff} (workload, metric) combinations differ by more than {int(CLOSE * 100)}% between real and simulated; see Table 1b.")
@@ -282,7 +282,7 @@ def render(root="."):
         for c in other:
             row = next((r for r in d.sim if r["workload"] == w and r["profile"] == c and r["source"] == "nightly"), None)
             x = num(row["seconds"]) if row else None
-            if x is not None:
+            if x is not None and row["result"] == "PASS":      # a SKIP's seconds are not a workload's run time
                 vals.append(x)
             cells.append(g3(x) if x is not None else "")
         docs = [r for r in d.sim if r["workload"] == w and r["source"] == "doc" and r["scope"] == "full"]
@@ -322,7 +322,7 @@ def render(root="."):
       "is compared. (4) One rig, one day, three runs per workload; the first run is slower in some workloads because of cold "
       "caches, which is why both views are shown.")
     if vals:
-        a(f"- Across cards: one scheduled nightly run of these workloads on the simulator took a median of {g3(statistics.median(vals))} s "
+        a(f"- Across cards: one nightly run of these workloads on the simulator (scheduled on main; for three workloads a pull-request run, see the data sets) took a median of {g3(statistics.median(vals))} s "
           f"(range {g3(min(vals))} to {g3(max(vals))} s over the other {len(other)} cards, {len(vals)} runs, {nightly['date']}). "
           "That is the host CPU's time, not a property of any GPU; differences between simulated cards in these columns come from the hosted runners (each card was a separate job on its own runner), not from the cards.")
     a("- Known caveat of the 2026-10-06 times: the host was shared with other jobs (load average 6 to 8), and `arch-ssm` took 406 s "
@@ -378,7 +378,7 @@ def render(root="."):
         a("3. **The same commit on both sides**, so the same reference and tolerance is a fact of the commit, not of a diff.")
         a("")
         a("Still missing: a second real card (no L40S real run of these workloads exists, so `l40s` stays unpaired); "
-          "simulated a10g seconds for the workloads outside the nightly list (see Table 2); more than one rig and day (the run-to-run "
+          "a scheduled main run of the nightly for the rows that come from a pull-request run (see the data sets); more than one rig and day (the run-to-run "
           "spread seen here is three consecutive runs on one idle card); and the *no counterpart* workloads, whose reasons are in the "
           "section above: for `sim-not-run` the missing side is the simulated one (a hosted run for the workloads that need a model "
           "download), and the L40S workloads have no sim target in their manifests, so giving them one is a workload change.")
