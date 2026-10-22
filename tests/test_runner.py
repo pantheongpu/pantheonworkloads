@@ -178,6 +178,25 @@ class Cli(unittest.TestCase):
             with mock.patch.dict(os.environ, {"PW_SELFTEST_FAIL": "1"}), contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(pw.main(["run", "selftest", "--target", "cpu", "--out", str(out)]), 1)
 
+    def test_relative_out_is_made_absolute(self):
+        """Workloads that change directory (_pytorch/env.sh) write PW_OUT files, so a relative --out must not reach them."""
+        seen = []
+        real = pw.execute
+
+        def spy(name, target, out, *args, **kw):
+            seen.append(out)
+            return real(name, target, out, *args, **kw)
+        with tempfile.TemporaryDirectory() as tmp:
+            cwd = os.getcwd()
+            os.chdir(tmp)
+            try:
+                with mock.patch.object(pw, "execute", spy), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(pw.main(["run", "selftest", "--target", "cpu", "--out", "rel/out"]), 0)
+            finally:
+                os.chdir(cwd)
+            self.assertTrue(seen and seen[0].is_absolute())
+            self.assertTrue((pathlib.Path(tmp) / "rel" / "out" / "results.tsv").exists())
+
     def test_matrix(self):
         with tempfile.TemporaryDirectory() as tmp:
             for label, result in (("cpu", "PASS"), ("sim:amd/mi300x", "FAIL")):
