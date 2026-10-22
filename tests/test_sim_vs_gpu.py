@@ -13,6 +13,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import sim_vs_gpu as svg  # noqa: E402
 
+PR_RUN_WORKLOADS = {"gpt-train-bf16", "pytorch-microsuite", "resnet18-randinit-pytorch"}
 DATA = ROOT / "docs" / "data" / "sim-vs-gpu"
 FILES = ["real_results.tsv", "real_runs.tsv", "sim_results.tsv", "no_counterpart.tsv", "parity_metrics.tsv", "pairs.tsv", "datasets.tsv", "profiles.tsv"]
 
@@ -106,12 +107,25 @@ class CommittedPage(unittest.TestCase):
         nightly = [r for r in rows("sim_results.tsv") if r["source"] == "nightly"]
         self.assertTrue(nightly)
         for r in nightly:
-            self.assertIn("run 39585402659", r["provenance"])
-            self.assertIn("commit 659c10a", r["provenance"])
+            if r["workload"] in PR_RUN_WORKLOADS:
+                # a pull-request run, said plainly in the row, until a scheduled main run confirms it
+                self.assertIn("run 39806950452", r["provenance"])
+                self.assertIn("pull_request run", r["provenance"])
+                self.assertIn("NOT a run on main", r["provenance"])
+                self.assertIn("commit fcb99ef", r["provenance"])
+            else:
+                self.assertIn("run 39585402659", r["provenance"])
+                self.assertIn("commit 659c10a", r["provenance"])
+        # all 14 workloads of the real rerun are paired with sim a10g, and the SKIP on the T4 is recorded as one
+        a10g = {r["workload"] for r in nightly if r["profile"] == "a10g"}
+        self.assertEqual(a10g, {r["workload"] for r in rows("real_runs.tsv")})
+        t4 = {r["workload"]: r["result"] for r in nightly if r["profile"] == "t4"}
+        self.assertEqual(t4["gpt-train-bf16"], "SKIP")
+        self.assertEqual(t4["pytorch-microsuite"], "PASS")
 
     def test_page_has_the_ratio(self):
         text = (ROOT / "docs" / "sim-vs-gpu.md").read_text(encoding="utf-8")
-        self.assertIn("sim/real ratio, simulated seconds on `sim:nvidia/a10g` over the real median (11 pairs)", text)
+        self.assertIn("sim/real ratio, simulated seconds on `sim:nvidia/a10g` over the real median (14 pairs)", text)
         self.assertNotIn("cannot be computed", text)
 
     def test_no_counterpart_is_disjoint_from_the_pairs(self):

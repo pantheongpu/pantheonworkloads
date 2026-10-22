@@ -1,6 +1,6 @@
 name: Simulated GPUs nightly
 
-# The arch-* and lib-* workloads (and gpt-train-fp32) on pantheonsim's simulated NVIDIA GPUs, each checked by
+# The arch-* and lib-* workloads, the gpt-train ones, pytorch-microsuite and resnet18-randinit-pytorch on pantheonsim's simulated NVIDIA GPUs, each checked by
 # `bin/pw` against its CPU reference. docs/sim-validation.md is the record of what passes and why.
 #
 # Hosted runners only: the simulator is built once per pin (job `sim`, cached), and every GPU profile then runs
@@ -47,7 +47,7 @@ env:
   WORKLOADS: >-
     arch-llama-family arch-moe arch-ssm arch-vision arch-encdec
     lib-fft-linalg lib-sparse-embedding lib-rnn-conv lib-attention-precision lib-composite-blocks
-    gpt-train-fp32
+    gpt-train-fp32 gpt-train-bf16 pytorch-microsuite resnet18-randinit-pytorch
 
 jobs:
   sim:

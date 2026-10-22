@@ -432,7 +432,8 @@ def cmd_run(a):
         return 2
     reps = a.repeat if a.bench else 1
     run_id = time.strftime("%Y%m%dT%H%M%S") + "-" + a.target.replace("/", "-").replace(":", "-")
-    out = pathlib.Path(a.out) if a.out else ROOT / "results" / run_id
+    # absolute: workload scripts that change directory (_pytorch/env.sh runs in a temp dir) write PW_OUT files
+    out = pathlib.Path(a.out).resolve() if a.out else ROOT / "results" / run_id
     out.mkdir(parents=True, exist_ok=True)
     (out / "machine.txt").write_text(f"{a.target} on {socket.gethostname()}\n")
     failed = False
