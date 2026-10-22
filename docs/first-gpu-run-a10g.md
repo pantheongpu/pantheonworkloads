@@ -106,3 +106,11 @@ The int8 and Moonshine failures above were measured on a g5.xlarge (A10G, AMD EP
 is wrong on an AVX2 CPU without VNNI (ONNX Runtime's `session.x64quantprecision=1` repairs it and is a no-op on VNNI), Kokoro's second-sentence length
 depends on the CPU kernel path (70800 or, in the 7-bit AVX2 mode, 71400 samples; the reference has 70800), and Moonshine's text flips on near ties run to run on the card. The comparisons now
 check task output within measured bounds. Everything, with the numbers: `docs/int8-and-nondeterminism.md`.
+
+## Timing rerun for the sim-vs-GPU page (2026-10-22, g5.2xlarge)
+
+One A10G (driver 595.91.07, CUDA 13.0), commit `659c10a` cloned from a bundle of origin/main (clean tree), the same libraries as the simulator
+nightly (torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.18.0, numpy 2.5.4) in a uv Python 3.12 venv (`PW_PYTHON` and
+`PW_TORCH_PYTHON` pointing at it, `LD_LIBRARY_PATH` unset). The 14 PyTorch workloads of `docs/sim-vs-gpu.md` ran three times each,
+consecutively, with `bin/pw run <w> --target gpu`: all 42 runs PASS, setup plus runs took about 15 minutes. Every run's seconds, and the
+per-workload deviations, are in `docs/data/sim-vs-gpu/real_runs.tsv` and `real_results.tsv`; the cost-of-simulation table is Table 2 of the page.

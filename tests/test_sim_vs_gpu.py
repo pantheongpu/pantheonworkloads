@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 import sim_vs_gpu as svg  # noqa: E402
 
 DATA = ROOT / "docs" / "data" / "sim-vs-gpu"
-FILES = ["real_results.tsv", "sim_results.tsv", "no_counterpart.tsv", "parity_metrics.tsv", "pairs.tsv", "datasets.tsv", "profiles.tsv"]
+FILES = ["real_results.tsv", "real_runs.tsv", "sim_results.tsv", "no_counterpart.tsv", "parity_metrics.tsv", "pairs.tsv", "datasets.tsv", "profiles.tsv"]
 
 
 def rows(name):
@@ -31,6 +31,7 @@ def put(root, name, header, body):
         w.writerows(body)
 
 
+RUNS_H = "workload run cold result seconds run_dir provenance".split()
 REAL_H = "workload gpu result date stack detail reference wall_seconds commit note provenance".split()
 SIM_H = "workload profile scope result seconds seconds_note detail date source host provenance".split()
 
@@ -43,6 +44,8 @@ def make_root(tmp, real_seconds="", a10_seconds=""):
         ["w-b", "nvidia-a10g", "FAIL", "2025-12-01", "old torch", "bad", "ref", "", "c0", "superseded by the re-run", "doc A"],
         ["w-c", "nvidia-a10g", "PASS", "2026-01-01", "x", "ok", "ref", "", "", "", "doc B"],
         ["w-d", "nvidia-l40s", "PASS", "2026-01-02", "x", "ok", "rec", "", "", "", "doc C"]])
+    if real_seconds:
+        put(tmp, "real_runs.tsv", RUNS_H, [["w-a", str(n), "yes" if n == 1 else "no", "PASS", real_seconds, f"run{n}/w-a", "rerun"] for n in (1, 2, 3)])
     put(tmp, "sim_results.tsv", SIM_H, [
         ["w-a", "a10g", "full", "PASS", a10_seconds, "", "d", "2026-01-05", "nightly", "host", "run 1"],
         ["w-a", "a100", "full", "PASS", "12", "", "d", "2026-01-05", "nightly", "host", "run 1"],
@@ -68,7 +71,7 @@ class CommittedPage(unittest.TestCase):
 
     def test_every_row_has_provenance(self):
         for name, col in [("real_results.tsv", "provenance"), ("sim_results.tsv", "provenance"), ("no_counterpart.tsv", "provenance"),
-                          ("parity_metrics.tsv", "real_provenance"), ("parity_metrics.tsv", "sim_provenance"), ("datasets.tsv", "provenance"),
+                          ("real_runs.tsv", "provenance"), ("parity_metrics.tsv", "real_provenance"), ("parity_metrics.tsv", "sim_provenance"), ("datasets.tsv", "provenance"),
                           ("profiles.tsv", "provenance")]:
             for r in rows(name):
                 self.assertTrue(r[col].strip(), f"{name}: {r} has no {col}")
@@ -79,9 +82,37 @@ class CommittedPage(unittest.TestCase):
         for r in rows("pairs.tsv"):
             self.assertIn(r["workload"], real & sim)
 
-    def test_no_real_wall_clock_is_invented(self):
-        # no source records one; the day one does, this test is the place to look at its provenance
-        self.assertEqual([r["workload"] for r in rows("real_results.tsv") if r["wall_seconds"]], [])
+    def test_every_real_wall_clock_comes_from_three_recorded_runs(self):
+        # a wall-clock is never typed in: it is the median of the runs in real_runs.tsv, each with its provenance
+        runs = {}
+        for r in rows("real_runs.tsv"):
+            self.assertTrue(r["provenance"].strip() and r["run_dir"].strip(), r)
+            runs.setdefault(r["workload"], []).append(r)
+        timed = [r for r in rows("real_results.tsv") if r["wall_seconds"]]
+        self.assertTrue(timed)
+        for r in timed:
+            w = r["workload"]
+            self.assertEqual(len(runs.get(w, [])), 3, w)
+            secs = sorted(float(x["seconds"]) for x in runs[w])
+            self.assertEqual(float(r["wall_seconds"]), secs[1], w)
+            self.assertEqual([x["cold"] for x in sorted(runs[w], key=lambda x: int(x["run"]))], ["yes", "no", "no"], w)
+            self.assertEqual(r["commit"], "659c10a", w)
+            self.assertIn("rerun 2026-10-22", r["provenance"], w)
+            self.assertIn("659c10a", r["provenance"], w)
+            self.assertFalse(r["note"].startswith("superseded"), w)
+        self.assertEqual(set(runs), {r["workload"] for r in timed})
+
+    def test_the_nightly_rows_are_the_scheduled_main_run(self):
+        nightly = [r for r in rows("sim_results.tsv") if r["source"] == "nightly"]
+        self.assertTrue(nightly)
+        for r in nightly:
+            self.assertIn("run 39585402659", r["provenance"])
+            self.assertIn("commit 659c10a", r["provenance"])
+
+    def test_page_has_the_ratio(self):
+        text = (ROOT / "docs" / "sim-vs-gpu.md").read_text(encoding="utf-8")
+        self.assertIn("sim/real ratio, simulated seconds on `sim:nvidia/a10g` over the real median (11 pairs)", text)
+        self.assertNotIn("cannot be computed", text)
 
     def test_no_counterpart_is_disjoint_from_the_pairs(self):
         sim = {r["workload"] for r in rows("sim_results.tsv")}
@@ -142,13 +173,13 @@ class Generator(unittest.TestCase):
         row = [l for l in text.split("## Table 2")[1].splitlines() if l.startswith("| w-a |")][0]
         cells = [c.strip() for c in row.strip().strip("|").split("|")]
         self.assertEqual(cells[1], "")        # no real wall-clock
-        self.assertEqual(cells[2], "40")      # the simulated seconds are shown
-        self.assertEqual(cells[8], "")        # so there is no ratio
+        self.assertEqual(cells[4], "40")      # the simulated seconds are shown
+        self.assertEqual(cells[11], "")       # so there is no ratio
 
     def test_ratio_when_both_are_recorded(self):
         make_root(self.tmp, real_seconds="10", a10_seconds="40")
         text = svg.render(self.tmp)
-        self.assertIn("sim/real ratio (1 pairs): median 4, range 4 to 4", text)
+        self.assertIn("over the real median (1 pairs): median 4, range 4 (w-a) to 4 (w-a)", text)
 
     def test_deviations_are_compared_with_the_same_threshold(self):
         make_root(self.tmp)

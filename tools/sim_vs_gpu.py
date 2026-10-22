@@ -25,8 +25,11 @@ NIGHTLY_CARDS = ["a10g", "l40s", "a100", "h100", "rtx3060", "rtx5090", "t4"]
 CLOSE = 0.10                  # a sim/real ratio inside 1 +- CLOSE is called "same"
 
 
-def load(root, name):
-    with open(pathlib.Path(root) / DATA / name, encoding="utf-8", newline="") as f:
+def load(root, name, optional=False):
+    path = pathlib.Path(root) / DATA / name
+    if optional and not path.exists():
+        return []
+    with open(path, encoding="utf-8", newline="") as f:
         return list(csv.DictReader(f, delimiter="\t"))
 
 
@@ -63,6 +66,10 @@ def table(head, rows):
 class Data:
     def __init__(self, root):
         self.real = load(root, "real_results.tsv")
+        # every real run, one row each (real_runs.tsv); wall_seconds in real_results.tsv is the median of these
+        self.runs = {}
+        for r in load(root, "real_runs.tsv", optional=True):
+            self.runs.setdefault(r["workload"], []).append(r)
         self.sim = load(root, "sim_results.tsv")
         self.nocp = load(root, "no_counterpart.tsv")
         self.metrics = load(root, "parity_metrics.tsv")
@@ -150,12 +157,16 @@ def render(root="."):
       "from `a10g`); \"not run\" means no result exists, not a pass.")
     a("- **Same reference and tolerance** is checked from the repository, not assumed: the real run and the simulated run used "
       "workload directories that are identical (manifest, `reference.json` and scripts) between the two commits named in the data, "
-      "except where the row says otherwise. The simulated a10g / l40s results come from a run of the nightly workflow on the branch "
-      "of the pull request that introduced this page, not from a run on main; it should be re-checked against a scheduled run on main.")
-    a("- **Never estimated.** An empty cell is a value the sources do not hold. In particular no per-workload wall-clock of a real "
-      "run is recorded anywhere, so the real column of Table 2 and the sim/real ratio are empty.")
-    a("- **Software differs a little.** The real re-run used transformers 5.19.0, the nightly simulation 5.18.0 (the version the "
-      "references were recorded with); both used torch 2.14.1+cu130.")
+      "except where the row says otherwise. Where the real rerun and a scheduled nightly run on main used the same commit, that is the "
+      "basis (the same commit, so the same files). The simulated a10g / l40s results are the scheduled nightly run on main named in "
+      "the data sets below.")
+    nreal_runs = sum(len(v) for v in d.runs.values())
+    a("- **Never estimated.** An empty cell is a value the sources do not hold. Real wall-clock seconds exist only for the workloads "
+      f"of the real rerun ({len(d.runs)} workloads, {nreal_runs} runs, each one a row of `real_runs.tsv`); a workload outside it has an "
+      "empty real cell and no ratio.")
+    a("- **Software.** The real rerun and the nightly simulation used the same libraries: torch 2.14.1+cu130, torchvision 0.29.1 and "
+      "transformers 5.18.0 (the version the references were recorded with; the older real records of 2026-10-08 used 5.19.0 for the "
+      "arch-* workloads and are marked superseded where the rerun replaces them).")
     a("")
     a("### Data sets and their dates")
     a("")
@@ -201,13 +212,16 @@ def render(root="."):
         rows.append([w, real_cell(d, w), short(r["detail"], 130), r["date"], cell(pa), short(pa["detail"], 110) if pa else "not run", same, ", ".join(dates)] + [cell(d.best(w, p)) for p in OTHER])
     a("\n".join(table(head, rows)))
     a("")
-    a("Real deviation / detail is the largest difference from the reference where the source gives one; the arch-* workloads share "
-      "one aggregate figure in the source. Each cell's source is in `docs/data/sim-vs-gpu/real_results.tsv` and `sim_results.tsv`.")
+    a("Real deviation / detail is the largest difference from the reference where the source gives one (for the rerun rows, the "
+      "figures of the first run, which the three runs of a workload reproduce). Each cell's source is in "
+      "`docs/data/sim-vs-gpu/real_results.tsv` and `sim_results.tsv`.")
     a("")
     a("### Table 1b: deviation from the reference, real against simulated")
     a("")
     a("Only figures that appear on both sides. sim/real is the simulated value divided by the real one; the checks compare against "
-      "the same float64 CPU result (ops) or the same recorded training run (loss).")
+      "the same float64 CPU result (ops) or the same recorded training run (loss). For the arch-* workloads the nightly artifact keeps "
+      "only the first 200 characters of the detail line, so the comparison uses the first architecture of each workload (its margin and "
+      "fp64 logits deviation); the real side's other architectures are in `real_results.tsv`.")
     a("")
     grouped = {}
     for m in d.metrics:
@@ -235,22 +249,37 @@ def render(root="."):
     a("")
     a("Columns headed *cost of simulating (CPU time), not GPU performance* are the wall-clock seconds of one `bin/pw run` on the "
       "simulator (starting it, importing torch, running the workload on the host CPU). They say nothing about how long the "
-      "real card takes. The nightly times come from a GitHub-hosted runner whose load the artifact does not record.")
+      "real card takes. The nightly times come from a GitHub-hosted runner whose load the artifact does not record. "
+      "Real A10G seconds are the whole-workload wall-clock `bin/pw run` writes to `results.tsv` (process start, imports and the "
+      "workload's own CPU float64 oracle included, the same quantity as the simulated column), measured on one idle A10G; "
+      "*median* is the median of three consecutive runs, *first run* is the cold one (empty file and kernel caches after setup). "
+      "sim/real is the simulated seconds divided by the real median: how many times slower it is to simulate the workload than to run it "
+      "on the card, not a statement about GPU speed.")
     a("")
-    head = ["Workload", "Real A10G wall-clock (s)", f"Sim {PAIR}: cost of simulating (CPU time), not GPU performance (s)"] + \
-           [f"Sim {c} (s)" for c in NIGHTLY_CARDS if c != PAIR] + ["sim/real", "2026-10-06 shared host (not comparable with the nightly)"]
+    other = [c for c in NIGHTLY_CARDS if c != PAIR]
+    head = ["Workload", "Real A10G median of 3 (s)", "Real first run, cold (s)", "Real runs 1, 2, 3 (s)",
+            f"Sim {PAIR}: cost of simulating (CPU time), not GPU performance (s)"] + \
+           [f"Sim {c} (s)" for c in other] + ["sim/real (median)", "sim/real (first run)", "2026-10-06 shared host (not comparable with the nightly)"]
     rows = []
     vals = []
     ratio_vals = []
+    first_ratio_vals = []
+    per = {}
     for w in pw:
         rs = num(d.real_a10g[w]["wall_seconds"])
+        runs = sorted(d.runs.get(w, []), key=lambda r: int(r["run"]))
+        firstrun = next((num(r["seconds"]) for r in runs if r["cold"] == "yes"), None)
         pa = d.best(w, PAIR)
         sa = num(pa["seconds"]) if pa else None
         ratio = g3(sa / rs) if rs and sa is not None else ""
+        fratio = g3(sa / firstrun) if firstrun and sa is not None else ""
         if rs and sa is not None:
             ratio_vals.append(sa / rs)
+            per[w] = sa / rs
+        if firstrun and sa is not None:
+            first_ratio_vals.append(sa / firstrun)
         cells = []
-        for c in [c for c in NIGHTLY_CARDS if c != PAIR]:
+        for c in other:
             row = next((r for r in d.sim if r["workload"] == w and r["profile"] == c and r["source"] == "nightly"), None)
             x = num(row["seconds"]) if row else None
             if x is not None:
@@ -265,21 +294,36 @@ def render(root="."):
                          + f" ({len(secs)} card{'s' if len(secs) != 1 else ''} with a per-card time)")
         parts += notes
         old_text = "; ".join(parts)
-        rows.append([w, g3(rs) if rs else "", g3(sa) if sa is not None else ""] + cells + [ratio, old_text])
+        rows.append([w, g3(rs) if rs else "", g3(firstrun) if firstrun else "", ", ".join(g3(num(r["seconds"])) for r in runs),
+                     g3(sa) if sa is not None else ""] + cells + [ratio, fratio, old_text])
     a("\n".join(table(head, rows)))
     a("")
     nreal = sum(1 for w in pw if num(d.real_a10g[w]["wall_seconds"]))
-    a(f"- Real wall-clock recorded for {nreal} of {len(pw)} workloads. No source records how long a functional run took on a real card "
-      "(the A10G documents give instance time in hours and bench medians in throughput, not per-workload seconds), so those "
-      "cells are empty and nothing was estimated from throughput.")
+    no_real = [w for w in pw if not num(d.real_a10g[w]["wall_seconds"])]
+    no_sim = [w for w in pw if num(d.real_a10g[w]["wall_seconds"]) and (d.best(w, PAIR) is None or num(d.best(w, PAIR)["seconds"]) is None)]
+    a(f"- Real wall-clock recorded for {nreal} of {len(pw)} workloads" + (f"; empty for {', '.join(no_real)}" if no_real else "") + ". "
+      "Nothing was estimated from throughput or any other figure.")
     if ratio_vals:
-        a(f"- sim/real ratio ({len(ratio_vals)} pairs): median {g3(statistics.median(ratio_vals))}, range {g3(min(ratio_vals))} to {g3(max(ratio_vals))}.")
+        a(f"- sim/real ratio, simulated seconds on `sim:nvidia/{PAIR}` over the real median ({len(ratio_vals)} pairs): median {g3(statistics.median(ratio_vals))}, "
+          f"range {g3(min(ratio_vals))} ({min(per, key=per.get)}) to {g3(max(ratio_vals))} ({max(per, key=per.get)}).")
     else:
-        a("- The sim/real ratio therefore cannot be computed for any pair, and no median or range is given. "
+        a("- The sim/real ratio cannot be computed for any pair, and no median or range is given. "
           f"The simulated seconds on `sim:nvidia/{PAIR}` exist; the missing half is the real run's.")
+    if first_ratio_vals:
+        a(f"- Against the cold first run ({len(first_ratio_vals)} pairs): median {g3(statistics.median(first_ratio_vals))}, "
+          f"range {g3(min(first_ratio_vals))} to {g3(max(first_ratio_vals))}.")
+    if no_sim:
+        a(f"- Real seconds without a ratio, because the nightly workflow does not run them on `sim:nvidia/{PAIR}`: {', '.join(no_sim)}.")
+    a("- **Caveats.** (1) The simulated seconds are CPU time on a shared GitHub-hosted runner (load not recorded); the real seconds "
+      "are one g5.2xlarge (8 vCPU) with the A10G idle. The ratio is the cost of simulating on that hardware pair, not a property of "
+      "the A10G or of the simulator's design. (2) Both sides include process start, torch imports and the workload's float64 CPU "
+      "oracle, so a floor of a few seconds is common to both and compresses the ratio of the short workloads; a workload with more "
+      "GPU work would show a larger ratio. (3) The workloads are small checks, not benchmarks: no real throughput is implied and none "
+      "is compared. (4) One rig, one day, three runs per workload; the first run is slower in some workloads because of cold "
+      "caches, which is why both views are shown.")
     if vals:
-        a(f"- What the data does show: one nightly run of these workloads on the simulator took a median of {g3(statistics.median(vals))} s "
-          f"(range {g3(min(vals))} to {g3(max(vals))} s, {len(vals)} runs on {len(NIGHTLY_CARDS)} simulated cards, {nightly['date']}). "
+        a(f"- Across cards: one scheduled nightly run of these workloads on the simulator took a median of {g3(statistics.median(vals))} s "
+          f"(range {g3(min(vals))} to {g3(max(vals))} s over the other {len(other)} cards, {len(vals)} runs, {nightly['date']}). "
           "That is the host CPU's time, not a property of any GPU; differences between simulated cards in these columns come from the hosted runners (each card was a separate job on its own runner), not from the cards.")
     a("- Known caveat of the 2026-10-06 times: the host was shared with other jobs (load average 6 to 8), and `arch-ssm` took 406 s "
       "on the first card (rtx5090, under load from other jobs) against 24 s on the last (t4). The time depends on the host's load, so "
@@ -317,27 +361,29 @@ def render(root="."):
     a("Simulated results with no real A10G result: " + (", ".join(sim_only) if sim_only else "none") + ".")
     a("")
 
-    # ---- missing on the real side
-    a("## What is missing on the real side, and what a single-A10G rerun would add")
+    # ---- what is still missing
+    a("## What the real-side rerun filled, and what is still missing")
     a("")
+    rerun = next((x for x in d.sets if x["id"] == "real-a10g-2026-10-22"), None)
     no_dev = [w for w in pw if any(k in d.real_a10g[w]["detail"] for k in ("not recorded", "aggregate"))]
-    a(f"None of this has been launched; it is a proposal for the maintainer to approve. The {len(pw)} workloads of Table 1 would be "
-      "re-run once on one on-demand A10G (g5.xlarge or g5.2xlarge, `tools/rig`, about 45 minutes of instance time at the rate the "
-      "torch 2.14.1 re-run took), from the same commit as a nightly simulated run, with `bin/pw run <workloads> --target gpu` and "
-      "the torch 2.14.1 environment of `docs/first-gpu-run-a10g.md`:")
-    a("")
-    a("1. **Real wall-clock seconds** for all " + str(len(pw)) + " workloads (`results.tsv` of `bin/pw run` records them). Missing today for "
-      f"{len(pw) - nreal} of {len(pw)}; without them Table 2 has no ratio.")
-    a(f"2. **Per-workload deviation figures** where the docs give none or one shared figure: {', '.join(no_dev) or 'none'}.")
-    a("3. **The same commit on both sides**: the real run used 479c1c7 and the simulated run f65df00 (identical workload directories apart from the allow-list noted in Table 1, "
-      "but a rerun makes that a fact of one run rather than of a diff).")
-    a(f"4. The simulated side of the pair already exists ({len(a10_full)} of {len(pw)} workloads on `sim:nvidia/{PAIR}`, from the nightly workflow), so the "
-      "rerun only has to supply the real side.")
-    a("")
-    a("A rig adds nothing for the *no counterpart* workloads whose reason is `sim-not-run`: their missing side "
-      "is the simulated one (a hosted run for the workloads that need a model download). The L40S workloads have no sim target in "
-      "their manifests; giving them one is a workload change, and a real L40S run of the nightly PyTorch workloads would be needed "
-      "to pair `l40s` at all.")
+    if rerun:
+        a(f"The rerun proposed in the first version of this page has been done ({rerun['date']}: {rerun['environment']}). "
+          f"It ran the {len(d.runs)} workloads of Table 1 that the PyTorch rig can run, from {rerun['commit']}, which is the commit of the "
+          "scheduled nightly run the simulated side is taken from. It supplied:")
+        a("")
+        a(f"1. **Real wall-clock seconds** for {nreal} of {len(pw)} workloads, three runs each (`real_runs.tsv`); Table 2 now has the "
+          "sim/real ratio for every workload the nightly runs on `sim:nvidia/a10g`.")
+        a("2. **Per-workload deviation figures** for the eight that had none or one shared figure (the five arch-* workloads, "
+          f"gpt-train-fp32, gpt-train-bf16, resnet18-randinit-pytorch); figures still missing in Table 1: {', '.join(no_dev) or 'none'}.")
+        a("3. **The same commit on both sides**, so the same reference and tolerance is a fact of the commit, not of a diff.")
+        a("")
+        a("Still missing: a second real card (no L40S real run of these workloads exists, so `l40s` stays unpaired); "
+          "simulated a10g seconds for the workloads outside the nightly list (see Table 2); more than one rig and day (the run-to-run "
+          "spread seen here is three consecutive runs on one idle card); and the *no counterpart* workloads, whose reasons are in the "
+          "section above: for `sim-not-run` the missing side is the simulated one (a hosted run for the workloads that need a model "
+          "download), and the L40S workloads have no sim target in their manifests, so giving them one is a workload change.")
+    else:
+        a("No real-side rerun is recorded in the data files.")
     a("")
     return "\n".join(out)
 
