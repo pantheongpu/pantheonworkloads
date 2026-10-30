@@ -59,6 +59,9 @@ class SimNightly(unittest.TestCase):
         for g in gpus:
             self.assertRegex(g, r"^[a-z0-9]+$")
             self.assertIn(f"sim:nvidia/{g}", NVIDIA_PROFILES_DOC.read_text(), f"{g} is not a profile the docs know")
+        # The cards docs/sim-vs-gpu.md pairs with a real one must stay in the matrix.
+        for g in ("t4", "a10g", "l4", "l40s"):
+            self.assertIn(g, gpus)
 
     def test_simulator_is_pinned(self):
         self.assertRegex(self.wf["env"]["SIM_REF_PIN"], r"^[0-9a-f]{40}$")
