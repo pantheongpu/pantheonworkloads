@@ -94,7 +94,7 @@ Arithmetic from those numbers, not a measurement of a real model: 100 GiB at 1.5
 sudo tools/rig/nvme-setup.sh            # instance-store NVMe -> /mnt/nvme (g7e: 6 TB; p4d/p5 more); safe where there is none
 source /mnt/nvme/pw-env.sh              # PW_CACHE=/mnt/nvme/pw-cache  HF_HOME=/mnt/nvme/hf  UV_CACHE_DIR=/mnt/nvme/uv-cache  TMPDIR=/mnt/nvme/tmp
 export PW_FAST_FETCH=1                  # default OFF: without it nothing below changes
-export PW_FAST_STREAMS=24               # parallel range requests per file (default 24; 16 to 32 is the measured sweet spot)
+export PW_FAST_STREAMS=48               # parallel range requests per file (default 48; on a g7e the rate was 780 MiB/s at 24, 1,067 at 48, 960-990 at 64 to 96)
 tools/rig/run_batch.sh <tag> ... --env PW_FAST_FETCH=1 --env PW_CACHE=/mnt/nvme/pw-cache --env HF_HOME=/mnt/nvme/hf
 ```
 
@@ -119,7 +119,7 @@ Not covered (small, unchanged): whisper.cpp ggml files, Ollama pulls, ONNX/spaCy
 `tools/rig/fastfetch.py` is standard-library Python (`http.client` plus a thread pool; no aria2c, no hf_transfer, so nothing to install on the rig):
 
 * **Resolve once.** `resolve/<commit>/<file>` redirects to a signed CDN URL. It is resolved once; when a chunk gets 401/403 (the signature expired) one worker re-resolves and all reuse the new URL. A 404/401/403 on the Hub itself is permanent (gated repository: set `HF_TOKEN`; the token goes only to the host of the first URL, never to the CDN).
-* **Streams and memory.** `PW_FAST_STREAMS` (24) workers each fetch a `PW_FAST_CHUNK_MIB` (48 MiB) range and `pwrite()` it into a preallocated `<file>.part`, through a 1 MiB buffer: memory use is about `streams` MiB.
+* **Streams and memory.** `PW_FAST_STREAMS` (48) workers each fetch a `PW_FAST_CHUNK_MIB` (48 MiB) range and `pwrite()` it into a preallocated `<file>.part`, through a 1 MiB buffer: memory use is about `streams` MiB.
 * **Resumable, never a corrupt "complete" file.** `<file>.part.map` has one byte per chunk, set only after the data file was `fsync`ed (batched every `PW_FAST_FLUSH_S`, 2 s). On resume, the 2 highest-numbered recorded chunks are fetched again anyway (the earlier staging run lost data to a reboot), and the final file name exists only after the whole file hashed to the pin and was renamed. A sidecar for a different size, chunk size or pin is discarded.
 * **Verified, always.** sha256 is computed in order by a thread that follows the downloaders (no second pass over a 100 GiB file) and compared with `model.sha256` (or the Hub's LFS oid for `files`/`snapshot` of unpinned LFS files; small unpinned configs are checked by size only). A file already present is hashed first and kept only if it matches. A mismatch deletes the file and **fails the run (exit 1), never a SKIP**; if the download had been resumed, the file is fetched once more from scratch first. After a fast `snapshot()` the callers skip their own re-hash of those files in the same process (same size and mtime) and otherwise still verify as before.
 * **Retries.** Connection resets, short reads, 429 (honours `Retry-After`) and 5xx retry with exponential backoff and jitter, `PW_FAST_RETRIES` (8) per chunk. When they run out, the run SKIPs with the reason (as an unreachable Hub did before) and the partial file stays for the next try.

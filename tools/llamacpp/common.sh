@@ -16,7 +16,7 @@
 #                         lacks falls back to the Hub, or SKIPs when PW_MODEL_MIRROR_STRICT=1. PW_MIRROR_JOBS: parallel copies (8).
 #                         DEPRECATED, unused: the S3 bucket was deleted (docs/rigs.md); use PW_FAST_FETCH
 #   PW_FAST_FETCH         1: lc_fetch_shards downloads with tools/rig/fastfetch.py (parallel ranged streams, resumable, sha256 checked
-#                         while downloading) instead of curl. Default off. PW_FAST_STREAMS (24), PW_FAST_CHUNK_MIB (48); docs/rigs.md
+#                         while downloading) instead of curl. Default off. PW_FAST_STREAMS (48), PW_FAST_CHUNK_MIB (48); docs/rigs.md
 # The simulated targets are wired from pantheonsim's tests/e2e/run_ollama.sh and
 # amd/tests/e2e/run_ollama_amd.sh and have NOT been run (no GPU toolchain was available).
 
