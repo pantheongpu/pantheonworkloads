@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-qwen3-next-80b-a3b-instruct",
+  "date": "2026-10-30T20:20:56Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.112.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "Qwen/Qwen3-Next-80B-A3B-Instruct-GGUF (Qwen3-Next-80B-A3B-Instruct-Q4_K_M.gguf; Q4_K_M GGUF of Qwen/Qwen3-Next-80B-A3B-Instruct)",
+      "revision": "4c8630cf7af926a9c5095cb4bbbbc65d36e20f77 (HF commit of the GGUF repo); file sha256 d103b2733ec1012a52d01edda66b7e5c24ae50508c9f99f5297ea459ef3c061a; base model Qwen/Qwen3-Next-80B-A3B-Instruct @ 9c7f2fbe84465e40164a94cc16cd30b6999b0cc7",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "bf9d255cabb2d63cc9461106f8b61be5dd3d8425",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 5108.91,
+      "values": [
+        5103.07,
+        5117.47,
+        5109.15,
+        5105.7,
+        5108.91
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 216.69,
+      "values": [
+        216.19,
+        216.69,
+        216.81,
+        216.19,
+        216.9
+      ]
+    }
+  }
+}
