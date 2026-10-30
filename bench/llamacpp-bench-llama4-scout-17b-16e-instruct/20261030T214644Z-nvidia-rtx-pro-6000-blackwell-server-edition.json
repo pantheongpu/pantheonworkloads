@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-llama4-scout-17b-16e-instruct",
+  "date": "2026-10-30T21:46:44Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.112.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "ggml-org/Llama-4-Scout-17B-16E-Instruct-GGUF (Llama-4-Scout-17B-16E-Instruct-Q4_K_M-00001-of-00002.gguf + 1 more shard(s); Q4_K_M GGUF of meta-llama/Llama-4-Scout-17B-16E-Instruct)",
+      "revision": "42675345da11ade9203a5187595da7b74d4ff2ac (HF commit of the GGUF repo); 2 file(s), model.sha256 lists them; base model meta-llama/Llama-4-Scout-17B-16E-Instruct @ 92f3b1597a195b523d8d9e5700e57e4fbb8f20d3",
+      "licence": "Llama 4 Community License",
+      "source_url": "https://huggingface.co/ggml-org/Llama-4-Scout-17B-16E-Instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "284537758a5d8397f788d24e2bc4b06588ae4397",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 1569.44,
+      "values": [
+        1570.41,
+        1569.44,
+        1571.5,
+        1561.89,
+        1569.12
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 96.27,
+      "values": [
+        96.2,
+        96.28,
+        96.31,
+        96.23,
+        96.27
+      ]
+    }
+  }
+}
