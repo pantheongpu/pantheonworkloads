@@ -1,7 +1,7 @@
 """Shared body of the catalog's text-to-speech workloads, imported by their main.py.
 
 One fixed sentence is synthesised and the waveform is checked, never compared sample by sample: output = the clip's
-duration rounded to a half second, its RMS level (3 decimals) and whether every sample is finite. The run fails when
+duration in seconds (2 decimals, compared with a measured tolerance in each manifest), its RMS level (3 decimals) and whether every sample is finite. The run fails when
 the clip is shorter than a second, silent or clipped. Engines:
   chatterbox   the `chatterbox-tts` package: ChatterboxTTS.from_local(<pinned snapshot>, device).generate(text)
   f5-tts       the `f5-tts` package: F5TTS(ckpt_file=..., vocab_file=...).infer(ref_file, ref_text, gen_text) with the
@@ -20,6 +20,7 @@ import torch
 import catalog_common as cc
 import common
 
+SEED = int(os.environ.get("PW_TTS_SEED", "0"))   # 0 for every recorded result; other values only to measure how far the duration moves
 TEXT = "The quick brown fox jumps over the lazy dog."
 
 
@@ -39,7 +40,7 @@ def run(model_id, revision, engine, label=None):
         sr = model.sr
 
         def go():
-            torch.manual_seed(0)
+            torch.manual_seed(SEED)
             return model.generate(TEXT).squeeze().float().cpu().numpy()
     elif engine == "f5-tts":
         try:
@@ -57,7 +58,7 @@ def run(model_id, revision, engine, label=None):
 
         def go():
             wav, _sr, _spec = model.infer(ref_file=ref, ref_text="And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
-                                          gen_text=TEXT, seed=0)
+                                          gen_text=TEXT, seed=SEED)
             return np.asarray(wav, dtype=np.float32)
     else:
         sys.exit(f"unknown engine {engine}")
@@ -74,7 +75,7 @@ def run(model_id, revision, engine, label=None):
         with wave.open(os.path.join(os.environ["PW_OUT"], "tts.wav"), "wb") as w:
             w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
             w.writeframes((np.clip(wav, -1, 1) * 32767).astype(np.int16).tobytes())
-    out = {"duration_s": round(dur * 2) / 2, "rms": round(rms, 3), "finite": True}
+    out = {"duration_s": round(dur, 2), "rms": round(rms, 3), "finite": True}
     metrics = {}
     if mode == "bench":
         go()

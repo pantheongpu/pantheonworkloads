@@ -14,8 +14,11 @@ lc_require_gpus 1 15
 lc_setup
 lc_fetch_shards "https://huggingface.co/google/gemma-4-12B-it-qat-q4_0-gguf/resolve/29d097773436b69ff9feafd636ab4cf873786537" "$here/model.sha256" 7
 
-# Greedy (temp 0), fixed seed, no chat template (-no-cnv), prompt not echoed: stdout is the 3 new tokens.
-env "${LC_ENV[@]}" "$LC_BIN/llama-completion" -m "$LC_MODEL" -p "The capital of France is" -n 3 \
+# Greedy (temp 0), fixed seed, prompt not echoed: stdout is the new tokens (at most 3). This checkpoint answers only inside its own chat
+# format, so the prompt is the model's chat template (Gemma 4: <|turn>user ... <turn|> <|turn>model, thinking off = the empty thought
+# block the template adds) written out, sent as plain text (-no-cnv: no second template is applied). See the manifest notes.
+prompt=$'<|turn>user\nWhat is the capital of France? Answer in one word.<turn|>\n<|turn>model\n<|channel>thought\n<channel|>'
+env "${LC_ENV[@]}" "$LC_BIN/llama-completion" -m "$LC_MODEL" -p "$prompt" -n 3 \
   --temp 0 -s 1 -no-cnv --no-display-prompt -ngl "$LC_NGL" -t "${PW_THREADS:-2}" -c 256 \
   >"$PW_OUT/completion.out" 2>"$PW_OUT/completion.err" \
   || { echo "llama-completion failed" >&2; tail -20 "$PW_OUT/completion.err" >&2; exit 1; }
