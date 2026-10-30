@@ -1,9 +1,9 @@
 {
   "output": {
-    "duration_s": 2.0,
+    "duration_s": 2.24,
     "rms": 0.144,
     "finite": true
   },
   "recorded_on": "gpu",
-  "recorded_at": "2026-10-10"
+  "recorded_at": "2026-10-30"
 }
