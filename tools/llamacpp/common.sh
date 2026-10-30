@@ -13,7 +13,10 @@
 #   PW_THREADS            CPU threads (default 2)
 #   PW_MODEL_MIRROR       s3://bucket/pw-weights or a directory: lc_fetch_shards copies the shards from there (tools/rig/mirror.py,
 #                         docs/rigs.md), sha256-verified against model.sha256, instead of downloading from the Hub. A model the mirror
-#                         lacks falls back to the Hub, or SKIPs when PW_MODEL_MIRROR_STRICT=1. PW_MIRROR_JOBS: parallel copies (8)
+#                         lacks falls back to the Hub, or SKIPs when PW_MODEL_MIRROR_STRICT=1. PW_MIRROR_JOBS: parallel copies (8).
+#                         DEPRECATED, unused: the S3 bucket was deleted (docs/rigs.md); use PW_FAST_FETCH
+#   PW_FAST_FETCH         1: lc_fetch_shards downloads with tools/rig/fastfetch.py (parallel ranged streams, resumable, sha256 checked
+#                         while downloading) instead of curl. Default off. PW_FAST_STREAMS (24), PW_FAST_CHUNK_MIB (48); docs/rigs.md
 # The simulated targets are wired from pantheonsim's tests/e2e/run_ollama.sh and
 # amd/tests/e2e/run_ollama_amd.sh and have NOT been run (no GPU toolchain was available).
 
@@ -162,6 +165,22 @@ lc_fetch_shards() {
     (( st == 3 )) || { echo "copy from the model mirror $PW_MODEL_MIRROR failed (sha256 mismatch or copy error)" >&2; exit 1; }
     [[ "${PW_MODEL_MIRROR_STRICT:-0}" != 1 ]] || lc_skip "$repo@$rev is not in the model mirror $PW_MODEL_MIRROR (PW_MODEL_MIRROR_STRICT=1)"
     echo "warning: $repo@$rev is not in the model mirror; downloading from the Hub" >&2
+  fi
+  if [[ "${PW_FAST_FETCH:-0}" == 1 ]]; then
+    # Direct download: every file in the sums file, all streams on one file at a time, hashed against the pin as it arrives (a file already
+    # there is hashed and kept when it matches). 1 = sha256 mismatch (the file is deleted; fails the run), 4 = transfer failed (partial kept).
+    local first
+    first=$(awk '!/^#/ && NF >= 2 {print $2; exit}' "$sums")
+    [[ -n "$first" ]] || lc_skip "model.sha256 lists no files"
+    if [[ ! -f "$dir/$(basename "$first")" ]]; then
+      free=$(df -P --block-size=1G "$dir" | awk 'NR==2 {print $4}')
+      (( free >= need + 2 )) || lc_skip "needs about $need GiB free under $dir; $free GiB are free (set PW_CACHE to a bigger disk)"
+    fi
+    python3 -I "$LC_ROOT/../rig/fastfetch.py" files --base "$base" --sums "$sums" --dest "$dir" --flat >&2; st=$?
+    (( st == 0 )) || { if (( st == 1 )); then echo "sha256 mismatch after the fast download (see above)" >&2; exit 1; fi
+                       lc_skip "cannot download $base with PW_FAST_FETCH (partial files are kept for a resume)"; }
+    LC_MODEL="$dir/$(basename "$first")"
+    return 0
   fi
   while read -r sha path; do
     [[ -z "$sha" || "$sha" == \#* ]] && continue

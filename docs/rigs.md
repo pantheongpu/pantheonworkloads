@@ -14,8 +14,10 @@ reusable, tested version. Everything here is driven by the `aws` CLI and `ssh`; 
 | `tools/rig/extend.sh <tag> <hours> --reason ...` | the only sanctioned way to move a rig's deadline; logged |
 | `tools/rig/status.sh` | every `pw-*` instance and volume with elapsed hours and running cost vs cap; exit 1 when anything is over |
 | `tools/rig/teardown.sh <tag>` | terminate, wait, verify, delete key pair and group, log the cost; idempotent |
-| `tools/rig/stage_weights.py` | CPU-box job: Hub -> sha256-verified -> `s3://<bucket>/pw-weights/<repo>/<commit>/` |
-| `tools/rig/mirror.py` | the consumer: copy from `PW_MODEL_MIRROR` and verify (used by `lc_fetch_shards` and `workloads/_pytorch/pinned.py`) |
+| `tools/rig/fastfetch.py` | **current path**: direct, parallel, resumable Hub download on the rig itself (`PW_FAST_FETCH=1`) |
+| `tools/rig/nvme-setup.sh` | instance-store NVMe -> RAID0 -> `/mnt/nvme`, prints the cache exports |
+| `tools/rig/stage_weights.py` | DEPRECATED (S3 bucket deleted, no AWS storage): CPU-box job Hub -> sha256-verified -> `s3://<bucket>/pw-weights/<repo>/<commit>/` |
+| `tools/rig/mirror.py` | DEPRECATED, unused: the consumer of that mirror (`PW_MODEL_MIRROR`) |
 | `tools/rig/run_batch.sh <tag> ...` | run workloads on the rig, sequentially, results copied back, nothing pushed |
 
 The shell files are one-line wrappers; the logic is in `rig.py`, `batch.py` (Python 3, standard library plus the repository's own PyYAML use).
@@ -70,7 +72,68 @@ Limits, stated plainly: anyone with root on the instance (the `ubuntu` user has 
 
 `teardown.sh <tag>` terminates, waits until `describe-instances` says terminated, waits for `describe-volumes` to show no volume with the rig's `Name` tag (deleting any that stayed `available`), deletes the key pair, deletes the security group (retrying `DependencyViolation` while the network interface goes away), removes the local private key, and writes the elapsed hours and estimated cost to the ledger once. It is safe to run again (it re-checks AWS, writes nothing new to the ledger), exits 1 with `PROBLEM:` lines when anything is left, and never touches a rig it did not launch.
 
-## Weights: stage once, mirror, copy at rig speed
+## Direct download on a rig (current path)
+
+The S3 mirror below is **unused and deprecated**: the bucket was deleted and no standing AWS storage is kept. Its `PW_MODEL_MIRROR`,
+`PW_MIRROR_JOBS` and `PW_MODEL_MIRROR_STRICT` settings still work if you build a mirror yourself, but nothing here depends on them.
+Instead the rig pulls the weights straight from the Hub, fast enough that staging is not worth its storage bill.
+
+**Measured** (2026-10-30, a `c6in.xlarge` in us-east-1, Hub files served by `us.aws.cdn.hf.co`, written to `/dev/null`; not measured on g7e or p5):
+
+| parallel ranged streams | 1 | 4 | 8 | 16 | 32 |
+|---|---:|---:|---:|---:|---:|
+| MiB/s | 145 | 437 | 843 | 1,133 | 1,557 (13 Gbit/s) |
+
+Throughput scales almost linearly with streams, so one `curl` (what `lc_fetch_shards` used) leaves most of the link idle. The same download to the
+default **gp3 root volume reached only 170 MiB/s**: the disk, not the network, is then the limit, so also put the cache on fast storage.
+Arithmetic from those numbers, not a measurement of a real model: 100 GiB at 1.5 GiB/s is about 70 s, at gp3's 170 MiB/s about 10 minutes.
+
+### Turn it on
+
+```bash
+sudo tools/rig/nvme-setup.sh            # instance-store NVMe -> /mnt/nvme (g7e: 6 TB; p4d/p5 more); safe where there is none
+source /mnt/nvme/pw-env.sh              # PW_CACHE=/mnt/nvme/pw-cache  HF_HOME=/mnt/nvme/hf  UV_CACHE_DIR=/mnt/nvme/uv-cache  TMPDIR=/mnt/nvme/tmp
+export PW_FAST_FETCH=1                  # default OFF: without it nothing below changes
+export PW_FAST_STREAMS=24               # parallel range requests per file (default 24; 16 to 32 is the measured sweet spot)
+tools/rig/run_batch.sh <tag> ... --env PW_FAST_FETCH=1 --env PW_CACHE=/mnt/nvme/pw-cache --env HF_HOME=/mnt/nvme/hf
+```
+
+`nvme-setup.sh` (idempotent, needs root, Deep Learning AMI / Ubuntu 22.04): finds NVMe disks whose model is `Amazon EC2 NVMe Instance Storage`
+(never EBS, never a mounted disk), makes an `mdadm` RAID0 `/dev/md/pwnvme` when there are several, `mkfs.xfs` (ext4 if xfs is missing) labelled `pwnvme`,
+mounts it at `/mnt/nvme` with `noatime`, and `chown`s it to `$SUDO_USER`/`ubuntu`. Run again: already mounted means nothing changes; after a reboot
+the labelled filesystem is mounted again, not recreated. **With no instance store** (g5, g6, c6in) it says so, exits 0 and tells you to stay on gp3
+(raise the volume's throughput and IOPS at launch if the download is the bottleneck). Instance-store data is gone when the instance stops or terminates;
+it is a cache, never the only copy. Environment overrides exist only for the tests (`PW_NVME_MNT`, `PW_NVME_PROC_MOUNTS`, `PW_NVME_SKIP_ROOT_CHECK`, `PW_NVME_ID`, `PW_NVME_USER`).
+
+### What `PW_FAST_FETCH=1` does
+
+| Consumer | Replaces |
+|---|---|
+| `lc_fetch_shards` (all `llamacpp-*`, `tools/llamacpp/common.sh`) | `curl -C -`, one file at a time, one stream; files go to `$PW_CACHE/models/<workload>/` as before |
+| `workloads/_pytorch/pinned.py snapshot()` (pytorch, diffusers, vlm, asr: `catalog_common.fetch_snapshot`, `diffusion.py`, `vlm.py`) | `huggingface_hub.snapshot_download`; files go to `<cache>/pw-fast/<repo>/<commit>/` |
+| `workloads/_shared/vllm_catalog.py snapshot()` (all `vllm-*` and `vllm-bench-*`) | `snapshot_download`, same layout |
+
+Not covered (small, unchanged): whisper.cpp ggml files, Ollama pulls, ONNX/spaCy assets, the two workloads that call `snapshot_download` directly
+(`sdxl-base-diffusers`, `blip2-opt-2p7b-pytorch`). Precedence when both are set: `PW_MODEL_FILE`, then `PW_MODEL_MIRROR`, then `PW_FAST_FETCH`, then the old Hub path.
+
+`tools/rig/fastfetch.py` is standard-library Python (`http.client` plus a thread pool; no aria2c, no hf_transfer, so nothing to install on the rig):
+
+* **Resolve once.** `resolve/<commit>/<file>` redirects to a signed CDN URL. It is resolved once; when a chunk gets 401/403 (the signature expired) one worker re-resolves and all reuse the new URL. A 404/401/403 on the Hub itself is permanent (gated repository: set `HF_TOKEN`; the token goes only to the host of the first URL, never to the CDN).
+* **Streams and memory.** `PW_FAST_STREAMS` (24) workers each fetch a `PW_FAST_CHUNK_MIB` (48 MiB) range and `pwrite()` it into a preallocated `<file>.part`, through a 1 MiB buffer: memory use is about `streams` MiB.
+* **Resumable, never a corrupt "complete" file.** `<file>.part.map` has one byte per chunk, set only after the data file was `fsync`ed (batched every `PW_FAST_FLUSH_S`, 2 s). On resume, the 2 highest-numbered recorded chunks are fetched again anyway (the earlier staging run lost data to a reboot), and the final file name exists only after the whole file hashed to the pin and was renamed. A sidecar for a different size, chunk size or pin is discarded.
+* **Verified, always.** sha256 is computed in order by a thread that follows the downloaders (no second pass over a 100 GiB file) and compared with `model.sha256` (or the Hub's LFS oid for `files`/`snapshot` of unpinned LFS files; small unpinned configs are checked by size only). A file already present is hashed first and kept only if it matches. A mismatch deletes the file and **fails the run (exit 1), never a SKIP**; if the download had been resumed, the file is fetched once more from scratch first. After a fast `snapshot()` the callers skip their own re-hash of those files in the same process (same size and mtime) and otherwise still verify as before.
+* **Retries.** Connection resets, short reads, 429 (honours `Retry-After`) and 5xx retry with exponential backoff and jitter, `PW_FAST_RETRIES` (8) per chunk. When they run out, the run SKIPs with the reason (as an unreachable Hub did before) and the partial file stays for the next try.
+* CLI: `fastfetch.py file|files|snapshot ...` (exit 0 ok, 1 mismatch, 4 transfer failed); progress goes to stderr every 10 s unless `PW_FAST_QUIET=1`. `PW_HF_ENDPOINT`/`HF_ENDPOINT` change the Hub URL (used by the tests).
+
+### Untested at scale (read before planning rig-hours around it)
+
+* The 1,557 MiB/s figure is raw network to `/dev/null` from one 4-vCPU box. **Not yet measured**: this code's end-to-end rate on g7e or p5 (Python threads doing TLS decryption, `pwrite` and sha256 may top out below what `curl` ranges reach; if so, 16 streams and bigger chunks, or `curl --range` workers, are the next step), the NVMe rate on g7e, and `nvme-setup.sh` on a real instance store (it is tested only against fake `lsblk`/`mdadm`/`mkfs`/`mount`).
+* Hub rate limits and xet/CAS throttling for hundreds of GiB from one IP are unknown; 24 streams on every file of a 500 GiB model may draw 429s (they are retried with backoff, which would show up as lower throughput, not failures). An `HF_TOKEN` may raise limits.
+* sha256 at 1.5 GiB/s needs one fast core (SHA extensions); on a slow core hashing, not the network, is the bound (the hash thread follows the download, so it overlaps but does not disappear).
+* Real Hub behaviour of `Range` requests on xet-backed files through the redirect, and the exact signed-URL lifetime, are assumed from the Hub's documented redirect scheme and the earlier staging run, not tested against a 100 GiB file. The tests use a local HTTP server with Range support, a redirecting `resolve/` endpoint, expiring tokens, a SIGKILL mid-download and planted corrupt partials.
+* Tests: `tests/test_rig_fastfetch.py` (assembled bytes, one stream, empty file, concurrency limit, retries, persistent failure then resume, SIGKILL then resume, corrupt tail, corruption beyond the redo window, sha mismatch, expired URL, token not sent to the CDN, `files`/`snapshot`, the wiring with the flag off and on, `nvme-setup.sh`).
+
+## Weights: stage once, mirror, copy at rig speed (DEPRECATED: the bucket is deleted; see Direct download above)
 
 Model weights are the long pole: the stage 2b set is **55 distinct repositories, 9,683 GiB** (sum of the pinned files' sizes in `tools/catalog/hub.json` for the `2b` tier below; from the catalog, not downloaded here), the largest being Kimi-K2.7-Code-GGUF and Kimi-K2.6-GGUF at 543.6 GiB, DeepSeek-V4.1-Flash 475.3 GiB, Qwen3-VL-235B 439.0 GiB, GLM-5.3 435.2 GiB. Most workloads come as a functional/bench pair on one repository, and `lc_fetch_shards` kept one directory per workload, so before this change both twins downloaded the same shards; the mirror path keeps one directory per repository and commit.
 

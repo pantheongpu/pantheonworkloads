@@ -9,7 +9,7 @@ Configuration comes from the environment, set by run.sh from the workload's mani
   PW_VLLM_TP                        tensor-parallel size (= requires.gpus)
   PW_VLLM_MISTRAL=1                 the repository is in Mistral's own format (params.json, consolidated.safetensors)
   PW_VLLM_MAX_LEN                   max_model_len (default 4096)
-The snapshot is fetched with huggingface_hub at the pinned commit (only the files model.sha256 lists, plus configs and
+The snapshot is fetched with huggingface_hub (or, with PW_FAST_FETCH=1, tools/rig/fastfetch.py) at the pinned commit (only the files model.sha256 lists, plus configs and
 tokenizers), every listed sha256 is checked (a mismatch fails the run), and vLLM is pointed at the local directory,
 so what runs is what was pinned. Engine settings follow the SmolLM2 workload (eager mode, seed 0, temperature 0) but
 with a 4096-token context and gpu_memory_utilization 0.90 for the memory arithmetic in docs/model-registry.md.
@@ -67,6 +67,26 @@ def mirror_snapshot(model, revision, cache, patterns, sums):
     return None
 
 
+def fast_snapshot(model, revision, cache, patterns, sums):
+    """PW_FAST_FETCH=1 (tools/rig/fastfetch.py): the pinned snapshot by parallel ranged streams, every pinned file verified against
+    model.sha256 in the same pass; None when the flag is off. A sha256 mismatch fails the run; a transfer failure is a SKIP."""
+    if os.environ.get("PW_FAST_FETCH") != "1":
+        return None
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("pw_rig_fastfetch", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "tools", "rig", "fastfetch.py"))
+    ff = importlib.util.module_from_spec(spec)
+    sys.modules["pw_rig_fastfetch"] = ff
+    spec.loader.exec_module(ff)
+    dest = os.path.join(cache, "pw-fast", model.replace("/", "--"), revision)
+    try:
+        ff.snapshot(model, revision, dest, patterns, sums)
+    except ff.ShaMismatch as e:
+        sys.exit(str(e))
+    except (ff.FetchError, OSError) as e:
+        skip(f"cannot fetch {model}@{revision} with PW_FAST_FETCH ({type(e).__name__}: {str(e).splitlines()[0][:150]})")
+    return dest
+
+
 def snapshot():
     model, revision = os.environ["PW_VLLM_MODEL"], os.environ["PW_VLLM_REVISION"]
     sums_path = os.path.join(os.environ["PW_WORKLOAD_DIR"], "model.sha256")
@@ -74,6 +94,8 @@ def snapshot():
     small = ["*.json", "*.txt", "*.model", "*.jinja", "*.tiktoken", "tokenizer*", "tekken.json"]
     cache = os.path.join(os.environ.get("PW_CACHE", os.path.expanduser("~/.cache/pantheonworkloads")), "hf")
     path = mirror_snapshot(model, revision, cache, [*small, *sums], sums)
+    if path is None:
+        path = fast_snapshot(model, revision, cache, [*small, *sums], sums)
     if path is None:
         try:
             from huggingface_hub import snapshot_download
