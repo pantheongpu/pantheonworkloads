@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-llama31-70b-instruct",
+  "date": "2026-10-30T20:08:27Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.112.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "bartowski/Meta-Llama-3.1-70B-Instruct-GGUF (Meta-Llama-3.1-70B-Instruct-Q4_K_M.gguf; Q4_K_M GGUF of meta-llama/Llama-3.1-70B-Instruct)",
+      "revision": "83fb6e83d0a8aada42d499259bc929d922e9a558 (HF commit of the GGUF repo); file sha256 f775c87029be95fb41df9e2882e6e938b73121c30ffc235ac6b6b880add49aa5; base model meta-llama/Llama-3.1-70B-Instruct @ 1605565b47bb9346c5515c34102e054115b4f98b",
+      "licence": "Llama 3.1 Community Licence",
+      "source_url": "https://huggingface.co/bartowski/Meta-Llama-3.1-70B-Instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "0e03bdd9f5261f87059423722719b0f5eba5a65d",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 1715.64,
+      "values": [
+        1715.9,
+        1714.01,
+        1715.66,
+        1715.64,
+        1714.67
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 32.44,
+      "values": [
+        32.44,
+        32.44,
+        32.44,
+        32.44,
+        32.44
+      ]
+    }
+  }
+}
