@@ -204,16 +204,17 @@ What the first run changed (all in run scripts, pins and shared Python bodies, e
 
 Findings worth knowing:
 
-- `llamacpp-gemma4-12b-it` passes, but its reference is degenerate: with the raw prompt this checkpoint answers `011` (a longer decode is
-  `0111111...`), on the GPU and on the CPU alike, for four different prompts, while the other Gemma 4 GGUFs (E2B, 26B-A4B, 31B) answer ` Paris`. In chat
-  mode it starts sensibly (`<|channel>thought ...`), and the loader warns that token 212 `</s>` is not control-type. The reference documents
-  determinism, not quality; a chat-template task would test this model better.
+- `llamacpp-gemma4-12b-it` passed, but its reference was degenerate: with the raw prompt this checkpoint answered `011` (a longer decode is
+  `0111111...`), on the GPU and on the CPU alike, for four different prompts, while the other Gemma 4 GGUFs (E2B, 26B-A4B, 31B) answer ` Paris`.
+  Fixed 2026-10-30 (rig-only fixes, A10G): the workload now sends the model's own chat format (thinking off) as plain text and the reference is
+  `Paris [end of text]`, identical in 3 further runs and on flash-attention-off, `-ub 64` and CPU variants; details in the manifest note.
 - `bin/pw` must run each of these with the venv that matches the workload; the DLAMI's `LD_LIBRARY_PATH` (CUDA 13.2 and 12.9) breaks every
   PyTorch workload (`CUBLAS_STATUS_NOT_INITIALIZED`) and has to be unset for them (`docs/first-gpu-run-a10g.md`); the llama.cpp ones need it.
 - One run of `llamacpp-devstral-small-2-24b-2512` failed ("unable to create context") and one NeMo attempt ran out of memory because other jobs
   were sharing the card while these were being collected; both were rerun alone (3 more passes each) and the shared-card runs are not counted.
-- Chatterbox's `duration_s` (2.24 s of audio, reported as 2.0) and F5-TTS's (4.41 s, reported as 4.5) are stable on this stack but sit close
-  to the half-second rounding; another library stack may flip them.
+- Chatterbox's `duration_s` (2.24 s of audio, reported as 2.0) and F5-TTS's (4.41 s, reported as 4.5) sat close to the half-second rounding. Fixed
+  2026-10-30: both report the duration to 2 decimals and compare it with a measured bound (F5-TTS abs 0.05: 4.41 s in 5 runs and in seeds 1 to 8;
+  Chatterbox abs 0.5: 2.24 s in 5 runs, 2.20 to 2.60 s over seeds 1 to 24); references re-recorded on the A10G. Evidence in the manifest notes.
 - `torchaudio` stops at 2.11.0, so F5-TTS runs with torchaudio 2.11.0 beside torch 2.14.1; it imported and ran without error.
 
 To repeat the run: `uv python install 3.12`; `uv venv --python 3.12 ~/.cache/pantheonworkloads/venvs/cu130` and the three requirement files as in
