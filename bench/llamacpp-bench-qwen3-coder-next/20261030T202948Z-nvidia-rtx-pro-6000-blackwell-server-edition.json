@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-qwen3-coder-next",
+  "date": "2026-10-30T20:29:48Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.112.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "Qwen/Qwen3-Coder-Next-GGUF (Qwen3-Coder-Next-Q4_K_M-00001-of-00004.gguf + 3 more shard(s); Q4_K_M GGUF of Qwen/Qwen3-Coder-Next)",
+      "revision": "b82fb7382639d97b38fa7672e526c760c2fb358e (HF commit of the GGUF repo); 4 file(s), model.sha256 lists them; base model Qwen/Qwen3-Coder-Next @ a7fbcb5c0e12d62a448eaa0e260346bf5dcc0feb",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/Qwen/Qwen3-Coder-Next-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "aebfa3e0904288e3940c88102f4febe4e4e1cb51",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 4912.98,
+      "values": [
+        4927.2,
+        4902.08,
+        4912.98,
+        4912.95,
+        4918.98
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 216.82,
+      "values": [
+        216.98,
+        216.82,
+        216.68,
+        216.83,
+        216.7
+      ]
+    }
+  }
+}
