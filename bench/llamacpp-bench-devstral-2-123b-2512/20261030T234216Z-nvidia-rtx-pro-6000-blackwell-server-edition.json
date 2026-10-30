@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-devstral-2-123b-2512",
+  "date": "2026-10-30T23:42:16Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.112.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "unsloth/Devstral-2-123B-Instruct-2512-GGUF (Devstral-2-123B-Instruct-2512-Q4_K_M-00001-of-00002.gguf + 1 more shard(s); Q4_K_M GGUF of mistralai/Devstral-2-123B-Instruct-2512)",
+      "revision": "1f2bfbe35f7f9071d9b318374bf5eeffefab4459 (HF commit of the GGUF repo); 2 file(s), model.sha256 lists them; base model mistralai/Devstral-2-123B-Instruct-2512 @ 1613bf01adb5e1c6fdc196b46e6b173eae75eb4a",
+      "licence": "custom licence (LICENSE file begins 'Modified MIT License Attribution notice: 2025 - Mistral AI P')",
+      "source_url": "https://huggingface.co/unsloth/Devstral-2-123B-Instruct-2512-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ed1431f1e6b4d34eac62d6e028e91a7bf8e7a5a7",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 765.48,
+      "values": [
+        765.71,
+        764.85,
+        765.48,
+        765.55,
+        764.33
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 18.75,
+      "values": [
+        18.75,
+        18.75,
+        18.74,
+        18.75,
+        18.75
+      ]
+    }
+  }
+}
