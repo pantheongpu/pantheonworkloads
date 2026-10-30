@@ -495,6 +495,18 @@ EOF
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertEqual(self.calls(), [])
 
+    def test_dlami_mount_is_bound_not_reformatted(self):
+        self.lsblk([self.ROOT_EBS, "/dev/nvme1n1 disk Amazon\\x20EC2\\x20NVMe\\x20Instance\\x20Storage"])
+        dl = self.tmp / "dlami"
+        dl.mkdir()
+        self.mounts.write_text(f"/dev/nvme0n1p1 / ext4 rw 0 0\n/dev/mapper/vg.01-lv_ephemeral {dl} ext4 rw,noatime 0 0\n")
+        r = self.run_script(PW_NVME_DLAMI=str(dl))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        calls = self.calls()
+        self.assertTrue(any(c.startswith("mount --bind") and str(dl) in c and str(self.mnt) in c for c in calls), calls)
+        self.assertFalse(any(c.startswith("mkfs") or c.startswith("mdadm") for c in calls), calls)
+        self.assertIn("export PW_CACHE", r.stdout)
+
     def test_not_root_fails(self):
         self.lsblk([self.ROOT_EBS])
         r = self.run_script(PW_NVME_SKIP_ROOT_CHECK="0", PW_NVME_ID="echo 1000")
