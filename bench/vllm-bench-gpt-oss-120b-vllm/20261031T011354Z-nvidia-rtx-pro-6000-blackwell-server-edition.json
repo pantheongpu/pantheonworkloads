@@ -1,0 +1,54 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "vllm-bench-gpt-oss-120b-vllm",
+  "date": "2026-10-31T01:13:54Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.112.07",
+    "runtime": "vllm",
+    "runtime_version": "0.30.0",
+    "model": {
+      "id": "openai/gpt-oss-120b (vLLM, tensor parallel 1, as stored; 15 weights file(s))",
+      "revision": "b5c939de8f754692c1647ca79fbf85e8c1e70f8a (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/openai/gpt-oss-120b"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "ad945ba6199c35bbcab0b1a2400d5c268aa3b98b",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "output_tokens_per_s": {
+      "median": 2155.27,
+      "values": [
+        2184.14,
+        2134.68,
+        2155.27,
+        2158.39,
+        2152.03
+      ]
+    },
+    "requests_per_s": {
+      "median": 16.838,
+      "values": [
+        17.064,
+        16.677,
+        16.838,
+        16.862,
+        16.813
+      ]
+    },
+    "total_tokens_per_s": {
+      "median": 4310.5,
+      "values": [
+        4368.3,
+        4269.4,
+        4310.5,
+        4316.8,
+        4304.1
+      ]
+    }
+  }
+}

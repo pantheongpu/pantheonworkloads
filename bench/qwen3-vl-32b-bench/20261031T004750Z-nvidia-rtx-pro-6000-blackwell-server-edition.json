@@ -1,0 +1,61 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "qwen3-vl-32b-bench",
+  "date": "2026-10-31T00:47:50Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.112.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.4, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "Qwen/Qwen3-VL-32B-Instruct (vlm; 14 pinned weights file(s), as stored)",
+      "revision": "0cfaf48183f594c314753d30a4c4974bc75f3ccb (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/Qwen/Qwen3-VL-32B-Instruct"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "f2355756ff444d647f2539a8e94a9df3b9142c19",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.4",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "decode_tokens_per_s_b1": {
+      "median": 19.29,
+      "values": [
+        19.28,
+        19.29,
+        19.29,
+        19.28,
+        19.29
+      ]
+    },
+    "peak_gpu_memory_gb": {
+      "median": 66.98,
+      "values": [
+        66.98,
+        66.98,
+        66.98,
+        66.98,
+        66.98
+      ]
+    },
+    "prefill_images_per_s_b1": {
+      "median": 9.581,
+      "values": [
+        9.581,
+        9.587,
+        9.624,
+        9.529,
+        9.56
+      ]
+    }
+  }
+}
