@@ -239,6 +239,10 @@ class HardwareArithmetic(unittest.TestCase):
                 half = set(HUB["repos"][r["repo"]].get("param_dtypes") or {}) == {"F32"} and not r.get("variant")
                 largest = max(comps.values()) / mc.GIB * (0.5 if half else 1.0)
             need = self.per_gpu(r["plan"], w, n, r["spec"].get("kind"), largest)
+            # A measured peak beats the formula when higher: cogvideox15-5b peaked at 69.04 GB on the RTX PRO 6000 Blackwell
+            # (docs/model-registry.md, Stage 2b batch 1) against 44.9 GiB by formula, so it is the 80 class, not 48.
+            if n == 1 and r["key"] in mc.MEASURED_PEAK_GIB:
+                need = max(need, mc.MEASURED_PEAK_GIB[r["key"]])
             self.assertLessEqual(need, 0.98 * mem + 1e-9, (r["key"], need, mem))
             self.assertLessEqual(w, n * mem * 0.98, r["key"])   # the weights alone fit the GPUs' memory
             smaller = [t for t in mc.TIERS if t < mem and (mc.COMMON_TIERS if mem in mc.COMMON_TIERS else mc.TIERS)]
@@ -247,6 +251,16 @@ class HardwareArithmetic(unittest.TestCase):
                 self.assertFalse([t for t in smaller if need <= 0.98 * t], (r["key"], need, mem))
             self.assertIn(mem, mc.TIERS)
             self.assertEqual(r["hw"]["gpus"], n)
+
+    def test_measured_peak_overrides_the_formula(self):
+        by = {r["key"]: r for r in WRITTEN}
+        self.assertEqual(mc.MEASURED_PEAK_GIB["cogvideox15-5b"], 69.04)
+        self.assertEqual((by["cogvideox15-5b"]["hw"]["gpus"], by["cogvideox15-5b"]["hw"]["gpu_memory_gb"]), (1, 80))
+        self.assertEqual(mc.hardware("diffusers", 28.9, "video", 17.7)["gpu_memory_gb"], 48)   # the formula alone
+        self.assertEqual(mc.hardware("diffusers", 28.9, "video", 17.7, 69.04)["gpu_memory_gb"], 80)
+        for key, peak in mc.MEASURED_PEAK_GIB.items():
+            hw = by[key]["hw"]
+            self.assertLessEqual(peak, 0.98 * hw["gpu_memory_gb"], key)
 
     def test_big_workloads_declare_more_than_one_gpu_and_fit_their_total_memory(self):
         for r in WRITTEN:

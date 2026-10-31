@@ -1,0 +1,44 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "llamacpp-bench-qwen25-72b-instruct",
+  "date": "2026-10-30T20:36:53Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.112.07",
+    "runtime": "llama.cpp",
+    "runtime_version": "llama.cpp b11447 (da263e7275dfbaeefcd61504eaa4fd5247540e11)",
+    "model": {
+      "id": "Qwen/Qwen2.5-72B-Instruct-GGUF (qwen2.5-72b-instruct-q4_k_m-00001-of-00012.gguf + 11 more shard(s); Q4_K_M GGUF of Qwen/Qwen2.5-72B-Instruct)",
+      "revision": "7ca3bc388f97b264c4283bc9bf1055e2abc38441 (HF commit of the GGUF repo); 12 file(s), model.sha256 lists them; base model Qwen/Qwen2.5-72B-Instruct @ 495f39366efef23836d0cfae4fbe635880d2be31",
+      "licence": "Qwen License",
+      "source_url": "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct-GGUF"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "4b38828afab58e82933d9a2c9862e3553a1b1f68",
+    "repo_dirty": false
+  },
+  "repeats": 5,
+  "metrics": {
+    "pp512_tokens_per_s": {
+      "median": 1670.2,
+      "values": [
+        1671.45,
+        1669.98,
+        1669.31,
+        1670.2,
+        1671.48
+      ]
+    },
+    "tg128_tokens_per_s": {
+      "median": 31.19,
+      "values": [
+        31.19,
+        31.19,
+        31.2,
+        31.2,
+        31.19
+      ]
+    }
+  }
+}

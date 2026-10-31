@@ -327,3 +327,31 @@ generation per repeat after one warm-up). The records hold all five values. Deta
 | `qwen-image-2p1-bench` | peak_gpu_memory_gb 39.53, seconds_per_generation 12.068, steps_per_s 2.486 |
 | `wan21-t2v-1p3b-bench` | peak_gpu_memory_gb 19.09, seconds_per_generation 37.377, steps_per_s 0.803 |
 | `wan22-ti2v-5b-bench` | peak_gpu_memory_gb 27.65, seconds_per_generation 21.914, steps_per_s 1.369 |
+
+## Model catalog, stage 2b batch 1 (2026-10-30, one g7e.2xlarge, NVIDIA RTX PRO 6000 Blackwell Server Edition)
+
+NVIDIA RTX PRO 6000 Blackwell Server Edition (97887 MiB, sm_120), driver 595.112.07, llama.cpp b11447 CUDA arch 120 `-ngl 99` (pp512/tg128, 3 llama-bench repetitions per repeat), torch 2.14.1+cu130,
+transformers 5.19.0, diffusers 0.41.0, vLLM 0.30.0 (torch 2.13.0+cu130, `vllm bench throughput`); 5 repeats each, from a clean checkout of the commit that holds the reference (`repo_dirty: false`). The
+diffusion twin uses `PW_DIFFUSION_RUNS=1`. The records hold all five values; the table gives the median and, in brackets, the minimum to maximum. Details, the first-run findings and the download
+rates: `docs/model-registry.md`, "Stage 2b, batch 1". `llamacpp-bench-mistral-small-4-119b-2603` is slow (tg128 2.01) probably because upstream llama.cpp runs its expert down-projections on the CPU (issue 30224, unconfirmed here; `docs/model-registry.md`, Stage 2b batch 1).
+
+| Workload | Medians (min to max over the 5 repeats) |
+| --- | --- |
+| `cogvideox15-5b-bench` | peak_gpu_memory_gb 69.04 (69.04 to 69.04), seconds_per_generation 97.248 (97.228 to 97.28), steps_per_s 0.308 (0.308 to 0.309) |
+| `llamacpp-bench-command-a-03-2025` | pp512_tokens_per_s 1034.88 (843.86 to 1100.92), tg128_tokens_per_s 21.13 (21.05 to 21.15) |
+| `llamacpp-bench-command-r-plus-08-2024` | pp512_tokens_per_s 1204.02 (1126.9 to 1205.29), tg128_tokens_per_s 22.48 (22.48 to 22.49) |
+| `llamacpp-bench-deepseek-r1-distill-llama-70b` | pp512_tokens_per_s 1714.43 (1714.13 to 1720.22), tg128_tokens_per_s 32.44 (32.44 to 32.44) |
+| `llamacpp-bench-devstral-2-123b-2512` | pp512_tokens_per_s 765.48 (764.33 to 765.71), tg128_tokens_per_s 18.75 (18.74 to 18.75) |
+| `llamacpp-bench-gpt-oss-120b` | pp512_tokens_per_s 6478.41 (2877.06 to 8000.84), tg128_tokens_per_s 228.61 (219.72 to 229.48) |
+| `llamacpp-bench-llama31-70b-instruct` | pp512_tokens_per_s 1715.64 (1714.01 to 1715.9), tg128_tokens_per_s 32.44 (32.44 to 32.44) |
+| `llamacpp-bench-llama33-70b-instruct` | pp512_tokens_per_s 1713.26 (1712.53 to 1714.18), tg128_tokens_per_s 32.44 (32.43 to 32.44) |
+| `llamacpp-bench-llama4-scout-17b-16e-instruct` | pp512_tokens_per_s 1569.44 (1561.89 to 1571.5), tg128_tokens_per_s 96.27 (96.2 to 96.31) |
+| `llamacpp-bench-mistral-large-instruct-2411` | pp512_tokens_per_s 894.6 (891.87 to 898.19), tg128_tokens_per_s 19.05 (19.05 to 19.05) |
+| `llamacpp-bench-mistral-small-4-119b-2603` | pp512_tokens_per_s 173.91 (173.79 to 174.11), tg128_tokens_per_s 2.01 (2.01 to 2.02) |
+| `llamacpp-bench-qwen25-72b-instruct` | pp512_tokens_per_s 1670.2 (1669.31 to 1671.48), tg128_tokens_per_s 31.19 (31.19 to 31.2) |
+| `llamacpp-bench-qwen3-coder-next` | pp512_tokens_per_s 4912.98 (4902.08 to 4927.2), tg128_tokens_per_s 216.82 (216.68 to 216.98) |
+| `llamacpp-bench-qwen3-next-80b-a3b-instruct` | pp512_tokens_per_s 5108.91 (5103.07 to 5117.47), tg128_tokens_per_s 216.69 (216.19 to 216.9) |
+| `llamacpp-bench-qwen35-122b-a10b` | pp512_tokens_per_s 1604.52 (1600.88 to 1607.08), tg128_tokens_per_s 113.28 (113.21 to 113.35) |
+| `mochi-1-preview-bench` | peak_gpu_memory_gb 55.93 (55.93 to 55.93), seconds_per_generation 51.692 (51.684 to 51.713), steps_per_s 0.58 (0.58 to 0.58) |
+| `qwen3-vl-32b-bench` | decode_tokens_per_s_b1 19.29 (19.28 to 19.29), peak_gpu_memory_gb 66.98 (66.98 to 66.98), prefill_images_per_s_b1 9.581 (9.529 to 9.624) |
+| `vllm-bench-gpt-oss-120b-vllm` | output_tokens_per_s 2155.27 (2134.68 to 2184.14), requests_per_s 16.838 (16.677 to 17.064), total_tokens_per_s 4310.5 (4269.4 to 4368.3) |

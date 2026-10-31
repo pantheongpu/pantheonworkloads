@@ -27,7 +27,7 @@ How it stays correct:
 * Transient errors (connection resets, HTTP/2 stream cancels surfacing as resets, 429, 5xx, short reads) retry with exponential backoff and
   jitter. Memory: one 1 MiB buffer per stream.
 
-Environment: PW_FAST_STREAMS (24), PW_FAST_CHUNK_MIB (48), PW_FAST_RETRIES (8), PW_FAST_FLUSH_S (2), PW_FAST_QUIET=1, HF_TOKEN,
+Environment: PW_FAST_STREAMS (48), PW_FAST_CHUNK_MIB (48), PW_FAST_RETRIES (8), PW_FAST_FLUSH_S (2), PW_FAST_QUIET=1, HF_TOKEN,
 PW_HF_ENDPOINT / HF_ENDPOINT (https://huggingface.co).
 """
 import argparse
@@ -85,7 +85,7 @@ def _env_int(name, default):
 
 
 def default_streams():
-    return max(1, _env_int("PW_FAST_STREAMS", 24))
+    return max(1, _env_int("PW_FAST_STREAMS", 48))
 
 
 def default_chunk():

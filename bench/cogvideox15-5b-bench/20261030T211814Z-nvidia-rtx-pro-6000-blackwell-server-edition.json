@@ -1,0 +1,61 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "cogvideox15-5b-bench",
+  "date": "2026-10-30T21:18:14Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.112.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.4, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "zai-org/CogVideoX1.5-5B (diffusers; 8 pinned weights file(s), as stored)",
+      "revision": "fdc5267c90b5c06492985b966e43aae984e189e0 (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "custom licence (LICENSE file begins 'The CogVideoX License 1. Definitions \u201cLicensor\u201d means the Co')",
+      "source_url": "https://huggingface.co/zai-org/CogVideoX1.5-5B"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "3b6486a9165057224878057b2bd9fdcba03006d7",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.4",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "peak_gpu_memory_gb": {
+      "median": 69.04,
+      "values": [
+        69.04,
+        69.04,
+        69.04,
+        69.04,
+        69.04
+      ]
+    },
+    "seconds_per_generation": {
+      "median": 97.248,
+      "values": [
+        97.248,
+        97.279,
+        97.245,
+        97.228,
+        97.28
+      ]
+    },
+    "steps_per_s": {
+      "median": 0.308,
+      "values": [
+        0.308,
+        0.308,
+        0.308,
+        0.309,
+        0.308
+      ]
+    }
+  }
+}

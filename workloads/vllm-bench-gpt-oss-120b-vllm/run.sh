@@ -11,6 +11,7 @@ source "$PW_WORKLOAD_DIR/../../tools/hwcheck.sh"
 pw_require_gpus 1 80
 pw_require_disk 61
 pw_setup vllm
+export PATH="$(dirname "$PW_PY"):$PATH"   # FlashInfer JIT-compiles kernels with ninja (and nvcc); pip installs ninja next to python (missing on PATH on the RTX PRO 6000 run)
 "$PW_PY" -c 'import vllm' 2>/dev/null || pw_skip "$PW_PY cannot import vllm (pip install vllm==0.30.0)"
 export PW_VLLM_MODEL="openai/gpt-oss-120b" PW_VLLM_REVISION="b5c939de8f754692c1647ca79fbf85e8c1e70f8a" PW_VLLM_TP=1 PW_VLLM_MAX_LEN=4096
 export VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-0}"   # the SmolLM2 workload needed this on its first run (ninja was not on PATH)

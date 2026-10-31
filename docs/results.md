@@ -117,6 +117,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | seconds_per_generation | 142.2 | 141 | 143.8 |
 | steps_per_s | 0.211 | 0.209 | 0.213 |
 
+## cogvideox15-5b-bench on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.112.07, commit `3b6486a9`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 69.04 | 69.04 | 69.04 |
+| seconds_per_generation | 97.25 | 97.23 | 97.28 |
+| steps_per_s | 0.308 | 0.308 | 0.309 |
+
 ## crnn-text-recognition-bench on NVIDIA A10G
 
 2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/crnn-text-recognition-bench/`
@@ -328,6 +338,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 1,388 | 1,386 | 1,389 |
 | tg128_tokens_per_s | 34.16 | 34.15 | 34.16 |
 
+## llamacpp-bench-command-a-03-2025 on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `d3f68454`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,035 | 843.9 | 1,101 |
+| tg128_tokens_per_s | 21.13 | 21.05 | 21.15 |
+
 ## llamacpp-bench-command-r-08-2024 on NVIDIA L40S
 
 2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `196d4166`
@@ -336,6 +355,24 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | pp512_tokens_per_s | 2,582 | 2,573 | 2,582 |
 | tg128_tokens_per_s | 34.59 | 34.59 | 34.59 |
+
+## llamacpp-bench-command-r-plus-08-2024 on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `dcf2e64d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,204 | 1,127 | 1,205 |
+| tg128_tokens_per_s | 22.48 | 22.48 | 22.49 |
+
+## llamacpp-bench-deepseek-r1-distill-llama-70b on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `aa0059d3`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,714 | 1,714 | 1,720 |
+| tg128_tokens_per_s | 32.44 | 32.44 | 32.44 |
 
 ## llamacpp-bench-deepseek-r1-distill-llama-8b on NVIDIA A10G
 
@@ -381,6 +418,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | pp512_tokens_per_s | 4,230 | 4,223 | 4,231 |
 | tg128_tokens_per_s | 60.37 | 60.37 | 60.37 |
+
+## llamacpp-bench-devstral-2-123b-2512 on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `ed1431f1`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 765.5 | 764.3 | 765.7 |
+| tg128_tokens_per_s | 18.75 | 18.74 | 18.75 |
 
 ## llamacpp-bench-devstral-small-2-24b-2512 on NVIDIA A10G
 
@@ -481,6 +527,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 2,729 | 2,726 | 2,729 |
 | tg128_tokens_per_s | 111.4 | 111.4 | 111.5 |
 
+## llamacpp-bench-gpt-oss-120b on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `0e2d63f8`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 6,478 | 2,877 | 8,001 |
+| tg128_tokens_per_s | 228.6 | 219.7 | 229.5 |
+
 ## llamacpp-bench-gpt-oss-20b on NVIDIA A10G
 
 2026-10-08, 5 runs, llama.cpp b11447, driver 595.91.07, commit `978153e7`
@@ -508,6 +563,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 5,155 | 5,099 | 5,158 |
 | tg128_tokens_per_s | 162.6 | 162.5 | 162.6 |
 
+## llamacpp-bench-llama31-70b-instruct on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `0e03bdd9`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,716 | 1,714 | 1,716 |
+| tg128_tokens_per_s | 32.44 | 32.44 | 32.44 |
+
 ## llamacpp-bench-llama31-8b-instruct on NVIDIA A10G
 
 2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `ba94bc74`
@@ -534,6 +598,24 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | pp512_tokens_per_s | 7,646 | 7,640 | 7,648 |
 | tg128_tokens_per_s | 123.3 | 123.2 | 123.3 |
+
+## llamacpp-bench-llama33-70b-instruct on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `5ad2a2cd`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,713 | 1,713 | 1,714 |
+| tg128_tokens_per_s | 32.44 | 32.43 | 32.44 |
+
+## llamacpp-bench-llama4-scout-17b-16e-instruct on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `28453775`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,569 | 1,562 | 1,572 |
+| tg128_tokens_per_s | 96.27 | 96.2 | 96.31 |
 
 ## llamacpp-bench-magistral-small-2509 on NVIDIA A10G
 
@@ -571,6 +653,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 4,014 | 4,012 | 4,016 |
 | tg128_tokens_per_s | 61.02 | 61.01 | 61.02 |
 
+## llamacpp-bench-mistral-large-instruct-2411 on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `a6a9cae3`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 894.6 | 891.9 | 898.2 |
+| tg128_tokens_per_s | 19.05 | 19.05 | 19.05 |
+
 ## llamacpp-bench-mistral-small-32-24b on NVIDIA A10G
 
 2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
@@ -579,6 +670,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | pp512_tokens_per_s | 1,514 | 1,513 | 1,516 |
 | tg128_tokens_per_s | 32.83 | 32.82 | 32.83 |
+
+## llamacpp-bench-mistral-small-4-119b-2603 on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `70fd501a`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 173.9 | 173.8 | 174.1 |
+| tg128_tokens_per_s | 2.01 | 2.01 | 2.02 |
 
 ## llamacpp-bench-nemotron-3-nano-30b-a3b on NVIDIA L40S
 
@@ -670,6 +770,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 27,160 | 27,137 | 27,234 |
 | tg128_tokens_per_s | 455.4 | 455.4 | 455.7 |
 
+## llamacpp-bench-qwen25-72b-instruct on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `4b38828a`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,670 | 1,669 | 1,671 |
+| tg128_tokens_per_s | 31.19 | 31.19 | 31.2 |
+
 ## llamacpp-bench-qwen25-coder-32b-instruct on NVIDIA L40S
 
 2026-10-10, 5 runs, llama.cpp b11447, driver 595.91.07, commit `196d4166`
@@ -715,6 +824,15 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | pp512_tokens_per_s | 3,379 | 3,371 | 3,380 |
 | tg128_tokens_per_s | 155.7 | 155.6 | 155.8 |
 
+## llamacpp-bench-qwen3-coder-next on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `aebfa3e0`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 4,913 | 4,902 | 4,927 |
+| tg128_tokens_per_s | 216.8 | 216.7 | 217 |
+
 ## llamacpp-bench-qwen3-embedding-4b on NVIDIA A10G
 
 2026-10-09, 5 runs, llama.cpp b11447, driver 595.91.07, commit `1b32fe1c`
@@ -732,6 +850,24 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | pp512_tokens_per_s | 3,877 | 3,874 | 3,880 |
 | tg128_tokens_per_s | 56.86 | 56.85 | 56.87 |
+
+## llamacpp-bench-qwen3-next-80b-a3b-instruct on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-30, 5 runs, llama.cpp b11447, driver 595.112.07, commit `bf9d255c`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 5,109 | 5,103 | 5,117 |
+| tg128_tokens_per_s | 216.7 | 216.2 | 216.9 |
+
+## llamacpp-bench-qwen35-122b-a10b on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-31, 5 runs, llama.cpp b11447, driver 595.112.07, commit `6db5f58d`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| pp512_tokens_per_s | 1,605 | 1,601 | 1,607 |
+| tg128_tokens_per_s | 113.3 | 113.2 | 113.3 |
 
 ## llamacpp-bench-qwen35-9b on NVIDIA A10G
 
@@ -850,6 +986,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | --- | ---: | ---: | ---: |
 | batch_latency_ms | 4.003 | 3.98 | 4.03 |
 | sentences_per_s | 8,994 | 8,933 | 9,044 |
+
+## mochi-1-preview-bench on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-31, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.112.07, commit `fb4411d7`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 55.93 | 55.93 | 55.93 |
+| seconds_per_generation | 51.69 | 51.68 | 51.71 |
+| steps_per_s | 0.58 | 0.58 | 0.58 |
 
 ## moonshine-tiny-en-onnx-bench on NVIDIA A10G
 
@@ -1039,6 +1185,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | forward_passes_per_s | 7.3 | 7.3 | 7.31 |
 | peak_gpu_memory_gb | 16.52 | 16.52 | 16.52 |
 
+## qwen3-vl-32b-bench on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-31, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.112.07, commit `f2355756`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| decode_tokens_per_s_b1 | 19.29 | 19.28 | 19.29 |
+| peak_gpu_memory_gb | 66.98 | 66.98 | 66.98 |
+| prefill_images_per_s_b1 | 9.581 | 9.529 | 9.624 |
+
 ## qwen3-vl-4b-bench on NVIDIA A10G
 
 2026-10-09, 5 runs, torch 2.14.1+cu130, transformers 5.19.0, driver 595.91.07, commit `94554d9a`
@@ -1157,6 +1313,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | ru_core_news_sm_words_per_s | 13,045 | 12,952 | 13,125 |
 | uk_core_news_sm_words_per_s | 11,673 | 11,648 | 11,730 |
 | xx_ent_wiki_sm_words_per_s | 26,151 | 26,017 | 26,462 |
+
+## vllm-bench-gpt-oss-120b-vllm on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-31, 5 runs, 0.30.0, driver 595.112.07, commit `ad945ba6`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| output_tokens_per_s | 2,155 | 2,135 | 2,184 |
+| requests_per_s | 16.84 | 16.68 | 17.06 |
+| total_tokens_per_s | 4,310 | 4,269 | 4,368 |
 
 ## vllm-bench-throughput on NVIDIA A10G
 

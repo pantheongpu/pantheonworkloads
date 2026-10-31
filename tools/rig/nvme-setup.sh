@@ -7,6 +7,7 @@
 #   * one disk: mkfs on it; several: an mdadm RAID0 (/dev/md/pwnvme) first;
 #   * mkfs.xfs (ext4 when xfs is missing), label pwnvme, mounted at /mnt/nvme with noatime, owned by $PW_NVME_USER (default $SUDO_USER or ubuntu);
 #   * prints the exports to use and writes them to /mnt/nvme/pw-env.sh (source it).
+# A DLAMI that already mounted the instance store at /opt/dlami/nvme is bind-mounted at /mnt/nvme instead.
 # Idempotent: already mounted -> prints the exports and changes nothing; a filesystem labelled pwnvme from an earlier run
 # (instance store survives a reboot, not a stop) is mounted again rather than recreated. No instance store -> says so and exits 0
 # (a g5/g6 or c6in rig has none: use gp3, which downloads at about 170 MiB/s). Instance-store data is lost when the instance stops
@@ -48,6 +49,17 @@ dev_busy() { grep -Eq "^$1(p?[0-9]+)? " "$PROC_MOUNTS"; }
 
 if is_mounted "$MNT"; then
   echo "$MNT is already mounted; nothing to do."
+  finish; exit 0
+fi
+
+# Deep Learning AMIs (g7e and others) already format the instance store (LVM) and mount it at /opt/dlami/nvme, which makes the disk
+# "busy" for mkfs below: bind-mount that directory at $MNT instead of fighting it (found on a g7e.2xlarge, 2026-10-30).
+DLAMI="${PW_NVME_DLAMI:-/opt/dlami/nvme}"
+if is_mounted "$DLAMI"; then
+  mkdir -p "$MNT"
+  mount --bind "$DLAMI" "$MNT" || { echo "mount --bind $DLAMI $MNT failed" >&2; exit 1; }
+  echo "bound the AMI's instance-store mount $DLAMI at $MNT"
+  chown "$OWNER" "$MNT" 2>/dev/null || true
   finish; exit 0
 fi
 
