@@ -1,0 +1,61 @@
+{
+  "schema": "pw-bench/0",
+  "workload": "mochi-1-preview-bench",
+  "date": "2026-10-31T01:32:52Z",
+  "environment": {
+    "target": "gpu",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "driver": "595.112.07",
+    "runtime": "pytorch",
+    "runtime_version": "diffusers 0.41.0, numpy 2.5.4, torch 2.14.1+cu130, torchvision 0.29.1+cu130, transformers 5.19.0",
+    "model": {
+      "id": "genmo/mochi-1-preview (diffusers; 8 pinned weights file(s), bf16 variant)",
+      "revision": "cd1d0fe89aa8382fcd9ae760bc3d7afe6183579f (HF commit); the weights files are pinned by sha256 in model.sha256 and verified on every run",
+      "licence": "Apache-2.0",
+      "source_url": "https://huggingface.co/genmo/mochi-1-preview"
+    },
+    "host_os": "Linux-6.8.0-1066-aws-x86_64-with-glibc2.35",
+    "repo_commit": "fb4411d726d51ceb2ec92742f2e01bc732c1adc1",
+    "repo_dirty": false,
+    "runtime_versions": {
+      "diffusers": "0.41.0",
+      "numpy": "2.5.4",
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "transformers": "5.19.0"
+    }
+  },
+  "repeats": 5,
+  "metrics": {
+    "peak_gpu_memory_gb": {
+      "median": 55.93,
+      "values": [
+        55.93,
+        55.93,
+        55.93,
+        55.93,
+        55.93
+      ]
+    },
+    "seconds_per_generation": {
+      "median": 51.692,
+      "values": [
+        51.713,
+        51.687,
+        51.684,
+        51.692,
+        51.702
+      ]
+    },
+    "steps_per_s": {
+      "median": 0.58,
+      "values": [
+        0.58,
+        0.58,
+        0.58,
+        0.58,
+        0.58
+      ]
+    }
+  }
+}
