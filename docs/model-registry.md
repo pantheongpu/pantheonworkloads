@@ -303,8 +303,8 @@ of the 18 verified manifests (functional and twin) now start with `VERIFIED ON N
 | Workload | Result | Reference | Further passing runs | Bench (medians of 5) | First record (download + checks + run), s |
 | --- | --- | --- | ---: | --- | ---: |
 | `llamacpp-deepseek-r1-distill-llama-70b` | PASS | ' Paris. The\n\n' | 3 | pp512 1714.43, tg128 32.44 | 69 |
-| `llamacpp-llama31-70b-instruct` | PASS | ' a city of\n\n' | 3 | pp512 1715.64, tg128 32.44 | 46 |
-| `llamacpp-llama33-70b-instruct` | PASS | ' a city that\n\n' | 3 | pp512 1713.26, tg128 32.44 | 45 |
+| `llamacpp-llama31-70b-instruct` | PASS | ' Paris\n\nCountry\n\n' | 3 | pp512 1715.64, tg128 32.44 | 46 |
+| `llamacpp-llama33-70b-instruct` | PASS | ' Paris\n\nCountry\n\n' | 3 | pp512 1713.26, tg128 32.44 | 45 |
 | `llamacpp-qwen3-next-80b-a3b-instruct` | PASS | ' Paris. The\n\n' | 3 | pp512 5108.91, tg128 216.69 | 53 |
 | `llamacpp-qwen3-coder-next` | PASS | ' Paris. The\n\n' | 3 | pp512 4912.98, tg128 216.82 | 216 |
 | `llamacpp-qwen25-72b-instruct` | PASS | ' Paris. The\n\n' | 3 | pp512 1670.2, tg128 31.19 | 78 |
@@ -312,8 +312,8 @@ of the 18 verified manifests (functional and twin) now start with `VERIFIED ON N
 | `cogvideox15-5b-diffusers` | PASS | statistics (mean, std, block means, gradients) | 3 | peak gpu memory gb 69.04, seconds per generation 97.248, steps per s 0.308 | 308 |
 | `llamacpp-command-r-plus-08-2024` | PASS | ' Paris. It\n\n' | 3 | pp512 1204.02, tg128 22.48 | 101 |
 | `llamacpp-llama4-scout-17b-16e-instruct` | PASS | ' Paris. Paris\n\n' | 3 | pp512 1569.44, tg128 96.27 | 127 |
-| `llamacpp-command-a-03-2025` | PASS | ' a city of\n\n' | 3 | pp512 1034.88, tg128 21.13 | 149 |
-| `llamacpp-mistral-large-instruct-2411` | PASS | ' a city of\n\n' | 3 | pp512 894.6, tg128 19.05 | 157 |
+| `llamacpp-command-a-03-2025` | PASS | ' Paris\n\n\n\n' | 3 | pp512 1034.88, tg128 21.13 | 149 |
+| `llamacpp-mistral-large-instruct-2411` | PASS | ' Paris\n\n\n\n' | 3 | pp512 894.6, tg128 19.05 | 157 |
 | `llamacpp-mistral-small-4-119b-2603` | PASS | ' Paris. [end of text]\n\n\n' | 3 | pp512 173.91, tg128 2.01 | 188 |
 | `llamacpp-devstral-2-123b-2512` | PASS | ' Paris. It\n\n' | 3 | pp512 765.48, tg128 18.75 | 572 |
 | `llamacpp-qwen35-122b-a10b` | PASS | ' Paris.\n\n\n' | 3 | pp512 1604.52, tg128 113.28 | 499 |
@@ -379,8 +379,7 @@ from the NVMe twice; not measured). A 120B-class llama.cpp workload therefore to
 - `llamacpp-mistral-small-4-119b-2603` passes and is stable, but runs at tg128 2.01 and pp512 173.9 tokens/s with the whole 72.6 GB model in VRAM and the GPU 94 % busy: ten times slower than a dense 123B model
   (`llamacpp-devstral-2-123b-2512` tg128 18.75). A slow CUDA path for the `mistral4` architecture in llama.cpp b11447 on sm_120; not investigated.
 - `llamacpp-gpt-oss-120b`: the functional runs took 86, 68 and 58 s (the first one cold), and the bench's pp512 varied between 2877 and 8001 tokens/s over the 5 repeats (median 6478); tg128 219.7 to 229.5.
-- References worth a glance: `llamacpp-llama31-70b-instruct` (` a city of`), `llamacpp-llama33-70b-instruct` (` a city that`), `llamacpp-command-a-03-2025` and `llamacpp-mistral-large-instruct-2411`
-  (` a city of`) continue "The capital of France is" without naming Paris; each is stable over 4 runs, so they are valid references, but greedy near ties on another card could still flip them.
+- References fixed (fix43-c, 2026-10-31): `llamacpp-llama31-70b-instruct` (` a city of`), `llamacpp-llama33-70b-instruct` (` a city that`), `llamacpp-command-a-03-2025` and `llamacpp-mistral-large-instruct-2411` (` a city of`) continued "The capital of France is" without naming Paris, with top-1/top-2 logit gaps as small as 0.02 to 0.46 (llama 3.1 `[0.27, 0.78, 0.02]`, llama 3.3 `[0.3, 0.4, 0.09]`, command-a `[0.46, 0.77, 1.41]`, mistral-large `[0.14, 1.95, 0.09]`). **Prompt margins**: `tools/llamacpp/probe/margin_probe.py` (with `pw-margin.cpp`, one model load, the llama.cpp C API, greedy 3 steps) probed 18 prompts per model on the RTX PRO 6000 Blackwell; floor 2 on the smallest gap of the 3 steps. Only the few-shot pattern "Country: Italy\nCapital: Rome\n\nCountry: France\nCapital:" cleared the floor on all four (smallest gaps 3.96, 3.84, 3.84, 5.49); it is pinned in the four run.sh files, the references were re-recorded (` Paris\n\nCountry\n\n` for the two Llamas, ` Paris\n\n\n\n` for command-a and mistral-large) and each passed 3 further runs. The bench twins use llama-bench, not the prompt, so they were not re-run.
 
 **Not reached**: `llamacpp-mistral-medium-3p5-128b` (and its twin) was dropped to leave time for vLLM and Qwen3-VL (about 25 minutes each for a 78 GiB model), and `wan21-t2v-14b-diffusers`, `hunyuanvideo-diffusers` and `wan22-t2v-a14b-diffusers` were not started: the rig's hard deadline and its 35 USD cap left no room for a 14B video model (37 to 59 GiB of weights, 5 repeats of 2 generations each; `cogvideox15-5b` took 31 minutes and `mochi-1-preview` 19 minutes with the bench, the 14B models are slower per generation).
 
