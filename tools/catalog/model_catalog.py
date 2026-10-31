@@ -38,6 +38,11 @@ TRANSFORMERS = dict(split=1.10, fixed=4.0)   # device_map="auto" imbalance; acti
 DIFFUSERS = dict(image=6.0, video=16.0)      # latents, attention activations and the VAE decode at the workload's resolution
 WHISPERCPP = dict(split=1.05, fixed=2.0)
 
+# Measured peak GPU memory (GB, torch.cuda.max_memory_allocated, one NVIDIA RTX PRO 6000 Blackwell, 2026-10-30, docs/model-registry.md
+# "Stage 2b, batch 1") that overrides the formula whenever it is higher. A measurement beats the stated assumptions above:
+# cogvideox15-5b: the formula says max(17.7, 28.9) + 16 = 44.9 GiB (48 class) but the run peaked at 69.04 GB, which needs the 80 class.
+MEASURED_PEAK_GIB = {"cogvideox15-5b": 69.04}
+
 PERMISSIVE = {"apache-2.0", "mit", "bsd-2-clause", "bsd-3-clause", "isc", "unlicense", "cc0-1.0", "cc-by-4.0"}
 SPDX = {"apache-2.0": "Apache-2.0", "mit": "MIT", "bsd-3-clause": "BSD-3-Clause", "bsd-2-clause": "BSD-2-Clause",
         "cc-by-4.0": "CC-BY-4.0", "cc-by-nc-4.0": "CC-BY-NC-4.0", "cc-by-nc-sa-4.0": "CC-BY-NC-SA-4.0", "cc0-1.0": "CC0-1.0",
@@ -123,12 +128,15 @@ def per_gpu_need(plan, weights_gib, n, kind=None, largest_gib=None):
     return w / n * m["split"] + m["fixed"], f"{w:.1f}/{n}*{m['split']} + {m['fixed']:g}"
 
 
-def hardware(plan, weights_gib, kind=None, largest_gib=None):
+def hardware(plan, weights_gib, kind=None, largest_gib=None, measured_gib=None):
     """The fewest GPUs (1, 2, 4, 8) that hold the weights in a widely rented class (<= 80 GiB), each of the smallest class
     that fits. If even 8 x 80 GiB is not enough: the cheapest n x class among 140..288 GiB cards (n x class minimal, ties
     to fewer GPUs), and above 8 GPUs a multi-node count (16, 32)."""
     def attempt(n, tiers):
         need, text = per_gpu_need(plan, weights_gib, n, kind, largest_gib)
+        if measured_gib is not None and n == 1 and measured_gib > need:
+            text = f"measured peak {measured_gib:g} on one GPU (formula {text} = {need:.1f})"
+            need = measured_gib
         t = tier_for(need, tiers)
         return (n, t, need, text) if t else None
 
@@ -327,7 +335,8 @@ def resolve_entry(entry, hub, support):
         for f in wfiles:
             comps[f["path"].split("/")[0]] = comps.get(f["path"].split("/")[0], 0) + f["size"]
         largest = (max(comps.values()) / GIB) * (0.5 if half else 1.0) if comps else None
-        out["hw"] = hardware("vllm" if plan == "vllm" else ("diffusers" if plan == "diffusers" else "transformers"), w, kind, largest)
+        out["hw"] = hardware("vllm" if plan == "vllm" else ("diffusers" if plan == "diffusers" else "transformers"), w, kind, largest,
+                               MEASURED_PEAK_GIB.get(key))
         arch = (cfg.get("architectures") or [None])[0]
         out["architecture"] = arch or (rec.get("model_index") or {}).get("class")
         if rec.get("gated") and not reason:

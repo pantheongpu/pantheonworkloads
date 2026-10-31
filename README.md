@@ -448,8 +448,8 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | bert-base-uncased-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | any | yes (gpu) | Apache-2.0 | yes | no | bench |
 | blip2-opt-2p7b-bench | benchmark | pytorch | gpu | any | n/a | OPT-2.7b licence (restricted) | yes | no | bench |
 | blip2-opt-2p7b-pytorch | functional | pytorch | gpu | any | yes (gpu) | OPT-2.7b licence (restricted) | yes | no | no |
-| cogvideox15-5b-bench | benchmark | pytorch | gpu | 1 x 48 GiB | n/a | custom licence (restricted) | yes | no | bench |
-| cogvideox15-5b-diffusers | functional | pytorch | gpu | 1 x 48 GiB | yes (gpu) | custom licence (restricted) | yes | no | no |
+| cogvideox15-5b-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | custom licence (restricted) | yes | no | bench |
+| cogvideox15-5b-diffusers | functional | pytorch | gpu | 1 x 80 GiB | yes (gpu) | custom licence (restricted) | yes | no | no |
 | gpt2-small-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | any | yes (gpu) | MIT (per card) | yes | no | bench |
 | loadgen-plumbing-check | functional | none | cpu | any | yes (cpu) | n/a (no weights) | n/a | no | no |
 | mochi-1-preview-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | bench |
