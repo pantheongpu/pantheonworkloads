@@ -88,6 +88,10 @@ Throughput scales almost linearly with streams, so one `curl` (what `lc_fetch_sh
 default **gp3 root volume reached only 170 MiB/s**: the disk, not the network, is then the limit, so also put the cache on fast storage.
 Arithmetic from those numbers, not a measurement of a real model: 100 GiB at 1.5 GiB/s is about 70 s, at gp3's 170 MiB/s about 10 minutes.
 
+**Measured on a real model** (2026-10-30, a `g7e.2xlarge` in us-west-2, one 39.6 GiB GGUF to the instance-store NVMe, sha256 included): `fastfetch.py` reached 780 MiB/s with 24 streams
+(52 s), **1,067 MiB/s with 48 streams** (the new default), 956 MiB/s with 96 and 990 MiB/s with 64 streams of 128 MiB chunks; 32 raw ranged `curl` streams to /dev/null reached 2,816 MiB/s.
+The Python downloader plateaus near 1 GiB/s (CPU and GIL, not the link); that is still 40 to 75 s per model of 40 to 75 GiB. Details: `docs/model-registry.md`, "Stage 2b, batch 1".
+
 ### Turn it on
 
 ```bash
@@ -101,7 +105,7 @@ tools/rig/run_batch.sh <tag> ... --env PW_FAST_FETCH=1 --env PW_CACHE=/mnt/nvme/
 `nvme-setup.sh` (idempotent, needs root, Deep Learning AMI / Ubuntu 22.04): finds NVMe disks whose model is `Amazon EC2 NVMe Instance Storage`
 (never EBS, never a mounted disk), makes an `mdadm` RAID0 `/dev/md/pwnvme` when there are several, `mkfs.xfs` (ext4 if xfs is missing) labelled `pwnvme`,
 mounts it at `/mnt/nvme` with `noatime`, and `chown`s it to `$SUDO_USER`/`ubuntu`. Run again: already mounted means nothing changes; after a reboot
-the labelled filesystem is mounted again, not recreated. **With no instance store** (g5, g6, c6in) it says so, exits 0 and tells you to stay on gp3
+the labelled filesystem is mounted again, not recreated. A Deep Learning AMI that already mounted the instance store at `/opt/dlami/nvme` (seen on a g7e.2xlarge, 1.7 TB) has that directory bind-mounted at `/mnt/nvme` instead of being formatted again. **With no instance store** (g5, g6, c6in) it says so, exits 0 and tells you to stay on gp3
 (raise the volume's throughput and IOPS at launch if the download is the bottleneck). Instance-store data is gone when the instance stops or terminates;
 it is a cache, never the only copy. Environment overrides exist only for the tests (`PW_NVME_MNT`, `PW_NVME_PROC_MOUNTS`, `PW_NVME_SKIP_ROOT_CHECK`, `PW_NVME_ID`, `PW_NVME_USER`).
 
