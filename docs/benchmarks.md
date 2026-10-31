@@ -352,5 +352,6 @@ rates: `docs/model-registry.md`, "Stage 2b, batch 1". `llamacpp-bench-mistral-sm
 | `llamacpp-bench-qwen3-coder-next` | pp512_tokens_per_s 4912.98 (4902.08 to 4927.2), tg128_tokens_per_s 216.82 (216.68 to 216.98) |
 | `llamacpp-bench-qwen3-next-80b-a3b-instruct` | pp512_tokens_per_s 5108.91 (5103.07 to 5117.47), tg128_tokens_per_s 216.69 (216.19 to 216.9) |
 | `llamacpp-bench-qwen35-122b-a10b` | pp512_tokens_per_s 1604.52 (1600.88 to 1607.08), tg128_tokens_per_s 113.28 (113.21 to 113.35) |
+| `mochi-1-preview-bench` | peak_gpu_memory_gb 55.93 (55.93 to 55.93), seconds_per_generation 51.692 (51.684 to 51.713), steps_per_s 0.58 (0.58 to 0.58) |
 | `qwen3-vl-32b-bench` | decode_tokens_per_s_b1 19.29 (19.28 to 19.29), peak_gpu_memory_gb 66.98 (66.98 to 66.98), prefill_images_per_s_b1 9.581 (9.529 to 9.624) |
 | `vllm-bench-gpt-oss-120b-vllm` | output_tokens_per_s 2155.27 (2134.68 to 2184.14), requests_per_s 16.838 (16.677 to 17.064), total_tokens_per_s 4310.5 (4269.4 to 4368.3) |

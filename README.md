@@ -57,7 +57,7 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 
 <!-- bench:start -->
 
-148 records from real GPUs (newest per workload and device; all metrics, every record and the software versions: [`docs/results.md`](docs/results.md)).
+149 records from real GPUs (newest per workload and device; all metrics, every record and the software versions: [`docs/results.md`](docs/results.md)).
 
 | Workload | Device | Metrics (median of N runs) | Software | Date |
 | --- | --- | --- | --- | --- |
@@ -164,6 +164,7 @@ Real-GPU numbers only (the simulator never carries performance numbers). Generat
 | llamacpp-synth-bench-qwen2 | NVIDIA A10G | pp512_tokens_per_s 50,341; tg128_tokens_per_s 1,178 (n=5) | llama.cpp b11447 | 2026-10-08 |
 | ltx-video-bench | NVIDIA L40S | peak_gpu_memory_gb 15.96; seconds_per_generation 4.684; steps_per_s 6.404 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
 | minilm-l6-v2-onnx-bench | NVIDIA A10G | batch_latency_ms 4.003; sentences_per_s 8,994 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
+| mochi-1-preview-bench | NVIDIA RTX PRO 6000 Blackwell Server Edition | peak_gpu_memory_gb 55.93; seconds_per_generation 51.69; steps_per_s 0.58 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-31 |
 | moonshine-tiny-en-onnx-bench | NVIDIA A10G | latency_ms_per_clip 530.3; realtime_factor 22.01 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | nanodet-object-detection-bench | NVIDIA A10G | images_per_s 111.4; latency_ms 8.974 (n=5) | onnxruntime-gpu 1.30.0 | 2026-10-09 |
 | olmocr-2-7b-bench | NVIDIA A10G | decode_tokens_per_s_b1 28.8; peak_gpu_memory_gb 16.68; prefill_images_per_s_b1 4.971 (n=5) | diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0 | 2026-10-10 |
@@ -440,7 +441,7 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | gpt-train-bf16 | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | any | yes (cpu) | n/a (no weights) | n/a | nvidia x5 | no |
 | gpt-train-fp32 | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | any | yes (cpu) | n/a (no weights) | n/a | nvidia x6 | no |
 
-#### Other (Hugging Face PyTorch, whisper.cpp, vLLM, Ollama, MLPerf LoadGen, runner self-check): 29
+#### Other (Hugging Face PyTorch, whisper.cpp, vLLM, Ollama, MLPerf LoadGen, runner self-check): 31
 
 | Workload | Kind | Runtime | Targets | Needs | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -451,6 +452,8 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | cogvideox15-5b-diffusers | functional | pytorch | gpu | 1 x 48 GiB | yes (gpu) | custom licence (restricted) | yes | no | no |
 | gpt2-small-pytorch | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | any | yes (gpu) | MIT (per card) | yes | no | bench |
 | loadgen-plumbing-check | functional | none | cpu | any | yes (cpu) | n/a (no weights) | n/a | no | no |
+| mochi-1-preview-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | bench |
+| mochi-1-preview-diffusers | functional | pytorch | gpu | 1 x 80 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
 | pytorch-microsuite | functional | pytorch | cpu, gpu, sim:nvidia, sim:amd | any | yes (cpu) | n/a (no weights) | n/a | nvidia x8 | bench |
 | qwen25-vl-7b-bench | benchmark | pytorch | gpu | any | n/a | Apache-2.0 | yes | no | bench |
 | qwen25-vl-7b-pytorch | functional | pytorch | gpu | any | yes (gpu) | Apache-2.0 | yes | no | no |
@@ -474,7 +477,7 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | whisper-cpp-large-v3 | functional | whisper.cpp | gpu | any | yes (gpu) | MIT | yes | no | no |
 | whisper-cpp-tiny-en | functional | whisper.cpp | cpu, gpu | any | yes (gpu) | MIT | yes | no | no |
 
-#### Model catalog: written from Hub metadata (docs/model-registry.md); models of any size, each gated by `requires`. A row with a reference recorded and a GPU-validated entry has had its first real run (see the registry for the state of each); the others were never run: 224
+#### Model catalog: written from Hub metadata (docs/model-registry.md); models of any size, each gated by `requires`. A row with a reference recorded and a GPU-validated entry has had its first real run (see the registry for the state of each); the others were never run: 222
 
 | Workload | Kind | Runtime | Targets | Needs | Reference | Model licence | Model pinned | Sim-validated | GPU-validated |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -656,8 +659,6 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | llamacpp-trinity-large-thinking | functional | llama.cpp | gpu | 4 x 80 GiB | no | OpenMDW-1.1 (restricted) | yes | no | no |
 | ltx-video-bench | benchmark | pytorch | gpu | 1 x 40 GiB | n/a | custom licence (restricted) | yes | no | bench |
 | ltx-video-diffusers | functional | pytorch | gpu | 1 x 40 GiB | yes (gpu) | custom licence (restricted) | yes | no | no |
-| mochi-1-preview-bench | benchmark | pytorch | gpu | 1 x 80 GiB | n/a | Apache-2.0 | yes | no | no |
-| mochi-1-preview-diffusers | functional | pytorch | gpu | 1 x 80 GiB | no | Apache-2.0 | yes | no | no |
 | olmocr-2-7b-bench | benchmark | pytorch | gpu | 1 x 22 GiB | n/a | Apache-2.0 | yes | no | bench |
 | olmocr-2-7b-pytorch | functional | pytorch | gpu | 1 x 22 GiB | yes (gpu) | Apache-2.0 | yes | no | no |
 | paddleocr-vl-bench | benchmark | pytorch | gpu | 1 x 10 GiB | n/a | Apache-2.0 | yes | no | bench |
@@ -712,9 +713,9 @@ Further reading: [`docs/model-registry.md`](docs/model-registry.md) (every track
 | arch | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | lib | 6 | 5 | 1 | 5 | 0 | 5 | 1 |
 | train | 3 | 2 | 1 | 2 | 0 | 2 | 1 |
-| other | 29 | 18 | 11 | 18 | 25 | 3 | 16 |
-| catalog | 224 | 112 | 112 | 69 | 224 | 0 | 69 |
-| **all** | 399 | 213 | 186 | 170 | 374 | 15 | 148 |
+| other | 31 | 19 | 12 | 19 | 27 | 3 | 17 |
+| catalog | 222 | 111 | 111 | 69 | 222 | 0 | 69 |
+| **all** | 399 | 213 | 186 | 171 | 374 | 15 | 149 |
 
 <!-- coverage:end -->
 

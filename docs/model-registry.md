@@ -294,11 +294,11 @@ Ubuntu 22.04 (Deep Learning Base OSS Nvidia Driver AMI), a 1.7 TB instance-store
 transformers 5.19.0, diffusers 0.41.0, numpy 2.5.3 (uv Python 3.12 venv as in `docs/first-gpu-run-a10g.md`, `env -u LD_LIBRARY_PATH`), and for vLLM its own venv
 (vLLM 0.30.0 with its pinned torch 2.13.0+cu130, FlashInfer 0.6.18). Weights came straight from the Hub with `PW_FAST_FETCH=1` (`docs/rigs.md`); nothing was staged and no AWS storage was created.
 
-**Result: 17 of 22 PASS, none BLOCKED(run), 5 not reached (time).** For each PASS the reference was recorded on the card (`bin/pw record --target gpu`) and was identical in 3
+**Result: 18 of 22 PASS, none BLOCKED(run), 4 not reached (time).** For each PASS the reference was recorded on the card (`bin/pw record --target gpu`) and was identical in 3
 further consecutive runs, with no tolerance loosened and no near-tie flipped (the only first-run failure, Qwen3-VL's, was a near tie, fixed by a new prompt below); the bench twin was then recorded
 at 5 repeats (`bin/pw run <twin> --target gpu --bench --repeat 5`; llama.cpp: pp512 and tg128 with 3 llama-bench repetitions inside each repeat; the diffusion twin with `PW_DIFFUSION_RUNS=1`,
 one timed generation per repeat after one warm-up generation) from a clean checkout of the commit that carries the reference (`repo_dirty: false`; the records name that commit). The manifest notes
-of the 17 verified manifests (functional and twin) now start with `VERIFIED ON NVIDIA RTX PRO 6000 Blackwell Server Edition 96 GB (model catalog, stage 2b batch 1; sm_120)`.
+of the 18 verified manifests (functional and twin) now start with `VERIFIED ON NVIDIA RTX PRO 6000 Blackwell Server Edition 96 GB (model catalog, stage 2b batch 1; sm_120)`.
 
 | Workload | Result | Reference | Further passing runs | Bench (medians of 5) | First record (download + checks + run), s |
 | --- | --- | --- | ---: | --- | ---: |
@@ -319,6 +319,7 @@ of the 17 verified manifests (functional and twin) now start with `VERIFIED ON N
 | `llamacpp-qwen35-122b-a10b` | PASS | ' Paris.\n\n\n' | 3 | pp512 1604.52, tg128 113.28 | 499 |
 | `qwen3-vl-32b-pytorch` | PASS | 'NASA' | 3 | decode b1 19.29, peak gpu memory gb 66.98, prefill images per s b1 9.581 | 129 |
 | `vllm-gpt-oss-120b-vllm` | PASS | ' Paris.\n\nGreat! If you have' | 3 | output 2155.27, requests per s 16.838, total 4310.5 | 288 |
+| `mochi-1-preview-diffusers` | PASS | statistics (mean, std, block means, gradients) | 3 | peak gpu memory gb 55.93, seconds per generation 51.692, steps per s 0.58 | 136 |
 
 The last column is the whole first `bin/pw record`: download (all streams on one file at a time, hashed as it arrives), the sha256 pass, model load and one generation. Bench numbers are
 medians of 5 repeats on one card at default clocks; a ranking of cards by them is a fact about this card, this pool and these run parameters, not about the card. The min to max spread of every
@@ -352,13 +353,14 @@ from the NVMe twice; not measured). A 120B-class llama.cpp workload therefore to
   the interpreter's directory on PATH (that line itself was not re-run; the verified runs set the same PATH from outside). The bench is `vllm bench throughput`: 2155.27 output tokens/s, 16.84 requests/s.
 - `cogvideox15-5b-diffusers`: peak GPU memory is **69.04 GB**, more than the 48 GiB class its `requires` declares (registry formula: largest component + 16 GiB = 44.9 GiB; 33 frames at 768x1360 need more). On a
   48 GB card this workload would run out of memory. `requires` is pinned to the registry arithmetic by `tests/test_model_catalog.py`, so it is not changed here; the follow-up is to declare 80.
+- `mochi-1-preview-diffusers`: no problem; peak 55.93 GB and 51.7 s per generation (0.58 steps/s), inside the 80 GiB class it declares.
 - `llamacpp-mistral-small-4-119b-2603` passes and is stable, but runs at tg128 2.01 and pp512 173.9 tokens/s with the whole 72.6 GB model in VRAM and the GPU 94 % busy: ten times slower than a dense 123B model
   (`llamacpp-devstral-2-123b-2512` tg128 18.75). A slow CUDA path for the `mistral4` architecture in llama.cpp b11447 on sm_120; not investigated.
 - `llamacpp-gpt-oss-120b`: the functional runs took 86, 68 and 58 s (the first one cold), and the bench's pp512 varied between 2877 and 8001 tokens/s over the 5 repeats (median 6478); tg128 219.7 to 229.5.
 - References worth a glance: `llamacpp-llama31-70b-instruct` (` a city of`), `llamacpp-llama33-70b-instruct` (` a city that`), `llamacpp-command-a-03-2025` and `llamacpp-mistral-large-instruct-2411`
   (` a city of`) continue "The capital of France is" without naming Paris; each is stable over 4 runs, so they are valid references, but greedy near ties on another card could still flip them.
 
-**Not reached**: `llamacpp-mistral-medium-3p5-128b` (and its twin) was dropped to leave time for vLLM and Qwen3-VL (about 25 minutes each for a 78 GiB model), mochi, wan21, hunyuanvideo, wan22 (video models of 37 to 59 GiB; each needs 40 to 90 minutes with its bench).
+**Not reached**: `llamacpp-mistral-medium-3p5-128b` (and its twin) was dropped to leave time for vLLM and Qwen3-VL (about 25 minutes each for a 78 GiB model), and `wan21-t2v-14b-diffusers`, `hunyuanvideo-diffusers` and `wan22-t2v-a14b-diffusers` were not started: the rig's hard deadline and its 35 USD cap left no room for a 14B video model (37 to 59 GiB of weights, 5 repeats of 2 generations each; `cogvideox15-5b` took 31 minutes and `mochi-1-preview` 19 minutes with the bench, the 14B models are slower per generation).
 
 **Rig traps (so the next run is faster).**
 
@@ -373,7 +375,7 @@ from the NVMe twice; not measured). A 120B-class llama.cpp workload therefore to
 
 <!-- registry:start -->
 
-**147 entries: 129 with workloads written, 18 blocked.** Of the 129 written: 86 verified on a real GPU (reference and bench recorded), 0 blocked at their first run, 43 never run. Hub data read 2026-10-09; runtimes: llama.cpp b11447, vLLM v0.30.0, transformers 5.19.0, diffusers 0.41.0.
+**147 entries: 129 with workloads written, 18 blocked.** Of the 129 written: 87 verified on a real GPU (reference and bench recorded), 0 blocked at their first run, 42 never run. Hub data read 2026-10-09; runtimes: llama.cpp b11447, vLLM v0.30.0, transformers 5.19.0, diffusers 0.41.0.
 
 | Family | Entries | Workloads written | Blocked |
 | --- | ---: | ---: | ---: |
@@ -626,7 +628,7 @@ Largest hardware needs among the written workloads (weights plus margin, per the
 | CogVideoX-2b | `zai-org/CogVideoX-2b` `1137dacfc2c9c012bed6a0793f4ecf2ca8e7ba01` | 1.69B | Apache-2.0 | no | diffusers | as stored | 12.8 | 1 x 40 GiB (max(8.9 largest component, 12.8/1) + 16 = 28.8) | verified on a real GPU: NVIDIA L40S 48 GB (model catalog, stage 2a, Tier B; sm_89): reference recorded and identical in 3 further runs | `cogvideox-2b-diffusers`, `cogvideox-2b-bench` |
 | CogVideoX-5b | `zai-org/CogVideoX-5b` `8fc5b281006c82b82d34fd2543d2f0ebb4e7e321` | 5.57B | custom licence (LICENSE file begins 'The CogVideoX License 1. Definitions “Licensor” means the Co') (restricted) | no | diffusers | as stored | 20.0 | 1 x 40 GiB (max(10.4 largest component, 20.0/1) + 16 = 36.0) | verified on a real GPU: NVIDIA L40S 48 GB (model catalog, stage 2a, Tier B; sm_89): reference recorded and identical in 3 further runs | `cogvideox-5b-diffusers`, `cogvideox-5b-bench` |
 | CogVideoX1.5-5B | `zai-org/CogVideoX1.5-5B` `fdc5267c90b5c06492985b966e43aae984e189e0` | 5.57B | custom licence (LICENSE file begins 'The CogVideoX License 1. Definitions “Licensor” means the Co') (restricted) | no | diffusers | as stored | 28.9 | 1 x 48 GiB (max(17.7 largest component, 28.9/1) + 16 = 44.9) | verified on a real GPU: NVIDIA RTX PRO 6000 Blackwell Server Edition 96 GB (model catalog, stage 2b batch 1; sm_120): reference recorded and identical in 3 further runs | `cogvideox15-5b-diffusers`, `cogvideox15-5b-bench` |
-| Mochi 1 preview | `genmo/mochi-1-preview` `cd1d0fe89aa8382fcd9ae760bc3d7afe6183579f` | 10B | Apache-2.0 | no | diffusers | bf16 variant | 37.3 | 1 x 80 GiB (max(18.7 largest component, 37.3/1) + 16 = 53.3) | manifest written | `mochi-1-preview-diffusers`, `mochi-1-preview-bench` |
+| Mochi 1 preview | `genmo/mochi-1-preview` `cd1d0fe89aa8382fcd9ae760bc3d7afe6183579f` | 10B | Apache-2.0 | no | diffusers | bf16 variant | 37.3 | 1 x 80 GiB (max(18.7 largest component, 37.3/1) + 16 = 53.3) | verified on a real GPU: NVIDIA RTX PRO 6000 Blackwell Server Edition 96 GB (model catalog, stage 2b batch 1; sm_120): reference recorded and identical in 3 further runs | `mochi-1-preview-diffusers`, `mochi-1-preview-bench` |
 | LTX-Video 0.9.x | `Lightricks/LTX-Video` `8984fa25007f376c1a299016d0957a37a2f797bb` | 1.92B | custom licence (LICENSE file begins 'LTX Video ("LTXV") By Lightricks Ltd. ("Lightricks") LTXV Op') (restricted) | no | diffusers | stored fp32, loaded bf16 | 13.2 | 1 x 40 GiB (max(8.9 largest component, 13.2/1) + 16 = 29.2) | verified on a real GPU: NVIDIA L40S 48 GB (model catalog, stage 2a, Tier B; sm_89): reference recorded and identical in 3 further runs | `ltx-video-diffusers`, `ltx-video-bench` |
 | MiniMax-H3 | `MiniMaxAI/MiniMax-H3` `42ed227ee7df40d41602854ae760620d6eb651fe` | 33.1B | minimax-h3-community-license-agreement (restricted) | no | diffusers | as stored | 464.1 | 2 x 256 GiB (max(134.1 largest component, 464.1/2) + 16 = 248.1) | blocked: own inference code (library minimax-h3 on its card; per-task FL2VA / Ref2VA directories, no model_index.json), not a diffusers pipeline | - |
 | LTX-2.3 | `Lightricks/LTX-2.3` `3c6a4e66e5d0a684231950b9c74dd4ded7b6fadc` | ? | ltx-2-community-license-agreement (restricted) | no | diffusers | as stored | - | 1 x 10 GiB (max(0.0 largest component, 0.0/1) + 6 = 6.0) | blocked: the repository has no diffusers layout (no model_index.json; single-file checkpoints for ComfyUI), so diffusers' from_pretrained cannot load it | - |

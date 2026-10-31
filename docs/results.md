@@ -987,6 +987,16 @@ Real GPUs only: simulated targets never carry performance numbers. How the numbe
 | batch_latency_ms | 4.003 | 3.98 | 4.03 |
 | sentences_per_s | 8,994 | 8,933 | 9,044 |
 
+## mochi-1-preview-bench on NVIDIA RTX PRO 6000 Blackwell Server Edition
+
+2026-10-31, 5 runs, diffusers 0.41.0, torch 2.14.1+cu130, transformers 5.19.0, driver 595.112.07, commit `fb4411d7`
+
+| Metric | Median | Min | Max |
+| --- | ---: | ---: | ---: |
+| peak_gpu_memory_gb | 55.93 | 55.93 | 55.93 |
+| seconds_per_generation | 51.69 | 51.68 | 51.71 |
+| steps_per_s | 0.58 | 0.58 | 0.58 |
+
 ## moonshine-tiny-en-onnx-bench on NVIDIA A10G
 
 2026-10-09, 5 runs, onnxruntime-gpu 1.30.0, driver 595.91.07, commit `0ae5a6be`; 1 older record in `bench/moonshine-tiny-en-onnx-bench/`
