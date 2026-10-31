@@ -325,6 +325,28 @@ The last column is the whole first `bin/pw record`: download (all streams on one
 medians of 5 repeats on one card at default clocks; a ranking of cards by them is a fact about this card, this pool and these run parameters, not about the card. The min to max spread of every
 metric is in the records and in `docs/benchmarks.md`.
 
+**Why `llamacpp-mistral-small-4-119b-2603` decodes at tg128 2.01 (research 2026-10-30, not yet tested on a GPU).** Ranked hypotheses from upstream llama.cpp sources; none is confirmed on this card.
+
+1. Most likely: Mistral 4 expert down-projections (`ffn_moe_down`, MUL_MAT_ID) run on the CPU. `src/llama-graph.cpp` asks for FP32 precision on them (activations can exceed the FP16 range) and the CUDA `supports_op` rejects MUL_MAT_ID with FP32 precision, so the scheduler places those ops on the CPU although the log says 37/37 layers offloaded ([issue #30224](https://github.com/ggml-org/llama.cpp/issues/30224), open; the reporter's source reading, not isolated by experiment). Fix proposed in [PR #30260](https://github.com/ggml-org/llama.cpp/pull/30260) "cuda : support required FP32 activations in MUL_MAT_ID", open and unmerged on 2026-10-30. This matches our signs: model fully in VRAM, GPU busy, 8 vCPU host, decode 10x below peers; but #30224 reports builds around b11507, we ran b11447, so the b11447 behaviour is unverified.
+2. The flash-attention kernel for Mistral 4's head sizes (K 320, V 256) was missing, which sent FA to the CPU ([issue #20710](https://github.com/ggml-org/llama.cpp/issues/20710): decode 2-3x and prefill 8-10x slower with `-fa on`; the issue was closed as stale). [PR #22286](https://github.com/ggml-org/llama.cpp/pull/22286) added the CUDA kernel and was merged 2026-04-28 (RTX PRO 6000 Blackwell, Q4_K_M, d4096: pp512 179.64 to 3655.55, tg32 33.05 to 186.31). b11447 should contain it, so this is probably not the cause now; testing `-fa 0` vs `-fa 1` settles it.
+3. Less likely: the quant. The manifest uses bartowski Q4_K_M; Q4_K MMQ kernels are mature and the peers use the same family. Another unmerged follow-up mentioned in PR #30260 concerns FP32 paths for Q8_0 and Q5_0 weights, so Q8_0/Q5_0 files could behave differently. No source says Q4_K_M is itself slow.
+4. Not relevant: [issue #29281](https://github.com/ggml-org/llama.cpp/issues/29281) (sparse FA decode regression b11047 to b11062) does not mention Mistral.
+
+Tests to run on the card (rig with the cache and build in place, `PW_LLAMACPP_BIN_DIR` or the built `$LC_BIN`; `M` is the first shard `mistralai_Mistral-Small-4-119B-2603-Q4_K_M-00001-of-00002.gguf`):
+
+```
+# A. Where do the ops run? Look for "ffn_moe_down" lines on CPU (GGML_SCHED_DEBUG=2 prints the split plan to stderr)
+GGML_SCHED_DEBUG=2 GGML_CUDA_DISABLE_GRAPHS=1 llama-completion -m "$M" -p "The capital of France is" -n 3 --temp 0 -s 1 -no-cnv -ngl 99 -c 256 2>&1 | grep -E "ffn_moe_down|\[ ?CPU ?\]|SPLIT" | head -40
+# B. Flash attention on/off, ubatch (llama-bench takes comma lists)
+llama-bench -m "$M" -ngl 99 -fa 0,1 -ub 512,2048 -p 512 -n 128 -r 2
+# C. CPU load during decode (CPU-bound fallback shows one or more cores at 100% while GPU shows 94%): run B and watch "top -H" and "nvidia-smi dmon -s u"
+# D. Newer build: rebuild llama.cpp at current master (tools/llamacpp/common.sh pins the tag; use PW_CUDA_ARCHS=120) and rerun B.
+# E. PR #30260 candidate: git fetch origin pull/30260/head:pr30260 && git checkout pr30260, cmake -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=120, rerun B. If tg128 jumps from 2 to tens, hypothesis 1 is confirmed.
+# F. Different quant (only after A shows the CPU fallback is not quant specific): Q6_K or UD-Q4_K_M from unsloth/Mistral-Small-4-119B-2603-GGUF (same fallback expected).
+```
+
+If A shows `ffn_moe_down` on CPU, the slow decode is the upstream issue above, not a property of the card or the GGUF; the workload's reference output is unaffected (greedy 3 tokens passes and is stable). Until upstream merges #30260, leave the workload as is and re-record the bench twin on a build that carries it.
+
 **Download rates (measured, g7e.2xlarge, Hub files via `us.aws.cdn.hf.co`, `PW_FAST_FETCH=1`).** One 39.6 GiB GGUF (`DeepSeek-R1-Distill-Llama-70B-Q4_K_M.gguf`) to the instance-store NVMe,
 sha256 of the whole file included (it is computed while the file arrives):
 

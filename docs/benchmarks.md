@@ -333,7 +333,7 @@ generation per repeat after one warm-up). The records hold all five values. Deta
 NVIDIA RTX PRO 6000 Blackwell Server Edition (97887 MiB, sm_120), driver 595.112.07, llama.cpp b11447 CUDA arch 120 `-ngl 99` (pp512/tg128, 3 llama-bench repetitions per repeat), torch 2.14.1+cu130,
 transformers 5.19.0, diffusers 0.41.0, vLLM 0.30.0 (torch 2.13.0+cu130, `vllm bench throughput`); 5 repeats each, from a clean checkout of the commit that holds the reference (`repo_dirty: false`). The
 diffusion twin uses `PW_DIFFUSION_RUNS=1`. The records hold all five values; the table gives the median and, in brackets, the minimum to maximum. Details, the first-run findings and the download
-rates: `docs/model-registry.md`, "Stage 2b, batch 1". `llamacpp-bench-mistral-small-4-119b-2603` is slow (tg128 2.01) for a reason not yet found.
+rates: `docs/model-registry.md`, "Stage 2b, batch 1". `llamacpp-bench-mistral-small-4-119b-2603` is slow (tg128 2.01) probably because upstream llama.cpp runs its expert down-projections on the CPU (issue 30224, unconfirmed here; `docs/model-registry.md`, Stage 2b batch 1).
 
 | Workload | Medians (min to max over the 5 repeats) |
 | --- | --- |
