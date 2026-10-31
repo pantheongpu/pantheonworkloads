@@ -347,6 +347,12 @@ llama-bench -m "$M" -ngl 99 -fa 0,1 -ub 512,2048 -p 512 -n 128 -r 2
 
 If A shows `ffn_moe_down` on CPU, the slow decode is the upstream issue above, not a property of the card or the GGUF; the workload's reference output is unaffected (greedy 3 tokens passes and is stable). Until upstream merges #30260, leave the workload as is and re-record the bench twin on a build that carries it.
 
+**Measured on the card (fix43-c, 2026-10-31, RTX PRO 6000 Blackwell Server Edition, g7e.2xlarge, 8 vCPU, `mistralai_Mistral-Small-4-119B-2603-Q4_K_M`, 67.64 GiB, `-ngl 99`).** Hypothesis 1 is confirmed, hypothesis 2 is ruled out.
+- Test A (b11447, `GGML_SCHED_DEBUG=2`, `-v`): every `MUL_MAT_ID` node `ffn_moe_down-N` is placed on `[CPU]`, with its 840 MiB `blk.N.ffn_down_exps` weight copied to the CPU side, although the model sits in VRAM and the load log says all layers are offloaded; the plan has 1,258 `SPLIT` lines (CPU/CUDA0 alternating around each layer's down-projection). Decode runs at 1.99 tokens/s in `llama-completion`.
+- Test B (b11447, `llama-bench -ngl 99 -fa 0,1 -ub 512,2048 -p 512 -n 128 -r 2`): tg128 is 2.01 in all four cells and pp512 172.4 to 179.4. Flash attention and ubatch do not matter, so hypothesis 2 does not explain it.
+- Test E (PR #30260 head `1e29ebb6f` "cuda : preserve F32 expert activations", built with `-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=120`, build number 11526; that head also carries about 430 files of master after b11447, so it is the PR plus newer master, not the PR alone): all `ffn_moe_down` nodes are on `CUDA0` (0 on CPU), 34 `SPLIT` lines, and `llama-bench -fa 0,1 -p 512 -n 128 -r 2` gives **tg128 93.97 (fa 0) and 97.63 (fa 1), pp512 1507 (fa 0) and 1974 (fa 1)**, against 2.01 and about 175 on b11447: a 47x faster decode. Not tested: C, D (that master without the PR), F.
+- Side effect to know before re-recording: on that newer build the greedy 3 tokens of "The capital of France is" are ` Paris. The`, while the recorded reference (b11447) is ` Paris. [end of text]`. The functional reference stays valid for b11447; a bench twin re-record on a #30260 build is a speed-only change, but moving the pin (`tools/llamacpp/pin.env`) would need the reference re-recorded and the other llamacpp workloads re-verified.
+
 **Download rates (measured, g7e.2xlarge, Hub files via `us.aws.cdn.hf.co`, `PW_FAST_FETCH=1`).** One 39.6 GiB GGUF (`DeepSeek-R1-Distill-Llama-70B-Q4_K_M.gguf`) to the instance-store NVMe,
 sha256 of the whole file included (it is computed while the file arrives):
 
