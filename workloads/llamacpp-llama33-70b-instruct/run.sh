@@ -14,8 +14,9 @@ lc_require_gpus 1 48
 lc_setup
 lc_fetch_shards "https://huggingface.co/bartowski/Llama-3.3-70B-Instruct-GGUF/resolve/b6c5c9f176f3279204034e1d16d393105e95cb88" "$here/model.sha256" 40
 
+# The prompt is a two-line few-shot pattern chosen for a top-1/top-2 logit gap of at least 2 at every step (docs/model-registry.md, "Prompt margins"); "The capital of France is" had near ties.
 # Greedy (temp 0), fixed seed, no chat template (-no-cnv), prompt not echoed: stdout is the 3 new tokens.
-env "${LC_ENV[@]}" "$LC_BIN/llama-completion" -m "$LC_MODEL" -p "The capital of France is" -n 3 \
+env "${LC_ENV[@]}" "$LC_BIN/llama-completion" -m "$LC_MODEL" -p $'Country: Italy\nCapital: Rome\n\nCountry: France\nCapital:' -n 3 \
   --temp 0 -s 1 -no-cnv --no-display-prompt -ngl "$LC_NGL" -t "${PW_THREADS:-2}" -c 256 \
   >"$PW_OUT/completion.out" 2>"$PW_OUT/completion.err" \
   || { echo "llama-completion failed" >&2; tail -20 "$PW_OUT/completion.err" >&2; exit 1; }

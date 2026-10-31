@@ -303,8 +303,8 @@ of the 18 verified manifests (functional and twin) now start with `VERIFIED ON N
 | Workload | Result | Reference | Further passing runs | Bench (medians of 5) | First record (download + checks + run), s |
 | --- | --- | --- | ---: | --- | ---: |
 | `llamacpp-deepseek-r1-distill-llama-70b` | PASS | ' Paris. The\n\n' | 3 | pp512 1714.43, tg128 32.44 | 69 |
-| `llamacpp-llama31-70b-instruct` | PASS | ' a city of\n\n' | 3 | pp512 1715.64, tg128 32.44 | 46 |
-| `llamacpp-llama33-70b-instruct` | PASS | ' a city that\n\n' | 3 | pp512 1713.26, tg128 32.44 | 45 |
+| `llamacpp-llama31-70b-instruct` | PASS | ' Paris\n\nCountry\n\n' | 3 | pp512 1715.64, tg128 32.44 | 46 |
+| `llamacpp-llama33-70b-instruct` | PASS | ' Paris\n\nCountry\n\n' | 3 | pp512 1713.26, tg128 32.44 | 45 |
 | `llamacpp-qwen3-next-80b-a3b-instruct` | PASS | ' Paris. The\n\n' | 3 | pp512 5108.91, tg128 216.69 | 53 |
 | `llamacpp-qwen3-coder-next` | PASS | ' Paris. The\n\n' | 3 | pp512 4912.98, tg128 216.82 | 216 |
 | `llamacpp-qwen25-72b-instruct` | PASS | ' Paris. The\n\n' | 3 | pp512 1670.2, tg128 31.19 | 78 |
@@ -312,8 +312,8 @@ of the 18 verified manifests (functional and twin) now start with `VERIFIED ON N
 | `cogvideox15-5b-diffusers` | PASS | statistics (mean, std, block means, gradients) | 3 | peak gpu memory gb 69.04, seconds per generation 97.248, steps per s 0.308 | 308 |
 | `llamacpp-command-r-plus-08-2024` | PASS | ' Paris. It\n\n' | 3 | pp512 1204.02, tg128 22.48 | 101 |
 | `llamacpp-llama4-scout-17b-16e-instruct` | PASS | ' Paris. Paris\n\n' | 3 | pp512 1569.44, tg128 96.27 | 127 |
-| `llamacpp-command-a-03-2025` | PASS | ' a city of\n\n' | 3 | pp512 1034.88, tg128 21.13 | 149 |
-| `llamacpp-mistral-large-instruct-2411` | PASS | ' a city of\n\n' | 3 | pp512 894.6, tg128 19.05 | 157 |
+| `llamacpp-command-a-03-2025` | PASS | ' Paris\n\n\n\n' | 3 | pp512 1034.88, tg128 21.13 | 149 |
+| `llamacpp-mistral-large-instruct-2411` | PASS | ' Paris\n\n\n\n' | 3 | pp512 894.6, tg128 19.05 | 157 |
 | `llamacpp-mistral-small-4-119b-2603` | PASS | ' Paris. [end of text]\n\n\n' | 3 | pp512 173.91, tg128 2.01 | 188 |
 | `llamacpp-devstral-2-123b-2512` | PASS | ' Paris. It\n\n' | 3 | pp512 765.48, tg128 18.75 | 572 |
 | `llamacpp-qwen35-122b-a10b` | PASS | ' Paris.\n\n\n' | 3 | pp512 1604.52, tg128 113.28 | 499 |
@@ -347,6 +347,12 @@ llama-bench -m "$M" -ngl 99 -fa 0,1 -ub 512,2048 -p 512 -n 128 -r 2
 
 If A shows `ffn_moe_down` on CPU, the slow decode is the upstream issue above, not a property of the card or the GGUF; the workload's reference output is unaffected (greedy 3 tokens passes and is stable). Until upstream merges #30260, leave the workload as is and re-record the bench twin on a build that carries it.
 
+**Measured on the card (fix43-c, 2026-10-31, RTX PRO 6000 Blackwell Server Edition, g7e.2xlarge, 8 vCPU, `mistralai_Mistral-Small-4-119B-2603-Q4_K_M`, 67.64 GiB, `-ngl 99`).** Hypothesis 1 is confirmed, hypothesis 2 is ruled out.
+- Test A (b11447, `GGML_SCHED_DEBUG=2`, `-v`): every `MUL_MAT_ID` node `ffn_moe_down-N` is placed on `[CPU]`, with its 840 MiB `blk.N.ffn_down_exps` weight copied to the CPU side, although the model sits in VRAM and the load log says all layers are offloaded; the plan has 1,258 `SPLIT` lines (CPU/CUDA0 alternating around each layer's down-projection). Decode runs at 1.99 tokens/s in `llama-completion`.
+- Test B (b11447, `llama-bench -ngl 99 -fa 0,1 -ub 512,2048 -p 512 -n 128 -r 2`): tg128 is 2.01 in all four cells and pp512 172.4 to 179.4. Flash attention and ubatch do not matter, so hypothesis 2 does not explain it.
+- Test E (PR #30260 head `1e29ebb6f` "cuda : preserve F32 expert activations", built with `-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=120`, build number 11526; that head also carries about 430 files of master after b11447, so it is the PR plus newer master, not the PR alone): all `ffn_moe_down` nodes are on `CUDA0` (0 on CPU), 34 `SPLIT` lines, and `llama-bench -fa 0,1 -p 512 -n 128 -r 2` gives **tg128 93.97 (fa 0) and 97.63 (fa 1), pp512 1507 (fa 0) and 1974 (fa 1)**, against 2.01 and about 175 on b11447: a 47x faster decode. Not tested: C, D (that master without the PR), F.
+- Side effect to know before re-recording: on that newer build the greedy 3 tokens of "The capital of France is" are ` Paris. The`, while the recorded reference (b11447) is ` Paris. [end of text]`. The functional reference stays valid for b11447; a bench twin re-record on a #30260 build is a speed-only change, but moving the pin (`tools/llamacpp/pin.env`) would need the reference re-recorded and the other llamacpp workloads re-verified.
+
 **Download rates (measured, g7e.2xlarge, Hub files via `us.aws.cdn.hf.co`, `PW_FAST_FETCH=1`).** One 39.6 GiB GGUF (`DeepSeek-R1-Distill-Llama-70B-Q4_K_M.gguf`) to the instance-store NVMe,
 sha256 of the whole file included (it is computed while the file arrives):
 
@@ -379,8 +385,7 @@ from the NVMe twice; not measured). A 120B-class llama.cpp workload therefore to
 - `llamacpp-mistral-small-4-119b-2603` passes and is stable, but runs at tg128 2.01 and pp512 173.9 tokens/s with the whole 72.6 GB model in VRAM and the GPU 94 % busy: ten times slower than a dense 123B model
   (`llamacpp-devstral-2-123b-2512` tg128 18.75). A slow CUDA path for the `mistral4` architecture in llama.cpp b11447 on sm_120; not investigated.
 - `llamacpp-gpt-oss-120b`: the functional runs took 86, 68 and 58 s (the first one cold), and the bench's pp512 varied between 2877 and 8001 tokens/s over the 5 repeats (median 6478); tg128 219.7 to 229.5.
-- References worth a glance: `llamacpp-llama31-70b-instruct` (` a city of`), `llamacpp-llama33-70b-instruct` (` a city that`), `llamacpp-command-a-03-2025` and `llamacpp-mistral-large-instruct-2411`
-  (` a city of`) continue "The capital of France is" without naming Paris; each is stable over 4 runs, so they are valid references, but greedy near ties on another card could still flip them.
+- References fixed (fix43-c, 2026-10-31): `llamacpp-llama31-70b-instruct` (` a city of`), `llamacpp-llama33-70b-instruct` (` a city that`), `llamacpp-command-a-03-2025` and `llamacpp-mistral-large-instruct-2411` (` a city of`) continued "The capital of France is" without naming Paris, with top-1/top-2 logit gaps as small as 0.02 to 0.46 (llama 3.1 `[0.27, 0.78, 0.02]`, llama 3.3 `[0.3, 0.4, 0.09]`, command-a `[0.46, 0.77, 1.41]`, mistral-large `[0.14, 1.95, 0.09]`). **Prompt margins**: `tools/llamacpp/probe/margin_probe.py` (with `pw-margin.cpp`, one model load, the llama.cpp C API, greedy 3 steps) probed 18 prompts per model on the RTX PRO 6000 Blackwell; floor 2 on the smallest gap of the 3 steps. Only the few-shot pattern "Country: Italy\nCapital: Rome\n\nCountry: France\nCapital:" cleared the floor on all four (smallest gaps 3.96, 3.84, 3.84, 5.49); it is pinned in the four run.sh files, the references were re-recorded (` Paris\n\nCountry\n\n` for the two Llamas, ` Paris\n\n\n\n` for command-a and mistral-large) and each passed 3 further runs. The bench twins use llama-bench, not the prompt, so they were not re-run.
 
 **Not reached**: `llamacpp-mistral-medium-3p5-128b` (and its twin) was dropped to leave time for vLLM and Qwen3-VL (about 25 minutes each for a 78 GiB model), and `wan21-t2v-14b-diffusers`, `hunyuanvideo-diffusers` and `wan22-t2v-a14b-diffusers` were not started: the rig's hard deadline and its 35 USD cap left no room for a 14B video model (37 to 59 GiB of weights, 5 repeats of 2 generations each; `cogvideox15-5b` took 31 minutes and `mochi-1-preview` 19 minutes with the bench, the 14B models are slower per generation).
 
